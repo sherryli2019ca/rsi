@@ -561,13 +561,20 @@ def rerun_stats(data):
     return r0, ok / max(len(data) - ok, 1)
 
 
-def reg_excess(bank, I, J, K, r0, w):
-    """Measured regression cost of each patch in failure-mass units."""
+def reg_excess(bank, I, J, K, r0, w, alpha=0.05):
+    """Measured regression cost of each patch in failure-mass units. As for edges,
+    a patch counts as regressing only when its failure rate on previously
+    successful tasks exceeds the natural re-run rate r0 significantly (one-sided
+    binomial test); clipping noisy estimates at zero would otherwise charge every
+    patch for sampling noise."""
+    from scipy.stats import binom
     R = np.zeros((I, J, K))
     for key, runs in bank["reg"].items():
         i, j, k = map(int, key.split(","))
-        fail = 1 - np.mean([r["y"] for r in runs])
-        R[i, j, k] = w * max(0.0, (fail - r0) / (1 - r0))
+        n = len(runs)
+        nf = n - sum(r["y"] for r in runs)
+        if binom.sf(nf - 1, n, r0) < alpha:
+            R[i, j, k] = w * max(0.0, (nf / n - r0) / (1 - r0))
     return R
 
 
