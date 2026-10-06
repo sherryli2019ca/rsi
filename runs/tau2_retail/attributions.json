@@ -1,0 +1,824 @@
+{
+ "0|F_refund_giftcard|0": {
+  "root_cause": "The agent transferred the user to a human agent over unverifiable product specs/refund method details that were outside the store's policy scope, instead of completing the exchange which only required the user's confirmation and a valid payment method.",
+  "step": 5,
+  "component": "POL.exchange",
+  "true_fault": "F_refund_giftcard"
+ },
+ "1|F_refund_giftcard|0": {
+  "root_cause": "The agent incorrectly applied the return policy's \"refund always goes to gift card\" rule to an exchange, and supplied a fabricated gift card id instead of using the user's actual payment method (credit card) as required by the exchange policy.",
+  "step": 7,
+  "component": "POL.exchange",
+  "true_fault": "F_refund_giftcard"
+ },
+ "3|None|1": {
+  "root_cause": "The agent reported the number of \"choices\" (available T-shirt variants) incorrectly as 10 variants/11 available, but the task expected the answer \"10\" \u2014 meaning the agent miscounted the T-shirt options and, more importantly, the expected action used get_product_details for product 6086499569 which the agent never identified.",
+  "step": 4,
+  "component": "TOOL.get_product_details",
+  "true_fault": null
+ },
+ "3|F_steps|0": {
+  "root_cause": "The agent reported the count of total t-shirt variants (12) instead of the number of available (available=true) t-shirt options (10).",
+  "step": 4,
+  "component": "POL.generic",
+  "true_fault": "F_steps"
+ },
+ "4|F_cancel_reason|0": {
+  "root_cause": "The agent failed to actually call modify_pending_order_items after the user confirmed, ending the conversation at the confirmation step without performing the two required modifications.",
+  "step": 4,
+  "component": "TOOL.modify_pending_order_items",
+  "true_fault": "F_cancel_reason"
+ },
+ "4|F_steps|0": {
+  "root_cause": "The agent reported the number of available t-shirt options as 11 instead of 10, likely by miscounting the available variants in the get_product_details result for T-Shirt.",
+  "step": 4,
+  "component": "POL.generic",
+  "true_fault": "F_steps"
+ },
+ "6|None|1": {
+  "root_cause": "The agent failed to infer that the username \"mei_kovacs_8020\" encodes the first and last name (\"Mei Kovacs\"), which is all that is needed to authenticate via find_user_id_by_name_zip with first_name \"Mei\", last_name \"Kovacs\", and zip 28236.",
+  "step": 1,
+  "component": "POL.intro",
+  "true_fault": null
+ },
+ "6|F_steps|0": {
+  "root_cause": "The agent was limited by the max_steps budget (8) of the orchestrator, and spent too many steps on redundant work (calling get_order_details on all three orders, retrieving product details for the water bottle after the user already dropped it) so it ran out of steps before it could call exchange_delivered_order_items to actually perform the exchange.",
+  "step": 4,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "7|F_steps|0": {
+  "root_cause": "The agent failed to actually call the exchange tool after the user explicitly confirmed proceeding with only the desk lamp exchange, because it exhausted the step budget on clarifying questions and confirmation instead of executing the confirmed action.",
+  "step": 7,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "8|F_cancel_reason|0": {
+  "root_cause": "The agent stopped and never made the exchange_delivered_order_items tool call, ending the episode after user confirmation instead of executing the confirmed exchange.",
+  "step": 9,
+  "component": "TOOL.exchange_delivered_order_items",
+  "true_fault": "F_cancel_reason"
+ },
+ "8|F_steps|0": {
+  "root_cause": "The agent exhausted its step budget (max_steps=8) by making redundant/parallel tool calls and re-listing already-retrieved variant data instead of directly executing the exchange, so it never called exchange_delivered_order_items before the episode terminated.",
+  "step": 3,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "11|F_refund_giftcard|0": {
+  "root_cause": "The agent misinterpreted the return policy as requiring refunds to go to a gift card, but the tool actually accepts the original payment method ID as the refund destination, so it supplied a non-existent \"gift_card_0000000\" instead of the orders' actual payment_method_id values.",
+  "step": 6,
+  "component": "POL.return",
+  "true_fault": "F_refund_giftcard"
+ },
+ "13|F_refund_giftcard|0": {
+  "root_cause": "The agent incorrectly told the user that returns must be refunded to the gift card balance, contradicting the actual policy which states the user provides a payment method for the refund and the policy text supports refunding to the user's chosen payment method.",
+  "step": 5,
+  "component": "POL.return",
+  "true_fault": "F_refund_giftcard"
+ },
+ "14|F_refund_giftcard|0": {
+  "root_cause": "The agent told the user that returns cannot be refunded to the original payment method, when in fact the return tool accepts the user's original payment method and refunds appropriately; the user refused to proceed because of this false information.",
+  "step": 4,
+  "component": "POL.return",
+  "true_fault": "F_refund_giftcard"
+ },
+ "14|F_cancel_reason|0": {
+  "root_cause": "The agent obtained explicit user confirmation but never actually called return_delivered_order_items, stopping after the user's confirmation without executing the returns.",
+  "step": 5,
+  "component": "TOOL.return_delivered_order_items",
+  "true_fault": "F_cancel_reason"
+ },
+ "15|F_steps|0": {
+  "root_cause": "The agent failed to identify a size-8 variant of the Hiking Boots because it stopped reading the product details result before reaching the truncated remainder of the variants list, which contained an available size-8 synthetic item (item id 3613716226), and instead incorrectly concluded no size 8 was in stock.",
+  "step": 7,
+  "component": "TOOL.get_product_details",
+  "true_fault": "F_steps"
+ },
+ "16|F_refund_giftcard|0": {
+  "root_cause": "The agent used the user's gift card as the refund payment method for the return instead of PayPal, even though the return policy states the refund always goes to the user's gift card balance.",
+  "step": 8,
+  "component": "POL.return",
+  "true_fault": "F_refund_giftcard"
+ },
+ "16|F_cancel_reason|0": {
+  "root_cause": "The agent used the fixed cancellation reason \"ordered by mistake\" instead of the user's actual reason, causing the expected database state (cancel_reason \"no longer needed\") to not match.",
+  "step": 6,
+  "component": "POL.cancel",
+  "true_fault": "F_cancel_reason"
+ },
+ "19|None|0": {
+  "root_cause": "The agent processed the return first, changing the order status from \"delivered\" to \"return requested,\" which then blocked the exchange on the same order, whereas the expected outcome required only the return (with both actions being mutually exclusive on a single delivered order).",
+  "step": 7,
+  "component": "POL.exchange",
+  "true_fault": null
+ },
+ "19|F_refund_giftcard|0": {
+  "root_cause": "The policy says return refunds \"always go to the user's gift card balance; do not ask which payment method to use,\" but the agent misunderstood which refund payment method to pass to the tool \u2014 the expected behavior is to pass the user's original payment method (credit card) as the refund destination, and the agent instead attempted to pass a nonexistent gift card.",
+  "step": 7,
+  "component": "POL.return",
+  "true_fault": "F_refund_giftcard"
+ },
+ "19|F_cancel_reason|0": {
+  "root_cause": "The exchange tool requires the order status to remain 'delivered', but the agent processed the return first, which changed the order's status and blocked the subsequent exchange that could have succeeded if ordered first.",
+  "step": 6,
+  "component": "POL.exchange",
+  "true_fault": "F_cancel_reason"
+ },
+ "19|F_item_ids|0": {
+  "root_cause": "The agent miscalculated the exchange savings by comparing the office chair to a wrong \"cheapest\" item at $471.82 instead of the actual cheapest available variant, so it reported $49.04 total exchange refund and $27.46 for the chair rather than the correct savings figures of $41.64, causing it to steer the user toward the wrong option.",
+  "step": 6,
+  "component": "TOOL.calculate",
+  "true_fault": "F_item_ids"
+ },
+ "19|F_steps|0": {
+  "root_cause": "The agent ran out of steps (max_steps=8) because it spent too many turns on lengthy explanations and confirmations instead of executing the return tool, and at step 7 it failed to actually perform any tool call after the user confirmed.",
+  "step": 7,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "20|None|0": {
+  "root_cause": "The agent selected the wrong \"most expensive\" variant for the Makeup Kit, choosing item 5012998807 at $258.71 instead of the actual most expensive available variant 2882812427 at $261.11.",
+  "step": 7,
+  "component": "TOOL.calculate",
+  "true_fault": null
+ },
+ "20|None|1": {
+  "root_cause": "The agent selected the wrong new item ID for the Makeup Kit (5012998807 instead of 2882812427) because it did not correctly map the priciest available variant from the product details.",
+  "step": 8,
+  "component": "TOOL.modify_pending_order_items",
+  "true_fault": null
+ },
+ "20|F_exchange_split|0": {
+  "root_cause": "The agent selected the wrong \"most expensive available\" Makeup Kit item (5012998807 at $258.71) instead of 2882812427 (medium/professional/Brand A at $261.11), which is $2.40 more expensive.",
+  "step": 6,
+  "component": "POL.modify",
+  "true_fault": "F_exchange_split"
+ },
+ "20|F_refund_giftcard|0": {
+  "root_cause": "The agent incorrectly selected \"Most expensive available\" item 5012998807 for the Makeup Kit by ignoring that item 2882812427 ($261.11) was more expensive, and additionally the resulting update corrupted all items to show Makeup Kit options.",
+  "step": 6,
+  "component": "TOOL.modify_pending_order_items",
+  "true_fault": "F_refund_giftcard"
+ },
+ "20|F_steps|0": {
+  "root_cause": "The agent failed to identify the most expensive available Makeup Kit variant; it chose item 5012998807 (dark, professional, Brand B, $258.71) instead of the correct most expensive item 2882812427 (medium, professional, Brand A, $261.11), because it did not fully parse all variant options for that product.",
+  "step": 6,
+  "component": "POL.generic",
+  "true_fault": "F_steps"
+ },
+ "21|F_exchange_split|0": {
+  "root_cause": "The agent incorrectly concluded that item ID 4107812777 does not exist after calling get_item_details once, when in fact that item is a valid Running Shoes variant (price $155.33) reachable via get_product_details on the shoes product, so it failed to perform the requested shoe exchange alongside the keyboard modification in a single one-time modify call.",
+  "step": 10,
+  "component": "TOOL.get_item_details",
+  "true_fault": "F_exchange_split"
+ },
+ "21|F_steps|0": {
+  "root_cause": "The agent ran out of steps because it failed to recognize that 1656367028 was a product ID (not an item ID) and did not resolve it via get_product_details to find the corresponding item, even though the user explicitly suggested this.",
+  "step": 7,
+  "component": "POL.domain",
+  "true_fault": "F_steps"
+ },
+ "22|F_steps|0": {
+  "root_cause": "The agent ran out of steps because it did not continue after completing the address updates to handle the user's second request to revert the default user address back to the original.",
+  "step": 7,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "23|F_steps|0": {
+  "root_cause": "The agent hit the max_steps limit because it made redundant sequential tool calls (multiple get_order_details and get_product_details) and verbose multi-turn confirmations, leaving no step remaining to execute the third required action (modify_pending_order_items) before episode termination.",
+  "step": 3,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "28|F_steps|0": {
+  "root_cause": "The agent hit the max_steps limit because it processed the five returns one at a time with repeated confirmation round-trips instead of collecting all returnable items and confirming them together, and it never computed the total refund amount.",
+  "step": 4,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "29|F_steps|0": {
+  "root_cause": "The agent failed to process the second (garden hose) exchange within the 8-step budget because it spent multiple steps (steps 3-6) serially querying all four orders and product details instead of batching independent calls, leaving no steps to execute the second confirmed exchange.",
+  "step": 3,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "30|F_cancel_reason|0": {
+  "root_cause": "The agent failed because it never provided the tracking number it was asked for (746342064230), and it went straight to returning the tablet instead of first attempting the user's preferred exchange for the same item.",
+  "step": 4,
+  "component": "POL.return",
+  "true_fault": "F_cancel_reason"
+ },
+ "30|F_item_ids|0": {
+  "root_cause": "The agent exchanged the tablet instead of returning it, because the customer preferred exchange but the same item was not available and the exchange policy doesn't permit a damaged item to be swapped for a different-color variant under \"same item\" logic\u2014the correct action was to return the tablet.",
+  "step": 9,
+  "component": "POL.exchange",
+  "true_fault": "F_item_ids"
+ },
+ "30|F_steps|0": {
+  "root_cause": "The agent exhausted the step limit by repeatedly asking for redundant confirmation of the return and delaying the actual tool call, leaving no steps to complete the remaining requested actions (cancel charger, return sneaker).",
+  "step": 6,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "31|F_cancel_reason|0": {
+  "root_cause": "The agent cancelled the charger using a cancellation reason of \"ordered by mistake\" instead of the user's actual reason, causing the database state to differ from the expected outcome.",
+  "step": 8,
+  "component": "POL.cancel",
+  "true_fault": "F_cancel_reason"
+ },
+ "31|F_steps|0": {
+  "root_cause": "The agent burned its step budget (max_steps=8) by making multiple tool calls per turn and verbose multi-option explanations, leaving no step remaining to execute the sneaker return after spending a step confirming the kettle/boot order should be left alone.",
+  "step": 3,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "35|F_refund_giftcard|0": {
+  "root_cause": "The agent selected an incorrect 13-inch laptop item (6056040996, i5/16GB/512GB/space grey) instead of the correct one (5052031638), because it did not use get_product_details to enumerate all available 13-inch options and correctly prioritize the user's preferences (i5 over i7, and silver/black over other colors such as space grey).",
+  "step": 6,
+  "component": "TOOL.modify_pending_order_items",
+  "true_fault": "F_refund_giftcard"
+ },
+ "35|F_steps|0": {
+  "root_cause": "The agent hit the orchestrator's max_steps limit of 8 because it made a redundant get_order_details call on the second order and spent unnecessary steps explaining, confirming, and asking for details that were already available, leaving no step to execute the two required tool calls (return and modify).",
+  "step": 5,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "37|F_steps|0": {
+  "root_cause": "The agent ran out of steps because it spent the budget authenticating via name+zip after the email lookup failed, even though it could still have completed the item-modification task without needing the user to re-supply an order id.",
+  "step": 7,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "41|None|0": {
+  "root_cause": "The agent failed to update the shipping address on the first order #W9583042, which also contained an incorrect address the user asked to correct.",
+  "step": 8,
+  "component": "POL.modify",
+  "true_fault": null
+ },
+ "41|F_exchange_split|0": {
+  "root_cause": "The agent updated the address on only one of the user's two pending orders (#W4082615), omitting order #W9583042, even though the user requested all order addresses be corrected.",
+  "step": 8,
+  "component": "POL.modify",
+  "true_fault": "F_exchange_split"
+ },
+ "41|F_refund_giftcard|0": {
+  "root_cause": "The agent only corrected the address on the jigsaw order (#W4082615) but failed to also correct the address on the other pending order (#W9583042), which the user's request to fix \"all order addresses\" required.",
+  "step": 8,
+  "component": "POL.modify",
+  "true_fault": "F_refund_giftcard"
+ },
+ "41|F_cancel_reason|0": {
+  "root_cause": "The agent only updated the shipping address on order #W4082615, failing to also update the shipping address on the user's other pending order #W9583042, even though the user asked to \"correct all order addresses.\"",
+  "step": 7,
+  "component": "POL.modify",
+  "true_fault": "F_cancel_reason"
+ },
+ "41|F_item_ids|0": {
+  "root_cause": "The agent failed to correct the address on order #W9583042, only updating order #W4082615, despite the user asking to fix addresses on all orders.",
+  "step": 4,
+  "component": "POL.modify",
+  "true_fault": "F_item_ids"
+ },
+ "41|F_steps|0": {
+  "root_cause": "The agent hit the max_steps limit (8) because it made multiple tool calls in a single step and added unnecessary conversational/confirmation turns, leaving no steps remaining to perform the final puzzle swap (modify_pending_order_items) that the task required.",
+  "step": 3,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "43|None|1": {
+  "root_cause": "The agent allowed the user to revert their default address back to Denver after it had already been correctly changed to the daughter's Chicago address, whereas the task required the address to remain changed to Chicago.",
+  "step": 9,
+  "component": "POL.intro",
+  "true_fault": null
+ },
+ "43|F_refund_giftcard|0": {
+  "root_cause": "The task instructions injected \"You are a lonely man and you want to talk to the agent for a while,\" causing the user to keep the conversation going, but the agent failed the task because it ultimately transferred the episode to a human agent and never made the required modify_user_address tool call to change the default address.",
+  "step": 7,
+  "component": "TOOL.modify_user_address",
+  "true_fault": "F_refund_giftcard"
+ },
+ "44|None|0": {
+  "root_cause": "The agent manually computed the price difference with incorrect rounding instead of using the calculate tool, reporting $18.00 when the actual difference is $17.99.",
+  "step": 5,
+  "component": "TOOL.calculate",
+  "true_fault": null
+ },
+ "44|None|1": {
+  "root_cause": "The agent computed the refund sign incorrectly (using original minus new instead of new minus original), but more fundamentally it already called the modify tool with essentially correct data; the actual failure was that it didn't recognize the refund amount of $17.99 as correct and instead escalated to a human agent unnecessarily. Actually the true root cause: the agent used the wrong arithmetic direction for the \"difference\" and then failed to recognize the system's refund was a correction of its own sign error.",
+  "step": 5,
+  "component": "TOOL.calculate",
+  "true_fault": null
+ },
+ "46|F_exchange_split|0": {
+  "root_cause": "The agent processed the transfer to a human agent before answering the user's final required question about the total amount paid for the remaining items, so it never provided the mandatory calculated value ($1,497.65).",
+  "step": 9,
+  "component": "TOOL.transfer_to_human_agents",
+  "true_fault": "F_exchange_split"
+ },
+ "46|F_item_ids|0": {
+  "root_cause": "The agent returned the canister vacuum cleaner instead of the robotic vacuum cleaner and did not correct the item despite the user later indicating the robotic one was intended.",
+  "step": 4,
+  "component": "POL.return",
+  "true_fault": "F_item_ids"
+ },
+ "46|F_steps|0": {
+  "root_cause": "The agent returned the wrong vacuum cleaner item: it returned item ID 2872451762 (the canister vacuum) instead of the robotic vacuum 6259501109, despite the user explicitly identifying the robotic vacuum and the trace showing 2872451762 is a canister.",
+  "step": 5,
+  "component": "TOOL.return_delivered_order_items",
+  "true_fault": "F_steps"
+ },
+ "47|F_exchange_split|0": {
+  "root_cause": "The agent used an imprecise refund amount of $1096.55 instead of the exact sum of $1095.55, causing the user to receive an incorrect refund total.",
+  "step": 8,
+  "component": "TOOL.calculate",
+  "true_fault": "F_exchange_split"
+ },
+ "47|F_refund_giftcard|0": {
+  "root_cause": "The return policy explicitly states the refund always goes to the gift card balance, but the agent misapplied this by attempting to pass a fabricated gift card payment method (\"gift_card_0000000\") instead of using the user's actual payment method (paypal_2433177) that the tool requires.",
+  "step": 9,
+  "component": "POL.return",
+  "true_fault": "F_refund_giftcard"
+ },
+ "47|F_steps|0": {
+  "root_cause": "The agent's 8-step limit (CFG.max_steps) was exhausted before it could complete the return, because it spent steps handling the user's invalid order-id and ambiguities rather than proceeding to compute the refund and call the return tool.",
+  "step": 7,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "54|F_exchange_split|0": {
+  "root_cause": "The agent failed to include the delivered order #W4597054 in the return/cancellation scope, even though the user asked to cancel or return all possible orders and the delivered order was returnable for an additional refund.",
+  "step": 5,
+  "component": "POL.return",
+  "true_fault": "F_exchange_split"
+ },
+ "54|F_cancel_reason|0": {
+  "root_cause": "The agent only considered cancelling pending orders and exchanging the boots, but failed to return the delivered order #W4597054, which the user's request to \"cancel or return all possible orders\" requires.",
+  "step": 6,
+  "component": "POL.return",
+  "true_fault": "F_cancel_reason"
+ },
+ "54|F_steps|0": {
+  "root_cause": "The agent failed to recognize that delivered orders can be returned (not cancelled), so it never returned the delivered order #W4597054 and only attempted to cancel pending orders.",
+  "step": 7,
+  "component": "POL.return",
+  "true_fault": "F_steps"
+ },
+ "58|F_steps|0": {
+  "root_cause": "The agent spent too many steps gathering information and asking for confirmation, exhausting the 8-step budget before it could actually call the exchange tool.",
+  "step": 4,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "59|None|0": {
+  "root_cause": "The agent cancelled/updated the wrong orders: the user wanted to cancel the older order whose shipment could not be guaranteed and update the address on the later order, but the agent swapped them, cancelling #W2702727 and updating #W8268610 when the correct targets were #W8268610 (cancel) and #W2702727 (address update).",
+  "step": 3,
+  "component": "POL.domain",
+  "true_fault": null
+ },
+ "59|None|1": {
+  "root_cause": "The agent misapplied the user's conditional requests by cancelling the older order #W2702727 and leaving #W8268610 unchanged, when the intended correct actions were to cancel #W8268610 and modify the address on #W2702727.",
+  "step": 3,
+  "component": "POL.cancel",
+  "true_fault": null
+ },
+ "59|F_exchange_split|0": {
+  "root_cause": "The agent confused which order was the \"older\" one: the user wanted to cancel the older pending order (#W8268610) and modify the address of the other (#W2702727), but the agent instead cancelled #W2702727 and changed the address of #W8268610.",
+  "step": 2,
+  "component": "POL.intro",
+  "true_fault": "F_exchange_split"
+ },
+ "59|F_refund_giftcard|0": {
+  "root_cause": "The agent picked the wrong pending order to cancel (#W2702727 instead of #W8268610) because it could not determine which was older and deferred to the user, who then mistakenly named the wrong order, rather than correctly identifying #W8268610 as the older order from the order details.",
+  "step": 6,
+  "component": "POL.modify",
+  "true_fault": "F_refund_giftcard"
+ },
+ "59|F_cancel_reason|0": {
+  "root_cause": "The agent conflated the two orders, cancelling #W2702727 (the order the user wanted the address changed on) instead of cancelling #W8268610 \u2014 the older, \"unreasonable wait\" order the user intended to cancel.",
+  "step": 3,
+  "component": "POL.cancel",
+  "true_fault": "F_cancel_reason"
+ },
+ "59|F_item_ids|0": {
+  "root_cause": "The agent misidentified which order was the \"older\" pending order: the expected outcome was to cancel the more recently placed order #W8268610 and change the address of the earlier order #W2702727, but the agent treated #W2702727 as the old order to cancel and #W8268610 as the one needing the address change.",
+  "step": 4,
+  "component": "POL.intro",
+  "true_fault": "F_item_ids"
+ },
+ "63|F_steps|0": {
+  "root_cause": "The agent ran out of steps (max_steps=8) because it made an illegal multi-tool call at step 4 and spent steps on redundant/misguided responses, rather than directly performing the item modification that the policy allowed.",
+  "step": 6,
+  "component": "TOOL.modify_pending_order_items",
+  "true_fault": "F_steps"
+ },
+ "66|None|0": {
+  "root_cause": "The agent failed to validate the user's stated cancellation reason against the policy's allowed reasons and instead accepted \"ordered by mistake\" without recognizing that the task's expected outcome required \"no longer needed\".",
+  "step": 6,
+  "component": "POL.cancel",
+  "true_fault": null
+ },
+ "66|F_refund_giftcard|0": {
+  "root_cause": "The agent did not verify/confirm the correct cancellation reason with the user before canceling, accepting the user's \"ordered by mistake\" instead of ensuring the correct reason \"no longer needed\" was recorded.",
+  "step": 8,
+  "component": "POL.cancel",
+  "true_fault": "F_refund_giftcard"
+ },
+ "66|F_cancel_reason|0": {
+  "root_cause": "The policy requires the cancellation reason to always be recorded as 'ordered by mistake', but the agent should have understood the user's actual goal was to change the order to a coat; however, the failure is actually that the expected outcome used 'no longer needed' as the cancellation reason while the policy mandates 'ordered by mistake'.",
+  "step": 7,
+  "component": "POL.cancel",
+  "true_fault": "F_cancel_reason"
+ },
+ "66|F_steps|0": {
+  "root_cause": "The agent reached the max step limit before executing the confirmed cancel action because it repeatedly elaborated and asked for redundant confirmations instead of calling cancel_pending_order immediately after the user's confirmation.",
+  "step": 7,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "67|F_steps|0": {
+  "root_cause": "The agent wasted steps by calling get_order_details for all three orders in parallel and then ran out of steps before identifying the most recent order, which it failed to determine because the order IDs/counter did not encode recency.",
+  "step": 7,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "69|F_cancel_reason|0": {
+  "root_cause": "The agent recorded the cancellation reason as \"ordered by mistake\" instead of the customer's actual reason (\"no longer needed\"), violating the policy that the reason must reflect the actual reason and deviating from the expected final database state.",
+  "step": 5,
+  "component": "POL.cancel",
+  "true_fault": "F_cancel_reason"
+ },
+ "72|F_steps|0": {
+  "root_cause": "The agent ran out of steps (max_steps=8) because it chose to interrogate the user about multiple option variants and delay collecting the final confirmation/payment details, rather than efficiently gathering the changes into a single list and confirming before making the required tool calls.",
+  "step": 7,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "73|F_refund_giftcard|0": {
+  "root_cause": "The agent incorrectly believed a gift card must exist on the account and passed a fabricated gift_card_0000000 payment_method_id, when the return policy requires the agent to simply use the user's existing payment method (credit_card_6824399) to receive the refund without asking or requiring a gift card.",
+  "step": 7,
+  "component": "POL.return",
+  "true_fault": "F_refund_giftcard"
+ },
+ "75|F_steps|0": {
+  "root_cause": "The agent failed to obtain explicit user confirmation (yes) and make the exchange tool call before hitting the max_steps limit of 8.",
+  "step": 7,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "76|F_exchange_split|0": {
+  "root_cause": "The agent used the wrong cancellation reason (\"ordered by mistake\") for the skateboard order, but the root cause is that the agent substituted the user's actual reason (\"no longer needed\") \u2014 the user had said \"I don't need it as-is\" for the skateboard, which maps to \"no longer needed\", not \"ordered by mistake\".",
+  "step": 6,
+  "component": "POL.cancel",
+  "true_fault": "F_exchange_split"
+ },
+ "76|F_cancel_reason|0": {
+  "root_cause": "The agent used the cancellation reason 'ordered by mistake' for order #W1242543 instead of the required 'no longer needed', which caused the final database state not to match the expected outcome.",
+  "step": 6,
+  "component": "POL.cancel",
+  "true_fault": "F_cancel_reason"
+ },
+ "76|F_steps|0": {
+  "root_cause": "The agent did not act within the limited step budget: it failed to make the first cancellation confirmable-call and to handle the skateboard cancellation, expending many steps on exploration instead, and it never made any of the two cancel_pending_order calls nor reported the grill total.",
+  "step": 0,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "78|F_cancel_reason|0": {
+  "root_cause": "The agent incorrectly concluded that the Makeup Kit exchange's price difference could not be paid with the original credit card, when in fact the modify-items policy only requires a payment method (which may be the same credit card) to cover the difference.",
+  "step": 8,
+  "component": "POL.modify",
+  "true_fault": "F_cancel_reason"
+ },
+ "80|F_refund_giftcard|0": {
+  "root_cause": "The agent repeatedly asked for confirmation and clarified details but never actually made the exchange_delivered_order_items tool call after the user said \"yes,\" so the database was never updated.",
+  "step": 9,
+  "component": "TOOL.exchange_delivered_order_items",
+  "true_fault": "F_refund_giftcard"
+ },
+ "80|F_cancel_reason|0": {
+  "root_cause": "The agent selected the wrong new item (black XXL polyester v-neck 5253880258) for the exchange because it gave up on the user's explicit request for a red cable crew-neck shirt and instead steered the user toward the only available XXL option it found, without verifying the inventory correctly for the intended red/XXL/cotton/crew-neck combination.",
+  "step": 4,
+  "component": "TOOL.get_item_details",
+  "true_fault": "F_cancel_reason"
+ },
+ "80|F_steps|0": {
+  "root_cause": "The agent exhausted its max_steps budget by repeatedly providing explanations and re-confirming details instead of executing the exchange, because the policy required only a single explicit confirmation which it already obtained at step 7.",
+  "step": 7,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "81|F_cancel_reason|0": {
+  "root_cause": "The agent used \"ordered by mistake\" as the cancellation reason, but the policy does not mandate that fixed reason; the expected outcome (and correct behavior) requires recording the user's actual stated reason (\"no longer needed\"), not a fabricated default.",
+  "step": 7,
+  "component": "POL.cancel",
+  "true_fault": "F_cancel_reason"
+ },
+ "82|None|1": {
+  "root_cause": "The agent violated the task requirement that, if refund to credit card is not possible, the user would become angry and return everything on the order: the credit card refund was actually allowed, so the correct behavior was to return all items of order #W9571698, but a truncated order listing misled the agent into returning only a single tablet rather than all items on that order.",
+  "step": 6,
+  "component": "POL.return",
+  "true_fault": null
+ },
+ "82|F_refund_giftcard|0": {
+  "root_cause": "The agent followed the user's explicit instruction to return only the gold tablet from order #W9571698, but the expected outcome required returning all items from that order, so the failure stems from the agent not returning the full item list for that order.",
+  "step": 7,
+  "component": "TOOL.return_delivered_order_items",
+  "true_fault": "F_refund_giftcard"
+ },
+ "83|F_steps|0": {
+  "root_cause": "The agent incorrectly assumed the refund could go to a credit card and used the credit card as the refund payment method, when the order #W9571698 was actually paid with a gift card; per policy the refund must go to the original payment method (gift card), not the user's requested credit card.",
+  "step": 5,
+  "component": "TOOL.return_delivered_order_items",
+  "true_fault": "F_steps"
+ },
+ "84|F_steps|0": {
+  "root_cause": "The agent was limited by the CFG.max_steps orchestrator setting of 8 steps, so it ran out of steps before it could make the return_delivered_order_items tool call after the user's final confirmation.",
+  "step": 4,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "85|F_steps|0": {
+  "root_cause": "The agent ran out of steps because it correctly gathered all details but failed to make the actual modify_pending_order_items tool call before reaching the max_steps limit (8).",
+  "step": 7,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "89|F_steps|0": {
+  "root_cause": "The agent reached the orchestration's max_steps limit before completing the return because it made redundant probing and explanation steps (e.g., over-explaining the return process and asking for unnecessary confirmations) instead of immediately executing the return after the user's explicit confirmation.",
+  "step": 7,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "91|None|0": {
+  "root_cause": "The agent exchanged the E-Reader for the identical item (9494281769) instead of the 32GB storage variant, because it failed to determine the correct new item for the exchange.",
+  "step": 8,
+  "component": "TOOL.exchange_delivered_order_items",
+  "true_fault": null
+ },
+ "91|F_refund_giftcard|0": {
+  "root_cause": "The agent exchanged the e-reader for the identical item (same item_id) rather than recognizing that an exchange requires a different available item, so it failed to select the correct 32GB replacement item.",
+  "step": 10,
+  "component": "POL.exchange",
+  "true_fault": "F_refund_giftcard"
+ },
+ "91|F_cancel_reason|0": {
+  "root_cause": "The agent transferred the user to a human agent over an email-access concern instead of completing the valid return and exchange, even though the policy allows solving the issue within available tools (the email on file is valid and the agent was never required to verify email access).",
+  "step": 9,
+  "component": "POL.intro",
+  "true_fault": "F_cancel_reason"
+ },
+ "91|F_steps|0": {
+  "root_cause": "The agent exhausted its max_steps budget by asking the user to re-confirm the e-reader exchange and whether to handle it separately, instead of executing the return and exchange tool calls once the user had already provided the required details and confirmation.",
+  "step": 6,
+  "component": "POL.exchange",
+  "true_fault": "F_steps"
+ },
+ "92|F_exchange_split|0": {
+  "root_cause": "The agent allowed a legitimate return request to derail into an off-scope logistics discussion, then transferred to a human agent just because the user was uncertain about email/label delivery, even though emailing the labels via the address on file is outside the return tool's required confirmation scope and the return could have been executed despite this uncertainty.",
+  "step": 7,
+  "component": "TOOL.transfer_to_human_agents",
+  "true_fault": "F_exchange_split"
+ },
+ "92|F_refund_giftcard|0": {
+  "root_cause": "The agent applied the \"refund always goes to gift card balance\" rule and asked for the payment method/confirmation incorrectly, whereas the return policy instead requires the user to provide a payment method for the refund, so it misled the user about credit card refunds and never executed the returns.",
+  "step": 3,
+  "component": "POL.return",
+  "true_fault": "F_refund_giftcard"
+ },
+ "92|F_cancel_reason|0": {
+  "root_cause": "The agent transferred to a human agent in response to the user's conditional request despite having all required information and tools to complete the return, misinterpreting the user's conditional (\"if not zero, transfer\") as an unconditional instruction.",
+  "step": 7,
+  "component": "POL.generic",
+  "true_fault": "F_cancel_reason"
+ },
+ "92|F_steps|0": {
+  "root_cause": "The agent transferred the user to a human agent instead of proceeding with the confirmed returns, treating the user's inability to access the email on file as a blocker even though it was outside the scope of the return action itself and the user had already confirmed all return details.",
+  "step": 7,
+  "component": "POL.generic",
+  "true_fault": "F_steps"
+ },
+ "93|F_steps|0": {
+  "root_cause": "The agent spent steps re-confirming details and asking for information it already possessed, and ultimately failed to make the exchange_delivered_order_items tool call after the user's explicit confirmation, exhausting the 8-step budget.",
+  "step": 7,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "95|None|0": {
+  "root_cause": "The agent failed to recognize that the user was requesting to exchange two laptops, and after mistakenly concluding only one matching unit was available, it processed only one exchange (and stated a wrong refund amount) instead of exchanging both laptops.",
+  "step": 6,
+  "component": "TOOL.exchange_delivered_order_items",
+  "true_fault": null
+ },
+ "96|F_steps|0": {
+  "root_cause": "The agent ran out of steps because the conversation's one-tool-call-at-a-time policy combined with verbose multi-point explanations caused it to reach max_steps (8) before it could call modify_pending_order_items.",
+  "step": 7,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "98|None|1": {
+  "root_cause": "The agent failed to exchange the Bicycle item because it incorrectly concluded no larger frame road bike existed when a larger-frame mountain bike (which the user explicitly permitted) was available, so it never collected the bicycle into the exchange list.",
+  "step": 8,
+  "component": "POL.exchange",
+  "true_fault": null
+ },
+ "98|F_exchange_split|0": {
+  "root_cause": "The agent never executed the bicycle and camera exchanges even though the user explicitly requested them, instead only completing the puzzle exchange and skateboard cancellation.",
+  "step": 6,
+  "component": "POL.exchange",
+  "true_fault": "F_exchange_split"
+ },
+ "98|F_cancel_reason|0": {
+  "root_cause": "The agent incorrectly concluded there was no lower-resolution camera option and skipped the camera exchange, when a valid lower-resolution camera item (8363011723) actually existed and should have been exchanged.",
+  "step": 8,
+  "component": "TOOL.get_product_details",
+  "true_fault": "F_cancel_reason"
+ },
+ "98|F_item_ids|0": {
+  "root_cause": "The agent used an incorrect payment_method_id (credit_card_3951670 instead of the original credit_card_8105988) for the exchanges, despite the user's instruction to use \"the other card\" which should have been the original credit card on those orders.",
+  "step": 7,
+  "component": "POL.exchange",
+  "true_fault": "F_item_ids"
+ },
+ "98|F_steps|0": {
+  "root_cause": "The agent spent its limited steps on elaboration and clarification instead of executing the confirmed actions, and never actually called the three required tools (exchange/cancel) before max_steps was reached.",
+  "step": 7,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "99|None|0": {
+  "root_cause": "The agent dropped the bicycle exchange after failing to find a larger-frame mountain bike, even though the user had explicitly said a mountain bike was acceptable, so the bicycle was never exchanged.",
+  "step": 8,
+  "component": "POL.exchange",
+  "true_fault": null
+ },
+ "99|None|1": {
+  "root_cause": "The agent skipped exchanging the bicycle because it incorrectly interpreted policy as forbidding road-to-mountain bike changes, when mountain bike is a valid \"type\" option (not product type) change within the same product, and the requested larger frame mountain bike actually existed.",
+  "step": 4,
+  "component": "POL.exchange",
+  "true_fault": null
+ },
+ "99|F_cancel_reason|0": {
+  "root_cause": "The agent used the wrong payment method (Mastercard ending 8484) and skipped the bicycle exchange, instead of exchanging the bicycle to a mountain bike and using the user's Visa card (credit_card_3951670) as the refund/payment method as the user requested.",
+  "step": 7,
+  "component": "POL.exchange",
+  "true_fault": "F_cancel_reason"
+ },
+ "99|F_item_ids|0": {
+  "root_cause": "The agent incorrectly refused to perform the puzzle exchange because it believed the exchange could not proceed without changing the shipping address, when in fact an exchange for a delivered order does not require (or depend on) shipping to the order's delivery address and the exchange tool itself cannot modify the address.",
+  "step": 8,
+  "component": "POL.exchange",
+  "true_fault": "F_item_ids"
+ },
+ "99|F_steps|0": {
+  "root_cause": "The agent incorrectly concluded that no suitable bicycle exchange was available and dropped the bicycle exchange, failing to recognize that the mountain bike variant item 5606522780 with a larger frame size and art theme was a valid exchange target that the user had explicitly authorized.",
+  "step": 6,
+  "component": "POL.exchange",
+  "true_fault": "F_steps"
+ },
+ "103|F_refund_giftcard|0": {
+  "root_cause": "The agent chose an arbitrary red luggage variant (9956648681, 4-piece) instead of preserving the original 2-piece option by selecting the red 2-piece hardshell variant (8964750292) matching the item's original piece count, and it modified the items before changing the shipping address, permanently locking the order so the address could no longer be changed.",
+  "step": 14,
+  "component": "POL.modify",
+  "true_fault": "F_refund_giftcard"
+ },
+ "103|F_steps|0": {
+  "root_cause": "The agent spent the entire conversation confirming the two returns and never processed any of the confirmed actions or the remaining tasks (pending order address/item modification and tracking number), because it kept re-asking for confirmation instead of executing the tool calls within the step limit.",
+  "step": 7,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "104|F_refund_giftcard|0": {
+  "root_cause": "The agent failed to recognize that the user's request to \"cancel\" their bookshelves and jigsaw puzzles referred to delivered orders and therefore required a return action, so it gathered confirmation as a cancellation task but never executed any return.",
+  "step": 3,
+  "component": "POL.cancel",
+  "true_fault": "F_refund_giftcard"
+ },
+ "104|F_steps|0": {
+  "root_cause": "The agent ran out of steps (CFG.max_steps=8) because it spent its steps handling the returns and never got to the pending order modifications (change item to red and change address) or the tracking number task.",
+  "step": 3,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "105|F_exchange_split|0": {
+  "root_cause": "The agent incorrectly told the user that exchanging both kettles could not be done and forced a choice to swap only one, when in fact both requested exchanges were valid and could be submitted together with the gift card (the gift card only needed to cover the $31.10 price difference, but even that doesn't apply here since the policy requires covering the difference, and the combined exchange should have been listed for confirmation).",
+  "step": 10,
+  "component": "POL.exchange",
+  "true_fault": "F_exchange_split"
+ },
+ "106|None|1": {
+  "root_cause": "The agent failed to identify the correct replacement T-shirt (one size smaller, cotton) and instead let the user select a polyester shirt that doesn't match the user's stated cotton preference, because it only searched for options matching the wrong criteria (red cotton crew neck) rather than finding the black cotton one-size-smaller item.",
+  "step": 7,
+  "component": "POL.exchange",
+  "true_fault": null
+ },
+ "106|F_cancel_reason|0": {
+  "root_cause": "The agent failed to search for an available black cotton size-M T-shirt variant and instead selected the only blue M variant, even though the user explicitly preferred black and the inventory contained a black cotton variant.",
+  "step": 7,
+  "component": "POL.exchange",
+  "true_fault": "F_cancel_reason"
+ },
+ "106|F_item_ids|0": {
+  "root_cause": "The agent selected the wrong replacement item (9612497925) instead of the correct black cotton crew neck item (2060066974) that the user actually preferred, because it did not verify availability of the preferred black option before falling back to blue.",
+  "step": 9,
+  "component": "POL.exchange",
+  "true_fault": "F_item_ids"
+ },
+ "106|F_steps|0": {
+  "root_cause": "The agent exhausted the step budget (max_steps=8) by spending steps verifying identity and looking up orders, without reserving steps to look up the T-shirt variant items and obtain user confirmation before making the exchange tool call.",
+  "step": 0,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "107|F_refund_giftcard|0": {
+  "root_cause": "The agent failed to verify the availability/validity of the replacement boot item and chose to \"exchange\" the hiking boots for the identical item id (1615379700) rather than a different available item, when it should have selected the actually-valid replacement item 8106223139.",
+  "step": 4,
+  "component": "TOOL.exchange_delivered_order_items",
+  "true_fault": "F_refund_giftcard"
+ },
+ "107|F_cancel_reason|0": {
+  "root_cause": "The agent never processed the second (puzzle) exchange because the user ended the conversation before the agent made the exchange_delivered_order_items call for order #W8353027.",
+  "step": 10,
+  "component": "POL.exchange",
+  "true_fault": "F_cancel_reason"
+ },
+ "109|None|0": {
+  "root_cause": "The agent incorrectly inferred that Sophia's \"new house\" was the 760 Elm Avenue address (her default) and her \"old address\" was 592 Elm Avenue, when in fact the luggage set order (#W1092119) sent to the new house was at 592 Elm Avenue and the other order (#W1603792) was sent to the old 760 Elm Avenue address\u2014the agent reversed the two addresses, so it modified the wrong order's address and wrongly concluded the default address was already correct.",
+  "step": 4,
+  "component": "POL.intro",
+  "true_fault": null
+ },
+ "109|F_exchange_split|0": {
+  "root_cause": "The agent confused which address was the new one, treating the luggage set order (#W1092119) address (760 Elm Avenue) as the new home when the user's current/new address is actually 592 Elm Avenue, and then failed to actually perform either address update.",
+  "step": 4,
+  "component": "POL.domain",
+  "true_fault": "F_exchange_split"
+ },
+ "109|F_refund_giftcard|0": {
+  "root_cause": "The agent incorrectly refused to use address information available via its own tools (order history), treating the requirement to avoid guessing as a prohibition on looking up the new address, and it performed the item modification before the address change, which locked the order and made the required address update impossible.",
+  "step": 4,
+  "component": "POL.modify",
+  "true_fault": "F_refund_giftcard"
+ },
+ "109|F_cancel_reason|0": {
+  "root_cause": "The agent wrongly assumed the user's \"old address\" was on order #W1092119 (592 Elm Avenue) and interpreted the \"new home\" order #W1603792 as still showing the old address, when in fact #W1603792's address (760 Elm Avenue) was the new home address and #W1092119's address (592 Elm Avenue) was the old one \u2014 so the agent incorrectly claimed \"no new address exists anywhere\" and refused to perform the address changes the data already contained.",
+  "step": 4,
+  "component": "POL.domain",
+  "true_fault": "F_cancel_reason"
+ },
+ "109|F_steps|0": {
+  "root_cause": "The agent incorrectly assumed the new address was not available in any accessible data when in fact order #W1092119 already contained the new address (592 Elm Avenue, Suite 978), which it should have used for both the address changes and the tablet exchange.",
+  "step": 4,
+  "component": "POL.intro",
+  "true_fault": "F_steps"
+ },
+ "110|None|0": {
+  "root_cause": "The agent became stuck because it could not identify which order and address to use, since both the old (760 Elm) and new (592 Elm) addresses were present in the system and the agent \u2014 while correctly avoiding full-address extraction \u2014 failed to recognize that the delivered order #W1092119 already contained the new home address that could be copied to the pending order #W1603792 and the user's default.",
+  "step": 4,
+  "component": "POL.modify",
+  "true_fault": null
+ },
+ "110|F_refund_giftcard|0": {
+  "root_cause": "The agent incorrectly assumed the \"new home\" the user wanted was 592 Elm Avenue (the address on the other pending order) instead of recognizing that the user's default address on file (760 Elm Avenue) was actually the NEW home and the order going to the \"old address\" was #W1092119, causing the address changes to be applied in the wrong direction.",
+  "step": 5,
+  "component": "POL.modify",
+  "true_fault": "F_refund_giftcard"
+ },
+ "110|F_cancel_reason|0": {
+  "root_cause": "The agent exchanged the tablet for an item that was cheaper than the original but was not actually the cheapest tablet variant available, because it failed to identify the true minimum-priced tablet item when selecting the replacement.",
+  "step": 6,
+  "component": "TOOL.modify_pending_order_items",
+  "true_fault": "F_cancel_reason"
+ },
+ "110|F_item_ids|0": {
+  "root_cause": "The agent misidentified the order requiring the address change, using the order containing the tablet (#W1603792) as the source of the \"new\" address and modifying it, instead of using the other order (#W1092119) which was sent to the old address and whose current address should have been the destination for the address change.",
+  "step": 6,
+  "component": "POL.modify",
+  "true_fault": "F_item_ids"
+ },
+ "110|F_steps|0": {
+  "root_cause": "The agent treated the tablet exchange request as requiring cancellation of the whole order instead of using modify_pending_order_items to swap the tablet to a cheaper variant of the same product, and also failed to update the user's default address despite it already differing from what the user intended.",
+  "step": 5,
+  "component": "POL.modify",
+  "true_fault": "F_steps"
+ },
+ "112|None|0": {
+  "root_cause": "The agent failed to modify the laptop order's shipping address to the NYC address despite the user requesting it, misinterpreting the user's later \"no address change\" statement as a full cancellation of the address change requirement.",
+  "step": 4,
+  "component": "POL.modify",
+  "true_fault": null
+ },
+ "112|F_steps|0": {
+  "root_cause": "The agent was instructed to make at most one tool call at a time but violated this by making parallel tool calls and, more critically, ran out of steps (max_steps=8) before it could execute the three required modify actions because it spent too many turns clarifying and checking details.",
+  "step": 4,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "113|F_steps|0": {
+  "root_cause": "The agent ran out of steps (max_steps=8) because it made multiple tool calls at once and verbose confirmations, so it never issued the cancel_pending_order tool calls even after receiving the user's \"yes\" confirmation.",
+  "step": 7,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ }
+}
