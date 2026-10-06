@@ -1,0 +1,127 @@
+{
+ "r0": 0.13888888888888884,
+ "w": 2.125,
+ "oracle_gain_reg": 0.31609182099355865,
+ "costs": [
+  1.0,
+  0.23067893528568123,
+  0.9053419846580322
+ ],
+ "calibration": {
+  "sens": 0.4097331240188383,
+  "fpr": 0.12672357189757058,
+  "fpr_bad": 0.11561382598331346,
+  "fpr_good": 0.14035087719298245
+ },
+ "b_hat": 0.2,
+ "n_true_edges": 7,
+ "n_bank_cells": 36,
+ "attr_acc_injected": 0.2857142857142857,
+ "n_failures": 112,
+ "n_natural": 28,
+ "oracle_gain": 0.35567339756882543,
+ "true_edges": [
+  [
+   "Misapplying Policy or Business Rules",
+   "POL.modify"
+  ],
+  [
+   "Misapplying Policy or Business Rules",
+   "POL.cancel"
+  ],
+  [
+   "Misapplying Policy or Business Rules",
+   "POL.compensation"
+  ],
+  [
+   "Failed Execution or Premature Termination",
+   "CFG.max_steps"
+  ],
+  [
+   "Wrong Passenger/Profile or Booking-User Data Usage",
+   "POL.intro"
+  ],
+  [
+   "Wrong Passenger/Profile or Booking-User Data Usage",
+   "POL.book"
+  ],
+  [
+   "Incorrect Baggage Entitlement",
+   "POL.book"
+  ]
+ ],
+ "results": {
+  "CARVE+|10": {
+   "gain": 0.18804193133983255,
+   "gain_se": 0.009689670902556693,
+   "precision": 0.64,
+   "recall": 0.10214285714285712,
+   "spent": 9.046580533505864,
+   "gain_reg": -0.2342391138353058,
+   "gain_reg_se": 0.03690676804487196
+  },
+  "CARVE+|20": {
+   "gain": 0.21381561111593683,
+   "gain_se": 0.010897075917029451,
+   "precision": 0.5516666666666667,
+   "recall": 0.15642857142857142,
+   "spent": 19.627511789935653,
+   "gain_reg": -0.7241103088002593,
+   "gain_reg_se": 0.06993028941047522
+  },
+  "CARVE+|40": {
+   "gain": 0.23770035559875083,
+   "gain_se": 0.0113382299877535,
+   "precision": 0.6175,
+   "recall": 0.18928571428571422,
+   "spent": 39.80162383832992,
+   "gain_reg": -0.5026939180320343,
+   "gain_reg_se": 0.06503502228282604
+  },
+  "CARVE+|80": {
+   "gain": 0.16726447059405672,
+   "gain_se": 0.011387717391382678,
+   "precision": 0.5566666666666666,
+   "recall": 0.17857142857142855,
+   "spent": 79.66753131791924,
+   "gain_reg": -0.5154420804886246,
+   "gain_reg_se": 0.06440882868375897
+  },
+  "CARVE+gate|10": {
+   "gain": 0.2048546364047818,
+   "gain_se": 0.008909702631712375,
+   "precision": 0.765,
+   "recall": 0.10928571428571425,
+   "spent": 8.7310520278865,
+   "gain_reg": 0.006551963131030114,
+   "gain_reg_se": 0.024739625251356468
+  },
+  "CARVE+gate|20": {
+   "gain": 0.2434380175215012,
+   "gain_se": 0.0101041656118552,
+   "precision": 0.6,
+   "recall": 0.18357142857142855,
+   "spent": 19.9648248309461,
+   "gain_reg": -0.6685514261729153,
+   "gain_reg_se": 0.07588439401823996
+  },
+  "CARVE+gate|40": {
+   "gain": 0.2061533922259869,
+   "gain_se": 0.011599187419825284,
+   "precision": 0.6175,
+   "recall": 0.2014285714285714,
+   "spent": 39.77605300597493,
+   "gain_reg": -0.3852115061214875,
+   "gain_reg_se": 0.05771310450774389
+  },
+  "CARVE+gate|80": {
+   "gain": 0.14868366200826838,
+   "gain_se": 0.01116662738955984,
+   "precision": 0.6975,
+   "recall": 0.20214285714285707,
+   "spent": 79.02686496331741,
+   "gain_reg": -0.3170100169937009,
+   "gain_reg_se": 0.05327494477990717
+  }
+ }
+}

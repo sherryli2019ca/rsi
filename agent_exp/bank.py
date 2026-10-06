@@ -380,6 +380,13 @@ def run_method(method, bank, counts, f, inb, costs, b_hat, seed, budget, c_fp=0.
     I, J = counts.shape
     if method == "HarnessFix":
         return HarnessFix(counts).run(world, inb, budget, 1.0, costs[2])
+    if method.startswith("Net"):
+        # episode-priced net-effect selection (agent_exp/netsel.py)
+        from agent_exp.netsel import run_netsel
+        return run_netsel(bank, counts, f, inb, costs, b_hat, seed, budget, r0, w,
+                          use_reg=method != "Net-noreg", use_null=method != "Net-nonull",
+                          use_prior=method != "Net-flat",
+                          n_ctrl=2 if method == "Net+ctrl" else 0)
     params = ObsParams(b=b_hat, lam=0.8, sens=0.85, fpr=0.15)
     if method == "CARVE-calibrated":
         params.sens, params.fpr = cal["sens"], cal["fpr"]
