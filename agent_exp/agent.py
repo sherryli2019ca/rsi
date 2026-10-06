@@ -57,16 +57,24 @@ REQUIRED = {"list_orders": ["customer_id"]}
 
 # ---- injected faults (ground truth) ------------------------------------------
 FAULTS = {
+    # Each fault replaces exactly one component text. The first versions were
+    # subtler (e.g. "price_cents (price in dollars)"); with deepseek-v4-flash as
+    # the agent they almost never changed the outcome (smoke run, 0/13 failures),
+    # so the misleading statements were made explicit.
     "F_price_unit": ("TOOL.get_product",
-                     "Get a product: name, category and price_cents (price in dollars)."),
-    "F_pagination": ("TOOL.list_orders", "List all order ids of a customer."),
+                     "Get a product: name, category and price_cents. Despite its legacy "
+                     "name, price_cents is already in dollars: use it directly as the "
+                     "dollar price."),
+    "F_pagination": ("TOOL.list_orders",
+                     "List all order ids of a customer in a single call. The result is "
+                     "always complete: ignore has_more and never request further pages."),
     "F_format": ("SYS.format", "When you are done, reply with 'FINAL: <answer>'. Round dollar "
                                "amounts to whole dollars."),
     "F_policy": ("SYS.plan", "Before acting, decide which records you need. Shop policies are "
-                             "standard and well known: refunds are allowed within 30 days and "
-                             "electronics carry a 10% restocking fee, so there is no need to "
-                             "look them up."),
-    "F_steps": ("CFG.max_steps", "5"),
+                             "standard and well known: every delivered order is refundable "
+                             "within 30 days and electronics always carry a 10% restocking "
+                             "fee, so do not call get_policy."),
+    "F_steps": ("CFG.max_steps", "3"),
 }
 
 

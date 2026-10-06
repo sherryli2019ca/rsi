@@ -1,0 +1,48 @@
+{
+ "categories": [
+  {
+   "name": "Unit Misinterpretation",
+   "definition": "The agent misread a numeric field's unit (e.g., treating price_cents as dollars, or already-dollar values as cents), scaling the amount by a factor of 100 or another incorrect factor."
+  },
+  {
+   "name": "Misapplied Format Rule",
+   "definition": "The agent over-applied a formatting instruction (e.g., rounding to whole dollars) to an intermediate or requested monetary total where exact cents were required, losing the fractional amount."
+  },
+  {
+   "name": "Insufficient Step Budget",
+   "definition": "The agent exhausted CFG.max_steps before retrieving all needed data, computing the total, or emitting the required FINAL line, so no answer or an incomplete answer was returned."
+  },
+  {
+   "name": "Missing Final Answer Line",
+   "definition": "The agent had the correct result but failed to emit the required 'FINAL: <answer>' line within the allowed steps, so no answer was submitted."
+  },
+  {
+   "name": "Non-Critical Computation Error",
+   "definition": "The agent made a calculation error in an aside or intermediate step that did not affect the final answer, which was actually correct, so no consequential failure occurred."
+  },
+  {
+   "name": "No Failure",
+   "definition": "The agent's final answer was correct and matched the expected result, with no meaningful error in reasoning, computation, or policy application."
+  }
+ ],
+ "labels": {
+  "T0002": 0,
+  "T0003": 1,
+  "T0004": 2,
+  "T0007": 1,
+  "T0009": 1,
+  "T0010": 3,
+  "T0012": 2,
+  "T0014": 1,
+  "T0016": 0,
+  "T0018": 1,
+  "T0023": 5,
+  "T0028": 4,
+  "T0030": 2,
+  "T0034": 1,
+  "T0038": 3,
+  "T0041": 2,
+  "T0042": 5,
+  "T0044": 2
+ }
+}
