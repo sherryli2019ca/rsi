@@ -121,11 +121,15 @@ class LLM:
 
     def _ask_json_tool(self, prompt, schema, purpose, max_tokens):
         tool = {"name": "submit", "description": "Submit your answer.", "input_schema": schema}
-        for _ in range(3):
+        for attempt in range(5):
+            # after repeated empty tool calls, restate the required fields
+            extra = "" if attempt < 2 else (
+                "\n\nCall the submit tool with every required field filled in: "
+                + ", ".join(schema.get("required", [])) + ".")
             resp = self._create(model=ANALYST_MODEL, max_tokens=max_tokens, tools=[tool],
                                 tool_choice={"type": "tool", "name": "submit"},
                                 thinking={"type": "disabled"},
-                                messages=[{"role": "user", "content": prompt}])
+                                messages=[{"role": "user", "content": prompt + extra}])
             self._count(purpose, ANALYST_MODEL, resp)
             out = next((b.input for b in resp.content if b.type == "tool_use"), None)
             if isinstance(out, str):

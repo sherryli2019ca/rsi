@@ -200,6 +200,26 @@ def exp_fooled(seeds=30, budget=50):
     save("fooled", out)
 
 
+def exp_calibrated(seeds=30, budgets=(20, 50, 100)):
+    """Simulation with nuisance parameters measured on the real agents
+    (results/calibrated_params.json, written by agent_exp.calib_params):
+    check sensitivity / false-positive rate, spurious recovery, analyst accuracy
+    and the measured single-step / full-replay cost ratio."""
+    P = json.load(open(os.path.join(OUT, "calibrated_params.json")))
+    out = {"params": P, "budgets": list(budgets), "envs": {}}
+    cps = [0] + list(budgets)
+    for env, p in P.items():
+        cfg = replace(WorldConfig(), sens=p["sens"], fpr=p["fpr"], b=p["b"], r=p["r"])
+        costs = (1.0, p["cost_ratio"])
+        out["envs"][env] = {}
+        for m in ["LLM-only", "Replay-each", "Uncertainty", "Uncertainty-MF",
+                  "CARVE-full-only", "CARVE"]:
+            res = run_grid([(cfg, m, s, cps, costs, None) for s in range(seeds)])
+            out["envs"][env][m] = summarise(res, cps)
+            print("calibrated", env, m, np.round(out["envs"][env][m]["gain_mean"], 3), flush=True)
+    save("calibrated", out)
+
+
 def exp_prop1(reps=4000, delta=0.02):
     """Single-cell check of Proposition 1: predicted vs simulated observations to a
     decision under a sequential test with known p1, p0."""
@@ -262,7 +282,7 @@ if __name__ == "__main__":
     exps = {"main": exp_main, "prior": exp_prior, "fidelity": exp_fidelity,
             "misspec": exp_misspec, "scale": exp_scale, "rsi": exp_rsi,
             "joint": exp_joint, "stress": exp_stress, "prop1": exp_prop1,
-            "fooled": exp_fooled}
+            "fooled": exp_fooled, "calibrated": exp_calibrated}
     for k, fn in exps.items():
         if which in (k, "all"):
             fn()

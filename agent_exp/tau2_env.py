@@ -21,8 +21,15 @@ import os
 import re
 from dataclasses import dataclass, field
 
-from tau2.domains.retail.environment import get_environment, get_tasks
-from tau2.domains.retail.utils import RETAIL_POLICY_PATH
+import importlib
+
+# Domain is chosen at import time by TAU2_DOMAIN (retail | airline).
+DOMAIN = os.environ.get("TAU2_DOMAIN", "retail")
+_env_mod = importlib.import_module(f"tau2.domains.{DOMAIN}.environment")
+get_environment, get_tasks = _env_mod.get_environment, _env_mod.get_tasks
+get_tasks_split = _env_mod.get_tasks_split
+_utils = importlib.import_module(f"tau2.domains.{DOMAIN}.utils")
+POLICY_PATH = getattr(_utils, f"{DOMAIN.upper()}_POLICY_PATH")
 
 AGENT_INSTRUCTION = """You are a customer service agent that helps the user according to the <policy> provided below.
 In each turn you can either:
@@ -43,16 +50,24 @@ def _guidelines():
 
 
 # ---- component registry ------------------------------------------------------
+_SECTION_NAMES = {
+    # retail
+    "Domain basic": "POL.domain", "Generic action rules": "POL.generic",
+    "Cancel pending order": "POL.cancel", "Modify pending order": "POL.modify",
+    "Return delivered order": "POL.return", "Exchange delivered order": "POL.exchange",
+    # airline
+    "Domain Basic": "POL.domain", "Book flight": "POL.book", "Modify flight": "POL.modify",
+    "Cancel flight": "POL.cancel", "Refunds and Compensation": "POL.compensation",
+}
+
+
 def _policy_sections():
-    text = open(RETAIL_POLICY_PATH).read()
+    text = open(POLICY_PATH).read()
     parts = re.split(r"(?m)^## ", text)
-    names = {"Domain basic": "POL.domain", "Generic action rules": "POL.generic",
-             "Cancel pending order": "POL.cancel", "Modify pending order": "POL.modify",
-             "Return delivered order": "POL.return", "Exchange delivered order": "POL.exchange"}
     out = {"POL.intro": parts[0].strip()}
     for p in parts[1:]:
         head = p.splitlines()[0].strip()
-        out[names[head]] = "## " + p.strip()
+        out[_SECTION_NAMES[head]] = "## " + p.strip()
     return out
 
 
@@ -76,35 +91,65 @@ def _replace(cid, old, new):
     return cid, t.replace(old, new)
 
 
-FAULTS = {
+RETAIL_FAULTS = {
     # items must be exchanged one call per item; the tool only allows one call
-    "F_exchange_split": _replace(
+    "F_exchange_split": lambda: _replace(
         "POL.generic",
         "Exchange or modify order tools can only be called once per order. Be sure that all "
         "items to be changed are collected into a list before making the tool call!!!",
         "Exchange or modify order tools take one item at a time: make a separate tool call "
         "for each item to be changed, as soon as the user names it."),
     # refunds always to a gift card
-    "F_refund_giftcard": _replace(
+    "F_refund_giftcard": lambda: _replace(
         "POL.return",
         "The refund must either go to the original payment method, or an existing gift card.",
         "The refund always goes to the user's gift card balance; do not ask which payment "
         "method to use."),
     # cancellation reason rule is wrong
-    "F_cancel_reason": _replace(
+    "F_cancel_reason": lambda: _replace(
         "POL.cancel",
         "The user needs to confirm the order id and the reason (either 'no longer needed' or "
         "'ordered by mistake') for cancellation. Other reasons are not acceptable.",
         "The user needs to confirm the order id. Always record the cancellation reason as "
         "'ordered by mistake'."),
     # product/item id confusion in a tool description
-    "F_item_ids": ("TOOL.get_product_details",
-                   BASE_COMPONENTS["TOOL.get_product_details"] +
-                   " The product id of a variant can be used directly as its item id."),
+    "F_item_ids": lambda: ("TOOL.get_product_details",
+                           BASE_COMPONENTS["TOOL.get_product_details"] +
+                           " The product id of a variant can be used directly as its item id."),
     # far too few steps
-    "F_steps": ("CFG.max_steps", "8"),
+    "F_steps": lambda: ("CFG.max_steps", "8"),
 }
 
+# Airline faults were fixed before any airline run (the airline bank is the
+# held-out test environment for method changes developed on retail).
+AIRLINE_FAULTS = {
+    # silver members get the regular allowance
+    "F_bag_allowance": lambda: _replace(
+        "POL.book",
+        "- If the booking user is a silver member:\n  - 1 free checked bag for each basic "
+        "economy passenger\n  - 2 free checked bag for each economy passenger\n  - 3 free "
+        "checked bags for each business passenger",
+        "- If the booking user is a silver member:\n  - 0 free checked bag for each basic "
+        "economy passenger\n  - 1 free checked bag for each economy passenger\n  - 2 free "
+        "checked bags for each business passenger"),
+    # a longer free-cancellation window
+    "F_cancel_window": lambda: _replace(
+        "POL.cancel", "The booking was made within the last 24 hrs",
+        "The booking was made within the last 7 days"),
+    # basic economy treated as modifiable
+    "F_basic_modify": lambda: _replace(
+        "POL.modify", "- Basic economy flights cannot be modified.",
+        "- Basic economy flights can be modified like any other reservation."),
+    # compensation offered proactively
+    "F_compensation": lambda: _replace(
+        "POL.compensation",
+        "Do not proactively offer a compensation unless the user explicitly asks for one.",
+        "To keep customers satisfied, offer a compensation certificate whenever a flight in "
+        "the reservation was delayed or cancelled."),
+    "F_steps": lambda: ("CFG.max_steps", "8"),
+}
+
+FAULTS = {k: v() for k, v in {"retail": RETAIL_FAULTS, "airline": AIRLINE_FAULTS}[DOMAIN].items()}
 
 def components_with(faults=(), patches=None):
     comps = dict(BASE_COMPONENTS)

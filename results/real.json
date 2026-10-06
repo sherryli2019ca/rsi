@@ -1,0 +1,6877 @@
+{
+ "runs/real_s0": {
+  "n_train": 240,
+  "train_success": 0.6333333333333333,
+  "n_failures": 88,
+  "n_failures_no_fault": 1,
+  "attr_acc": 0.7471264367816092,
+  "n_categories": 10,
+  "n_true_edges": 11,
+  "calibration": {
+   "n": 144,
+   "n_pairs": 48,
+   "p_pass_given_fail": [
+    0.1267605633802817,
+    71
+   ],
+   "p_pass_given_success": [
+    0.6027397260273972,
+    73
+   ],
+   "p_pass_bad_patch": [
+    0.09523809523809523,
+    42
+   ],
+   "p_pass_given_fail_bad_patch": [
+    0.09523809523809523,
+    42
+   ],
+   "p_pass_given_fail_good_patch": [
+    0.1724137931034483,
+    29
+   ],
+   "replay_success": 0.5069444444444444,
+   "tok_full": 1258.9375,
+   "tok_single": 951.1458333333334,
+   "sens": 0.6027397260273972,
+   "fpr_good": 0.1724137931034483,
+   "fpr_bad": 0.09523809523809523
+  },
+  "methods": {
+   "LLM-only|10": {
+    "precision": 0.7,
+    "recall": 0.6363636363636364,
+    "n_accepted": 10,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Skipped policy/verification reading",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 0,
+    "n_single": 0,
+    "spent_units": 0.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9833333333333333,
+    "tokens_verify": 0
+   },
+   "LLM-only|20": {
+    "precision": 0.7,
+    "recall": 0.6363636363636364,
+    "n_accepted": 10,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Skipped policy/verification reading",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 0,
+    "n_single": 0,
+    "spent_units": 0.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9833333333333333,
+    "tokens_verify": 0
+   },
+   "LLM-only|30": {
+    "precision": 0.7,
+    "recall": 0.6363636363636364,
+    "n_accepted": 10,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Skipped policy/verification reading",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 0,
+    "n_single": 0,
+    "spent_units": 0.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9833333333333333,
+    "tokens_verify": 0
+   },
+   "LLM-only|60": {
+    "precision": 0.7,
+    "recall": 0.6363636363636364,
+    "n_accepted": 10,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Skipped policy/verification reading",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 0,
+    "n_single": 0,
+    "spent_units": 0.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9833333333333333,
+    "tokens_verify": 0
+   },
+   "Replay-each|10": {
+    "precision": 0.7,
+    "recall": 0.6363636363636364,
+    "n_accepted": 10,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Skipped policy/verification reading",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 10,
+    "n_single": 0,
+    "spent_units": 10.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 6835
+   },
+   "Replay-each|20": {
+    "precision": 0.7,
+    "recall": 0.6363636363636364,
+    "n_accepted": 10,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Skipped policy/verification reading",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 20,
+    "n_single": 0,
+    "spent_units": 20.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9833333333333333,
+    "tokens_verify": 10371
+   },
+   "Replay-each|30": {
+    "precision": 0.7777777777777778,
+    "recall": 0.6363636363636364,
+    "n_accepted": 9,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Skipped policy/verification reading",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 30,
+    "n_single": 0,
+    "spent_units": 30.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 21977
+   },
+   "Replay-each|60": {
+    "precision": 0.8888888888888888,
+    "recall": 0.7272727272727273,
+    "n_accepted": 9,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      0
+     ],
+     [
+      "SYS.format",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 45,
+    "n_single": 0,
+    "spent_units": 45.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 42396
+   },
+   "Uncertainty|10": {
+    "precision": 0.6363636363636364,
+    "recall": 0.6363636363636364,
+    "n_accepted": 11,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading/incorrect tool contract",
+      2
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      1
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Skipped policy/verification reading",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 10,
+    "n_single": 0,
+    "spent_units": 10.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 6184
+   },
+   "Uncertainty|20": {
+    "precision": 0.5714285714285714,
+    "recall": 0.7272727272727273,
+    "n_accepted": 14,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Pagination/has_more mishandling",
+      1
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading/incorrect tool contract",
+      1
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Skipped policy/verification reading",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      0
+     ],
+     [
+      "SYS.format",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 20,
+    "n_single": 0,
+    "spent_units": 20.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 12878
+   },
+   "Uncertainty|30": {
+    "precision": 0.6153846153846154,
+    "recall": 0.7272727272727273,
+    "n_accepted": 13,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      1
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Pagination/has_more mishandling",
+      1
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Skipped policy/verification reading",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      0
+     ],
+     [
+      "SYS.format",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 30,
+    "n_single": 0,
+    "spent_units": 30.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 25450
+   },
+   "Uncertainty|60": {
+    "precision": 0.6153846153846154,
+    "recall": 0.7272727272727273,
+    "n_accepted": 13,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      1
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Pagination/has_more mishandling",
+      1
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Skipped policy/verification reading",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      2
+     ],
+     [
+      "SYS.format",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 60,
+    "n_single": 0,
+    "spent_units": 60.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9833333333333333,
+    "tokens_verify": 57777
+   },
+   "Uncertainty-MF|10": {
+    "precision": 0.7,
+    "recall": 0.6363636363636364,
+    "n_accepted": 10,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Skipped policy/verification reading",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 1,
+    "n_single": 11,
+    "spent_units": 9.310662099323174,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 9469
+   },
+   "Uncertainty-MF|20": {
+    "precision": 0.7,
+    "recall": 0.6363636363636364,
+    "n_accepted": 10,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      1
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      1
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      2
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      1
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Skipped policy/verification reading",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      1
+     ]
+    ],
+    "n_full": 1,
+    "n_single": 25,
+    "spent_units": 19.887868407552673,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 22648
+   },
+   "Uncertainty-MF|30": {
+    "precision": 0.7,
+    "recall": 0.6363636363636364,
+    "n_accepted": 10,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      2
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      1
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Skipped policy/verification reading",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 3,
+    "n_single": 35,
+    "spent_units": 29.443015770573744,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 21159
+   },
+   "Uncertainty-MF|60": {
+    "precision": 0.5714285714285714,
+    "recall": 0.7272727272727273,
+    "n_accepted": 14,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      1
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      1
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      2
+     ],
+     [
+      "SYS.plan",
+      "Pagination/has_more mishandling",
+      2
+     ],
+     [
+      "SYS.verify",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      1
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading/incorrect tool contract",
+      2
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Skipped policy/verification reading",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      0
+     ],
+     [
+      "SYS.format",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 20,
+    "n_single": 52,
+    "spent_units": 59.28676628770948,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.975,
+    "tokens_verify": 61526
+   },
+   "CARVE-full-only|10": {
+    "precision": 0.7272727272727273,
+    "recall": 0.7272727272727273,
+    "n_accepted": 11,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Skipped policy/verification reading",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      2
+     ],
+     [
+      "SYS.format",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 10,
+    "n_single": 0,
+    "spent_units": 10.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 6086
+   },
+   "CARVE-full-only|20": {
+    "precision": 0.7272727272727273,
+    "recall": 0.7272727272727273,
+    "n_accepted": 11,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      1
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      2
+     ],
+     [
+      "SYS.format",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 20,
+    "n_single": 0,
+    "spent_units": 20.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 11283
+   },
+   "CARVE-full-only|30": {
+    "precision": 0.6153846153846154,
+    "recall": 0.7272727272727273,
+    "n_accepted": 13,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Unit/currency mishandling (cents vs dollars)",
+      2
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading/incorrect tool contract",
+      1
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      0
+     ],
+     [
+      "SYS.format",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 30,
+    "n_single": 0,
+    "spent_units": 30.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 24542
+   },
+   "CARVE-full-only|60": {
+    "precision": 0.6666666666666666,
+    "recall": 0.7272727272727273,
+    "n_accepted": 12,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading/incorrect tool contract",
+      2
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      0
+     ],
+     [
+      "SYS.format",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 60,
+    "n_single": 0,
+    "spent_units": 60.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 50323
+   },
+   "CARVE|10": {
+    "precision": 0.6666666666666666,
+    "recall": 0.7272727272727273,
+    "n_accepted": 12,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading/incorrect tool contract",
+      1
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Skipped policy/verification reading",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      1
+     ],
+     [
+      "SYS.format",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 10,
+    "n_single": 0,
+    "spent_units": 10.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 5344
+   },
+   "CARVE|20": {
+    "precision": 0.5714285714285714,
+    "recall": 0.7272727272727273,
+    "n_accepted": 14,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Pagination/has_more mishandling",
+      1
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading/incorrect tool contract",
+      1
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      2
+     ],
+     [
+      "SYS.format",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 20,
+    "n_single": 0,
+    "spent_units": 20.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.975,
+    "tokens_verify": 16051
+   },
+   "CARVE|30": {
+    "precision": 0.6666666666666666,
+    "recall": 0.7272727272727273,
+    "n_accepted": 12,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      2
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading/incorrect tool contract",
+      2
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      2
+     ],
+     [
+      "SYS.format",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 30,
+    "n_single": 0,
+    "spent_units": 30.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 21334
+   },
+   "CARVE|60": {
+    "precision": 0.6153846153846154,
+    "recall": 0.7272727272727273,
+    "n_accepted": 13,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading/incorrect tool contract",
+      2
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      2
+     ],
+     [
+      "SYS.format",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 60,
+    "n_single": 0,
+    "spent_units": 60.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.975,
+    "tokens_verify": 49448
+   },
+   "CARVE-calibrated|10": {
+    "precision": 0.6666666666666666,
+    "recall": 0.7272727272727273,
+    "n_accepted": 12,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading/incorrect tool contract",
+      1
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Skipped policy/verification reading",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      2
+     ],
+     [
+      "SYS.format",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 10,
+    "n_single": 0,
+    "spent_units": 10.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 5553
+   },
+   "CARVE-calibrated|20": {
+    "precision": 0.6153846153846154,
+    "recall": 0.7272727272727273,
+    "n_accepted": 13,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading/incorrect tool contract",
+      2
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      1
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      2
+     ],
+     [
+      "SYS.format",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 20,
+    "n_single": 0,
+    "spent_units": 20.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 15709
+   },
+   "CARVE-calibrated|30": {
+    "precision": 0.6666666666666666,
+    "recall": 0.7272727272727273,
+    "n_accepted": 12,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading/incorrect tool contract",
+      2
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      1
+     ],
+     [
+      "SYS.format",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 30,
+    "n_single": 0,
+    "spent_units": 30.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9833333333333333,
+    "tokens_verify": 26204
+   },
+   "CARVE-calibrated|60": {
+    "precision": 0.7272727272727273,
+    "recall": 0.7272727272727273,
+    "n_accepted": 11,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      1
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading/incorrect tool contract",
+      1
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      2
+     ],
+     [
+      "SYS.format",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 60,
+    "n_single": 0,
+    "spent_units": 60.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9833333333333333,
+    "tokens_verify": 47463
+   },
+   "CARVE-robust-check|10": {
+    "precision": 0.6666666666666666,
+    "recall": 0.7272727272727273,
+    "n_accepted": 12,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading/incorrect tool contract",
+      1
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Skipped policy/verification reading",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      2
+     ],
+     [
+      "SYS.format",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 10,
+    "n_single": 0,
+    "spent_units": 10.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 5731
+   },
+   "CARVE-robust-check|20": {
+    "precision": 0.7272727272727273,
+    "recall": 0.7272727272727273,
+    "n_accepted": 11,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading/incorrect tool contract",
+      2
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      1
+     ],
+     [
+      "SYS.format",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 20,
+    "n_single": 0,
+    "spent_units": 20.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 11530
+   },
+   "CARVE-robust-check|30": {
+    "precision": 0.6666666666666666,
+    "recall": 0.7272727272727273,
+    "n_accepted": 12,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Unit/currency mishandling (cents vs dollars)",
+      1
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      2
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      1
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      2
+     ],
+     [
+      "SYS.format",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 30,
+    "n_single": 0,
+    "spent_units": 30.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 1.0,
+    "tokens_verify": 21630
+   },
+   "CARVE-robust-check|60": {
+    "precision": 0.6666666666666666,
+    "recall": 0.7272727272727273,
+    "n_accepted": 12,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit/currency mishandling (cents vs dollars)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted rounding",
+      0
+     ],
+     [
+      "SYS.format",
+      "Incorrect format-rule application",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final output/answer prefix",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step budget exhaustion (max_steps)",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Pagination/has_more mishandling",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading/incorrect tool contract",
+      2
+     ],
+     [
+      "TOOL.get_product",
+      "Misleading/incorrect tool contract",
+      1
+     ],
+     [
+      "SYS.plan",
+      "Ignoring an intended-skip tool constraint",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No genuine failure (false positive)",
+      2
+     ],
+     [
+      "SYS.format",
+      "No genuine failure (false positive)",
+      0
+     ]
+    ],
+    "n_full": 60,
+    "n_single": 0,
+    "spent_units": 60.0,
+    "base_success": 0.6166666666666667,
+    "patched_success": 0.9833333333333333,
+    "tokens_verify": 51396
+   }
+  },
+  "failure_rate_by_fault": {
+   "F_policy": 0.030303030303030304,
+   "F_price_unit": 0.3829787234042553,
+   "F_format": 1.0,
+   "F_steps": 0.5217391304347826,
+   "F_pagination": 0.16216216216216217,
+   "none": 0.02564102564102564
+  }
+ },
+ "runs/real_s1": {
+  "n_train": 240,
+  "train_success": 0.6041666666666666,
+  "n_failures": 95,
+  "n_failures_no_fault": 1,
+  "attr_acc": 0.6382978723404256,
+  "n_categories": 12,
+  "n_true_edges": 16,
+  "calibration": {
+   "n": 144,
+   "n_pairs": 48,
+   "p_pass_given_fail": [
+    0.225,
+    80
+   ],
+   "p_pass_given_success": [
+    0.5625,
+    64
+   ],
+   "p_pass_bad_patch": [
+    0.23333333333333334,
+    60
+   ],
+   "p_pass_given_fail_bad_patch": [
+    0.23333333333333334,
+    60
+   ],
+   "p_pass_given_fail_good_patch": [
+    0.2,
+    20
+   ],
+   "replay_success": 0.4444444444444444,
+   "tok_full": 1354.2083333333333,
+   "tok_single": 960.4861111111111,
+   "sens": 0.5625,
+   "fpr_good": 0.2,
+   "fpr_bad": 0.23333333333333334
+  },
+  "methods": {
+   "LLM-only|10": {
+    "precision": 0.5714285714285714,
+    "recall": 0.5,
+    "n_accepted": 14,
+    "accepted": [
+     [
+      "SYS.verify",
+      "No failure (correct answer/behavior)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step misallocation (wasted/redundant calls)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Tool description defect",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Misuse of calculate tool",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Wrong refund computation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Evaluation/answer misconfiguration",
+      0
+     ],
+     [
+      "SYS.plan",
+      "other",
+      0
+     ],
+     [
+      "TOOL.calculate",
+      "other",
+      0
+     ]
+    ],
+    "n_full": 0,
+    "n_single": 0,
+    "spent_units": 0.0,
+    "base_success": 0.65,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 0
+   },
+   "LLM-only|20": {
+    "precision": 0.5714285714285714,
+    "recall": 0.5,
+    "n_accepted": 14,
+    "accepted": [
+     [
+      "SYS.verify",
+      "No failure (correct answer/behavior)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step misallocation (wasted/redundant calls)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Tool description defect",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Misuse of calculate tool",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Wrong refund computation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Evaluation/answer misconfiguration",
+      0
+     ],
+     [
+      "SYS.plan",
+      "other",
+      0
+     ],
+     [
+      "TOOL.calculate",
+      "other",
+      0
+     ]
+    ],
+    "n_full": 0,
+    "n_single": 0,
+    "spent_units": 0.0,
+    "base_success": 0.65,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 0
+   },
+   "LLM-only|30": {
+    "precision": 0.5714285714285714,
+    "recall": 0.5,
+    "n_accepted": 14,
+    "accepted": [
+     [
+      "SYS.verify",
+      "No failure (correct answer/behavior)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step misallocation (wasted/redundant calls)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Tool description defect",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Misuse of calculate tool",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Wrong refund computation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Evaluation/answer misconfiguration",
+      0
+     ],
+     [
+      "SYS.plan",
+      "other",
+      0
+     ],
+     [
+      "TOOL.calculate",
+      "other",
+      0
+     ]
+    ],
+    "n_full": 0,
+    "n_single": 0,
+    "spent_units": 0.0,
+    "base_success": 0.65,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 0
+   },
+   "LLM-only|60": {
+    "precision": 0.5714285714285714,
+    "recall": 0.5,
+    "n_accepted": 14,
+    "accepted": [
+     [
+      "SYS.verify",
+      "No failure (correct answer/behavior)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step misallocation (wasted/redundant calls)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Tool description defect",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Misuse of calculate tool",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Wrong refund computation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Evaluation/answer misconfiguration",
+      0
+     ],
+     [
+      "SYS.plan",
+      "other",
+      0
+     ],
+     [
+      "TOOL.calculate",
+      "other",
+      0
+     ]
+    ],
+    "n_full": 0,
+    "n_single": 0,
+    "spent_units": 0.0,
+    "base_success": 0.65,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 0
+   },
+   "Replay-each|10": {
+    "precision": 0.6153846153846154,
+    "recall": 0.5,
+    "n_accepted": 13,
+    "accepted": [
+     [
+      "SYS.format",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step misallocation (wasted/redundant calls)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Tool description defect",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Misuse of calculate tool",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Wrong refund computation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Evaluation/answer misconfiguration",
+      0
+     ],
+     [
+      "SYS.plan",
+      "other",
+      0
+     ],
+     [
+      "TOOL.calculate",
+      "other",
+      0
+     ]
+    ],
+    "n_full": 10,
+    "n_single": 0,
+    "spent_units": 10.0,
+    "base_success": 0.65,
+    "patched_success": 1.0,
+    "tokens_verify": 5760
+   },
+   "Replay-each|20": {
+    "precision": 0.6666666666666666,
+    "recall": 0.5,
+    "n_accepted": 12,
+    "accepted": [
+     [
+      "SYS.format",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step misallocation (wasted/redundant calls)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Tool description defect",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Misuse of calculate tool",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Wrong refund computation",
+      0
+     ],
+     [
+      "SYS.plan",
+      "other",
+      0
+     ],
+     [
+      "TOOL.calculate",
+      "other",
+      0
+     ]
+    ],
+    "n_full": 20,
+    "n_single": 0,
+    "spent_units": 20.0,
+    "base_success": 0.65,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 15325
+   },
+   "Replay-each|30": {
+    "precision": 0.6666666666666666,
+    "recall": 0.5,
+    "n_accepted": 12,
+    "accepted": [
+     [
+      "SYS.format",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step misallocation (wasted/redundant calls)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Tool description defect",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Misuse of calculate tool",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Wrong refund computation",
+      0
+     ],
+     [
+      "SYS.plan",
+      "other",
+      0
+     ],
+     [
+      "TOOL.calculate",
+      "other",
+      0
+     ]
+    ],
+    "n_full": 30,
+    "n_single": 0,
+    "spent_units": 30.0,
+    "base_success": 0.65,
+    "patched_success": 1.0,
+    "tokens_verify": 21046
+   },
+   "Replay-each|60": {
+    "precision": 0.7692307692307693,
+    "recall": 0.625,
+    "n_accepted": 13,
+    "accepted": [
+     [
+      "SYS.format",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step misallocation (wasted/redundant calls)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Tool description defect",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Tool description defect",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Wrong refund computation",
+      0
+     ],
+     [
+      "SYS.plan",
+      "other",
+      0
+     ],
+     [
+      "TOOL.calculate",
+      "other",
+      0
+     ]
+    ],
+    "n_full": 60,
+    "n_single": 0,
+    "spent_units": 60.0,
+    "base_success": 0.65,
+    "patched_success": 1.0,
+    "tokens_verify": 45179
+   },
+   "Uncertainty|10": {
+    "precision": 0.75,
+    "recall": 0.375,
+    "n_accepted": 8,
+    "accepted": [
+     [
+      "SYS.format",
+      "Missing final answer format",
+      1
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Rounding error",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Evaluation/answer misconfiguration",
+      1
+     ]
+    ],
+    "n_full": 10,
+    "n_single": 0,
+    "spent_units": 10.0,
+    "base_success": 0.65,
+    "patched_success": 1.0,
+    "tokens_verify": 6338
+   },
+   "Uncertainty|20": {
+    "precision": 1.0,
+    "recall": 0.375,
+    "n_accepted": 6,
+    "accepted": [
+     [
+      "SYS.format",
+      "Missing final answer format",
+      1
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ]
+    ],
+    "n_full": 20,
+    "n_single": 0,
+    "spent_units": 20.0,
+    "base_success": 0.65,
+    "patched_success": 1.0,
+    "tokens_verify": 12779
+   },
+   "Uncertainty|30": {
+    "precision": 0.75,
+    "recall": 0.375,
+    "n_accepted": 8,
+    "accepted": [
+     [
+      "SYS.verify",
+      "No failure (correct answer/behavior)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final answer format",
+      2
+     ],
+     [
+      "SYS.verify",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ]
+    ],
+    "n_full": 30,
+    "n_single": 0,
+    "spent_units": 30.0,
+    "base_success": 0.65,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 24266
+   },
+   "Uncertainty|60": {
+    "precision": 1.0,
+    "recall": 0.5625,
+    "n_accepted": 9,
+    "accepted": [
+     [
+      "SYS.format",
+      "Missing final answer format",
+      1
+     ],
+     [
+      "CFG.max_steps",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Tool description defect",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.format",
+      "Evaluation/answer misconfiguration",
+      0
+     ]
+    ],
+    "n_full": 60,
+    "n_single": 0,
+    "spent_units": 60.0,
+    "base_success": 0.65,
+    "patched_success": 1.0,
+    "tokens_verify": 47098
+   },
+   "Uncertainty-MF|10": {
+    "precision": 0.6,
+    "recall": 0.375,
+    "n_accepted": 10,
+    "accepted": [
+     [
+      "SYS.plan",
+      "No failure (correct answer/behavior)",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No failure (correct answer/behavior)",
+      1
+     ],
+     [
+      "SYS.format",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      2
+     ],
+     [
+      "SYS.verify",
+      "Rounding error",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      1
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Evaluation/answer misconfiguration",
+      0
+     ]
+    ],
+    "n_full": 0,
+    "n_single": 14,
+    "spent_units": 9.929643190465931,
+    "base_success": 0.65,
+    "patched_success": 0.9583333333333334,
+    "tokens_verify": 11643
+   },
+   "Uncertainty-MF|20": {
+    "precision": 0.625,
+    "recall": 0.3125,
+    "n_accepted": 8,
+    "accepted": [
+     [
+      "SYS.plan",
+      "No failure (correct answer/behavior)",
+      1
+     ],
+     [
+      "SYS.verify",
+      "No failure (correct answer/behavior)",
+      1
+     ],
+     [
+      "SYS.format",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      2
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      2
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Evaluation/answer misconfiguration",
+      0
+     ]
+    ],
+    "n_full": 1,
+    "n_single": 26,
+    "spent_units": 19.44076592515102,
+    "base_success": 0.65,
+    "patched_success": 0.825,
+    "tokens_verify": 20462
+   },
+   "Uncertainty-MF|30": {
+    "precision": 0.6666666666666666,
+    "recall": 0.25,
+    "n_accepted": 6,
+    "accepted": [
+     [
+      "SYS.verify",
+      "No failure (correct answer/behavior)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      2
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Evaluation/answer misconfiguration",
+      1
+     ]
+    ],
+    "n_full": 1,
+    "n_single": 40,
+    "spent_units": 29.370409115616972,
+    "base_success": 0.65,
+    "patched_success": 0.8416666666666667,
+    "tokens_verify": 33484
+   },
+   "Uncertainty-MF|60": {
+    "precision": 0.6666666666666666,
+    "recall": 0.25,
+    "n_accepted": 6,
+    "accepted": [
+     [
+      "SYS.verify",
+      "No failure (correct answer/behavior)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      2
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Evaluation/answer misconfiguration",
+      1
+     ]
+    ],
+    "n_full": 24,
+    "n_single": 50,
+    "spent_units": 59.46301139452123,
+    "base_success": 0.65,
+    "patched_success": 0.8916666666666667,
+    "tokens_verify": 77669
+   },
+   "CARVE-full-only|10": {
+    "precision": 0.6666666666666666,
+    "recall": 0.375,
+    "n_accepted": 9,
+    "accepted": [
+     [
+      "SYS.plan",
+      "No failure (correct answer/behavior)",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No failure (correct answer/behavior)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Evaluation/answer misconfiguration",
+      0
+     ]
+    ],
+    "n_full": 10,
+    "n_single": 0,
+    "spent_units": 10.0,
+    "base_success": 0.65,
+    "patched_success": 0.8916666666666667,
+    "tokens_verify": 4996
+   },
+   "CARVE-full-only|20": {
+    "precision": 0.6363636363636364,
+    "recall": 0.4375,
+    "n_accepted": 11,
+    "accepted": [
+     [
+      "SYS.verify",
+      "No failure (correct answer/behavior)",
+      1
+     ],
+     [
+      "SYS.format",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "SYS.format",
+      "Insufficient step budget (max_steps)",
+      1
+     ],
+     [
+      "TOOL.calculate",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Tool description defect",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Evaluation/answer misconfiguration",
+      0
+     ]
+    ],
+    "n_full": 20,
+    "n_single": 0,
+    "spent_units": 20.0,
+    "base_success": 0.65,
+    "patched_success": 0.975,
+    "tokens_verify": 10874
+   },
+   "CARVE-full-only|30": {
+    "precision": 0.5714285714285714,
+    "recall": 0.5,
+    "n_accepted": 14,
+    "accepted": [
+     [
+      "SYS.plan",
+      "No failure (correct answer/behavior)",
+      2
+     ],
+     [
+      "SYS.format",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "SYS.format",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "TOOL.calculate",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Rounding error",
+      1
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.calculate",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Tool description defect",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      1
+     ],
+     [
+      "SYS.verify",
+      "Evaluation/answer misconfiguration",
+      0
+     ]
+    ],
+    "n_full": 30,
+    "n_single": 0,
+    "spent_units": 30.0,
+    "base_success": 0.65,
+    "patched_success": 0.9416666666666667,
+    "tokens_verify": 21048
+   },
+   "CARVE-full-only|60": {
+    "precision": 0.6,
+    "recall": 0.5625,
+    "n_accepted": 15,
+    "accepted": [
+     [
+      "SYS.format",
+      "No failure (correct answer/behavior)",
+      0
+     ],
+     [
+      "TOOL.get_policy",
+      "No failure (correct answer/behavior)",
+      2
+     ],
+     [
+      "CFG.max_steps",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Insufficient step budget (max_steps)",
+      1
+     ],
+     [
+      "TOOL.calculate",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step misallocation (wasted/redundant calls)",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Rounding error",
+      1
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Tool description defect",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Evaluation/answer misconfiguration",
+      0
+     ]
+    ],
+    "n_full": 60,
+    "n_single": 0,
+    "spent_units": 60.0,
+    "base_success": 0.65,
+    "patched_success": 0.7333333333333333,
+    "tokens_verify": 42310
+   },
+   "CARVE|10": {
+    "precision": 0.6666666666666666,
+    "recall": 0.375,
+    "n_accepted": 9,
+    "accepted": [
+     [
+      "SYS.plan",
+      "No failure (correct answer/behavior)",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No failure (correct answer/behavior)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Evaluation/answer misconfiguration",
+      0
+     ]
+    ],
+    "n_full": 10,
+    "n_single": 0,
+    "spent_units": 10.0,
+    "base_success": 0.65,
+    "patched_success": 0.8916666666666667,
+    "tokens_verify": 5103
+   },
+   "CARVE|20": {
+    "precision": 0.5384615384615384,
+    "recall": 0.4375,
+    "n_accepted": 13,
+    "accepted": [
+     [
+      "SYS.plan",
+      "No failure (correct answer/behavior)",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No failure (correct answer/behavior)",
+      2
+     ],
+     [
+      "SYS.format",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Rounding error",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.calculate",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Tool description defect",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Evaluation/answer misconfiguration",
+      0
+     ]
+    ],
+    "n_full": 20,
+    "n_single": 0,
+    "spent_units": 20.0,
+    "base_success": 0.65,
+    "patched_success": 0.7833333333333333,
+    "tokens_verify": 11107
+   },
+   "CARVE|30": {
+    "precision": 0.7,
+    "recall": 0.4375,
+    "n_accepted": 10,
+    "accepted": [
+     [
+      "SYS.format",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "SYS.format",
+      "Insufficient step budget (max_steps)",
+      1
+     ],
+     [
+      "TOOL.calculate",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Tool description defect",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Evaluation/answer misconfiguration",
+      0
+     ]
+    ],
+    "n_full": 30,
+    "n_single": 0,
+    "spent_units": 30.0,
+    "base_success": 0.65,
+    "patched_success": 0.9833333333333333,
+    "tokens_verify": 18617
+   },
+   "CARVE|60": {
+    "precision": 0.7857142857142857,
+    "recall": 0.6875,
+    "n_accepted": 14,
+    "accepted": [
+     [
+      "SYS.format",
+      "No failure (correct answer/behavior)",
+      1
+     ],
+     [
+      "SYS.format",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "SYS.format",
+      "Insufficient step budget (max_steps)",
+      1
+     ],
+     [
+      "TOOL.calculate",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step misallocation (wasted/redundant calls)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      1
+     ],
+     [
+      "TOOL.list_orders",
+      "Tool description defect",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Evaluation/answer misconfiguration",
+      0
+     ],
+     [
+      "SYS.format",
+      "Evaluation/answer misconfiguration",
+      0
+     ]
+    ],
+    "n_full": 60,
+    "n_single": 0,
+    "spent_units": 60.0,
+    "base_success": 0.65,
+    "patched_success": 1.0,
+    "tokens_verify": 45540
+   },
+   "CARVE-calibrated|10": {
+    "precision": 0.6666666666666666,
+    "recall": 0.375,
+    "n_accepted": 9,
+    "accepted": [
+     [
+      "SYS.plan",
+      "No failure (correct answer/behavior)",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No failure (correct answer/behavior)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Evaluation/answer misconfiguration",
+      0
+     ]
+    ],
+    "n_full": 10,
+    "n_single": 0,
+    "spent_units": 10.0,
+    "base_success": 0.65,
+    "patched_success": 0.9083333333333333,
+    "tokens_verify": 5374
+   },
+   "CARVE-calibrated|20": {
+    "precision": 0.5833333333333334,
+    "recall": 0.4375,
+    "n_accepted": 12,
+    "accepted": [
+     [
+      "SYS.verify",
+      "No failure (correct answer/behavior)",
+      1
+     ],
+     [
+      "SYS.format",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Insufficient step budget (max_steps)",
+      1
+     ],
+     [
+      "TOOL.calculate",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Tool description defect",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Evaluation/answer misconfiguration",
+      0
+     ]
+    ],
+    "n_full": 20,
+    "n_single": 0,
+    "spent_units": 20.0,
+    "base_success": 0.65,
+    "patched_success": 0.9666666666666667,
+    "tokens_verify": 12874
+   },
+   "CARVE-calibrated|30": {
+    "precision": 0.6363636363636364,
+    "recall": 0.4375,
+    "n_accepted": 11,
+    "accepted": [
+     [
+      "SYS.plan",
+      "No failure (correct answer/behavior)",
+      2
+     ],
+     [
+      "SYS.format",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "TOOL.calculate",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Tool description defect",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Evaluation/answer misconfiguration",
+      0
+     ]
+    ],
+    "n_full": 30,
+    "n_single": 0,
+    "spent_units": 30.0,
+    "base_success": 0.65,
+    "patched_success": 0.8916666666666667,
+    "tokens_verify": 18035
+   },
+   "CARVE-calibrated|60": {
+    "precision": 0.5882352941176471,
+    "recall": 0.625,
+    "n_accepted": 17,
+    "accepted": [
+     [
+      "SYS.plan",
+      "No failure (correct answer/behavior)",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No failure (correct answer/behavior)",
+      1
+     ],
+     [
+      "SYS.format",
+      "No failure (correct answer/behavior)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step misallocation (wasted/redundant calls)",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Rounding error",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.calculate",
+      "Rounding error",
+      1
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Tool description defect",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Evaluation/answer misconfiguration",
+      0
+     ],
+     [
+      "SYS.format",
+      "Evaluation/answer misconfiguration",
+      0
+     ]
+    ],
+    "n_full": 60,
+    "n_single": 0,
+    "spent_units": 60.0,
+    "base_success": 0.65,
+    "patched_success": 0.7333333333333333,
+    "tokens_verify": 57170
+   },
+   "CARVE-robust-check|10": {
+    "precision": 0.5454545454545454,
+    "recall": 0.375,
+    "n_accepted": 11,
+    "accepted": [
+     [
+      "SYS.plan",
+      "No failure (correct answer/behavior)",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No failure (correct answer/behavior)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Evaluation/answer misconfiguration",
+      0
+     ]
+    ],
+    "n_full": 10,
+    "n_single": 0,
+    "spent_units": 10.0,
+    "base_success": 0.65,
+    "patched_success": 0.9,
+    "tokens_verify": 5354
+   },
+   "CARVE-robust-check|20": {
+    "precision": 0.6363636363636364,
+    "recall": 0.4375,
+    "n_accepted": 11,
+    "accepted": [
+     [
+      "SYS.verify",
+      "No failure (correct answer/behavior)",
+      1
+     ],
+     [
+      "SYS.format",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "SYS.format",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "TOOL.calculate",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Tool description defect",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Evaluation/answer misconfiguration",
+      0
+     ]
+    ],
+    "n_full": 20,
+    "n_single": 0,
+    "spent_units": 20.0,
+    "base_success": 0.65,
+    "patched_success": 0.975,
+    "tokens_verify": 11906
+   },
+   "CARVE-robust-check|30": {
+    "precision": 0.7777777777777778,
+    "recall": 0.4375,
+    "n_accepted": 9,
+    "accepted": [
+     [
+      "SYS.format",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "TOOL.calculate",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Tool description defect",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Evaluation/answer misconfiguration",
+      0
+     ]
+    ],
+    "n_full": 30,
+    "n_single": 0,
+    "spent_units": 30.0,
+    "base_success": 0.65,
+    "patched_success": 0.9666666666666667,
+    "tokens_verify": 17459
+   },
+   "CARVE-robust-check|60": {
+    "precision": 0.7333333333333333,
+    "recall": 0.6875,
+    "n_accepted": 15,
+    "accepted": [
+     [
+      "SYS.verify",
+      "No failure (correct answer/behavior)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Missing final answer format",
+      1
+     ],
+     [
+      "CFG.max_steps",
+      "Missing final answer format",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "TOOL.calculate",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Insufficient step budget (max_steps)",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step misallocation (wasted/redundant calls)",
+      0
+     ],
+     [
+      "SYS.format",
+      "Rounding error",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Unit misreading (price_cents vs dollars)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete pagination (trusted has_more/complete claim)",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Tool description defect",
+      0
+     ],
+     [
+      "TOOL.get_product",
+      "Tool description defect",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy misapplication",
+      1
+     ],
+     [
+      "SYS.verify",
+      "Evaluation/answer misconfiguration",
+      0
+     ],
+     [
+      "SYS.format",
+      "Evaluation/answer misconfiguration",
+      0
+     ]
+    ],
+    "n_full": 60,
+    "n_single": 0,
+    "spent_units": 60.0,
+    "base_success": 0.65,
+    "patched_success": 1.0,
+    "tokens_verify": 57499
+   }
+  },
+  "failure_rate_by_fault": {
+   "F_pagination": 0.3333333333333333,
+   "F_steps": 0.723404255319149,
+   "F_price_unit": 0.2564102564102564,
+   "F_format": 1.0,
+   "F_policy": 0.10869565217391304,
+   "none": 0.02564102564102564
+  }
+ },
+ "runs/real_s2": {
+  "n_train": 240,
+  "train_success": 0.6083333333333333,
+  "n_failures": 94,
+  "n_failures_no_fault": 1,
+  "attr_acc": 0.7741935483870968,
+  "n_categories": 9,
+  "n_true_edges": 10,
+  "calibration": {
+   "n": 144,
+   "n_pairs": 48,
+   "p_pass_given_fail": [
+    0.26666666666666666,
+    75
+   ],
+   "p_pass_given_success": [
+    0.5362318840579711,
+    69
+   ],
+   "p_pass_bad_patch": [
+    0.3137254901960784,
+    51
+   ],
+   "p_pass_given_fail_bad_patch": [
+    0.3137254901960784,
+    51
+   ],
+   "p_pass_given_fail_good_patch": [
+    0.16666666666666666,
+    24
+   ],
+   "replay_success": 0.4791666666666667,
+   "tok_full": 1438.263888888889,
+   "tok_single": 992.9722222222222,
+   "sens": 0.5362318840579711,
+   "fpr_good": 0.16666666666666666,
+   "fpr_bad": 0.3137254901960784
+  },
+  "methods": {
+   "LLM-only|10": {
+    "precision": 0.6666666666666666,
+    "recall": 0.6,
+    "n_accepted": 9,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy Misapplication",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      0
+     ]
+    ],
+    "n_full": 0,
+    "n_single": 0,
+    "spent_units": 0.0,
+    "base_success": 0.5166666666666667,
+    "patched_success": 0.975,
+    "tokens_verify": 0
+   },
+   "LLM-only|20": {
+    "precision": 0.6666666666666666,
+    "recall": 0.6,
+    "n_accepted": 9,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy Misapplication",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      0
+     ]
+    ],
+    "n_full": 0,
+    "n_single": 0,
+    "spent_units": 0.0,
+    "base_success": 0.5166666666666667,
+    "patched_success": 0.975,
+    "tokens_verify": 0
+   },
+   "LLM-only|30": {
+    "precision": 0.6666666666666666,
+    "recall": 0.6,
+    "n_accepted": 9,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy Misapplication",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      0
+     ]
+    ],
+    "n_full": 0,
+    "n_single": 0,
+    "spent_units": 0.0,
+    "base_success": 0.5166666666666667,
+    "patched_success": 0.975,
+    "tokens_verify": 0
+   },
+   "LLM-only|60": {
+    "precision": 0.6666666666666666,
+    "recall": 0.6,
+    "n_accepted": 9,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy Misapplication",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      0
+     ]
+    ],
+    "n_full": 0,
+    "n_single": 0,
+    "spent_units": 0.0,
+    "base_success": 0.5166666666666667,
+    "patched_success": 0.975,
+    "tokens_verify": 0
+   },
+   "Replay-each|10": {
+    "precision": 0.6666666666666666,
+    "recall": 0.6,
+    "n_accepted": 9,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy Misapplication",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      0
+     ]
+    ],
+    "n_full": 10,
+    "n_single": 0,
+    "spent_units": 10.0,
+    "base_success": 0.5166666666666667,
+    "patched_success": 0.9833333333333333,
+    "tokens_verify": 8638
+   },
+   "Replay-each|20": {
+    "precision": 0.75,
+    "recall": 0.6,
+    "n_accepted": 8,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy Misapplication",
+      0
+     ]
+    ],
+    "n_full": 20,
+    "n_single": 0,
+    "spent_units": 20.0,
+    "base_success": 0.5166666666666667,
+    "patched_success": 0.9833333333333333,
+    "tokens_verify": 20086
+   },
+   "Replay-each|30": {
+    "precision": 0.7777777777777778,
+    "recall": 0.7,
+    "n_accepted": 9,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.format",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy Misapplication",
+      0
+     ]
+    ],
+    "n_full": 30,
+    "n_single": 0,
+    "spent_units": 30.0,
+    "base_success": 0.5166666666666667,
+    "patched_success": 0.9583333333333334,
+    "tokens_verify": 30073
+   },
+   "Replay-each|60": {
+    "precision": 0.7272727272727273,
+    "recall": 0.8,
+    "n_accepted": 11,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy Misapplication",
+      0
+     ],
+     [
+      "SYS.format",
+      "No Actual Failure",
+      0
+     ]
+    ],
+    "n_full": 54,
+    "n_single": 0,
+    "spent_units": 54.0,
+    "base_success": 0.5166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 57921
+   },
+   "Uncertainty|10": {
+    "precision": 0.5555555555555556,
+    "recall": 0.5,
+    "n_accepted": 9,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      1
+     ]
+    ],
+    "n_full": 10,
+    "n_single": 0,
+    "spent_units": 10.0,
+    "base_success": 0.5166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 6479
+   },
+   "Uncertainty|20": {
+    "precision": 0.5555555555555556,
+    "recall": 0.5,
+    "n_accepted": 9,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Format/Verification-Protocol Violation",
+      1
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      1
+     ]
+    ],
+    "n_full": 20,
+    "n_single": 0,
+    "spent_units": 20.0,
+    "base_success": 0.5166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 13166
+   },
+   "Uncertainty|30": {
+    "precision": 0.5454545454545454,
+    "recall": 0.6,
+    "n_accepted": 11,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      1
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      1
+     ],
+     [
+      "SYS.format",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Format/Verification-Protocol Violation",
+      2
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      0
+     ]
+    ],
+    "n_full": 30,
+    "n_single": 0,
+    "spent_units": 30.0,
+    "base_success": 0.5166666666666667,
+    "patched_success": 1.0,
+    "tokens_verify": 22266
+   },
+   "Uncertainty|60": {
+    "precision": 0.5,
+    "recall": 0.7,
+    "n_accepted": 14,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      1
+     ],
+     [
+      "SYS.format",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.plan",
+      "No Actual Failure",
+      2
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      2
+     ],
+     [
+      "SYS.format",
+      "No Actual Failure",
+      0
+     ]
+    ],
+    "n_full": 60,
+    "n_single": 0,
+    "spent_units": 60.0,
+    "base_success": 0.5166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 55703
+   },
+   "Uncertainty-MF|10": {
+    "precision": 0.5,
+    "recall": 0.4,
+    "n_accepted": 8,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      2
+     ],
+     [
+      "CFG.max_steps",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      1
+     ]
+    ],
+    "n_full": 0,
+    "n_single": 14,
+    "spent_units": 9.665549707884699,
+    "base_success": 0.5166666666666667,
+    "patched_success": 0.95,
+    "tokens_verify": 10278
+   },
+   "Uncertainty-MF|20": {
+    "precision": 0.7142857142857143,
+    "recall": 0.5,
+    "n_accepted": 7,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      2
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      0
+     ]
+    ],
+    "n_full": 3,
+    "n_single": 24,
+    "spent_units": 19.569513784945197,
+    "base_success": 0.5166666666666667,
+    "patched_success": 0.975,
+    "tokens_verify": 24399
+   },
+   "Uncertainty-MF|30": {
+    "precision": 0.625,
+    "recall": 0.5,
+    "n_accepted": 8,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      1
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      1
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      1
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      1
+     ]
+    ],
+    "n_full": 6,
+    "n_single": 34,
+    "spent_units": 29.4734778620057,
+    "base_success": 0.5166666666666667,
+    "patched_success": 0.9833333333333333,
+    "tokens_verify": 28782
+   },
+   "Uncertainty-MF|60": {
+    "precision": 0.5454545454545454,
+    "recall": 0.6,
+    "n_accepted": 11,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      1
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      1
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.role",
+      "No Actual Failure",
+      0
+     ],
+     [
+      "SYS.plan",
+      "No Actual Failure",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      0
+     ],
+     [
+      "SYS.format",
+      "No Actual Failure",
+      2
+     ]
+    ],
+    "n_full": 13,
+    "n_single": 68,
+    "spent_units": 59.94695572401129,
+    "base_success": 0.5166666666666667,
+    "patched_success": 1.0,
+    "tokens_verify": 67456
+   },
+   "CARVE-full-only|10": {
+    "precision": 0.5384615384615384,
+    "recall": 0.7,
+    "n_accepted": 13,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Incomplete Pagination",
+      1
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.role",
+      "No Actual Failure",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      1
+     ],
+     [
+      "SYS.format",
+      "No Actual Failure",
+      0
+     ]
+    ],
+    "n_full": 10,
+    "n_single": 0,
+    "spent_units": 10.0,
+    "base_success": 0.5166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 9529
+   },
+   "CARVE-full-only|20": {
+    "precision": 0.5,
+    "recall": 0.7,
+    "n_accepted": 14,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Incomplete Pagination",
+      1
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.role",
+      "No Actual Failure",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      2
+     ],
+     [
+      "SYS.format",
+      "No Actual Failure",
+      0
+     ]
+    ],
+    "n_full": 20,
+    "n_single": 0,
+    "spent_units": 20.0,
+    "base_success": 0.5166666666666667,
+    "patched_success": 1.0,
+    "tokens_verify": 19228
+   },
+   "CARVE-full-only|30": {
+    "precision": 0.5,
+    "recall": 0.7,
+    "n_accepted": 14,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Incomplete Pagination",
+      1
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.role",
+      "No Actual Failure",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      2
+     ],
+     [
+      "SYS.format",
+      "No Actual Failure",
+      0
+     ]
+    ],
+    "n_full": 30,
+    "n_single": 0,
+    "spent_units": 30.0,
+    "base_success": 0.5166666666666667,
+    "patched_success": 0.95,
+    "tokens_verify": 23547
+   },
+   "CARVE-full-only|60": {
+    "precision": 0.5333333333333333,
+    "recall": 0.8,
+    "n_accepted": 15,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      1
+     ],
+     [
+      "SYS.plan",
+      "Policy Misapplication",
+      0
+     ],
+     [
+      "SYS.plan",
+      "No Actual Failure",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      1
+     ],
+     [
+      "SYS.format",
+      "No Actual Failure",
+      0
+     ]
+    ],
+    "n_full": 60,
+    "n_single": 0,
+    "spent_units": 60.0,
+    "base_success": 0.5166666666666667,
+    "patched_success": 1.0,
+    "tokens_verify": 82212
+   },
+   "CARVE|10": {
+    "precision": 0.5384615384615384,
+    "recall": 0.7,
+    "n_accepted": 13,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      2
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Format/Verification-Protocol Violation",
+      1
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.plan",
+      "No Actual Failure",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      0
+     ],
+     [
+      "SYS.format",
+      "No Actual Failure",
+      0
+     ]
+    ],
+    "n_full": 7,
+    "n_single": 4,
+    "spent_units": 9.7615856308242,
+    "base_success": 0.5166666666666667,
+    "patched_success": 0.975,
+    "tokens_verify": 8864
+   },
+   "CARVE|20": {
+    "precision": 0.5,
+    "recall": 0.7,
+    "n_accepted": 14,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      1
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Format/Verification-Protocol Violation",
+      1
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.plan",
+      "No Actual Failure",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      2
+     ],
+     [
+      "SYS.format",
+      "No Actual Failure",
+      0
+     ]
+    ],
+    "n_full": 14,
+    "n_single": 8,
+    "spent_units": 19.5231712616484,
+    "base_success": 0.5166666666666667,
+    "patched_success": 0.9833333333333333,
+    "tokens_verify": 21664
+   },
+   "CARVE|30": {
+    "precision": 0.5,
+    "recall": 0.7,
+    "n_accepted": 14,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Incomplete Pagination",
+      1
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      2
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      1
+     ],
+     [
+      "SYS.format",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Format/Verification-Protocol Violation",
+      1
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.role",
+      "No Actual Failure",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      0
+     ],
+     [
+      "SYS.format",
+      "No Actual Failure",
+      0
+     ]
+    ],
+    "n_full": 25,
+    "n_single": 7,
+    "spent_units": 29.83277485394235,
+    "base_success": 0.5166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 27262
+   },
+   "CARVE|60": {
+    "precision": 0.5333333333333333,
+    "recall": 0.8,
+    "n_accepted": 15,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      2
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      1
+     ],
+     [
+      "SYS.plan",
+      "Incomplete Pagination",
+      1
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      2
+     ],
+     [
+      "SYS.plan",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      1
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Policy Misapplication",
+      0
+     ],
+     [
+      "SYS.role",
+      "No Actual Failure",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      0
+     ],
+     [
+      "SYS.format",
+      "No Actual Failure",
+      0
+     ]
+    ],
+    "n_full": 51,
+    "n_single": 12,
+    "spent_units": 59.28475689247259,
+    "base_success": 0.5166666666666667,
+    "patched_success": 0.975,
+    "tokens_verify": 71428
+   },
+   "CARVE-calibrated|10": {
+    "precision": 0.5384615384615384,
+    "recall": 0.7,
+    "n_accepted": 13,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.plan",
+      "No Actual Failure",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      1
+     ],
+     [
+      "SYS.format",
+      "No Actual Failure",
+      0
+     ]
+    ],
+    "n_full": 10,
+    "n_single": 0,
+    "spent_units": 10.0,
+    "base_success": 0.5166666666666667,
+    "patched_success": 1.0,
+    "tokens_verify": 8797
+   },
+   "CARVE-calibrated|20": {
+    "precision": 0.5,
+    "recall": 0.7,
+    "n_accepted": 14,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Incomplete Pagination",
+      1
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.role",
+      "No Actual Failure",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      1
+     ],
+     [
+      "SYS.format",
+      "No Actual Failure",
+      0
+     ]
+    ],
+    "n_full": 20,
+    "n_single": 0,
+    "spent_units": 20.0,
+    "base_success": 0.5166666666666667,
+    "patched_success": 0.9666666666666667,
+    "tokens_verify": 18143
+   },
+   "CARVE-calibrated|30": {
+    "precision": 0.5,
+    "recall": 0.7,
+    "n_accepted": 14,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Incomplete Pagination",
+      1
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.role",
+      "No Actual Failure",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      2
+     ],
+     [
+      "SYS.format",
+      "No Actual Failure",
+      0
+     ]
+    ],
+    "n_full": 30,
+    "n_single": 0,
+    "spent_units": 30.0,
+    "base_success": 0.5166666666666667,
+    "patched_success": 0.9833333333333333,
+    "tokens_verify": 25487
+   },
+   "CARVE-calibrated|60": {
+    "precision": 0.5333333333333333,
+    "recall": 0.8,
+    "n_accepted": 15,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Incomplete Pagination",
+      1
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      1
+     ],
+     [
+      "SYS.plan",
+      "Policy Misapplication",
+      0
+     ],
+     [
+      "SYS.role",
+      "No Actual Failure",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      0
+     ],
+     [
+      "SYS.format",
+      "No Actual Failure",
+      0
+     ]
+    ],
+    "n_full": 60,
+    "n_single": 0,
+    "spent_units": 60.0,
+    "base_success": 0.5166666666666667,
+    "patched_success": 0.9666666666666667,
+    "tokens_verify": 52130
+   },
+   "CARVE-robust-check|10": {
+    "precision": 0.5384615384615384,
+    "recall": 0.7,
+    "n_accepted": 13,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Incomplete Pagination",
+      1
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.role",
+      "No Actual Failure",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      1
+     ],
+     [
+      "SYS.format",
+      "No Actual Failure",
+      0
+     ]
+    ],
+    "n_full": 10,
+    "n_single": 0,
+    "spent_units": 10.0,
+    "base_success": 0.5166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 9157
+   },
+   "CARVE-robust-check|20": {
+    "precision": 0.5,
+    "recall": 0.7,
+    "n_accepted": 14,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      1
+     ],
+     [
+      "SYS.format",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.plan",
+      "No Actual Failure",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      2
+     ],
+     [
+      "SYS.format",
+      "No Actual Failure",
+      0
+     ]
+    ],
+    "n_full": 20,
+    "n_single": 0,
+    "spent_units": 20.0,
+    "base_success": 0.5166666666666667,
+    "patched_success": 1.0,
+    "tokens_verify": 14656
+   },
+   "CARVE-robust-check|30": {
+    "precision": 0.5,
+    "recall": 0.7,
+    "n_accepted": 14,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      1
+     ],
+     [
+      "SYS.format",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      0
+     ],
+     [
+      "SYS.plan",
+      "No Actual Failure",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      2
+     ],
+     [
+      "SYS.format",
+      "No Actual Failure",
+      0
+     ]
+    ],
+    "n_full": 30,
+    "n_single": 0,
+    "spent_units": 30.0,
+    "base_success": 0.5166666666666667,
+    "patched_success": 0.9916666666666667,
+    "tokens_verify": 22867
+   },
+   "CARVE-robust-check|60": {
+    "precision": 0.5714285714285714,
+    "recall": 0.8,
+    "n_accepted": 14,
+    "accepted": [
+     [
+      "TOOL.get_product",
+      "Unit Misinterpretation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Unwarranted Rounding",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Incomplete Pagination",
+      1
+     ],
+     [
+      "TOOL.list_orders",
+      "Incomplete Pagination",
+      0
+     ],
+     [
+      "SYS.plan",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "TOOL.list_orders",
+      "Misleading Tool/Trace Information",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Step Budget Exhaustion",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.format",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "CFG.max_steps",
+      "Format/Verification-Protocol Violation",
+      0
+     ],
+     [
+      "SYS.verify",
+      "Verification-Induced Over-Checking",
+      1
+     ],
+     [
+      "SYS.plan",
+      "Policy Misapplication",
+      0
+     ],
+     [
+      "SYS.verify",
+      "No Actual Failure",
+      0
+     ],
+     [
+      "SYS.format",
+      "No Actual Failure",
+      0
+     ]
+    ],
+    "n_full": 60,
+    "n_single": 0,
+    "spent_units": 60.0,
+    "base_success": 0.5166666666666667,
+    "patched_success": 0.9833333333333333,
+    "tokens_verify": 67741
+   }
+  },
+  "failure_rate_by_fault": {
+   "F_price_unit": 0.275,
+   "F_format": 0.975,
+   "F_pagination": 0.375,
+   "none": 0.023809523809523808,
+   "F_steps": 0.5652173913043478,
+   "F_policy": 0.0625
+  }
+ }
+}

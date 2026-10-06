@@ -33,7 +33,7 @@ from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 
 from agent_exp.analyst import attribute, induce_taxonomy, judge_step, label, make_patches
-from carve.model import FULL, SINGLE, GraphPosterior, ObsParams
+from carve.model import FULL, SINGLE, CategoryBPosterior, GraphPosterior, ObsParams
 from carve.policies import (CARVE, LLMOnly, ReplayEach, UncertaintyMF, UncertaintySampling,
                             bayes_decide)
 from sim.testbed import edge_prior
@@ -56,9 +56,10 @@ def _pmap(fn, items, workers):
 
 
 class Domain:
-    def __init__(self, name):
-        if name != "tau2_retail":
+    def __init__(self, name, split="train"):
+        if name not in ("tau2_retail", "tau2_airline"):
             raise ValueError(name)
+        os.environ["TAU2_DOMAIN"] = name.split("_", 1)[1]
         from agent_exp import tau2_env as m
         from agent_exp.tau2_env import Step, Trace
 
@@ -67,7 +68,9 @@ class Domain:
         self.comp_ids = list(m.COMPONENT_DOCS)
         self.faults = m.FAULTS
         self.tasks = {t.id: t for t in m.get_tasks("base")}
-        self.split = m.get_tasks.__globals__["get_tasks_split"]()
+        self.split = m.get_tasks_split()
+        self.split["base"] = list(self.tasks)
+        self.train = self.split[split]
 
     def trace_from(self, d):
         t = self.Trace(d["task_id"], d["question"], d["faults"], stopped=d["stopped"],
@@ -90,7 +93,7 @@ def stage_collect(llm, D, args):
     data = _load(path) or []
     done = {(d["task_id"], d["variant"], d["trial"]) for d in data}
     jobs = []
-    for tid in D.split["train"]:
+    for tid in D.train:
         for trial in range(args.clean_trials):
             jobs.append((tid, None, trial))
         for f in D.faults:
@@ -300,11 +303,16 @@ def net_gain(acc, patch, E, Q, f, c_fp):
 class BankWorld:
     def __init__(self, bank, rng):
         self.c, self.reg, self.rng = bank["cells"], bank["reg"], rng
+        self.null = list(bank["null"].values())
 
     def intervene(self, i, j, k, fid):
         c = self.c[f"{i},{j},{k}"]
         r = self.rng.integers(len(c["y"]))
         return int(c["y"][r] if fid == FULL else c["z"][r])
+
+    def control(self, i):
+        ys = [v["y"] for v in self.null if v["cat"] == i] or [0]
+        return int(ys[self.rng.integers(len(ys))])
 
     def regress(self, i, j, k):
         runs = self.reg.get(f"{i},{j},{k}") or [{"y": 1}]
@@ -351,8 +359,22 @@ class HarnessFix:
         return acc, patch, spent
 
 
+def regression_value(n_fail, n, r0, w, a0=0.5, b0=10.0, grid=np.linspace(0.0005, 0.9995, 400)):
+    """Posterior expected regression cost of a patch, in failure-mass units.
+
+    rho is the patch's excess failure probability on previously successful tasks
+    (prior Beta(a0, b0)); a regression run fails with prob r0 + (1 - r0) rho,
+    where r0 is the natural re-run failure rate; w = successes / failures
+    converts a rate on successful tasks into failure-mass units."""
+    pf = r0 + (1 - r0) * grid
+    lw = (a0 - 1) * np.log(grid) + (b0 - 1) * np.log1p(-grid) + \
+        n_fail * np.log(pf) + (n - n_fail) * np.log1p(-pf)
+    pw = np.exp(lw - lw.max())
+    return float((pw * grid).sum() / pw.sum()) * w
+
+
 def run_method(method, bank, counts, f, inb, costs, b_hat, seed, budget, c_fp=0.02,
-               r_hat=0.7, cal=None):
+               r_hat=0.7, cal=None, r0=0.1, w=2.8):
     rng = np.random.default_rng(seed)
     world = BankWorld(bank, rng)
     I, J = counts.shape
@@ -363,9 +385,24 @@ def run_method(method, bank, counts, f, inb, costs, b_hat, seed, budget, c_fp=0.
         params.sens, params.fpr = cal["sens"], cal["fpr"]
     if method == "CARVE-robust-check":
         params.sens, params.fpr, params.fooled_fpr = cal["sens"], cal["fpr_good"], cal["fpr_bad"]
-    post = GraphPosterior(edge_prior(counts, r_hat), 3, params)
+    plus = method.startswith("CARVE+")
+    ctrl = method in ("CARVE+", "CARVE+ctrl")
+    gate = method in ("CARVE+", "CARVE+gate")
+    # CARVE-R: evidence rule + Bayesian regression gate (borrowed from HarnessFix:
+    # accept only verified patches, and only if they do not regress)
+    evid = False
+    pw = {"CARVE-R": 0.5, "CARVE+evidence": 0.5, "CARVE+flat": 0.0}.get(method, 1.0)
+    bgate = method in ("CARVE-R", "CARVE+bgate")
+    if ctrl:
+        post = CategoryBPosterior(edge_prior(counts, r_hat), 3, params)
+    else:
+        post = GraphPosterior(edge_prior(counts, r_hat), 3, params)
     c = costs[:2]
-    pol = {"CARVE": lambda: CARVE(costs=c, c_fp=c_fp),
+    rho = 1.5 / J                                   # base edge density of the prior
+    post.base_logit = float(np.log(rho / (1 - rho)))
+    if plus or method == "CARVE-R":
+        method = "CARVE"
+    pol = {"CARVE": lambda: CARVE(costs=c, c_fp=c_fp, prior_weight=pw),
            "CARVE-calibrated": lambda: CARVE(costs=c, c_fp=c_fp),
            "CARVE-robust-check": lambda: CARVE(costs=c, c_fp=c_fp),
            "CARVE-full-only": lambda: CARVE(costs=c, c_fp=c_fp, fidelities=(FULL,)),
@@ -375,12 +412,22 @@ def run_method(method, bank, counts, f, inb, costs, b_hat, seed, budget, c_fp=0.
            "Replay-each": lambda: ReplayEach(counts)}[method]()
     pol.blocked = ~inb
     spent = 0.0
+    n_ctrl, n_reg = 2, 2
+    reserve = min(0.3 * budget, 3 * n_reg * costs[2]) if (gate or bgate) else 0.0
     while True:
         act = pol.select(post, f)
         if act is None:
             break
         i, j, k, fid = act
-        if spent + c[fid] > budget:
+        if ctrl and post.n_ctrl[i] < n_ctrl:
+            # control replays of the category before trusting its outcomes
+            if spent + 1.0 > budget - reserve:
+                break
+            post.control(i, world.control(i))
+            pol._cache = None
+            spent += 1.0
+            continue
+        if spent + c[fid] > budget - reserve:
             break
         o = world.intervene(i, j, k, fid)
         post.update(i, j, k, fid, o)
@@ -388,14 +435,89 @@ def run_method(method, bank, counts, f, inb, costs, b_hat, seed, budget, c_fp=0.
             pol.record(i, j, k, fid, o)
         spent += c[fid]
     acc, patch = pol.decide(post, f)
-    return acc & inb, patch, spent
+    acc &= inb
+    if evid:
+        # the data, not only the prior, must favour the edge: at least one full
+        # replay and a positive log-likelihood ratio from the observations
+        llr = (post.log_ev1 - post.log_ev0).sum(-1)
+        nf = post.n_obs[..., FULL].sum(-1)
+        acc &= (nf >= 1) & (llr > 0)
+    if bgate:
+        # sequential Bayesian regression check: run up to 3 regression episodes
+        # per accepted cell and keep it only while its expected repair exceeds
+        # its expected regression cost
+        pe, q = post.p_edge(), post.q_mean()
+        val = pe * f[:, None] * q.max(-1) - (1 - pe) * c_fp
+        for i, j in sorted(zip(*np.nonzero(acc)), key=lambda c: -val[c]):
+            n = nfail = 0
+            while True:
+                cost = regression_value(nfail, n, r0, w)
+                if val[i, j] - cost <= 0:
+                    acc[i, j] = False
+                    break
+                if n >= 3:
+                    break
+                if spent + costs[2] > budget:
+                    acc[i, j] = n > 0
+                    break
+                nfail += 1 - world.regress(i, j, patch[i, j])
+                n += 1
+                spent += costs[2]
+    if gate:
+        # regression gate: each accepted patch must not break previously
+        # successful tasks; cells that cannot be gated within budget are dropped
+        val = post.p_edge() * f[:, None]
+        for i, j in sorted(zip(*np.nonzero(acc)), key=lambda c: -val[c]):
+            if spent + n_reg * costs[2] > budget:
+                acc[i, j] = False
+                continue
+            broken = sum(1 - world.regress(i, j, patch[i, j]) for _ in range(n_reg))
+            spent += n_reg * costs[2]
+            if broken:
+                acc[i, j] = False
+    return acc, patch, spent
 
 
 METHODS = ["LLM-only", "Replay-each", "HarnessFix", "Uncertainty", "Uncertainty-MF",
            "CARVE-full-only", "CARVE", "CARVE-calibrated", "CARVE-robust-check"]
+# variants tried on the retail development bank only (none beat plain CARVE there,
+# so none is carried to the held-out airline bank)
+DEV_METHODS = ["CARVE+ctrl", "CARVE+gate", "CARVE+", "CARVE+evidence", "CARVE+flat",
+               "CARVE+bgate", "CARVE-R"]
 
 
-def stage_evaluate(D, args, attrs, tax, bank):
+def rerun_stats(data):
+    """Natural re-run failure rate r0 = P(fail | succeeded in the other clean
+    trial), and w = successes / failures in the training runs."""
+    by = {}
+    for d in data:
+        if d["variant"] is None:
+            by.setdefault(d["task_id"], {})[d["trial"]] = d["reward"]
+    pairs = [(v[0], v[1]) for v in by.values() if 0 in v and 1 in v]
+    after = [b for a, b in pairs if a] + [a for a, b in pairs if b]
+    r0 = 1 - float(np.mean(after)) if after else 0.1
+    ok = sum(d["reward"] for d in data)
+    return r0, ok / max(len(data) - ok, 1)
+
+
+def reg_excess(bank, I, J, K, r0, w):
+    """Measured regression cost of each patch in failure-mass units."""
+    R = np.zeros((I, J, K))
+    for key, runs in bank["reg"].items():
+        i, j, k = map(int, key.split(","))
+        fail = 1 - np.mean([r["y"] for r in runs])
+        R[i, j, k] = w * max(0.0, (fail - r0) / (1 - r0))
+    return R
+
+
+def net_gain_reg(acc, patch, E, Q, f, R):
+    """Repaired failure mass minus measured regressions of every accepted patch
+    (true or false edge)."""
+    g = net_gain(acc, patch, E, Q, f, 0.0)
+    return g - sum(R[i, j, patch[i, j]] for i, j in zip(*np.nonzero(acc)))
+
+
+def stage_evaluate(D, args, attrs, tax, bank, data=None):
     cats, counts, members, f = problem(D, attrs, tax)
     I, J = counts.shape
     inb, E, Q, b = ground_truth(bank, I, J, delta=args.delta)
@@ -417,28 +539,39 @@ def stage_evaluate(D, args, attrs, tax, bank):
     faulted = [a for a in attrs.values() if a["true_fault"]]
     attr_acc = float(np.mean([a["component"] == D.faults[a["true_fault"]][0] for a in faulted]))
     oracle = net_gain(E, Q.argmax(-1), E, Q, f, args.c_fp)
-    out = {"costs": costs, "calibration": cal, "b_hat": b_hat, "n_true_edges": int(E.sum()),
+    r0, w = rerun_stats(data) if data else (0.1, 2.8)
+    R = reg_excess(bank, I, J, 3, r0, w)
+    # regression-aware oracle: true edges with the patch maximising f*q - R,
+    # keeping only cells whose contribution is positive
+    pbest = (f[:, None, None] * Q - R).argmax(-1)
+    keep = E & (np.take_along_axis(f[:, None, None] * Q - R, pbest[..., None], -1)[..., 0] > 0)
+    oracle_r = net_gain_reg(keep, pbest, E, Q, f, R)
+    out = {"r0": r0, "w": w, "oracle_gain_reg": oracle_r, "costs": costs, "calibration": cal, "b_hat": b_hat, "n_true_edges": int(E.sum()),
            "n_bank_cells": int(inb.sum()), "attr_acc_injected": attr_acc,
            "n_failures": len(attrs), "n_natural": len(attrs) - len(faulted),
            "oracle_gain": oracle, "true_edges": [[cats[i]["name"], D.comp_ids[j]]
                                                  for i, j in zip(*np.nonzero(E))],
            "results": {}}
-    for m in METHODS:
+    for m in args.methods or METHODS:
         for B in args.budgets:
             rows = []
             for s in range(args.n_seeds):
                 acc, patch, spent = run_method(m, bank, counts, f, inb, costs, b_hat, s, B,
-                                               c_fp=args.c_fp, cal=cal)
+                                               c_fp=args.c_fp, cal=cal, r0=r0, w=w)
                 g = net_gain(acc, patch, E, Q, f, args.c_fp)
+                gr = net_gain_reg(acc, patch, E, Q, f, R)
                 tp = int((acc & E).sum())
                 rows.append([g / oracle if oracle > 0 else 0.0,
-                             tp / max(int(acc.sum()), 1), tp / max(int(E.sum()), 1), spent])
+                             tp / max(int(acc.sum()), 1), tp / max(int(E.sum()), 1), spent,
+                             gr / oracle_r if oracle_r > 0 else 0.0])
             r = np.array(rows)
             out["results"][f"{m}|{B}"] = {"gain": r[:, 0].mean(), "gain_se": r[:, 0].std() /
                                           np.sqrt(len(r)), "precision": r[:, 1].mean(),
-                                          "recall": r[:, 2].mean(), "spent": r[:, 3].mean()}
+                                          "recall": r[:, 2].mean(), "spent": r[:, 3].mean(),
+                                          "gain_reg": r[:, 4].mean(),
+                                          "gain_reg_se": r[:, 4].std() / np.sqrt(len(r))}
             print(m, B, {k: round(v, 3) for k, v in out["results"][f"{m}|{B}"].items()})
-    _save(os.path.join(args.out, "evaluation.json"), out)
+    _save(os.path.join(args.out, f"evaluation{args.eval_tag}.json"), out)
     return out
 
 
@@ -446,6 +579,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", required=True)
     ap.add_argument("--domain", default="tau2_retail")
+    ap.add_argument("--task_split", default="train")
     ap.add_argument("--stage", default="all")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--workers", type=int, default=24)
@@ -457,11 +591,13 @@ def main():
     ap.add_argument("--c_fp", type=float, default=0.02)
     ap.add_argument("--n_seeds", type=int, default=200)
     ap.add_argument("--budgets", type=float, nargs="+", default=[10, 20, 40, 80])
+    ap.add_argument("--methods", nargs="+", default=None)
+    ap.add_argument("--eval_tag", default="")
     args = ap.parse_args()
     os.makedirs(args.out, exist_ok=True)
     from agent_exp.llm import LLM
 
-    llm, D = LLM(), Domain(args.domain)
+    llm, D = LLM(), Domain(args.domain, args.task_split)
     data = stage_collect(llm, D, args)
     if args.stage == "collect":
         return
@@ -473,7 +609,7 @@ def main():
     bank = stage_bank(llm, D, args, data, attrs, tax, patches)
     if args.stage == "bank":
         return
-    stage_evaluate(D, args, attrs, tax, bank)
+    stage_evaluate(D, args, attrs, tax, bank, data)
     print(json.dumps({k: dict(llm.io)[k] for k in llm.io}))
 
 

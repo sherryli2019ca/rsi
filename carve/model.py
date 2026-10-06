@@ -138,3 +138,90 @@ class GraphPosterior:
         prob = c * (pe * pred1 + (1 - pe) * g0[:, None, None, None])
         new_logit = logit + np.log(pred1) - np.log(g0)[:, None, None, None]
         return prob, new_logit, qnum / pred1
+
+
+class CategoryBPosterior(GraphPosterior):
+    """GraphPosterior with a spurious recovery rate b_i per category.
+
+    b_i gets a Beta prior centred on the global rate and is updated from control
+    replays (the failure replayed with no patch). Because every cell likelihood
+    depends on b_i, the cells of category i are recomputed from their sufficient
+    statistics (success counts per patch and fidelity) whenever b_i changes.
+    """
+
+    def __init__(self, prior_edge, n_patches, params: ObsParams, grid_size=101,
+                 b_strength=4.0):
+        super().__init__(prior_edge, n_patches, params, grid_size)
+        self.b_a = np.full(self.I, params.b * b_strength)
+        self.b_b = np.full(self.I, (1 - params.b) * b_strength)
+        self.n_ctrl = np.zeros(self.I, dtype=int)
+        self.succ = np.zeros((self.I, self.J, self.K, 2), dtype=int)
+        prior_q = self.grid ** (params.q_a - 1) * (1 - self.grid) ** (params.q_b - 1)
+        self._prior_q = prior_q / prior_q.sum()
+
+    def b_of(self, i):
+        return self.b_a[i] / (self.b_a[i] + self.b_b[i])
+
+    def _lik_b(self, fidelity, outcome, b):
+        saved = self.p.b
+        self.p.b = b
+        try:
+            return GraphPosterior.lik(self, fidelity, outcome)
+        finally:
+            self.p.b = saved
+
+    def update(self, i, j, k, fidelity, outcome):
+        l1, l0 = self._lik_b(fidelity, outcome, self.b_of(i))
+        w = self.W[i, j, k] * l1
+        z = w.sum()
+        self.W[i, j, k] = w / z
+        self.log_ev1[i, j, k] += np.log(z)
+        self.log_ev0[i, j, k] += np.log(l0)
+        self.n_obs[i, j, k, fidelity] += 1
+        self.succ[i, j, k, fidelity] += outcome
+
+    def control(self, i, outcome):
+        """Record a control replay of category i and refresh its cells."""
+        self.b_a[i] += outcome
+        self.b_b[i] += 1 - outcome
+        self.n_ctrl[i] += 1
+        b = self.b_of(i)
+        for j in range(self.J):
+            for k in range(self.K):
+                W = self._prior_q.copy()
+                e1 = e0 = 0.0
+                for fid in (FULL, SINGLE):
+                    n, s = self.n_obs[i, j, k, fid], self.succ[i, j, k, fid]
+                    if n == 0:
+                        continue
+                    l1s, l0s = self._lik_b(fid, 1, b)
+                    l1f, l0f = self._lik_b(fid, 0, b)
+                    w = W * l1s ** s * l1f ** (n - s)
+                    z = w.sum()
+                    W, e1 = w / z, e1 + np.log(z)
+                    e0 += s * np.log(l0s) + (n - s) * np.log(l0f)
+                self.W[i, j, k], self.log_ev1[i, j, k], self.log_ev0[i, j, k] = W, e1, e0
+
+    def lookahead(self, fidelity, n, cell=None):
+        if cell is not None:
+            saved = self.p.b
+            self.p.b = self.b_of(cell[0])
+            try:
+                return GraphPosterior.lookahead(self, fidelity, n, cell)
+            finally:
+                self.p.b = saved
+        # one full pass per category (b_i differs), keeping that category's row
+        res = None
+        saved = self.p.b
+        try:
+            for i in range(self.I):
+                self.p.b = self.b_of(i)
+                out = GraphPosterior.lookahead(self, fidelity, n, None)
+                if res is None:
+                    res = [o.copy() for o in out]
+                else:
+                    for r, o in zip(res, out):
+                        r[:, i] = o[:, i]
+        finally:
+            self.p.b = saved
+        return tuple(res)

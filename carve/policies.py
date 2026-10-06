@@ -31,9 +31,20 @@ class CARVE:
     name = "CARVE"
 
     def __init__(self, costs=(1.0, 0.1), c_fp=0.02, horizons=(1, 2, 4, 8),
-                 fidelities=(FULL, SINGLE), min_score=1e-6):
+                 fidelities=(FULL, SINGLE), min_score=1e-6, prior_weight=1.0):
         self.costs, self.c_fp, self.horizons = costs, c_fp, horizons
         self.fidelities, self.min_score = fidelities, min_score
+        # prior_weight < 1 tempers the LLM prior in the *decision* (and hence in
+        # the value the look-ahead optimises): a cell is accepted on evidence,
+        # so the selection rule sees value in testing cells the prior favours
+        self.prior_weight = prior_weight
+
+    def _temper(self, post, logit, cell=None):
+        if self.prior_weight == 1.0:
+            return logit
+        sl = post._sl(cell)
+        base = getattr(post, "base_logit", 0.0)
+        return logit - (1 - self.prior_weight) * (post.prior_logit[sl] - base)
 
     def scores(self, post: GraphPosterior, f, cell=None):
         """Score every (i, j, k, fidelity), or only those of cell=(i, j).
@@ -41,12 +52,14 @@ class CARVE:
         Cells are independent given the data, so after an observation only the
         observed cell's scores change; select() caches the rest.
         """
+        sig = lambda x: 1 / (1 + np.exp(-x))
         if cell is None:
-            q, pe, fw = post.q_mean(), post.p_edge(), f[:, None]
+            q, fw = post.q_mean(), f[:, None]
+            pe = sig(self._temper(post, post.logit_edge()))
         else:
             i, j = cell
             q = post.q_mean(cell)
-            pe = post.p_edge(cell)
+            pe = sig(self._temper(post, post.logit_edge(cell), cell))
             fw = f[i:i + 1, None]
         v_now = np.maximum(accept_value(pe, q.max(-1), fw[:, 0], self.c_fp), 0)[..., None]
         # best quality among the *other* patches, per k
@@ -59,6 +72,11 @@ class CARVE:
         for a, fid in enumerate(self.fidelities):
             for n in self.horizons:
                 prob, logit, qk = post.lookahead(fid, n, cell)
+                if self.prior_weight != 1.0:
+                    sl = post._sl(cell)
+                    base = getattr(post, "base_logit", 0.0)
+                    logit = logit - (1 - self.prior_weight) * \
+                        (post.prior_logit[sl] - base)[None, ..., None]
                 pe_new = 1 / (1 + np.exp(-logit))
                 q_best_new = np.maximum(qk, q_other[None])
                 v_new = np.maximum(pe_new * fw[None, :, :, None] * q_best_new
@@ -86,7 +104,11 @@ class CARVE:
         return int(i), int(j), int(k), self.fidelities[a]
 
     def decide(self, post, f):
-        return bayes_decide(post, f, self.c_fp)
+        if self.prior_weight == 1.0:
+            return bayes_decide(post, f, self.c_fp)
+        q = post.q_mean()
+        pe = 1 / (1 + np.exp(-self._temper(post, post.logit_edge())))
+        return accept_value(pe, q.max(-1), f, self.c_fp) > 0, q.argmax(-1)
 
 
 class UncertaintySampling:

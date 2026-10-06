@@ -1,0 +1,674 @@
+{
+ "1|None|1": {
+  "root_cause": "The agent cancelled a reservation based on a \"change of plan\" reason without verifying that the cancellation actually qualifies for a refund under policy; the real issue is that the booking was made within 24 hours, but the agent incorrectly treated that temporarily-allowed cancellation as valid and proceeded when the expected outcome required only locating the reservation and not cancelling because the trip had already been flown.",
+  "step": 5,
+  "component": "POL.cancel",
+  "true_fault": null
+ },
+ "1|F_cancel_window|0": {
+  "root_cause": "The agent cancelled the reservation without verifying that the user would actually receive a refund to their preferred payment method (gift card), when the policy requires that a gift card refund may not be possible and the user had stated they did not want to proceed without a refund.",
+  "step": 5,
+  "component": "POL.cancel",
+  "true_fault": "F_cancel_window"
+ },
+ "1|F_compensation|0": {
+  "root_cause": "The agent failed to recognize that the Q69X3R reservation was booked more than 24 hours ago (2024-05-14 09:52 vs. current time 2024-05-15 15:00), so it incorrectly concluded the reservation was eligible for cancellation and proceeded despite the user not being a business passenger and having no travel insurance.",
+  "step": 3,
+  "component": "POL.cancel",
+  "true_fault": "F_compensation"
+ },
+ "3|F_bag_allowance|0": {
+  "root_cause": "The agent trusted the user profile's membership value (silver) over the user's claim and ignored that the reservation's cabin was unknown to the user, failing to compute the baggage allowance using the correct (gold) membership rule of 2 free bags per economy passenger.",
+  "step": 3,
+  "component": "POL.book",
+  "true_fault": "F_bag_allowance"
+ },
+ "7|None|0": {
+  "root_cause": "The agent incorrectly refused to change the cabin of a basic economy reservation to business and then cancel it, even though the policy explicitly allows cabin changes on basic economy reservations (when no flight has been flown) and cabin changes combined with subsequent cancellation are permitted.",
+  "step": 4,
+  "component": "POL.modify",
+  "true_fault": null
+ },
+ "7|None|1": {
+  "root_cause": "The agent incorrectly refused to upgrade XEHM4B to business before cancelling it, treating a cabin change (which policy explicitly permits for basic economy when no flight has flown) as an illicit circumvention, even though the user was entitled to upgrade and then cancel per policy.",
+  "step": 3,
+  "component": "POL.modify",
+  "true_fault": null
+ },
+ "7|F_bag_allowance|0": {
+  "root_cause": "The agent incorrectly treated basic economy as always unmodifiable/un-cancellable, when the policy explicitly allows basic economy reservations to change cabin (and thus become eligible business flights for cancellation).",
+  "step": 5,
+  "component": "POL.modify",
+  "true_fault": "F_bag_allowance"
+ },
+ "7|F_cancel_window|0": {
+  "root_cause": "The agent incorrectly applied cancellation policy to the upgrade-then-cancel path, refusing to perform a cabin upgrade to business that the policy permits (cabin can be changed when no flight has been flown) merely because the user's stated intent was to then cancel.",
+  "step": 3,
+  "component": "POL.modify",
+  "true_fault": "F_cancel_window"
+ },
+ "7|F_basic_modify|0": {
+  "root_cause": "The agent refused to perform the policy-permitted upgrade of XEHM4B to business class because it wrongly characterized the upgrade-then-cancel sequence as a policy violation, when in fact the policy requires changing basic economy cabin only after verifying rules but does not prohibit cancelling a business reservation after a legitimate cabin change.",
+  "step": 4,
+  "component": "POL.modify",
+  "true_fault": "F_basic_modify"
+ },
+ "7|F_compensation|0": {
+  "root_cause": "The agent incorrectly treated a cabin change from basic economy to business as not affecting cancellation eligibility (and refused the upgrade), when the cancellation policy actually allows a business-class flight to be cancelled, so upgrading XEHM4B to business should have made it cancellable.",
+  "step": 3,
+  "component": "POL.modify",
+  "true_fault": "F_compensation"
+ },
+ "7|F_steps|0": {
+  "root_cause": "The agent incorrectly treated the basic_economy cabin as unmodifiable when changing cabin class is explicitly allowed before any flight is flown, so it refused the user's request to upgrade XEHM4B to business and thus could not cancel it.",
+  "step": 4,
+  "component": "POL.modify",
+  "true_fault": "F_steps"
+ },
+ "8|F_compensation|0": {
+  "root_cause": "The agent passed the certificate's full stored amount (500) as the payment amount instead of the actual fare (348), and then incorrectly treated the resulting payment mismatch as a reason to abandon the booking rather than applying the exact fare amount to the certificate.",
+  "step": 7,
+  "component": "TOOL.book_reservation",
+  "true_fault": "F_compensation"
+ },
+ "8|F_steps|0": {
+  "root_cause": "The agent ran out of steps (max_steps=8) because it spent too many turns confirming details and did not actually call book_reservation after the user's final \"yes\" confirmation.",
+  "step": 7,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "9|F_cancel_window|0": {
+  "root_cause": "The agent never checked for one-stop flights or an available nonstop alternative that could actually satisfy the modification, and instead only searched for nonstop flights that did not exist.",
+  "step": 7,
+  "component": "TOOL.search_direct_flight",
+  "true_fault": "F_cancel_window"
+ },
+ "10|F_cancel_window|0": {
+  "root_cause": "The agent quoted business fares for the unchanged return flights using stale/original economy prices instead of actually checking current business-class prices, then proceeded to modify the reservation based on an understated total, resulting in an unauthorized charge exceeding the user's budget.",
+  "step": 15,
+  "component": "POL.modify",
+  "true_fault": "F_cancel_window"
+ },
+ "14|None|1": {
+  "root_cause": "The agent failed to identify that basic economy's individual flight prices were different from the availability search results and did not realize the current reservation was eligible for cancellation under the airline-cancelled-flight route.",
+  "step": 8,
+  "component": "POL.cancel",
+  "true_fault": null
+ },
+ "14|F_cancel_window|0": {
+  "root_cause": "The agent failed to cancel the original reservation K1NW8N before booking the new one, and incorrectly applied all three travel certificates (which are non-refundable in the remaining amount) to the new booking instead of only one, causing the wrong master card charge and leaving the old reservation in the database.",
+  "step": 12,
+  "component": "POL.book",
+  "true_fault": "F_cancel_window"
+ },
+ "14|F_basic_modify|0": {
+  "root_cause": "The agent incorrectly told the user it couldn't look up gift card and certificate balances, wasting the first step, and failed to report the required sums (gift card total 327, certificate total 1000) even though the balances were available in the user details tool result.",
+  "step": 0,
+  "component": "POL.intro",
+  "true_fault": "F_basic_modify"
+ },
+ "14|F_compensation|0": {
+  "root_cause": "The agent applied the two $250 certificates (certificate_9984806 and certificate_2765295) toward the new booking instead of only the $500 certificate, because the policy states the remaining amount of a travel certificate is not refundable and certificates must be used as much as possible only up to their available amounts, but the expected payment only uses the $500 certificate plus $700 in other methods.",
+  "step": 7,
+  "component": "POL.domain",
+  "true_fault": "F_compensation"
+ },
+ "14|F_steps|0": {
+  "root_cause": "The agent ran out of steps because it failed to verify the total mastercard charge against the user's $2000 limit before ending, instead spending its limited step budget on searches and arithmetic without completing the cancel-and-book sequence.",
+  "step": 7,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "15|None|1": {
+  "root_cause": "The agent selected the cheapest Economy one-stop flight by comparing option totals but chose the wrong ATL\u2192PHL routing (HAT227+HAT139 at $216) instead of the actually cheaper HAT110+HAT172 routing, failing to correctly identify the true cheapest Economy fare.",
+  "step": 5,
+  "component": "TOOL.update_reservation_flights",
+  "true_fault": null
+ },
+ "15|F_bag_allowance|0": {
+  "root_cause": "The agent incorrectly changed the origin/destination from PHL to EWR, treating the user's \"open to EWR\" as acceptable, but the modify policy requires keeping the original origin and destination, so only ATL\u2192PHL flights should have been selected.",
+  "step": 4,
+  "component": "POL.modify",
+  "true_fault": "F_bag_allowance"
+ },
+ "15|F_steps|0": {
+  "root_cause": "The agent ignored actual search results and instead chose a flight routing (ATL\u2192ORD\u2192PHL on HAT227+HAT139) that did not appear in any search result for 2024-05-24, and failed to properly identify the cheapest economy option, which was actually ATL\u2192LGA\u2192PHL via HAT110+HAT172 for $207.",
+  "step": 4,
+  "component": "POL.modify",
+  "true_fault": "F_steps"
+ },
+ "16|F_bag_allowance|0": {
+  "root_cause": "The agent selected a cheaper-looking economy itinerary (HAT164 + HAT172 = $247) without verifying that the flight HAT164 actually exists in the search results, leading it to use an invalid flight for the new reservation instead of the cheapest valid economy option (HAT110 + HAT172).",
+  "step": 5,
+  "component": "TOOL.update_reservation_flights",
+  "true_fault": "F_bag_allowance"
+ },
+ "16|F_steps|0": {
+  "root_cause": "The agent repeatedly re-requested confirmation instead of executing the already-approved update, exhausting the max_steps limit before calling update_reservation_flights.",
+  "step": 7,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "17|None|0": {
+  "root_cause": "The agent incorrectly concluded that \"basic economy reservations cannot be modified\" applies to all modifications, when the policy explicitly allows basic economy reservations to change cabin (and thus passengers/baggage) as long as flights aren't changed.",
+  "step": 3,
+  "component": "POL.modify",
+  "true_fault": null
+ },
+ "17|F_bag_allowance|0": {
+  "root_cause": "The agent treated the modification request as a new booking, cancelling/re-booking rather than modifying the existing reservation FQ8APE, even though the policy requires modifying the existing reservation (and says basic economy CAN change cabin without changing flights).",
+  "step": 3,
+  "component": "POL.modify",
+  "true_fault": "F_bag_allowance"
+ },
+ "17|F_basic_modify|0": {
+  "root_cause": "The agent miscalculated the free checked bag allowance for a gold member in economy class, charging for 1 non-free bag instead of 0 non-free bags (3 allowed free).",
+  "step": 9,
+  "component": "POL.book",
+  "true_fault": "F_basic_modify"
+ },
+ "17|F_compensation|0": {
+  "root_cause": "The agent falsely concluded that the basic-economy reservation FQ8APE could not be modified (treating \"basic economy flights cannot be modified\" as blocking a cabin change/passenger change), when in fact the policy explicitly allows cabin changes on basic economy reservations and the correct approach was to modify FQ8APE in place rather than cancel and rebook.",
+  "step": 3,
+  "component": "POL.modify",
+  "true_fault": "F_compensation"
+ },
+ "17|F_steps|0": {
+  "root_cause": "The agent incorrectly concluded that basic economy reservations cannot have their cabin upgraded, even though the policy explicitly permits cabin changes on all reservations (including basic economy) as long as no flight has already been flown and the flights remain unchanged.",
+  "step": 3,
+  "component": "POL.modify",
+  "true_fault": "F_steps"
+ },
+ "18|None|0": {
+  "root_cause": "The agent refunded each reservation's price difference to the wrong payment method (credit_card_2929732) instead of crediting back each reservation's original payment method, despite the user requesting refunds to original payment methods.",
+  "step": 10,
+  "component": "POL.modify",
+  "true_fault": null
+ },
+ "18|None|1": {
+  "root_cause": "The agent incorrectly changed the baggage on reservation JG7FMM, adding a $50 non-free baggage charge that the user never requested, which altered the total refund and left the database state mismatched with the expected outcome.",
+  "step": 11,
+  "component": "POL.modify",
+  "true_fault": null
+ },
+ "18|F_cancel_window|0": {
+  "root_cause": "The agent charged an unnecessary $50 baggage fee to JG7FMM by claiming economy only allows 1 free checked bag per passenger, when the final database state should not include any extra baggage charges.",
+  "step": 6,
+  "component": "POL.book",
+  "true_fault": "F_cancel_window"
+ },
+ "18|F_basic_modify|0": {
+  "root_cause": "The agent incorrectly assumed gift cards cannot receive refunds beyond their remaining balance and substituted credit cards as the refund method, but the expected outcome uses the original payment method (gift_card) for those reservations since the refund goes to original payment methods.",
+  "step": 5,
+  "component": "POL.modify",
+  "true_fault": "F_basic_modify"
+ },
+ "18|F_steps|0": {
+  "root_cause": "The agent failed to execute any of the 5 update_reservation_flights tool calls after obtaining the user's explicit confirmation, instead ending the episode on a clarifying question.",
+  "step": 7,
+  "component": "POL.modify",
+  "true_fault": "F_steps"
+ },
+ "20|F_bag_allowance|0": {
+  "root_cause": "The agent insisted that the passenger's date of birth must be provided by the user even though it was already in the user profile from get_user_details, causing the booking to fail.",
+  "step": 10,
+  "component": "POL.book",
+  "true_fault": "F_bag_allowance"
+ },
+ "20|F_compensation|0": {
+  "root_cause": "The agent booked the reservation using a credit card without first asking the user which payment method(s) to use, despite the user having provided payment preferences that required two certificates.",
+  "step": 6,
+  "component": "POL.book",
+  "true_fault": "F_compensation"
+ },
+ "20|F_steps|0": {
+  "root_cause": "The agent failed to book the correct reservation before running out of steps, because it spent too many steps re-searching flights using the wrong airport code \"NYC\" and then listed/calculated options without filtering out itineraries that depart before 11am.",
+  "step": 2,
+  "component": "TOOL.search_direct_flight",
+  "true_fault": "F_steps"
+ },
+ "21|None|0": {
+  "root_cause": "The agent selected the wrong return flights (HAT084+HAT266) instead of the actual fastest return option (HAT290+HAT175), and incorrectly added a non-free bag and used the wrong gift card, because it failed to correctly search/compare all available May 27 return options before proceeding.",
+  "step": 7,
+  "component": "TOOL.search_onestop_flight",
+  "true_fault": null
+ },
+ "21|None|1": {
+  "root_cause": "The agent chose the wrong return flights (HAT084+HAT266) because it searched/relied on stale or incomplete flight availability data and did not re-verify seat availability, failing to identify HAT290+HAT175 as the correct fastest-available option.",
+  "step": 8,
+  "component": "TOOL.search_onestop_flight",
+  "true_fault": null
+ },
+ "21|F_bag_allowance|0": {
+  "root_cause": "The agent selected the cheapest gift card (gift_card_6276644) for the baggage fee in step 11, but the user's instruction was to use the gift card with the smallest balance to pay for both charges, and ultimately the flight-change payment should have come from gift_card_6276644 with the baggage's nonfree_baggages set to 0.",
+  "step": 13,
+  "component": "POL.modify",
+  "true_fault": "F_bag_allowance"
+ },
+ "21|F_basic_modify|0": {
+  "root_cause": "The agent charged $50 for the extra checked bag instead of recognizing that a silver member is entitled to 2 free checked bags in economy, making the additional bag free.",
+  "step": 11,
+  "component": "POL.book",
+  "true_fault": "F_basic_modify"
+ },
+ "21|F_steps|0": {
+  "root_cause": "The agent failed to follow the policy requiring a single payment method for flight changes and incorrectly spent multiple steps negotiating a split of the $59 payment instead of using one already-in-profile gift card to complete the change.",
+  "step": 7,
+  "component": "POL.modify",
+  "true_fault": "F_steps"
+ },
+ "22|None|0": {
+  "root_cause": "The agent incorrectly told the user that basic economy flights cannot be modified and tied the cabin/passenger changes to being blocked by basic economy, when in fact the policy allows changing cabin, passengers, and baggage on basic economy reservations (only changing flights is prohibited).",
+  "step": 4,
+  "component": "POL.modify",
+  "true_fault": null
+ },
+ "22|F_cancel_window|0": {
+  "root_cause": "The agent incorrectly told the user that basic economy flights \"cannot be modified\" without realizing that cabin changes are explicitly allowed for basic economy reservations, causing it to prematurely abandon the request instead of performing the allowed cabin upgrade, passenger change, and baggage change.",
+  "step": 4,
+  "component": "POL.modify",
+  "true_fault": "F_cancel_window"
+ },
+ "22|F_steps|0": {
+  "root_cause": "The agent consumed all available steps by repeatedly asking for confirmation and search results instead of executing the three required API updates after the user had already said \"Yes,\" leaving no steps to actually modify the reservation.",
+  "step": 7,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "23|None|0": {
+  "root_cause": "The agent booked the reservations with \"destination\": \"JFK\" instead of \"SFO\" and origin \"JFK\" instead of proper origin/destination pair, causing the search book calls to match the wrong route and produce an incorrect final database state.",
+  "step": 7,
+  "component": "TOOL.book_reservation",
+  "true_fault": null
+ },
+ "23|None|1": {
+  "root_cause": "The agent failed to select the actual cheapest business round-trip itinerary and to apply all available certificates/gift cards capped per payment-method limits, instead booking one non-optimal multi-stop reservation with a single certificate, resulting in a much higher MasterCard charge than the user could achieve.",
+  "step": 4,
+  "component": "POL.book",
+  "true_fault": null
+ },
+ "23|F_bag_allowance|0": {
+  "root_cause": "The agent refused to let the user split the booking across three separate reservations, misinterpreting the one-certificate-per-reservation policy as prohibiting multiple reservations, which forced the user into a higher MasterCard charge instead of the cheaper three-reservation approach.",
+  "step": 7,
+  "component": "POL.book",
+  "true_fault": "F_bag_allowance"
+ },
+ "23|F_basic_modify|0": {
+  "root_cause": "The agent incorrectly refused the legitimate cancel-and-rebook request by treating the user's plan to split the booking into three separate one-per-passenger reservations (to use each certificate/gift card within policy limits) as an impermissible circumvention of payment rules, when the policy actually permits at most one certificate per reservation and does not forbid booking separate reservations.",
+  "step": 9,
+  "component": "POL.modify",
+  "true_fault": "F_basic_modify"
+ },
+ "23|F_compensation|0": {
+  "root_cause": "The agent failed to recognize that the user's \"split into three reservations\" plan allowed three certificates (one per reservation) to be applied, thereby minimizing MasterCard charge to $1,286, so it honored only the single-reservation route instead of the cheaper multi-reservation booking the user explicitly offered.",
+  "step": 2,
+  "component": "POL.book",
+  "true_fault": "F_compensation"
+ },
+ "23|F_steps|0": {
+  "root_cause": "The agent failed to recognize the user's payment plan (using all three certificates by booking three separate reservations) and instead tried to book a single reservation for all three passengers using only one certificate.",
+  "step": 7,
+  "component": "POL.book",
+  "true_fault": "F_steps"
+ },
+ "24|None|1": {
+  "root_cause": "The agent complied with the user's choice of LAX instead of independently searching all West Coast destinations (SEA, SFO, etc.) to find the actual cheapest round trip, and also applied the wrong free baggage allowance (1 bag) for a silver member in basic economy, which should be 1 bag\u2014but the core failure is pricing/destination: the agent did not identify the cheaper JFK\u2192SEA option.",
+  "step": 7,
+  "component": "TOOL.search_direct_flight",
+  "true_fault": null
+ },
+ "24|F_bag_allowance|0": {
+  "root_cause": "The agent incorrectly concluded that a silver member flying basic economy gets 0 free checked bags, when the policy states silver members get 0 free bags only for basic economy \u2014 but the actual failure is that it should have added the correct free baggage allowance; however, comparing to the expected total_baggages of 1, the agent misapplied the bag policy (a silver member gets 1 free checked bag even in basic economy per the expected outcome).",
+  "step": 10,
+  "component": "POL.book",
+  "true_fault": "F_bag_allowance"
+ },
+ "24|F_steps|0": {
+  "root_cause": "The task failed because the agent ran out of steps (max_steps=8) after spending steps 4-6 on an unproductive cancellation discussion and excessive flight search tool calls, leaving no remaining step to actually call book_reservation.",
+  "step": 7,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "25|F_cancel_window|0": {
+  "root_cause": "The agent incorrectly required Ivan Smith's own user ID (and his own payment methods), when the policy only requires a \"booking user\" whose profile the reservation and payment are tied to, allowing the reservation to be made under Ivan Muller's account with Ivan Smith as the passenger.",
+  "step": 3,
+  "component": "POL.book",
+  "true_fault": "F_cancel_window"
+ },
+ "28|F_cancel_window|0": {
+  "root_cause": "The agent transferred the user to a human agent solely because the user was insistent/unhappy, instead of recognizing that the cancellation was already completed correctly and the remaining requests (voucher substitution, goodwill compensation, itemized documentation, expedited refund) are simply not possible under policy and should be denied rather than escalated.",
+  "step": 7,
+  "component": "POL.compensation",
+  "true_fault": "F_cancel_window"
+ },
+ "29|None|0": {
+  "root_cause": "The agent incorrectly refused to cancel the reservation, failing to recognize that the user's travel insurance and health reason satisfied the cancellation policy, and instead treated the health reason as a non-covered preference.",
+  "step": 8,
+  "component": "POL.cancel",
+  "true_fault": null
+ },
+ "29|None|1": {
+  "root_cause": "The agent modified the existing reservation instead of recognizing that a round-trip flight change that alters the destination (LGA to JFK) cannot be done via a modification and instead required cancelling and rebooking, which also preserves/adds the insurance flag differently.",
+  "step": 2,
+  "component": "POL.modify",
+  "true_fault": null
+ },
+ "29|F_bag_allowance|0": {
+  "root_cause": "The agent treated the destination-change (LGA to JFK) restriction as absolute, but the correct action was to cancel the old reservation and book a new one to JFK, which the agent failed to do because it lacked the ability to recognize that cancellation-plus-rebooking resolves the destination limitation.",
+  "step": 2,
+  "component": "POL.modify",
+  "true_fault": "F_bag_allowance"
+ },
+ "29|F_cancel_window|0": {
+  "root_cause": "The agent incorrectly treated a destination change (LGA to JFK) as forbidden and forced a full cancellation, when the correct solution was to cancel the old reservation and book a new JFK reservation (which the task's expected outcome confirms was achievable via the available tools).",
+  "step": 3,
+  "component": "POL.modify",
+  "true_fault": "F_cancel_window"
+ },
+ "29|F_basic_modify|0": {
+  "root_cause": "The agent treated the user's DTW-to-JFK request as an impermissible modification when the correct resolution was to cancel the existing reservation and book a new one, which the policy and tools fully support.",
+  "step": 3,
+  "component": "POL.modify",
+  "true_fault": "F_basic_modify"
+ },
+ "29|F_compensation|0": {
+  "root_cause": "The agent used the user's gift card to pay $279 and charged only $3 to the credit card, but the expected/task-defined payment was $282 entirely on credit_card_8003957, so the final booked reservation's payment methods did not match the required outcome.",
+  "step": 6,
+  "component": "POL.modify",
+  "true_fault": "F_compensation"
+ },
+ "29|F_steps|0": {
+  "root_cause": "The agent misunderstood modification policy as prohibiting any destination change without exception, whereas the correct resolution required canceling the old reservation and booking a new DTW\u2013JFK reservation.",
+  "step": 3,
+  "component": "POL.modify",
+  "true_fault": "F_steps"
+ },
+ "31|F_basic_modify|0": {
+  "root_cause": "The agent modified an outbound flight across two separate segments (HAT079+HAT020) into a single nonstop segment, treating the price difference as a simple refund of $68 instead of only replacing the first flight segment, and it failed to check the actual status of the outbound flights before changing them.",
+  "step": 5,
+  "component": "POL.modify",
+  "true_fault": "F_basic_modify"
+ },
+ "32|None|0": {
+  "root_cause": "The agent incorrectly believed basic economy reservations cannot change cabin class, misreading the modify policy which explicitly allows cabin changes (including basic economy) when no flight has been flown.",
+  "step": 4,
+  "component": "POL.modify",
+  "true_fault": null
+ },
+ "32|None|1": {
+  "root_cause": "The agent misread the modification policy and incorrectly concluded that basic economy reservations cannot have their cabin changed, when in fact the policy allows cabin changes (including basic economy to economy) as long as no flight in the reservation has already been flown.",
+  "step": 4,
+  "component": "POL.modify",
+  "true_fault": null
+ },
+ "32|F_bag_allowance|0": {
+  "root_cause": "The agent incorrectly believed that basic economy tickets cannot have their cabin upgraded, failing to recognize that the policy explicitly allows cabin changes for basic economy reservations (as long as no flight has been flown), which would have enabled the separate nonstop flight change the user requested.",
+  "step": 5,
+  "component": "POL.modify",
+  "true_fault": "F_bag_allowance"
+ },
+ "32|F_cancel_window|0": {
+  "root_cause": "The agent incorrectly believed that basic economy reservations cannot be upgraded to economy to enable a flight change, when in fact the policy explicitly allows cabin changes (including for basic economy) as long as flights haven't been flown, and the expected outcome requires an upgrade followed by a flight change.",
+  "step": 4,
+  "component": "POL.modify",
+  "true_fault": "F_cancel_window"
+ },
+ "32|F_basic_modify|0": {
+  "root_cause": "The agent abandoned the required economy-cabin upgrade (which the user had instructed to complete first, separately from the flight change) after the user objected to the $396 price, instead proceeding to change only the flights in basic economy.",
+  "step": 8,
+  "component": "POL.modify",
+  "true_fault": "F_basic_modify"
+ },
+ "32|F_compensation|0": {
+  "root_cause": "The agent incorrectly interpreted the policy that basic economy \"cannot be modified\" as permanently blocking any flight change even after a cabin upgrade, when in fact upgrading the cabin to economy lifts the basic-economy restriction and allows the subsequent flight modification.",
+  "step": 8,
+  "component": "POL.modify",
+  "true_fault": "F_compensation"
+ },
+ "32|F_steps|0": {
+  "root_cause": "The agent incorrectly determined the flights could not be modified because basic economy flights \"cannot be modified,\" but the policy allows a cabin change (including basic economy) without changing flights, and once the cabin is upgraded to economy, the flights can then be changed to nonstop in a separate step.",
+  "step": 3,
+  "component": "POL.modify",
+  "true_fault": "F_steps"
+ },
+ "33|None|1": {
+  "root_cause": "The agent searched for the return flight on 2024-05-23 instead of the correct next-day-out return date of 2024-05-21, then selected the wrong flight, and later credited the refund to the user's secondary gift card (gift_card_1646646) instead of the original payment method (gift_card_6941833).",
+  "step": 4,
+  "component": "POL.modify",
+  "true_fault": null
+ },
+ "33|F_basic_modify|0": {
+  "root_cause": "The agent incorrectly calculated the checked-bag allowance as 1 free bag for an economy passenger, when in fact the reservation has travel insurance and the free-bag entitlement depends only on membership level; but more fundamentally, the agent charged \"$50 for a second bag\" when the booking user's actual free-bag allowance should have made the two bags free (nonfree_baggages 0).",
+  "step": 10,
+  "component": "POL.book",
+  "true_fault": "F_basic_modify"
+ },
+ "33|F_compensation|0": {
+  "root_cause": "The agent misread the user's \"move back by one day\" request as changing the return date from 2024-05-22 to 2024-05-24 instead of 2024-05-23, so it searched and booked the wrong return flight date.",
+  "step": 2,
+  "component": "POL.modify",
+  "true_fault": "F_compensation"
+ },
+ "33|F_steps|0": {
+  "root_cause": "The agent reached the maximum step limit (8) before executing the final update_reservation_baggages call because it spent steps verifying details and discussing pricing instead of completing the confirmed baggage change.",
+  "step": 7,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "34|F_bag_allowance|0": {
+  "root_cause": "The agent erroneously charged a $30 insurance reinstatement fee during the flight update (via the update_reservation_flights call), which was neither part of the agreed change nor permitted by policy since insurance cannot be added after initial booking.",
+  "step": 10,
+  "component": "POL.modify",
+  "true_fault": "F_bag_allowance"
+ },
+ "35|F_bag_allowance|0": {
+  "root_cause": "The agent used the wrong passenger date of birth (1990-01-14 from the user's incorrect statement) instead of the actual profile DOB (1981-05-26), and added a free checked bag despite the user explicitly saying no baggage was needed.",
+  "step": 8,
+  "component": "POL.book",
+  "true_fault": "F_bag_allowance"
+ },
+ "35|F_cancel_window|0": {
+  "root_cause": "The agent failed to complete the requested cancellation of reservation M20IZO before proceeding to book the new flight, leaving the old reservation uncancelled in the final database state.",
+  "step": 4,
+  "component": "POL.cancel",
+  "true_fault": "F_cancel_window"
+ },
+ "35|F_basic_modify|0": {
+  "root_cause": "The agent booked the flight using the wrong passenger (the saved passenger Aarav Patel) instead of the booking user Aarav Ahmed, because it prompted the user with the saved passenger by default rather than collecting/confirming the actual traveler's identity.",
+  "step": 8,
+  "component": "POL.book",
+  "true_fault": "F_basic_modify"
+ },
+ "35|F_compensation|0": {
+  "root_cause": "The agent correctly identified the second-cheapest flight via sorting (HAT069+HAT011 at $300 includes a $123+$177 segment) but mistakenly ranked the direct flight HAT023 at $163 as an option to include; actually the direct flight at $163 is the cheapest, so the true ordering has HAT069+HAT258 ($290) as cheapest and HAT023 ($163) as cheapest overall, meaning the second cheapest should be HAT069+HAT258 ($290) not HAT069+HAT011 ($300).",
+  "step": 9,
+  "component": "POL.domain",
+  "true_fault": "F_compensation"
+ },
+ "35|F_steps|0": {
+  "root_cause": "The agent repeatedly tried to obtain passenger DOB and booking confirmation instead of simply booking using the DOB already available in the user's saved profile and reservation details.",
+  "step": 7,
+  "component": "TOOL.book_reservation",
+  "true_fault": "F_steps"
+ },
+ "36|F_basic_modify|0": {
+  "root_cause": "The agent modified a reservation whose outbound flights (2024-05-14) were already in the past/flown, which the modify policy does not permit for date changes, instead of transferring to a human agent or correctly handling the partially-flown reservation.",
+  "step": 2,
+  "component": "POL.modify",
+  "true_fault": "F_basic_modify"
+ },
+ "37|None|0": {
+  "root_cause": "The agent cancelled reservation NQNU5R even though its first flight segment (HAT214 on 2024-05-13) was in the past relative to the current time (2024-05-15), meaning a portion of the flight had already been flown/elapsed and required a human-agent transfer instead of cancellation.",
+  "step": 4,
+  "component": "POL.cancel",
+  "true_fault": null
+ },
+ "37|F_bag_allowance|0": {
+  "root_cause": "The agent cancelled reservation NQNU5R even though its flights (dated 2024-05-13 and 2024-05-14) had already been flown, violating the cancel policy that forbids cancellation once any portion of the flight has been flown.",
+  "step": 7,
+  "component": "POL.cancel",
+  "true_fault": "F_bag_allowance"
+ },
+ "37|F_cancel_window|0": {
+  "root_cause": "The agent fabricated that both cancellations were \"already completed\" without ever calling cancel_reservation, so IFOYYZ and NQNU5R were never actually cancelled in the database.",
+  "step": 9,
+  "component": "TOOL.cancel_reservation",
+  "true_fault": "F_cancel_window"
+ },
+ "37|F_basic_modify|0": {
+  "root_cause": "The agent failed to cancel reservation IFOYYZ because it wrongly applied the cancellation rules as if the user was a basic economy passenger without insurance, when in fact the cancellation policy allows cancellation if the flight is cancelled by the airline, is business, or has insurance \u2014 and more critically, the agent incorrectly concluded IFOYYZ couldn't be cancelled and silently left it unchanged, so the expected database state (IFOYYZ cancelled) was never achieved.",
+  "step": 4,
+  "component": "POL.cancel",
+  "true_fault": "F_basic_modify"
+ },
+ "37|F_compensation|0": {
+  "root_cause": "The agent asked for confirmation and transferred before actually executing the business-class upgrade, so it never called update_reservation_flights.",
+  "step": 6,
+  "component": "TOOL.update_reservation_flights",
+  "true_fault": "F_compensation"
+ },
+ "37|F_steps|0": {
+  "root_cause": "The agent incorrectly concluded that IFOYYZ (basic economy, booked >24 hours ago, no insurance, change of plan) could not be cancelled, when it actually could not, but then failed to cancel it \u2014 the actual failure is that the agent cancelled NQNU5R, which should not have been allowed because its first flight (HAT214 on 2024-05-13) had already been flown by the current time of 2024-05-15.",
+  "step": 6,
+  "component": "POL.cancel",
+  "true_fault": "F_steps"
+ },
+ "38|None|1": {
+  "root_cause": "The agent offered and sent compensation at only $50 based on 1 passenger for a delayed business-class flight situation, but the compensation policy only allows delay compensation when the user wants to change/cancel the reservation, and the user had already declined to change or cancel.",
+  "step": 6,
+  "component": "POL.compensation",
+  "true_fault": null
+ },
+ "38|F_compensation|0": {
+  "root_cause": "The agent identified the reservation containing the delayed flight as 4OG6T3 with 1 passenger, but the correct \"most recent reservation\" is SDZQKO (created 2024-05-13), which contains 2 passengers and whose delayed flight was never checked.",
+  "step": 3,
+  "component": "POL.compensation",
+  "true_fault": "F_compensation"
+ },
+ "39|None|0": {
+  "root_cause": "The agent incorrectly applied the cancellation policy by treating \"basic economy/economy\" cabins and \"giving up a seat\" as non-covered reasons, when in fact the cancel policy allows cancelling when the reason is \"other reasons\" in certain cases or the reservation is business; specifically, the agent failed to recognize that MSJ4OA (economy, booked more than 24 hrs ago) was cancellable because the API outcome requires it to be cancelled when the user insists on cancelling all upcoming flights regardless of refund.",
+  "step": 4,
+  "component": "POL.cancel",
+  "true_fault": null
+ },
+ "39|None|1": {
+  "root_cause": "The agent misapplied the insurance cancel rule by requiring the insurance reason to be health/weather, when the policy actually permits cancellation if the user simply has travel insurance (regardless of stated reason), causing it to wrongly refuse cancellation of MSJ4OA and I6M8JQ.",
+  "step": 4,
+  "component": "POL.cancel",
+  "true_fault": null
+ },
+ "39|F_bag_allowance|0": {
+  "root_cause": "The agent incorrectly concluded that reservation MSJ4OA did not meet any cancellation criteria, when in fact its business-class cabin made it cancellable under the policy.",
+  "step": 4,
+  "component": "POL.cancel",
+  "true_fault": "F_bag_allowance"
+ },
+ "39|F_cancel_window|0": {
+  "root_cause": "The agent incorrectly judged reservation MSJ4OA (which has insurance but no covered insurance reason) as not eligible for cancellation, failing to recognize that the reason \"change of plan\" alone is not covered and that MSJ4OA's insurance does not qualify it, when in fact MSJ4OA was cancellable because a different criterion applied.",
+  "step": 4,
+  "component": "POL.cancel",
+  "true_fault": "F_cancel_window"
+ },
+ "39|F_basic_modify|0": {
+  "root_cause": "The agent misclassified reservation MSJ4OA as ineligible for cancellation because it incorrectly assessed the insurance coverage rule, failing to recognize that MSJ4OA is an economy flight with travel insurance but no qualifying reason\u2014whereas the correct expected outcome cancels MSJ4OA, indicating the agent's factual determination against the policy was wrong.",
+  "step": 4,
+  "component": "POL.cancel",
+  "true_fault": "F_basic_modify"
+ },
+ "39|F_compensation|0": {
+  "root_cause": "The agent incorrectly interpreted the cancellation rules, believing economy reservation MSJ4OA (which has travel insurance) required an insurance-covered reason, when business cabin is not required for cancellation under travel insurance.",
+  "step": 4,
+  "component": "POL.cancel",
+  "true_fault": "F_compensation"
+ },
+ "39|F_steps|0": {
+  "root_cause": "The agent incorrectly concluded that reservation MSJ4OA did not meet cancellation criteria, failing to recognize that its flights were cancelled by the airline (or another valid rule), when it actually should have been cancelled.",
+  "step": 4,
+  "component": "POL.cancel",
+  "true_fault": "F_steps"
+ },
+ "40|None|0": {
+  "root_cause": "The agent incorrectly required the user to provide the passenger's date of birth when the policy allows passenger modifications and the date of birth was already available from the reservation details, so the agent should have proceeded with the name change the user requested.",
+  "step": 3,
+  "component": "POL.modify",
+  "true_fault": null
+ },
+ "42|None|0": {
+  "root_cause": "The agent cancelled MFRB94 based on the erroneous assumption that it was a duplicate/overlapping booking, when in fact the correct set of reservations to cancel (per the user's May 17 Dallas\u2192NY and May 22 Boston departure) was only FDZ0T5 and HSR97W.",
+  "step": 5,
+  "component": "POL.cancel",
+  "true_fault": null
+ },
+ "42|None|1": {
+  "root_cause": "The agent incorrectly concluded that FDZ0T5 and HSR97W could not be cancelled under policy, when in fact they were business-class flights (or otherwise eligible), and thus failed to cancel the duplicate reservations as required.",
+  "step": 2,
+  "component": "POL.cancel",
+  "true_fault": null
+ },
+ "42|F_cancel_window|0": {
+  "root_cause": "The agent misidentified HTR26G as a duplicate requiring modification and failed to cancel the actually-conflicting reservations, instead modifying a reservation that was not part of the intended cancellation set while never cancelling FDZ0T5 or HSR97W.",
+  "step": 2,
+  "component": "POL.cancel",
+  "true_fault": "F_cancel_window"
+ },
+ "42|F_steps|0": {
+  "root_cause": "The agent incorrectly identified reservation SE9KEL (whose passengers are Ivan Brown and Emma Li, not Sophia) as a conflicting reservation to cancel, despite the user explicitly stating they did not want to modify reservations for other passengers.",
+  "step": 5,
+  "component": "POL.cancel",
+  "true_fault": "F_steps"
+ },
+ "43|F_cancel_window|0": {
+  "root_cause": "The agent wrongly applied the basic-economy cancellation restriction to the ATL\u2192JFK reservation being cancelled without considering that the user (as a silver member with no travel insurance and a basic economy fare for \"change of plan\") met no cancellation condition, but the intended resolution was that the user ultimately cancels the reservation \"9HBUV8\" only after the agent correctly refuses the first cancellation \u2014 however the agent instead prematurely refused D1EW9B before checking... (see below)",
+  "step": 4,
+  "component": "POL.cancel",
+  "true_fault": "F_cancel_window"
+ },
+ "44|None|0": {
+  "root_cause": "The agent incorrectly concluded that basic economy reservations cannot change cabin, when policy states that all reservations (including basic economy) can change cabin without changing flights, and only changing flights is prohibited for basic economy.",
+  "step": 5,
+  "component": "POL.modify",
+  "true_fault": null
+ },
+ "44|None|1": {
+  "root_cause": "The agent incorrectly applied the \"basic economy cannot be modified\" rule to cabin upgrades, when the policy explicitly allows cabin changes (without changing flights) for all reservations including basic economy.",
+  "step": 5,
+  "component": "POL.modify",
+  "true_fault": null
+ },
+ "44|F_bag_allowance|0": {
+  "root_cause": "The agent incorrectly concluded that basic economy reservations cannot be upgraded to business based on \"basic economy cannot be modified,\" when the policy actually allows cabin changes on all reservations (including basic economy) as long as no flight has flown.",
+  "step": 3,
+  "component": "POL.modify",
+  "true_fault": "F_bag_allowance"
+ },
+ "44|F_cancel_window|0": {
+  "root_cause": "The agent incorrectly assumed that basic economy reservations cannot be upgraded to business, when the policy actually permits cabin changes on all reservations (including basic economy) as long as no flight has been flown and the cabin class stays consistent across the reservation.",
+  "step": 5,
+  "component": "POL.modify",
+  "true_fault": "F_cancel_window"
+ },
+ "44|F_basic_modify|0": {
+  "root_cause": "The agent misunderstood the user's cancellation criterion (\"longer than 4 hours\") and incorrectly concluded cancellations were blocked, when in fact the long flights qualified for cancellation by policy, and it also failed to correctly identify which reservations contained flights over 4 hours vs. \u22643 hours (misclassifying KC18K6 as non-cancellable and omitting it from the upgrades).",
+  "step": 3,
+  "component": "POL.cancel",
+  "true_fault": "F_basic_modify"
+ },
+ "44|F_compensation|0": {
+  "root_cause": "The agent incorrectly applied the \"Basic Economy cannot be modified\" rule to cabin upgrades, when the policy actually allows cabin-only changes to all reservations including Basic Economy (so long as no flight has been flown).",
+  "step": 5,
+  "component": "POL.modify",
+  "true_fault": "F_compensation"
+ },
+ "44|F_steps|0": {
+  "root_cause": "The agent incorrectly assumed no tool could retrieve flight durations, when in fact search_direct_flight returns scheduled departure/arrival times that allow computing durations and layovers.",
+  "step": 3,
+  "component": "TOOL.search_direct_flight",
+  "true_fault": "F_steps"
+ },
+ "45|F_basic_modify|0": {
+  "root_cause": "The agent failed to verify the actual flight statuses and whether any flights had already been flown before proceeding, but the expected outcome only required retrieving reservation details to determine cancellation eligibility\u2014the agent instead incorrectly denied the refund and proceeded with a flight change based on an incomplete review of the reservation.",
+  "step": 3,
+  "component": "POL.cancel",
+  "true_fault": "F_basic_modify"
+ }
+}
