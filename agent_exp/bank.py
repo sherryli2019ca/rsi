@@ -224,12 +224,19 @@ def stage_bank(llm, D, args, data, attrs, tax, patches):
             if f"{i}|{r}" not in bank["null"]:
                 jobs.append(("null", i, None, None, r, uid))
     ok_runs = [d for d in data if d["reward"] and d["variant"] is None]
+    # --reg_keys: top up regression runs only for these patches (no other jobs)
+    reg_keys = set(json.load(open(args.reg_keys))) if args.reg_keys else None
+    if reg_keys is not None:
+        jobs = []
     for i, j in cells:
         for k in range(3):
             key = f"{i},{j},{k}"
             have = bank["cells"].get(key, {"y": [], "z": []})
-            for r in range(len(have["y"]), args.n_rep):
-                jobs.append(("pair", i, j, k, r, samples[i][r]))
+            if reg_keys is None:
+                for r in range(len(have["y"]), args.n_rep):
+                    jobs.append(("pair", i, j, k, r, samples[i][r]))
+            elif key not in reg_keys:
+                continue
             for r in range(len(bank["reg"].get(key, [])), args.n_reg):
                 jobs.append(("reg", i, j, k, r, rng.choice(ok_runs)["uid"]))
 
@@ -359,6 +366,51 @@ class HarnessFix:
         return acc, patch, spent
 
 
+class HarnessFixGate:
+    """Closer to HarnessFix's own protocol: apply the whole bundle of attributed
+    repairs (LLM-only's set, one patch index per attempt), run it on fresh
+    validation episodes and promote it if it solves at least `min_net` more
+    tasks than before and breaks at most `max_reg`. A validation episode is a
+    failure of category i with probability F f_i (solved if the bundle's patch
+    for i repairs a replay, else with the category's null rate) or a previously
+    successful task (broken if a regression run of a bundle patch fails).
+    Up to three attempts, one per patch index, each with a third of the budget."""
+
+    name = "HarnessFix-gate"
+
+    def __init__(self, counts, min_net=1, max_reg=2, attempts=3):
+        from carve.policies import LLMOnly
+        self.cells = LLMOnly(counts).decide(None, None)[0]
+        self.min_net, self.max_reg, self.attempts = min_net, max_reg, attempts
+
+    def run(self, world, inb, f, w, budget, cost_ep, rng):
+        acc0 = self.cells & inb
+        I, J = acc0.shape
+        cells = list(zip(*np.nonzero(acc0)))
+        p_fail = 1.0 / (1.0 + w)
+        n_val = int(budget / self.attempts / cost_ep)
+        spent = 0.0
+        for k in range(self.attempts):
+            if n_val < 1 or not cells:
+                break
+            net = broken = 0
+            for _ in range(n_val):
+                if rng.random() < p_fail:
+                    i = rng.choice(len(f), p=f)
+                    js = [j for ii, j in cells if ii == i]
+                    y = world.intervene(i, js[0], k, FULL) if js else world.control(i)
+                    net += y
+                else:
+                    ii, jj = cells[rng.integers(len(cells))]
+                    b = 1 - world.regress(ii, jj, k)
+                    broken += b
+                    net -= b
+                spent += cost_ep
+            if net >= self.min_net and broken <= self.max_reg:
+                return acc0, np.full((I, J), k), spent
+        return np.zeros((I, J), bool), np.zeros((I, J), int), spent
+
+
 def regression_value(n_fail, n, r0, w, a0=0.5, b0=10.0, grid=np.linspace(0.0005, 0.9995, 400)):
     """Posterior expected regression cost of a patch, in failure-mass units.
 
@@ -380,6 +432,8 @@ def run_method(method, bank, counts, f, inb, costs, b_hat, seed, budget, c_fp=0.
     I, J = counts.shape
     if method == "HarnessFix":
         return HarnessFix(counts).run(world, inb, budget, 1.0, costs[2])
+    if method == "HarnessFix-gate":
+        return HarnessFixGate(counts).run(world, inb, f, w, budget, costs[2], rng)
     if method.startswith("Net"):
         # episode-priced net-effect selection (agent_exp/netsel.py)
         from agent_exp.netsel import run_netsel
@@ -600,6 +654,7 @@ def main():
     ap.add_argument("--budgets", type=float, nargs="+", default=[10, 20, 40, 80])
     ap.add_argument("--methods", nargs="+", default=None)
     ap.add_argument("--eval_tag", default="")
+    ap.add_argument("--reg_keys", default=None)
     args = ap.parse_args()
     os.makedirs(args.out, exist_ok=True)
     from agent_exp.llm import LLM

@@ -2,20 +2,20 @@
 
 Each candidate patch k of cell (i, j) has a net effect on success
 
-    Delta_k = f_i (p_k - b_i) / (1 - b_i)  -  w (r_k - r0) / (1 - r0)
+    Delta_k = e_ij f_i q_k  -  w max(0, r_k - r0) / (1 - r0)  -  c_fp
 
-where p_k is its targeted-replay success on failures of category i, b_i the
-category's spurious recovery (null replays, no patch), r_k its failure rate on
+where e_ij says whether component j causes category i at all, q_k is the
+patch's repair rate on failures of category i (a targeted replay succeeds with
+probability b_i + (1 - b_i) q_k, b_i the category's spurious recovery measured
+by null replays), r_k its failure rate on
 previously successful tasks (regression runs), r0 the natural re-run failure
 rate and w = successes / failures, which puts regressions in failure-mass units.
-All three rates get Beta posteriors. The policy picks, among a targeted replay,
+The policy picks, among a targeted replay,
 a null replay and a regression run, the action with the largest knowledge
 gradient per unit cost, and finally applies, for every cell, the patch with the
 largest positive posterior mean net effect.
 
-The attribution counts set the prior mean of p_k through CARVE's edge prior:
-b + pi_ij (q_bar - b), so with no evidence the policy applies the patches whose
-prior net effect is positive.
+The attribution counts set the prior of e_ij through CARVE's edge prior.
 """
 from __future__ import annotations
 
@@ -32,48 +32,73 @@ def _bb_pmf(n, a, b):
     return np.exp(lc + betaln(s + a, n - s + b) - betaln(a, b))
 
 
+GRID = np.linspace(0.005, 0.995, 100)
+
+
+def _binom_lik(s, n, p):
+    return p ** s * (1 - p) ** (n - s)
+
+
 class NetPosterior:
-    def __init__(self, counts, inb, f, b0, r0, w, K=3, prior_n=2.0, q_bar=0.55, r_hat=0.7,
-                 use_prior=True, c_fp=0.02):
-        I, J = counts.shape
+    """Per cell: is component j a cause of category i at all (edge, spike-and-slab
+    as in CARVE, prior pi_ij from the attributions)? Per patch: repair rate q_k if
+    it is (grid posterior), and regression rate r_k (Beta). Per category: spurious
+    recovery b_i (Beta, plug-in mean in the likelihood). A replay of patch k on a
+    failure of category i succeeds with probability b_i + (1 - b_i) q_k if the edge
+    exists and b_i otherwise."""
+
+    def __init__(self, counts, inb, f, b0, r0, w, K=3, r_hat=0.7, use_prior=True,
+                 c_fp=0.02, q_prior=(2.0, 2.0), b_strength=4.0, r_strength=4.0):
+        from sim.testbed import edge_prior
         self.f, self.r0, self.w, self.K, self.c_fp = f, r0, w, K, c_fp
         self.cells = [(i, j) for i, j in zip(*np.nonzero(inb))]
-        from sim.testbed import edge_prior
-        pi = edge_prior(counts, r_hat)
-        self.p = {}
-        for i, j in self.cells:
-            # prior mean repair rate: spurious rate plus, if the edge is real
-            # (prior probability pi from the attributions), a typical patch effect
-            m = b0 + (pi[i, j] * (q_bar - b0) if use_prior else 0.0)
-            m = float(np.clip(m, 0.02, 0.95))
-            for k in range(K):
-                self.p[i, j, k] = [m * prior_n, (1 - m) * prior_n]
-        self.b = {i: [b0 * 4, (1 - b0) * 4] for i in {c[0] for c in self.cells}}
-        self.r = {(i, j, k): [r0 * 4, (1 - r0) * 4] for i, j in self.cells for k in range(K)}
+        I, J = counts.shape
+        pi = edge_prior(counts, r_hat) if use_prior else np.full((I, J), 1.5 / J)
+        self.logit_pi = {c: float(np.log(pi[c] / (1 - pi[c]))) for c in self.cells}
+        a, b = q_prior
+        self.q_prior = GRID ** (a - 1) * (1 - GRID) ** (b - 1)
+        self.q_prior /= self.q_prior.sum()
+        self.sn = {(i, j, k): [0, 0] for i, j in self.cells for k in range(K)}
+        self.b = {i: [b0 * b_strength, (1 - b0) * b_strength] for i in {c[0] for c in self.cells}}
+        self.r = {(i, j, k): [r0 * r_strength, (1 - r0) * r_strength]
+                  for i, j in self.cells for k in range(K)}
 
-    @staticmethod
-    def _mean(ab):
-        return ab[0] / (ab[0] + ab[1])
+    def bmean(self, i):
+        a, b = self.b[i]
+        return a / (a + b)
 
-    def delta(self, i, j, k, p=None, b=None, r=None):
-        p = self._mean(self.p[i, j, k]) if p is None else p
-        b = self._mean(self.b[i]) if b is None else b
-        r = self._mean(self.r[i, j, k]) if r is None else r
-        rep = self.f[i] * (p - b) / max(1e-6, 1 - b)
-        # a regression rate below the natural one is noise, not a benefit
-        reg = self.w * max(0.0, r - self.r0) / max(1e-6, 1 - self.r0)
-        # c_fp: a fixed cost for any change, as in the objective (Eq. gain)
-        return rep - reg - self.c_fp
+    def cell_state(self, i, j, sn=None, b=None, r=None):
+        """(P(edge), [E q_k | edge], [regression term_k]) under optional overrides."""
+        sn = sn or {}
+        b = self.bmean(i) if b is None else b
+        lo = self.logit_pi[i, j]
+        qs = []
+        for k in range(self.K):
+            s, n = sn.get(k, self.sn[i, j, k])
+            l1 = self.q_prior * _binom_lik(s, n, b + (1 - b) * GRID)
+            z1 = l1.sum()
+            lo += np.log(max(z1, 1e-300)) - np.log(max(_binom_lik(s, n, b), 1e-300))
+            qs.append(float((l1 * GRID).sum() / max(z1, 1e-300)))
+        pe = 1 / (1 + np.exp(-lo))
+        regs = []
+        for k in range(self.K):
+            ra, rb = (r or {}).get(k, self.r[i, j, k])
+            rm = ra / (ra + rb)
+            regs.append(self.w * max(0.0, rm - self.r0) / max(1e-6, 1 - self.r0))
+        return pe, qs, regs
 
-    def cell_value(self, i, j, over=None):
-        over = over or {}
-        return max(0.0, max(self.delta(i, j, k, **over.get(k, {})) for k in range(self.K)))
+    def deltas(self, i, j, **over):
+        pe, qs, regs = self.cell_state(i, j, **over)
+        return [pe * self.f[i] * qs[k] - regs[k] - self.c_fp for k in range(self.K)]
+
+    def cell_value(self, i, j, **over):
+        return max(0.0, max(self.deltas(i, j, **over)))
 
     def decide(self, shape):
         acc = np.zeros(shape, bool)
         patch = np.zeros(shape, int)
         for i, j in self.cells:
-            d = [self.delta(i, j, k) for k in range(self.K)]
+            d = self.deltas(i, j)
             k = int(np.argmax(d))
             if d[k] > 0:
                 acc[i, j], patch[i, j] = True, k
@@ -81,26 +106,33 @@ class NetPosterior:
 
 
 def _kg(post, i, j, k, kind, n):
-    """Expected gain in decision value from n more observations of one rate."""
+    """Expected gain in decision value from n more observations."""
+    from scipy.stats import binom
     if kind == "null":
         a, bb = post.b[i]
         cells = [(ii, jj) for ii, jj in post.cells if ii == i]
-    else:
-        a, bb = (post.p if kind == "rep" else post.r)[i, j, k]
-        cells = [(i, j)]
-    pmf = _bb_pmf(n, a, bb)
-    now = sum(post.cell_value(ii, jj) for ii, jj in cells)
-    exp = 0.0
-    for s in range(n + 1):
-        m = (a + s) / (a + bb + n)
-        v = 0.0
-        for ii, jj in cells:
-            if kind == "null":
-                v += max(0.0, max(post.delta(ii, jj, kk, b=m) for kk in range(post.K)))
-            else:
-                key = "p" if kind == "rep" else "r"
-                v += post.cell_value(ii, jj, {k: {key: m}})
-        exp += pmf[s] * v
+        now = sum(post.cell_value(ii, jj) for ii, jj in cells)
+        pmf = _bb_pmf(n, a, bb)
+        exp = sum(pmf[s] * sum(post.cell_value(ii, jj, b=(a + s) / (a + bb + n))
+                               for ii, jj in cells) for s in range(n + 1))
+        return exp - now
+    now = post.cell_value(i, j)
+    if kind == "reg":
+        a, bb = post.r[i, j, k]
+        pmf = _bb_pmf(n, a, bb)
+        exp = sum(pmf[s] * post.cell_value(i, j, r={k: [a + s, bb + n - s]})
+                  for s in range(n + 1))
+        return exp - now
+    # targeted replay: predictive mixes the edge and no-edge hypotheses
+    b = post.bmean(i)
+    pe, _, _ = post.cell_state(i, j)
+    s0, n0 = post.sn[i, j, k]
+    w1 = post.q_prior * _binom_lik(s0, n0, b + (1 - b) * GRID)
+    w1 /= w1.sum()
+    ss = np.arange(n + 1)
+    p1 = (w1[None, :] * binom.pmf(ss[:, None], n, b + (1 - b) * GRID[None, :])).sum(1)
+    pmf = pe * p1 + (1 - pe) * binom.pmf(ss, n, b)
+    exp = sum(pmf[s] * post.cell_value(i, j, sn={k: (s0 + s, n0 + n)}) for s in ss)
     return exp - now
 
 
@@ -115,27 +147,30 @@ def run_netsel(bank, counts, f, inb, costs, b0, seed, budget, r0, w, use_reg=Tru
     cost = {"rep": 1.0, "null": float(tn / tf), "reg": float(costs[2])}
     spent = 0.0
     n_null = {}
-    while True:
-        best, arg = 0.0, None
+
+    def score(kind, i, j, k):
+        return max(_kg(post, i, j, k, kind, n) / (n * cost[kind]) for n in HORIZONS)
+
+    # scores only change for the category whose evidence was updated
+    scores = {}
+
+    def rescore(cat):
         for i, j in post.cells:
-            acts = [("rep", k) for k in range(post.K)]
-            if use_reg:
-                acts += [("reg", k) for k in range(post.K)]
-            for kind, k in acts:
-                for n in HORIZONS:
-                    if spent + cost[kind] > budget:
-                        break
-                    s = _kg(post, i, j, k, kind, n) / (n * cost[kind])
-                    if s > best:
-                        best, arg = s, (kind, i, j, k)
+            if cat is not None and i != cat:
+                continue
+            for k in range(post.K):
+                scores["rep", i, j, k] = score("rep", i, j, k)
+                if use_reg:
+                    scores["reg", i, j, k] = score("reg", i, j, k)
         if use_null:
             for i in post.b:
-                for n in HORIZONS:
-                    if spent + cost["null"] > budget:
-                        break
-                    s = _kg(post, i, None, None, "null", n) / (n * cost["null"])
-                    if s > best:
-                        best, arg = s, ("null", i, None, None)
+                if cat is None or i == cat:
+                    scores["null", i, None, None] = score("null", i, None, None)
+
+    rescore(None)
+    while True:
+        ok = [(v, a) for a, v in scores.items() if spent + cost[a[0]] <= budget]
+        best, arg = max(ok, key=lambda x: x[0]) if ok else (0.0, None)
         if arg is None or best <= 1e-9:
             break
         kind, i, j, k = arg
@@ -144,7 +179,8 @@ def run_netsel(bank, counts, f, inb, costs, b0, seed, budget, r0, w, use_reg=Tru
             kind = "null"
         if kind == "rep":
             o = world.intervene(i, j, k, FULL)
-            post.p[i, j, k][1 - o] += 1
+            post.sn[i, j, k][0] += o
+            post.sn[i, j, k][1] += 1
         elif kind == "reg":
             fail = 1 - world.regress(i, j, k)
             post.r[i, j, k][1 - fail] += 1
@@ -153,5 +189,6 @@ def run_netsel(bank, counts, f, inb, costs, b0, seed, budget, r0, w, use_reg=Tru
             post.b[i][1 - o] += 1
             n_null[i] = n_null.get(i, 0) + 1
         spent += cost[kind]
+        rescore(i)
     acc, patch = post.decide(counts.shape)
     return acc, patch, spent
