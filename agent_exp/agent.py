@@ -143,7 +143,8 @@ def _strip(content):
 def _final(content):
     for b in content:
         if b.get("type") == "text" and "FINAL:" in b["text"]:
-            return b["text"].split("FINAL:")[-1].strip().splitlines()[0].strip()
+            rest = b["text"].split("FINAL:")[-1].strip().splitlines()
+            return rest[0].strip() if rest else ""
     return None
 
 

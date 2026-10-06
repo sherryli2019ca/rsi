@@ -33,7 +33,7 @@ def make_policy(name, counts, costs, c_fp):
     if name == "CARVE-full-only":
         return CARVE(costs=costs, c_fp=c_fp, fidelities=(FULL,))
     if name in ("CARVE-uniform-prior", "CARVE-one-patch", "CARVE-no-label-noise",
-                "CARVE-robust-check"):
+                "CARVE-robust-check", "CARVE-robust-est"):
         return CARVE(costs=costs, c_fp=c_fp)
     if name == "Uncertainty":
         return UncertaintySampling(c_fp=c_fp)
@@ -52,6 +52,26 @@ def make_policy(name, counts, costs, c_fp):
     raise ValueError(name)
 
 
+def calibrate(world: World, counts, rng, n_patches=8, reps=5, bad_q=0.3):
+    """Estimate the check model from paired (full replay, check) observations on
+    the most-attributed cells, as a practitioner would: sensitivity, and the
+    false-positive rate separately for patches whose replay success is below
+    bad_q. Uses no ground truth."""
+    order = np.argsort(-counts, axis=None, kind="stable")
+    cells = [np.unravel_index(o, counts.shape) for o in order[:n_patches]]
+    rows = []
+    for (i, j) in cells:
+        k = int(rng.integers(world.cfg.K))
+        obs = [world.paired(i, j, k) for _ in range(reps)]
+        rate = np.mean([y for y, _ in obs])
+        rows += [(y, z, rate < bad_q) for y, z in obs]
+    y = np.array([r[0] for r in rows]); z = np.array([r[1] for r in rows])
+    bad = np.array([r[2] for r in rows])
+    est = lambda m, d: float((z[m].sum() + d[0]) / (m.sum() + d[0] + d[1]))  # Beta-smoothed
+    return {"sens": est(y == 1, (0.85, 0.15)), "fpr": est((y == 0) & ~bad, (0.15, 0.85)),
+            "fooled_fpr": est((y == 0) & bad, (0.15, 0.85)), "n": len(rows)}
+
+
 def episode(cfg: WorldConfig, method: str, seed: int, checkpoints,
             costs=(1.0, 0.1), c_fp=0.02, model_overrides=None):
     """Returns dict checkpoint -> (normalised net gain, edge precision, recall, spent)."""
@@ -60,6 +80,11 @@ def episode(cfg: WorldConfig, method: str, seed: int, checkpoints,
     counts = world.attributions()
     run_rng = np.random.default_rng(seed + 10_000)
     world.rng = run_rng
+    if method == "CARVE-robust-est":
+        # calibration observations are drawn but not charged to the budget; their
+        # cost (n * (1 + c_S)) is reported separately
+        model_overrides = dict(model_overrides or {}, **calibrate(world, counts, run_rng))
+        model_overrides.pop("n")
     post = make_posterior(
         world, counts, run_rng,
         uniform_prior=method == "CARVE-uniform-prior",

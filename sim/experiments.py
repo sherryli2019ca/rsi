@@ -191,7 +191,8 @@ def exp_fooled(seeds=30, budget=50):
     for name, cfg in {"default": WorldConfig(),
                       "judge fooled": replace(WorldConfig(), fooled_fpr=0.6)}.items():
         out["cases"][name] = {}
-        for m in ["Uncertainty", "Uncertainty-MF", "CARVE-full-only", "CARVE-robust-check", "CARVE"]:
+        for m in ["Uncertainty", "Uncertainty-MF", "CARVE-full-only", "CARVE-robust-check",
+                  "CARVE-robust-est", "CARVE"]:
             res = run_grid([(cfg, m, s, [budget], (1.0, 0.1), None) for s in range(seeds)])
             out["cases"][name][m] = summarise(res, [budget])
         print("fooled", name, {m: round(v["gain_mean"][0], 3)

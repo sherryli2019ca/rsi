@@ -42,8 +42,10 @@ def _load(path):
 
 
 def _save(path, obj):
-    with open(path, "w") as fh:
+    tmp = f"{path}.{os.getpid()}.tmp"           # atomic: methods run concurrently
+    with open(tmp, "w") as fh:
         json.dump(obj, fh, indent=1, default=lambda o: o.__dict__)
+    os.replace(tmp, path)
 
 
 def _trace_from(d) -> Trace:
@@ -90,7 +92,7 @@ def stage_attribute(llm, args, data):
 
     def one(d):
         tr = _trace_from(d["trace"]) if isinstance(d["trace"], dict) else d["trace"]
-        a = attribute(llm, tr, d["gold"], components_with(tr.faults))
+        a = attribute(llm, tr, f"The correct answer was: {d['gold']}", components_with(tr.faults))
         a["true_fault"] = tr.faults[0] if tr.faults else None
         return tr.task_id, a
 
@@ -433,6 +435,10 @@ def main():
     if args.stage == "calibrate":
         cal = stage_calibrate(llm, args, db, data, attrs, tax)
         print(json.dumps({k: v for k, v in cal.items() if k not in ("rows", "patches")}))
+        return
+    vpath = os.path.join(args.out, f"verify_{args.method}_{int(args.budget)}.json")
+    if args.stage == "evaluate":                 # re-evaluate a finished verification
+        print(stage_evaluate(llm, args, db, _load(vpath))["patched_success"])
         return
     res = stage_verify(llm, args, db, data, attrs, tax)
     print(json.dumps({k: res[k] for k in ("method", "precision", "recall", "spent_units")}))

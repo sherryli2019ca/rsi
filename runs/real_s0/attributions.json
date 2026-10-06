@@ -1,0 +1,530 @@
+{
+ "T0002": {
+  "root_cause": "The agent treated price_cents values as though they were dollar prices, but they are actually cents (3050 cents = $30.50), so the refund should have been divided by 100.",
+  "step": 2,
+  "component": "TOOL.get_product",
+  "true_fault": "F_price_unit"
+ },
+ "T0003": {
+  "root_cause": "The agent rounded a dollar amount that should have been reported exactly, because the format rule requiring whole-dollar rounding overrode the correct exact total of 2130.25.",
+  "step": 5,
+  "component": "SYS.format",
+  "true_fault": "F_format"
+ },
+ "T0004": {
+  "root_cause": "The agent's step budget was exhausted before it could complete the calculation and answer, because it consumed all available steps on data lookup without reserving a step for the final computation/reply.",
+  "step": 0,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "T0007": {
+  "root_cause": "The agent rounded the total to whole dollars (2675.20 \u2192 2675) even though the correct answer required the exact dollar-and-cents value 2675.20, and the rounding instruction in SYS.format was insufficient to know that cents were needed.",
+  "step": 5,
+  "component": "SYS.format",
+  "true_fault": "F_format"
+ },
+ "T0009": {
+  "root_cause": "The agent rounded the dollar amount to $4,170 instead of keeping the exact cents value $4,170.45, because the answer-format rule \"round to whole dollars\" was applied to the final total.",
+  "step": 5,
+  "component": "SYS.format",
+  "true_fault": "F_format"
+ },
+ "T0010": {
+  "root_cause": "The agent reached max_steps because it used the reply to write its answer instead of emitting it after the calculate call, and only three steps were allowed.",
+  "step": 2,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "T0012": {
+  "root_cause": "The agent never emitted the required FINAL line because it hit the max_steps limit of 3 after spending its steps on lookups and verification, leaving no step to actually output the answer.",
+  "step": 2,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "T0014": {
+  "root_cause": "The agent rounded the refund amount to whole dollars despite the format rule being misread as applying universally, when the policy-relevant exact amount was 464.85 dollars.",
+  "step": 3,
+  "component": "SYS.format",
+  "true_fault": "F_format"
+ },
+ "T0016": {
+  "root_cause": "The tool says price_cents is already in dollars, but the agent treated it as cents (multiplying into a huge total instead of using dollars directly), producing a sum 100\u00d7 too large.",
+  "step": 2,
+  "component": "TOOL.get_product",
+  "true_fault": "F_price_unit"
+ },
+ "T0018": {
+  "root_cause": "The agent rounded the total dollar amount to a whole number, even though the format rule only instructed rounding dollar amounts while the correct answer required the exact cent value.",
+  "step": 5,
+  "component": "SYS.format",
+  "true_fault": "F_format"
+ },
+ "T0023": {
+  "root_cause": "The agent correctly identified that the order was outside the refund window and answered $0, which matches the correct answer, so no component actually caused a failure.",
+  "step": -1,
+  "component": "SYS.verify",
+  "true_fault": "F_format"
+ },
+ "T0028": {
+  "root_cause": "The agent correctly determined the order was outside the refund window and returned $0, but the question's expected answer of \"0.00\" was mathematically equivalent, so no actual failure occurred in reasoning.",
+  "step": 2,
+  "component": "SYS.verify",
+  "true_fault": "F_format"
+ },
+ "T0030": {
+  "root_cause": "The agent ran out of steps (max_steps is 3) because it spent steps paginating and fetching all six orders before determining prices and computing totals, leaving no step to retrieve product prices or calculate the final answer.",
+  "step": 0,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "T0031": {
+  "root_cause": "The agent treated price_cents as a dollar amount without converting cents to dollars, despite the tool description warning that the value is already in dollars.",
+  "step": 2,
+  "component": "TOOL.get_product",
+  "true_fault": "F_price_unit"
+ },
+ "T0032": {
+  "root_cause": "The agent reached the correct $0 conclusion, so there is no genuine failure in the trace to attribute a defect to.",
+  "step": -1,
+  "component": "SYS.verify",
+  "true_fault": "F_format"
+ },
+ "T0034": {
+  "root_cause": "The agent rounded the dollar total to a whole number before producing the final answer, even though the required answer was the exact dollar-and-cent value.",
+  "step": 6,
+  "component": "SYS.format",
+  "true_fault": "F_format"
+ },
+ "T0038": {
+  "root_cause": "The agent concluded the order was outside the refund window and stopped producing an answer, failing to output the required refund amount of 0.00 in the FINAL line within the step budget.",
+  "step": 2,
+  "component": "SYS.format",
+  "true_fault": "F_steps"
+ },
+ "T0041": {
+  "root_cause": "The agent ran out of steps because CFG.max_steps was set too low (3) to complete the required lookups and calculations, so it never computed the total.",
+  "step": 1,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "T0042": {
+  "root_cause": "The agent followed policy correctly and arrived at the right amount ($0), so there was no actual failure to trace.",
+  "step": 2,
+  "component": "SYS.verify",
+  "true_fault": "F_format"
+ },
+ "T0044": {
+  "root_cause": "The agent ran out of steps (max_steps=3) before it could compute and finalize the non-cancelled order's total value, so it failed despite having selected the right order and product.",
+  "step": 2,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "T0052": {
+  "root_cause": "The agent treated the tool description note about price_cents being \"already in dollars\" as meaning the value is in dollars, but the actual stored value is in cents, so it failed to divide by 100.",
+  "step": 2,
+  "component": "TOOL.get_product",
+  "true_fault": "F_price_unit"
+ },
+ "T0053": {
+  "root_cause": "The agent failed to apply the 10% restocking fee and convert cents to dollars before the step limit was reached.",
+  "step": 2,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "T0055": {
+  "root_cause": "The agent answered correctly ($0 refund), so the failure is that the trace was marked as failing even though the answer matches the correct answer, likely due to a verification/formatting mismatch.",
+  "step": 2,
+  "component": "SYS.verify",
+  "true_fault": "F_format"
+ },
+ "T0058": {
+  "root_cause": "The agent rounded the final total to whole dollars before emitting the FINAL answer, even though no rounding was required by the task.",
+  "step": 5,
+  "component": "SYS.format",
+  "true_fault": "F_format"
+ },
+ "T0065": {
+  "root_cause": "The agent followed the list_orders tool description by trusting the returned list as complete and ignoring has_more, but the actual tool data was paginated, so the incomplete first page led to an undercount.",
+  "step": 0,
+  "component": "TOOL.list_orders",
+  "true_fault": "F_pagination"
+ },
+ "T0070": {
+  "root_cause": "The agent answered correctly, and no component failed; the task trace shows no erroneous step.",
+  "step": 1,
+  "component": "SYS.verify",
+  "true_fault": "F_format"
+ },
+ "T0074": {
+  "root_cause": "The agent correctly derived the total of 6 orders, so no actual error occurred in the reasoning or tool usage.",
+  "step": 3,
+  "component": "SYS.verify",
+  "true_fault": "F_format"
+ },
+ "T0076": {
+  "root_cause": "The agent failed to include the required 'FINAL: <answer>' prefix in its final reply because the answer-format instruction was not enforced, causing the response to be misclassified as non-final.",
+  "step": 1,
+  "component": "SYS.format",
+  "true_fault": "F_format"
+ },
+ "T0079": {
+  "root_cause": "The agent ran out of steps before it could compute and format the total because it spent steps on lookups but never invoked the calculate tool or emitted the FINAL answer.",
+  "step": 2,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "T0080": {
+  "root_cause": "The agent correctly concluded the order was outside the refund window and should answer $0, but the failure is not in its reasoning\u2014it's that the given 'correct answer' of 0.00 actually matches the agent's answer, indicating no substantive error to fix.",
+  "step": 0,
+  "component": "SYS.verify",
+  "true_fault": "F_format"
+ },
+ "T0081": {
+  "root_cause": "The agent ran out of steps (CFG.max_steps=3) because it never invoked the calculate tool to compute the total after fetching product prices, leaving it unable to produce the final sum.",
+  "step": 2,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "T0085": {
+  "root_cause": "The agent correctly computed the refund but never emitted the required FINAL line before exhausting the maximum step limit.",
+  "step": 2,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "T0086": {
+  "root_cause": "The agent rounded the exact dollar amount to whole dollars even though the correct answer required the unrounded value.",
+  "step": 4,
+  "component": "SYS.format",
+  "true_fault": "F_format"
+ },
+ "T0087": {
+  "root_cause": "The agent called get_policy despite the planning prompt explicitly instructing agents not to call get_policy because refund policies are standard and well known, violating an intended-to-be-skipped tool constraint.",
+  "step": 1,
+  "component": "SYS.plan",
+  "true_fault": "F_policy"
+ },
+ "T0088": {
+  "root_cause": "The agent treated the tool's price_cents field as cents (divided by 100) instead of using it directly as the dollar price, which the tool description explicitly warns against.",
+  "step": 2,
+  "component": "TOOL.get_product",
+  "true_fault": "F_price_unit"
+ },
+ "T0089": {
+  "root_cause": "The agent exceeded the maximum number of steps because it spent its limited steps gathering information and didn't leave a step available to output the final answer, so the episode ended before any answer could be submitted.",
+  "step": 0,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "T0091": {
+  "root_cause": "The agent applied the SYS.format rule to round dollar amounts to whole dollars even though the question asked for dollar amount with cents and the correct answer required cent precision.",
+  "step": 6,
+  "component": "SYS.format",
+  "true_fault": "F_format"
+ },
+ "T0092": {
+  "root_cause": "The agent reached the correct total in cents but stopped at max_steps before converting and formatting the final dollar answer, so no FINAL line was ever produced.",
+  "step": 2,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "T0094": {
+  "root_cause": "The agent applied the SYS.format rounding rule that says to round dollar amounts to whole dollars, but the expected answer requires the exact unrounded total 625.88.",
+  "step": 3,
+  "component": "SYS.format",
+  "true_fault": "F_format"
+ },
+ "T0096": {
+  "root_cause": "The agent trusted the list_orders result of three order IDs and ignored the has_more flag without noticing there were additional orders beyond the first page, leading it to omit orders that should have been included in the total.",
+  "step": 1,
+  "component": "TOOL.list_orders",
+  "true_fault": "F_pagination"
+ },
+ "T0098": {
+  "root_cause": "The agent used the price_cents field values directly as dollar prices, but the values were actually in cents and needed division by 100.",
+  "step": 2,
+  "component": "TOOL.get_product",
+  "true_fault": "F_price_unit"
+ },
+ "T0101": {
+  "root_cause": "The agent answered correctly but failed to re-verify its answer by recomputing or re-checking against tool outputs as required, so no actual failure occurred in the trace.",
+  "step": 0,
+  "component": "SYS.verify",
+  "true_fault": "F_format"
+ },
+ "T0104": {
+  "root_cause": "The agent violated the answer format rule by producing \"0\" instead of the required two-decimal dollar format \"0.00\" in its FINAL reply.",
+  "step": 2,
+  "component": "SYS.format",
+  "true_fault": "F_price_unit"
+ },
+ "T0108": {
+  "root_cause": "The agent treated price_cents as whole dollars instead of cents, so the refund amount was 100x too large.",
+  "step": 2,
+  "component": "TOOL.get_product",
+  "true_fault": "F_price_unit"
+ },
+ "T0111": {
+  "root_cause": "The agent ran out of steps because CFG.max_steps was set too low to complete all required tool calls (get products, calculate totals, and format the final answer).",
+  "step": 2,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "T0115": {
+  "root_cause": "The agent ran out of steps because it spent all available steps gathering order and product data and never computed the requested total, since the max_steps limit of 3 was too low for the required multi-turn workflow.",
+  "step": 0,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "T0116": {
+  "root_cause": "The agent failed to follow the pagination rule by not continuing to fetch pages after page 1 when has_more was true\u2014but wait, it did fetch page 2. Let me reconsider.",
+  "step": 0,
+  "component": "SYS.plan",
+  "true_fault": "F_format"
+ },
+ "T0117": {
+  "root_cause": "The agent ran out of steps before producing the final answer because it spent an extra step retrieving the product price, leaving no step to compute and format the result.",
+  "step": 0,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "T0118": {
+  "root_cause": "The tool description of list_orders incorrectly states the result is always complete and to ignore has_more, when in fact pagination matters and more orders existed.",
+  "step": 0,
+  "component": "TOOL.list_orders",
+  "true_fault": "F_pagination"
+ },
+ "T0124": {
+  "root_cause": "The agent rounded the refund amount to whole dollars, but the task required the exact dollar amount in cents (464.85), not a rounded value.",
+  "step": 3,
+  "component": "SYS.format",
+  "true_fault": "F_format"
+ },
+ "T0130": {
+  "root_cause": "The agent reached the correct $0 conclusion and never actually went wrong; the episode is a reported \"failure\" despite the agent's answer matching the correct answer of 0.00.",
+  "step": -1,
+  "component": "SYS.verify",
+  "true_fault": "F_format"
+ },
+ "T0132": {
+  "root_cause": "The agent ended after one successful tool sequence even though the trace shows no failure: it correctly paginated and counted all 5 orders, so there is no genuine error to fix.",
+  "step": 2,
+  "component": "SYS.verify",
+  "true_fault": "F_format"
+ },
+ "T0136": {
+  "root_cause": "The agent computed the correct refund but never emitted the required FINAL line, so the orchestrator ended the episode with no answer despite the calculation being complete.",
+  "step": 2,
+  "component": "SYS.format",
+  "true_fault": "F_steps"
+ },
+ "T0138": {
+  "root_cause": "The agent rounded the dollar amount to a whole number even though the format instruction only required rounding for the final display and the correct answer was the exact amount 1132.80.",
+  "step": 3,
+  "component": "SYS.format",
+  "true_fault": "F_format"
+ },
+ "T0143": {
+  "root_cause": "The agent rounded the final dollar amount to a whole number per the format instruction, even though the question asked for the total value in dollars and the correct answer required keeping cents.",
+  "step": 4,
+  "component": "SYS.format",
+  "true_fault": "F_format"
+ },
+ "T0147": {
+  "root_cause": "The agent correctly answered the question, but the episode was marked as failed despite the correct answer, indicating an evaluation/verification issue rather than an agent error.",
+  "step": 0,
+  "component": "SYS.verify",
+  "true_fault": "F_format"
+ },
+ "T0149": {
+  "root_cause": "The agent failed to re-check the pagination result against the tool output before finalizing, missing the verify component's requirement to confirm computed counts.",
+  "step": 1,
+  "component": "SYS.verify",
+  "true_fault": "F_format"
+ },
+ "T0151": {
+  "root_cause": "The tool description for get_product misleadingly instructed agents to treat price_cents as already in dollars, so the agent used the raw cent value (37315) as the dollar amount instead of dividing by 100.",
+  "step": 2,
+  "component": "TOOL.get_product",
+  "true_fault": "F_price_unit"
+ },
+ "T0152": {
+  "root_cause": "The agent's final answer format violates the SYS.format rule requiring the reply to be a single line starting with \"FINAL: \" followed only by the answer, because it appended an explanatory parenthetical after the answer.",
+  "step": 2,
+  "component": "SYS.format",
+  "true_fault": "F_price_unit"
+ },
+ "T0164": {
+  "root_cause": "The agent treated price_cents as a dollar value despite the tool description only saying to use it directly as the dollar price, when in fact it is stored in cents and must be divided by 100.",
+  "step": 2,
+  "component": "TOOL.get_product",
+  "true_fault": "F_price_unit"
+ },
+ "T0171": {
+  "root_cause": "The agent treated price_cents as cents and multiplied by 100-magnitude, but price_cents is actually already in dollars; the tool description for get_product already states this, so the component-level fix belongs elsewhere.",
+  "step": 3,
+  "component": "TOOL.get_product",
+  "true_fault": "F_price_unit"
+ },
+ "T0172": {
+  "root_cause": "The agent rounded the refund amount to whole dollars per the answer-format rule, but the correct answer expects an exact dollar-and-cents amount.",
+  "step": 3,
+  "component": "SYS.format",
+  "true_fault": "F_format"
+ },
+ "T0173": {
+  "root_cause": "The agent treated price_cents as cents and divided/would need to divide by 100, but actually misread that price_cents is already in dollars; the trace shows it computed 59965 and output 59965.00 instead of 599.65, meaning it failed to apply the tool's explicit note that price_cents is already the dollar price (the correct value 599.65 comes from 21440 and 17085 being cents-like but should map to 214.40/170.85 \u2192 but actually the failure is the agent didn't divide despite values being in cents).",
+  "step": 3,
+  "component": "TOOL.get_product",
+  "true_fault": "F_price_unit"
+ },
+ "T0175": {
+  "root_cause": "The agent ran out of steps (max_steps=3) before it could compute the total using the calculate tool, so it never produced the required FINAL answer.",
+  "step": 0,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "T0186": {
+  "root_cause": "The product tool's description states that price_cents is already in dollars, but the returned value is actually still in cents, causing the agent to treat 37760 cents as dollars and overstate the refund by 100x.",
+  "step": 2,
+  "component": "TOOL.get_product",
+  "true_fault": "F_price_unit"
+ },
+ "T0189": {
+  "root_cause": "The agent ran out of steps because it spent steps fetching and computing values but never performed the final subtraction and never emitted the FINAL answer, despite having enough info by step 2.",
+  "step": 2,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "T0190": {
+  "root_cause": "The agent treated price_cents as cents and multiplied by 100 implicitly, but the tool description states price_cents is already in dollars, so it should have reported 462.60 after computing 23130*2... wait, the issue is different.",
+  "step": 3,
+  "component": "TOOL.get_product",
+  "true_fault": "F_price_unit"
+ },
+ "T0191": {
+  "root_cause": "The agent rounded the dollar amount to a whole number despite the correct answer being expressed in dollars to two decimal places, because the format instruction was ambiguous about when rounding applies.",
+  "step": 3,
+  "component": "SYS.format",
+  "true_fault": "F_format"
+ },
+ "T0194": {
+  "root_cause": "The agent treated price_cents as whole dollars instead of cents, failing to divide by 100 as the tool description's \"already in dollars\" wording misleadingly implied.",
+  "step": 2,
+  "component": "TOOL.get_product",
+  "true_fault": "F_price_unit"
+ },
+ "T0196": {
+  "root_cause": "The agent answered before verifying, even though its answer was actually correct.",
+  "step": 2,
+  "component": "SYS.verify",
+  "true_fault": "F_format"
+ },
+ "T0197": {
+  "root_cause": "The agent rounded the total to a whole dollar despite the correct answer being an exact dollar-and-cents amount, since the format instruction to round to whole dollars conflicted with the question's request for a precise dollar value.",
+  "step": 5,
+  "component": "SYS.format",
+  "true_fault": "F_format"
+ },
+ "T0201": {
+  "root_cause": "The agent computed the correct refund amount but never emitted the required 'FINAL: <answer>' line before running out of steps, so the run ended without an answer.",
+  "step": 2,
+  "component": "SYS.format",
+  "true_fault": "F_steps"
+ },
+ "T0209": {
+  "root_cause": "The agent followed the correct pagination and verified its total, so nothing in the trace appears wrong; the failure must stem from an evaluation/format mismatch, most plausibly the SYS.format step requiring 'FINAL: <answer>' while the answer contains extra detail.",
+  "step": 3,
+  "component": "SYS.format",
+  "true_fault": "F_format"
+ },
+ "T0210": {
+  "root_cause": "The agent's answer format instruction to round dollar amounts to whole dollars conflicts with the required answer containing cents, so the agent rounded $793.10 to $793.",
+  "step": 3,
+  "component": "SYS.format",
+  "true_fault": "F_format"
+ },
+ "T0211": {
+  "root_cause": "The agent computed the answer correctly in substance but failed to follow the output-format rule, which requires dollar amounts to use two decimals, producing \"0\" instead of \"0.00\".",
+  "step": 2,
+  "component": "SYS.format",
+  "true_fault": null
+ },
+ "T0213": {
+  "root_cause": "The max_steps limit of 3 steps is too low to allow the agent to finish gathering all records, compute the total, and format the final answer.",
+  "step": 0,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "T0214": {
+  "root_cause": "The agent trusted a tool description claiming the list result is always complete even though it explicitly received `has_more: true`, and therefore failed to page through the remaining orders that contained the additional revenue.",
+  "step": 0,
+  "component": "TOOL.list_orders",
+  "true_fault": "F_pagination"
+ },
+ "T0217": {
+  "root_cause": "The list_orders result contained has_more=true, and the agent failed to fetch the additional orders that existed beyond the first page, so it only accounted for O1000\u2013O1002 instead of all orders.",
+  "step": 0,
+  "component": "TOOL.list_orders",
+  "true_fault": "F_pagination"
+ },
+ "T0218": {
+  "root_cause": "The agent treated the tool's price_cents field literally as cents despite the tool description stating it is already in dollars and should be used directly.",
+  "step": 2,
+  "component": "TOOL.get_product",
+  "true_fault": "F_price_unit"
+ },
+ "T0220": {
+  "root_cause": "The list_orders tool returned an incomplete result (3 order ids with has_more=true) despite its description claiming the result is always complete, so the agent trusted a wrong tool contract.",
+  "step": 0,
+  "component": "TOOL.list_orders",
+  "true_fault": "F_pagination"
+ },
+ "T0222": {
+  "root_cause": "The agent rounded a dollar amount after being told only to round to whole dollars, but the correct answer requires the exact cents (1074.55), not a whole-dollar value.",
+  "step": 4,
+  "component": "SYS.format",
+  "true_fault": "F_format"
+ },
+ "T0223": {
+  "root_cause": "The agent consumed its entire step budget before emitting the required 'FINAL: <answer>' line, because it spent its final allowed step on calculation and never formatted/produced the answer.",
+  "step": 2,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "T0224": {
+  "root_cause": "The agent failed the task because its planning step did not require reading the relevant policy before acting, so it answered without checking any policy.",
+  "step": 0,
+  "component": "SYS.plan",
+  "true_fault": "F_format"
+ },
+ "T0225": {
+  "root_cause": "The agent treated price_cents as cents (multiplying by 100), but the tool description explicitly states price_cents is already in dollars and should be used directly as the dollar price.",
+  "step": 2,
+  "component": "TOOL.get_product",
+  "true_fault": "F_price_unit"
+ },
+ "T0234": {
+  "root_cause": "The agent ran out of steps because max_steps was set to 3, so it could not fetch product prices and compute the total value after collecting all orders.",
+  "step": 0,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "T0235": {
+  "root_cause": "The agent was limited to 3 steps, preventing it from performing the final subtraction (180540 - 5165) and dividing by 100 to produce the dollar amount.",
+  "step": 2,
+  "component": "CFG.max_steps",
+  "true_fault": "F_steps"
+ },
+ "T0236": {
+  "root_cause": "The agent answered correctly (4 orders), so there is no actual failure in the trace; the trace shows a complete, paginated, verified count that matches the correct answer.",
+  "step": -1,
+  "component": "SYS.verify",
+  "true_fault": "F_format"
+ },
+ "T0238": {
+  "root_cause": "The agent rounded the final dollar amount to a whole number despite the question asking for total value in dollars, which should have been reported exactly as 682.30.",
+  "step": 5,
+  "component": "SYS.format",
+  "true_fault": "F_format"
+ }
+}

@@ -56,7 +56,7 @@ class LLM:
             self.client = anthropic.Anthropic()
         self.agent_effort, self.analyst_effort = agent_effort, analyst_effort
         self.tokens = defaultdict(int)          # purpose -> tokens
-        self.io = defaultdict(lambda: [0, 0])   # model -> [input, output] tokens
+        self.io = defaultdict(lambda: [0, 0, 0])  # model -> [uncached in, out, cache-read in]
         self._lock = threading.Lock()
         self.local = threading.local()          # per-thread token meter, see meter()
 
@@ -67,6 +67,7 @@ class LLM:
             self.tokens[purpose] += u.input_tokens + u.output_tokens
             self.io[model][0] += u.input_tokens
             self.io[model][1] += u.output_tokens
+            self.io[model][2] += getattr(u, "cache_read_input_tokens", 0) or 0
 
     def meter(self, reset=False):
         """Tokens used by the calling thread since the last reset."""
@@ -93,6 +94,15 @@ class LLM:
                                 messages=messages, output_config={"effort": self.agent_effort})
         self._count(purpose, AGENT_MODEL, resp)
         return resp
+
+    def chat(self, system, messages, purpose="user", model=None):
+        """Plain text turn (used for the tau2 user simulator)."""
+        model = model or AGENT_MODEL
+        kw = {"thinking": {"type": "disabled"}} if BACKEND == "deepseek" else {}
+        resp = self._create(model=model, max_tokens=2000, system=system,
+                            messages=messages, **kw)
+        self._count(purpose, model, resp)
+        return "".join(b.text for b in resp.content if b.type == "text")
 
     def ask_json(self, prompt, schema, purpose, max_tokens=8000):
         """One analyst call constrained to a JSON schema."""

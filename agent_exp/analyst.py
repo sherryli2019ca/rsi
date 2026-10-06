@@ -9,6 +9,8 @@ from agent_exp.agent import COMPONENT_DOCS, Trace
 
 def render_trace(t: Trace, max_chars=12000) -> str:
     lines = [f"QUESTION: {t.question}"]
+    if getattr(t, "opening", None):
+        lines.append(f"[start] USER: {t.opening}")
     for st in t.steps:
         for b in st.assistant:
             if b["type"] == "text":
@@ -16,42 +18,52 @@ def render_trace(t: Trace, max_chars=12000) -> str:
             else:
                 lines.append(f"[step {st.index}] CALL {b['name']}({json.dumps(b['input'])})")
         for r in st.tool_results:
-            lines.append(f"[step {st.index}] RESULT: {r['content']}")
-    lines.append(f"FINAL ANSWER: {t.answer}   (episode ended: {t.stopped})")
+            lines.append(f"[step {st.index}] RESULT: {str(r['content'])[:1500]}")
+        if getattr(st, "user", None):
+            lines.append(f"[step {st.index}] USER: {st.user}")
+    if t.answer is not None or not hasattr(t, "reward"):
+        lines.append(f"FINAL ANSWER: {t.answer}   (episode ended: {t.stopped})")
+    else:
+        lines.append(f"(episode ended: {t.stopped}; task failed: the final database state "
+                     f"did not match the expected outcome)")
     s = "\n".join(lines)
     return s if len(s) <= max_chars else s[:max_chars // 2] + "\n...\n" + s[-max_chars // 2:]
 
 
-def registry_text(comps) -> str:
-    return "\n".join(f"- {cid} ({COMPONENT_DOCS[cid]}): {comps[cid]!r}" for cid in COMPONENT_DOCS)
+def registry_text(comps, docs=COMPONENT_DOCS) -> str:
+    return "\n".join(f"- {cid} ({docs[cid]}): {comps[cid]!r}" for cid in docs)
 
 
-ATTR_SCHEMA = {
-    "type": "object", "additionalProperties": False,
-    "required": ["root_cause", "step", "component"],
-    "properties": {
-        "root_cause": {"type": "string"},
-        "step": {"type": "integer"},
-        "component": {"type": "string", "enum": list(COMPONENT_DOCS)},
-    },
-}
+def attr_schema(docs=COMPONENT_DOCS):
+    return {
+        "type": "object", "additionalProperties": False,
+        "required": ["root_cause", "step", "component"],
+        "properties": {
+            "root_cause": {"type": "string"},
+            "step": {"type": "integer"},
+            "component": {"type": "string", "enum": list(docs)},
+        },
+    }
 
 
-def attribute(llm, trace: Trace, gold: str, comps) -> dict:
+ATTR_SCHEMA = attr_schema()
+
+
+def attribute(llm, trace: Trace, gold: str, comps, docs=COMPONENT_DOCS) -> dict:
     prompt = f"""An LLM agent failed a task. Find the root cause of the failure.
 
 Agent components (id, role, current text):
-{registry_text(comps)}
+{registry_text(comps, docs)}
 
 Trace:
 {render_trace(trace)}
 
-The correct answer was: {gold}
+{gold}
 
 Give (1) a one-sentence root cause describing the cause, not the symptom;
 (2) the index of the earliest step where the agent went wrong;
 (3) the single component whose change would most plausibly prevent this failure."""
-    return llm.ask_json(prompt, ATTR_SCHEMA, "attribution")
+    return llm.ask_json(prompt, attr_schema(docs), "attribution")
 
 
 TAX_SCHEMA = {
@@ -98,9 +110,10 @@ PATCH_SCHEMA = {
 }
 
 
-def make_patches(llm, cid: str, comps, category: dict, examples: list[str], k=3) -> list[str]:
+def make_patches(llm, cid: str, comps, category: dict, examples: list[str], k=3,
+                 docs=COMPONENT_DOCS) -> list[str]:
     prompt = f"""You improve one component of an LLM agent.
-Component {cid} ({COMPONENT_DOCS[cid]}) currently reads:
+Component {cid} ({docs[cid]}) currently reads:
 {comps[cid]!r}
 
 It is suspected of causing this failure category:

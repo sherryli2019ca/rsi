@@ -1,0 +1,2130 @@
+{
+ "n": 144,
+ "n_pairs": 48,
+ "p_pass_given_fail": [
+  0.225,
+  80
+ ],
+ "p_pass_given_success": [
+  0.5625,
+  64
+ ],
+ "p_pass_bad_patch": [
+  0.23333333333333334,
+  60
+ ],
+ "p_pass_given_fail_bad_patch": [
+  0.23333333333333334,
+  60
+ ],
+ "p_pass_given_fail_good_patch": [
+  0.2,
+  20
+ ],
+ "replay_success": 0.4444444444444444,
+ "tok_full": 1354.2083333333333,
+ "tok_single": 960.4861111111111,
+ "patches": {
+  "2,10": [
+   "20",
+   "25",
+   "30"
+  ],
+  "0,2": [
+   "Before answering, verify each number against its source tool output; recompute any total using the calculate tool only if the component values came from tool outputs.",
+   "Use numbers exactly as returned by tool outputs; only run the calculate tool when you have added or combined tool-returned values, and skip it when the answer is already directly given by the tools.",
+   "Check that every number in your answer matches the tool outputs you actually received, and run the calculate tool only to combine those values when the tool outputs do not already state the result."
+  ],
+  "5,7": [
+   "Get a product: name, category and price_cents (price in cents). Note: price_cents is in cents; divide by 100 to convert to dollars.",
+   "Get a product: name, category and price_cents. The price_cents value is already in dollars; use it directly as the dollar price (do not divide by 100).",
+   "Get a product: name, category and price_cents. price_cents stores price in cents (e.g., 22110 means $221.10), so divide by 100 before treating it as dollars."
+  ],
+  "4,3": [
+   "When you are done, reply with a single line 'FINAL: <answer>'. Use the exact value computed; do not round unless the task explicitly specifies a rounding rule. Dollar amounts must use exactly two decimals without a currency sign (e.g. 997.25, 1300.84); counts are integers. If a value has more than two decimals, truncate (do not round) to two decimals for dollar amounts.",
+   "When you are done, reply with a single line 'FINAL: <answer>'. Preserve exact cent precision: never round dollar amounts to whole dollars, and never round half-cents upward. Perform all arithmetic in integer cents (not floating point), then convert by dividing by 100 and keeping exactly two decimal places. Dollar amounts use two decimals without a currency sign; counts are integers.",
+   "When you are done, reply with a single line 'FINAL: <answer>'. Report dollar amounts with exactly two decimals and no currency sign, and counts as integers. Do not round or truncate the value: use the unrounded result, and round per-item fees (not the total) only if the task requires rounding. Round half values to the nearest cent using integer cent arithmetic, never rounding half-cents upward or to whole dollars."
+  ],
+  "6,5": [
+   "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. A response with has_more=true is incomplete; you must keep requesting subsequent pages until has_more is false before counting or reporting order ids.",
+   "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. Do not treat any single page as the full order list: always check has_more and continue fetching pages until has_more is false to retrieve all order ids.",
+   "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. Never assume the returned order_ids are complete if has_more is true; if has_more is true, the current page is truncated and you must fetch the remaining pages before using the result."
+  ],
+  "11,2": [
+   "Before answering, recompute any totals with the calculate tool when they are derived from tool outputs, and verify any number you state in the final answer against its source tool output.",
+   "Verify each number you state in the final answer by checking it against the corresponding tool output. Use the calculate tool whenever a number is a computed total or derived value.",
+   "Before answering, confirm that each number in your final answer matches its source tool output, and recompute derived totals with the calculate tool. Do not add extra calculation steps when the value already matches the tool output exactly."
+  ],
+  "1,3": [
+   "When you are done, you MUST reply with exactly one line that begins with 'FINAL: ' followed by your answer. Before ending your turn, always emit that line as your last message. Dollar amounts use two decimals without a currency sign; counts are integers.",
+   "Your final message must be a single line of the form 'FINAL: <answer>'. Do not reply with any other value (such as 'None') in place of the answer; if there is no applicable answer, still emit 'FINAL: ' followed by your best available result. Dollar amounts use two decimals without a currency sign; counts are integers.",
+   "End every response with one and only one line: 'FINAL: <answer>'. Emit this line even if the answer is empty or a no-result, and do not put any other text on that line. Dollar amounts use two decimals without a currency sign; counts are integers."
+  ],
+  "0,1": [
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. Skip any call that does not provide information needed to answer the question.",
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. Only take an action if it directly contributes to answering the user's question.",
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. Avoid unnecessary calls that do not change the final answer."
+  ],
+  "3,5": [
+   "List the order ids of a customer. Pagination: start with page=1; if has_more is true, request the next page. Stop as soon as has_more is false, then proceed directly to computing/formatting the answer.",
+   "List the order ids of a customer, one page per call. Pass page=1 first; continue with page=2, 3, ... only while has_more is true. Do not repeat pages already fetched, and after the final page, compute and format the answer in the next step.",
+   "Return a customer's order ids across all pages. Query page=1, then subsequent pages only while has_more is true. Once has_more is false, all order ids have been collected; do not make further tool calls before producing the final answer."
+  ],
+  "6,2": [
+   "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. When a list/order result includes a has_more field that is true, or the result looks truncated, treat the data as incomplete: do not rely on it for final counts, and continue fetching remaining pages until has_more is false or all pages are retrieved.",
+   "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. Never trust a has_more=true flag or a truncated-looking list as the complete result: request the next page(s) and aggregate all items across pages before computing any totals or counts.",
+   "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. If any list/order output has has_more=true or appears cut off, keep paginating until you have the full result, and base all counts and totals only on the complete set of items."
+  ],
+  "3,0": [
+   "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Before making any call, check whether you already have the information needed; avoid repeating lookups and merge duplicate items. Always reserve a final step to compute and format the answer.",
+   "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Before making any call, check whether you already have the information needed; avoid repeating lookups and merge duplicate items. Always reserve a final step to compute and format the answer.",
+   "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Before making any call, check whether you already have the information needed; avoid repeating lookups and merge duplicate items. Always reserve a final step to compute and format the answer."
+  ],
+  "1,2": [
+   "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. After your reasoning is complete, you must end with exactly one line beginning with 'FINAL: ' followed by the answer.",
+   "Re-check every number you use against tool outputs and recompute totals with the calculate tool. Then, as your final step, output the required 'FINAL: <answer>' line and nothing else after it.",
+   "Verify each number against tool outputs and recompute totals with the calculate tool. Always finish your response by emitting a single line of the exact form 'FINAL: <answer>'; never substitute alternatives like 'None' for the required format."
+  ],
+  "3,8": [
+   "Get a shop policy by name: 'refund' or 'cancellation'. This tool returns both policies at once; only call it once per policy name needed.",
+   "Get a shop policy by name: 'refund' or 'cancellation'. If you need both policies, call get_policy('refund') and get_policy('cancellation') in a single batch rather than sequentially.",
+   "Get a shop policy by name: 'refund' or 'cancellation'. Do not call this tool again for a policy you have already retrieved; reuse the result."
+  ],
+  "3,6": [
+   "Get an order: items (sku, qty, merged duplicates with per-order qty totals), status and days since delivery.",
+   "Get an order and return its line items (sku, qty) already merged by SKU with summed quantities, plus status and days since delivery. No further calculation needed for totals.",
+   "Get an order: merged items (unique sku, total qty per sku), order total quantity, status, and days since delivery."
+  ],
+  "10,0": [
+   "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Refunds are only valid for orders within the 30-day refund window; if an order is outside the window, the refund amount is 0.00 and you must return 0.00 rather than computing any refund.",
+   "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Before computing any refund amount, first verify whether the order falls within the 30-day refund window. If it does not, the refund is 0.00; do not compute or propose any other amount.",
+   "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. When handling a refund request, check the order date against the 30-day refund window. Orders outside the window are not eligible for a refund, so return 0.00 as the final refund amount and do not calculate a different total."
+  ],
+  "7,7": [
+   "Get a product by its ID: returns name, category, and price_cents (price in cents, not dollars).",
+   "Get a product: name, category and price_cents. Note: price_cents is in cents; divide by 100 to get dollars.",
+   "Retrieve a single product's details: name, category, and price in cents (price_cents field, integer)."
+  ]
+ },
+ "rows": [
+  {
+   "cell": [
+    2,
+    10
+   ],
+   "patch": 0,
+   "trace": "T0144",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 2084,
+   "tok_single": 1343,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    2,
+    10
+   ],
+   "patch": 0,
+   "trace": "T0137",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 543,
+   "tok_single": 1119,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    2,
+    10
+   ],
+   "patch": 0,
+   "trace": "T0154",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 2987,
+   "tok_single": 846,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    2,
+    10
+   ],
+   "patch": 1,
+   "trace": "T0181",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 1922,
+   "tok_single": 1492,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    2,
+    10
+   ],
+   "patch": 1,
+   "trace": "T0106",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 2234,
+   "tok_single": 1300,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    2,
+    10
+   ],
+   "patch": 1,
+   "trace": "T0137",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 544,
+   "tok_single": 1125,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    2,
+    10
+   ],
+   "patch": 2,
+   "trace": "T0064",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 1046,
+   "tok_single": 714,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    2,
+    10
+   ],
+   "patch": 2,
+   "trace": "T0154",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 2657,
+   "tok_single": 831,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    2,
+    10
+   ],
+   "patch": 2,
+   "trace": "T0113",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 2312,
+   "tok_single": 1282,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    0,
+    2
+   ],
+   "patch": 0,
+   "trace": "T0192",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1129,
+   "tok_single": 1032,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    0,
+    2
+   ],
+   "patch": 0,
+   "trace": "T0019",
+   "y": 1,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1299,
+   "tok_single": 1071,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    0,
+    2
+   ],
+   "patch": 0,
+   "trace": "T0183",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1431,
+   "tok_single": 1255,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    0,
+    2
+   ],
+   "patch": 1,
+   "trace": "T0058",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 899,
+   "tok_single": 639,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    0,
+    2
+   ],
+   "patch": 1,
+   "trace": "T0126",
+   "y": 0,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1490,
+   "tok_single": 742,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    0,
+    2
+   ],
+   "patch": 1,
+   "trace": "T0098",
+   "y": 0,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1446,
+   "tok_single": 1288,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    0,
+    2
+   ],
+   "patch": 2,
+   "trace": "T0122",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1818,
+   "tok_single": 1033,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    0,
+    2
+   ],
+   "patch": 2,
+   "trace": "T0203",
+   "y": 0,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 642,
+   "tok_single": 1217,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    0,
+    2
+   ],
+   "patch": 2,
+   "trace": "T0203",
+   "y": 0,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 967,
+   "tok_single": 1237,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    5,
+    7
+   ],
+   "patch": 0,
+   "trace": "T0209",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 2066,
+   "tok_single": 2239,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    5,
+    7
+   ],
+   "patch": 0,
+   "trace": "T0115",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 2705,
+   "tok_single": 2865,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    5,
+    7
+   ],
+   "patch": 0,
+   "trace": "T0170",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 847,
+   "tok_single": 1139,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    5,
+    7
+   ],
+   "patch": 1,
+   "trace": "T0115",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 2994,
+   "tok_single": 2840,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    5,
+    7
+   ],
+   "patch": 1,
+   "trace": "T0115",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 3217,
+   "tok_single": 923,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    5,
+    7
+   ],
+   "patch": 1,
+   "trace": "T0209",
+   "y": 0,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 2412,
+   "tok_single": 2217,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    5,
+    7
+   ],
+   "patch": 2,
+   "trace": "T0209",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 2673,
+   "tok_single": 727,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    5,
+    7
+   ],
+   "patch": 2,
+   "trace": "T0115",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 2595,
+   "tok_single": 2882,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    5,
+    7
+   ],
+   "patch": 2,
+   "trace": "T0013",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 2200,
+   "tok_single": 2137,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    4,
+    3
+   ],
+   "patch": 0,
+   "trace": "T0142",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1389,
+   "tok_single": 1158,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    4,
+    3
+   ],
+   "patch": 0,
+   "trace": "T0089",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 1596,
+   "tok_single": 1386,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    4,
+    3
+   ],
+   "patch": 0,
+   "trace": "T0231",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 1067,
+   "tok_single": 1065,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    4,
+    3
+   ],
+   "patch": 1,
+   "trace": "T0070",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1456,
+   "tok_single": 1327,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    4,
+    3
+   ],
+   "patch": 1,
+   "trace": "T0205",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1518,
+   "tok_single": 1344,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    4,
+    3
+   ],
+   "patch": 1,
+   "trace": "T0213",
+   "y": 0,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1855,
+   "tok_single": 1247,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    4,
+    3
+   ],
+   "patch": 2,
+   "trace": "T0208",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 3094,
+   "tok_single": 2546,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    4,
+    3
+   ],
+   "patch": 2,
+   "trace": "T0089",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1595,
+   "tok_single": 1321,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    4,
+    3
+   ],
+   "patch": 2,
+   "trace": "T0210",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1206,
+   "tok_single": 903,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    6,
+    5
+   ],
+   "patch": 0,
+   "trace": "T0034",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 2898,
+   "tok_single": 1407,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    6,
+    5
+   ],
+   "patch": 0,
+   "trace": "T0182",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 943,
+   "tok_single": 649,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    6,
+    5
+   ],
+   "patch": 0,
+   "trace": "T0010",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 770,
+   "tok_single": 623,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    6,
+    5
+   ],
+   "patch": 1,
+   "trace": "T0182",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 932,
+   "tok_single": 675,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    6,
+    5
+   ],
+   "patch": 1,
+   "trace": "T0010",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 1315,
+   "tok_single": 649,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    6,
+    5
+   ],
+   "patch": 1,
+   "trace": "T0114",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 794,
+   "tok_single": 592,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    6,
+    5
+   ],
+   "patch": 2,
+   "trace": "T0223",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 2991,
+   "tok_single": 1643,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    6,
+    5
+   ],
+   "patch": 2,
+   "trace": "T0034",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 2495,
+   "tok_single": 1396,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    6,
+    5
+   ],
+   "patch": 2,
+   "trace": "T0034",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 3164,
+   "tok_single": 499,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    11,
+    2
+   ],
+   "patch": 0,
+   "trace": "T0198",
+   "y": 0,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1201,
+   "tok_single": 937,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    11,
+    2
+   ],
+   "patch": 0,
+   "trace": "T0157",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1006,
+   "tok_single": 618,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    11,
+    2
+   ],
+   "patch": 0,
+   "trace": "T0151",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 966,
+   "tok_single": 1123,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    11,
+    2
+   ],
+   "patch": 1,
+   "trace": "T0184",
+   "y": 0,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1155,
+   "tok_single": 877,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    11,
+    2
+   ],
+   "patch": 1,
+   "trace": "T0157",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 999,
+   "tok_single": 614,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    11,
+    2
+   ],
+   "patch": 1,
+   "trace": "T0151",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 646,
+   "tok_single": 1135,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    11,
+    2
+   ],
+   "patch": 2,
+   "trace": "T0118",
+   "y": 0,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1333,
+   "tok_single": 1193,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    11,
+    2
+   ],
+   "patch": 2,
+   "trace": "T0157",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1016,
+   "tok_single": 366,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    11,
+    2
+   ],
+   "patch": 2,
+   "trace": "T0118",
+   "y": 1,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 655,
+   "tok_single": 1106,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 0,
+   "trace": "T0214",
+   "y": 0,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 1330,
+   "tok_single": 1194,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 0,
+   "trace": "T0177",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1109,
+   "tok_single": 497,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 0,
+   "trace": "T0038",
+   "y": 0,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 1108,
+   "tok_single": 973,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 1,
+   "trace": "T0038",
+   "y": 0,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 1167,
+   "tok_single": 852,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 1,
+   "trace": "T0214",
+   "y": 0,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 1349,
+   "tok_single": 1182,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 1,
+   "trace": "T0179",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 1202,
+   "tok_single": 688,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 2,
+   "trace": "T0023",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 1118,
+   "tok_single": 878,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 2,
+   "trace": "T0179",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 755,
+   "tok_single": 711,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 2,
+   "trace": "T0188",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 789,
+   "tok_single": 1199,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    0,
+    1
+   ],
+   "patch": 0,
+   "trace": "T0069",
+   "y": 0,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1366,
+   "tok_single": 1146,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    0,
+    1
+   ],
+   "patch": 0,
+   "trace": "T0183",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1365,
+   "tok_single": 1258,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    0,
+    1
+   ],
+   "patch": 0,
+   "trace": "T0069",
+   "y": 0,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1324,
+   "tok_single": 1147,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    0,
+    1
+   ],
+   "patch": 1,
+   "trace": "T0169",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1619,
+   "tok_single": 751,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    0,
+    1
+   ],
+   "patch": 1,
+   "trace": "T0195",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 986,
+   "tok_single": 757,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    0,
+    1
+   ],
+   "patch": 1,
+   "trace": "T0122",
+   "y": 0,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1112,
+   "tok_single": 1118,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    0,
+    1
+   ],
+   "patch": 2,
+   "trace": "T0126",
+   "y": 0,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1541,
+   "tok_single": 351,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    0,
+    1
+   ],
+   "patch": 2,
+   "trace": "T0149",
+   "y": 0,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1000,
+   "tok_single": 575,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    0,
+    1
+   ],
+   "patch": 2,
+   "trace": "T0049",
+   "y": 0,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 637,
+   "tok_single": 1079,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    5
+   ],
+   "patch": 0,
+   "trace": "T0159",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1262,
+   "tok_single": 1076,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    5
+   ],
+   "patch": 0,
+   "trace": "T0134",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1110,
+   "tok_single": 1326,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    5
+   ],
+   "patch": 0,
+   "trace": "T0159",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 917,
+   "tok_single": 1063,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    5
+   ],
+   "patch": 1,
+   "trace": "T0159",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1307,
+   "tok_single": 1085,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    5
+   ],
+   "patch": 1,
+   "trace": "T0134",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1122,
+   "tok_single": 1334,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    5
+   ],
+   "patch": 1,
+   "trace": "T0134",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 352,
+   "tok_single": 686,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    5
+   ],
+   "patch": 2,
+   "trace": "T0159",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1320,
+   "tok_single": 1076,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    5
+   ],
+   "patch": 2,
+   "trace": "T0134",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1112,
+   "tok_single": 682,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    5
+   ],
+   "patch": 2,
+   "trace": "T0134",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 340,
+   "tok_single": 677,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    6,
+    2
+   ],
+   "patch": 0,
+   "trace": "T0078",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 3714,
+   "tok_single": 1477,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    6,
+    2
+   ],
+   "patch": 0,
+   "trace": "T0078",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 3851,
+   "tok_single": 1485,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    6,
+    2
+   ],
+   "patch": 0,
+   "trace": "T0034",
+   "y": 1,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 3277,
+   "tok_single": 778,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    6,
+    2
+   ],
+   "patch": 1,
+   "trace": "T0078",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 3768,
+   "tok_single": 1470,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    6,
+    2
+   ],
+   "patch": 1,
+   "trace": "T0010",
+   "y": 1,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1856,
+   "tok_single": 382,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    6,
+    2
+   ],
+   "patch": 1,
+   "trace": "T0114",
+   "y": 1,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 731,
+   "tok_single": 455,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    6,
+    2
+   ],
+   "patch": 2,
+   "trace": "T0078",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 3913,
+   "tok_single": 1464,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    6,
+    2
+   ],
+   "patch": 2,
+   "trace": "T0114",
+   "y": 0,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1038,
+   "tok_single": 687,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    6,
+    2
+   ],
+   "patch": 2,
+   "trace": "T0078",
+   "y": 1,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 2901,
+   "tok_single": 448,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    3,
+    0
+   ],
+   "patch": 0,
+   "trace": "T0159",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1381,
+   "tok_single": 546,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    0
+   ],
+   "patch": 0,
+   "trace": "T0134",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1237,
+   "tok_single": 718,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    0
+   ],
+   "patch": 0,
+   "trace": "T0159",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1386,
+   "tok_single": 474,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    0
+   ],
+   "patch": 1,
+   "trace": "T0134",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 611,
+   "tok_single": 695,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    0
+   ],
+   "patch": 1,
+   "trace": "T0134",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 613,
+   "tok_single": 696,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    0
+   ],
+   "patch": 1,
+   "trace": "T0134",
+   "y": 0,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 356,
+   "tok_single": 715,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    0
+   ],
+   "patch": 2,
+   "trace": "T0134",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 357,
+   "tok_single": 740,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    0
+   ],
+   "patch": 2,
+   "trace": "T0134",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 356,
+   "tok_single": 702,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    0
+   ],
+   "patch": 2,
+   "trace": "T0159",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 880,
+   "tok_single": 545,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    1,
+    2
+   ],
+   "patch": 0,
+   "trace": "T0023",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1122,
+   "tok_single": 797,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    1,
+    2
+   ],
+   "patch": 0,
+   "trace": "T0023",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1143,
+   "tok_single": 871,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    1,
+    2
+   ],
+   "patch": 0,
+   "trace": "T0214",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 810,
+   "tok_single": 1365,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    1,
+    2
+   ],
+   "patch": 1,
+   "trace": "T0214",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1344,
+   "tok_single": 1257,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    1,
+    2
+   ],
+   "patch": 1,
+   "trace": "T0177",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 816,
+   "tok_single": 480,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    1,
+    2
+   ],
+   "patch": 1,
+   "trace": "T0156",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1167,
+   "tok_single": 1031,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    1,
+    2
+   ],
+   "patch": 2,
+   "trace": "T0214",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1392,
+   "tok_single": 1195,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    1,
+    2
+   ],
+   "patch": 2,
+   "trace": "T0038",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1153,
+   "tok_single": 500,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    1,
+    2
+   ],
+   "patch": 2,
+   "trace": "T0179",
+   "y": 1,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 954,
+   "tok_single": 613,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    3,
+    8
+   ],
+   "patch": 0,
+   "trace": "T0159",
+   "y": 0,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 922,
+   "tok_single": 619,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    8
+   ],
+   "patch": 0,
+   "trace": "T0134",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 834,
+   "tok_single": 676,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    8
+   ],
+   "patch": 0,
+   "trace": "T0134",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 850,
+   "tok_single": 673,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    8
+   ],
+   "patch": 1,
+   "trace": "T0159",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 961,
+   "tok_single": 537,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    8
+   ],
+   "patch": 1,
+   "trace": "T0159",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1000,
+   "tok_single": 540,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    8
+   ],
+   "patch": 1,
+   "trace": "T0159",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1129,
+   "tok_single": 538,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    8
+   ],
+   "patch": 2,
+   "trace": "T0159",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 942,
+   "tok_single": 526,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    8
+   ],
+   "patch": 2,
+   "trace": "T0134",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 850,
+   "tok_single": 685,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    8
+   ],
+   "patch": 2,
+   "trace": "T0134",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 595,
+   "tok_single": 634,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    6
+   ],
+   "patch": 0,
+   "trace": "T0159",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1068,
+   "tok_single": 552,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    6
+   ],
+   "patch": 0,
+   "trace": "T0134",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 971,
+   "tok_single": 670,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    6
+   ],
+   "patch": 0,
+   "trace": "T0134",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 955,
+   "tok_single": 675,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    6
+   ],
+   "patch": 1,
+   "trace": "T0134",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 966,
+   "tok_single": 638,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    6
+   ],
+   "patch": 1,
+   "trace": "T0134",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 343,
+   "tok_single": 679,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    6
+   ],
+   "patch": 1,
+   "trace": "T0159",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 831,
+   "tok_single": 528,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    6
+   ],
+   "patch": 2,
+   "trace": "T0134",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 974,
+   "tok_single": 685,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    6
+   ],
+   "patch": 2,
+   "trace": "T0159",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1076,
+   "tok_single": 531,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    6
+   ],
+   "patch": 2,
+   "trace": "T0134",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 958,
+   "tok_single": 628,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    10,
+    0
+   ],
+   "patch": 0,
+   "trace": "T0093",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1239,
+   "tok_single": 926,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    10,
+    0
+   ],
+   "patch": 0,
+   "trace": "T0093",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1231,
+   "tok_single": 939,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    10,
+    0
+   ],
+   "patch": 0,
+   "trace": "T0093",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 215,
+   "tok_single": 898,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    10,
+    0
+   ],
+   "patch": 1,
+   "trace": "T0093",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1226,
+   "tok_single": 908,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    10,
+    0
+   ],
+   "patch": 1,
+   "trace": "T0093",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1218,
+   "tok_single": 937,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    10,
+    0
+   ],
+   "patch": 1,
+   "trace": "T0093",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1240,
+   "tok_single": 933,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    10,
+    0
+   ],
+   "patch": 2,
+   "trace": "T0093",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1252,
+   "tok_single": 927,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    10,
+    0
+   ],
+   "patch": 2,
+   "trace": "T0093",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1250,
+   "tok_single": 423,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    10,
+    0
+   ],
+   "patch": 2,
+   "trace": "T0093",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1241,
+   "tok_single": 429,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    7,
+    7
+   ],
+   "patch": 0,
+   "trace": "T0103",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1165,
+   "tok_single": 993,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    7,
+    7
+   ],
+   "patch": 0,
+   "trace": "T0103",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1106,
+   "tok_single": 992,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    7,
+    7
+   ],
+   "patch": 0,
+   "trace": "T0039",
+   "y": 0,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 1013,
+   "tok_single": 648,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    7,
+    7
+   ],
+   "patch": 1,
+   "trace": "T0145",
+   "y": 0,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 552,
+   "tok_single": 539,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    7,
+    7
+   ],
+   "patch": 1,
+   "trace": "T0103",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1027,
+   "tok_single": 484,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    7,
+    7
+   ],
+   "patch": 1,
+   "trace": "T0039",
+   "y": 0,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 569,
+   "tok_single": 652,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    7,
+    7
+   ],
+   "patch": 2,
+   "trace": "T0039",
+   "y": 0,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 733,
+   "tok_single": 649,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    7,
+    7
+   ],
+   "patch": 2,
+   "trace": "T0145",
+   "y": 0,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 556,
+   "tok_single": 487,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    7,
+    7
+   ],
+   "patch": 2,
+   "trace": "T0039",
+   "y": 0,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 888,
+   "tok_single": 651,
+   "patch_full_success": 0.0
+  }
+ ],
+ "sens": 0.5625,
+ "fpr_good": 0.2,
+ "fpr_bad": 0.23333333333333334
+}

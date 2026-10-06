@@ -1,0 +1,161 @@
+{
+ "categories": [
+  {
+   "name": "No failure (correct answer/behavior)",
+   "definition": "The agent produced the correct answer and followed correct reasoning, so no actual failure exists in the trace; excludes cases where a formatting or step-budget issue prevented a correct answer from being captured.",
+   "exclude": []
+  },
+  {
+   "name": "Missing final answer format",
+   "definition": "The agent reached a correct answer but never emitted the required 'FINAL: <answer>' line or omitted the required single-line/prefix format, so the answer was not captured; excludes substantive reasoning errors and cases where the omission was solely caused by exhausting the step budget.",
+   "exclude": []
+  },
+  {
+   "name": "Insufficient step budget (max_steps)",
+   "definition": "The orchestrator's max_steps limit was too low to complete required lookups/calculations or to emit the final answer, terminating the episode before a valid answer could be produced; excludes cases where enough steps existed but the agent misused them on redundant calls.",
+   "exclude": []
+  },
+  {
+   "name": "Step misallocation (wasted/redundant calls)",
+   "definition": "The agent had the step budget to complete the task but squandered steps on redundant or unneeded calls and therefore ran out before computing/formatting the answer; excludes cases where the budget itself was inherently too low.",
+   "exclude": []
+  },
+  {
+   "name": "Rounding error",
+   "definition": "The agent applied an incorrect rounding rule (rounding to whole dollars, rounding half-cents upward, rounding a total instead of per-item fees, or using floating point instead of integer arithmetic) instead of retaining the exact required cent value; excludes unit-conversion and incomplete-pagination errors.",
+   "exclude": []
+  },
+  {
+   "name": "Unit misreading (price_cents vs dollars)",
+   "definition": "The agent treated a numeric price field with the wrong unit despite tool documentation, either treating cents as dollars or failing to divide by 100 (including misreading a field documented as dollars as cents); excludes rounding errors and arithmetic-only-tool violations.",
+   "exclude": []
+  },
+  {
+   "name": "Incomplete pagination (trusted has_more/complete claim)",
+   "definition": "The agent failed to retrieve remaining pages after a list/order result returned has_more=true or a truncated result, under-counting items; excludes cases where the tool description itself falsely claimed completeness (see tool-description defect).",
+   "exclude": []
+  },
+  {
+   "name": "Tool description defect",
+   "definition": "A tool's documented behavior contradicted its actual behavior (e.g., claiming results are complete despite pagination, or mislabeling a price field), causing the agent to correctly follow bad instructions and reach a wrong answer; excludes agent-side misapplication of correct docs.",
+   "exclude": []
+  },
+  {
+   "name": "Policy misapplication",
+   "definition": "The agent applied the wrong refund/restocking policy, ignored duplicate-SKU/cancelled-order rules, or applied a restocking fee outside the scenario it applies to (e.g., cancellations vs delivered-order refunds) contrary to the applicable policy or product terms; excludes cases caused by the policy/prompt component giving wrong instructions.",
+   "exclude": []
+  },
+  {
+   "name": "Misuse of calculate tool",
+   "definition": "The agent used the calculate tool for a non-arithmetic operation or applied the wrong arithmetic rule where reasoning/policy should determine the answer; excludes unit and rounding errors.",
+   "exclude": []
+  },
+  {
+   "name": "Wrong refund computation",
+   "definition": "The agent computed a refund amount despite the order being outside the refund window (instead of returning 0.00), or otherwise produced a materially incorrect dollar total for a correct-answer-window case; excludes policy misapplication and rounding errors.",
+   "exclude": []
+  },
+  {
+   "name": "Evaluation/answer misconfiguration",
+   "definition": "The environment's grader, answer key, or verification metrics were misconfigured to mark a correct answer/format as wrong (e.g., demanding an unnecessary calculate-tool re-verification, or marking a correct 0.00 refund as incorrect), or a prompt/policy component instructed the agent to skip a needed check; excludes any actual agent reasoning or action error.",
+   "exclude": []
+  }
+ ],
+ "labels": {
+  "T0003": 11,
+  "T0010": 6,
+  "T0013": 5,
+  "T0019": 0,
+  "T0020": 0,
+  "T0023": 1,
+  "T0025": 0,
+  "T0030": 12,
+  "T0034": 6,
+  "T0038": 1,
+  "T0039": 7,
+  "T0042": 2,
+  "T0043": 4,
+  "T0044": 12,
+  "T0049": 0,
+  "T0052": 2,
+  "T0058": 0,
+  "T0061": 9,
+  "T0064": 2,
+  "T0066": 2,
+  "T0069": 0,
+  "T0070": 4,
+  "T0071": 2,
+  "T0072": 8,
+  "T0075": 2,
+  "T0078": 6,
+  "T0080": 8,
+  "T0084": 4,
+  "T0089": 4,
+  "T0093": 10,
+  "T0098": 0,
+  "T0103": 7,
+  "T0104": 11,
+  "T0106": 2,
+  "T0113": 2,
+  "T0114": 6,
+  "T0115": 5,
+  "T0117": 2,
+  "T0118": 11,
+  "T0122": 0,
+  "T0123": 2,
+  "T0124": 4,
+  "T0126": 0,
+  "T0129": 2,
+  "T0134": 3,
+  "T0136": 2,
+  "T0137": 2,
+  "T0142": 4,
+  "T0143": 2,
+  "T0144": 2,
+  "T0145": 7,
+  "T0149": 0,
+  "T0151": 11,
+  "T0152": 5,
+  "T0154": 2,
+  "T0156": 1,
+  "T0157": 11,
+  "T0159": 3,
+  "T0160": 5,
+  "T0164": 2,
+  "T0165": 2,
+  "T0166": 8,
+  "T0169": 0,
+  "T0170": 5,
+  "T0172": 5,
+  "T0177": 1,
+  "T0178": 4,
+  "T0179": 1,
+  "T0181": 2,
+  "T0182": 6,
+  "T0183": 0,
+  "T0184": 11,
+  "T0188": 1,
+  "T0189": 2,
+  "T0192": 0,
+  "T0195": 0,
+  "T0198": 11,
+  "T0203": 0,
+  "T0205": 4,
+  "T0208": 4,
+  "T0209": 5,
+  "T0210": 4,
+  "T0212": 2,
+  "T0213": 4,
+  "T0214": 1,
+  "T0219": 8,
+  "T0221": 5,
+  "T0223": 6,
+  "T0226": 2,
+  "T0229": 2,
+  "T0231": 4,
+  "T0233": 2,
+  "T0234": 8,
+  "T0236": 2,
+  "T0238": 5
+ }
+}

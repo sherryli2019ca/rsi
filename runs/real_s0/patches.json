@@ -1,0 +1,552 @@
+{
+ "0,0": [
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Pay close attention to units: fields named price_cents (or similar) hold values in cents, not dollars. Always convert cents to dollars by dividing by 100 when producing dollar amounts.",
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Treat every monetary field according to its stated unit: if a field is in cents, divide by 100 to express it in dollars; never use a cents value directly as a dollar amount.",
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Before computing any refund or price, check each monetary field's unit. If it is in cents, convert to dollars (divide by 100); only use the result in dollar calculations."
+ ],
+ "0,1": [
+  "Before acting, decide which records you need. Read the relevant policy before applying any rule. For every monetary field, check its unit from the field name or tool description (e.g., price_cents is in cents, not dollars) and convert explicitly whenever a conversion is required.",
+  "Before acting, decide which records you need. Read the relevant policy before applying any rule. When a monetary value is named *_cents or described as cents, divide by 100 to get dollars; when named as dollars or described as already in dollars, do not convert.",
+  "Before acting, decide which records you need. Read the relevant policy before applying any rule. Verify the currency unit of every monetary field by reading its tool description and field name, and apply any required conversions (e.g., cents to dollars) before computing amounts."
+ ],
+ "0,2": [
+  "Before answering, re-check every number you use against tool outputs, note each field's unit (e.g. cents vs dollars) as stated in tool descriptions, and recompute totals with the calculate tool. When a monetary field is in cents, divide by 100 to get dollars before using it.",
+  "Before answering, verify each value against tool outputs and pay attention to the units named in the field or tool description (price_cents is in cents). Convert cents to dollars by dividing by 100 before computing totals or refunds, and recompute all totals with the calculate tool.",
+  "Before answering, re-check every number against tool outputs and confirm the unit of each monetary field from the tool description. Always convert cents to dollars (divide by 100) before using the value in calculations, then recompute totals with the calculate tool."
+ ],
+ "0,3": [
+  "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. When a monetary field is labeled with a unit such as cents (e.g., price_cents), convert it to dollars by dividing by 100 before reporting.",
+  "When you are done, reply with a single line 'FINAL: <answer>'. Report dollar amounts with exactly two decimals and no currency sign; report counts as integers. Always determine the unit of any monetary field from its name or documentation (e.g., price_cents is in cents) and convert to dollars (divide by 100) when giving a dollar value.",
+  "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. Before computing any dollar figure, check each monetary field's unit: if a field is in cents (such as price_cents), convert to dollars by dividing by 100, and apply any fees before producing the final amount."
+ ],
+ "0,4": [
+  "Look up a customer by id. Returns name and tier. Note: any monetary fields returned (e.g., price_cents) are in CENTS, not dollars. Divide by 100 to get dollars before using them in calculations.",
+  "Look up a customer by id. Returns name and tier. All money values are denominated in the smallest currency unit (cents for USD); always convert cents to dollars (value / 100) before summing, comparing, or reporting amounts.",
+  "Look up a customer by id. Returns name and tier. Fields ending in '_cents' are integer cent amounts, NOT dollar amounts. Never use a *_cents field directly as dollars; always divide by 100 first."
+ ],
+ "0,5": [
+  "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. Note: any monetary value returned (e.g., price_cents) is in CENTS, not dollars. Divide cents by 100 to get a dollar amount before doing any dollar-denominated arithmetic.",
+  "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. CAUTION: all monetary fields such as 'price_cents' are expressed in integer cents (e.g., 3050 = $30.50). Always divide by 100 to convert cents to dollars before computing any dollar totals or refunds.",
+  "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. All amounts are in cents, not dollars: a value like 3050 means 3050 cents ($30.50). When calculating refunds or totals in dollars, first apply any fees (e.g., restocking fee), then divide the cent amount by 100."
+ ],
+ "0,6": [
+  "'Get an order: items (sku, qty), status and days since delivery. All monetary fields (e.g., price, price_cents, subtotal, refund) are in cents; divide by 100 to get dollars.'",
+  "'Get an order: items (sku, qty), status and days since delivery. Any currency field named with a _cents suffix is integer cents (e.g., 3050 = $30.50); always convert to dollars by /100 before using as a dollar amount.'",
+  "'Get an order: items (sku, qty), status and days since delivery. Monetary values are always integer cents, never dollars. Convert cents to dollars by dividing by 100 before any dollar-based calculation (refund, fee, total).'"
+ ],
+ "0,7": [
+  "Get a product: name, category and price_cents (price in cents, NOT dollars; divide by 100 to get dollars). Example: price_cents=3050 means $30.50.",
+  "Get a product: name, category and price_cents. IMPORTANT: price_cents is an integer amount in cents (e.g. 3050 = $30.50). Always convert to dollars by dividing by 100 before using it as a dollar amount.",
+  "Get a product: name, category and price_cents. price_cents is the price in CENTS. To obtain the dollar amount, divide price_cents by 100 (e.g. 100 cents = $1.00). Do not use price_cents directly as dollars."
+ ],
+ "0,8": [
+  "Get a shop policy by name: 'refund' or 'cancellation'. Note: any monetary amounts returned by tools are in cents unless explicitly labeled otherwise (e.g., 3050 = $30.50).",
+  "Get a shop policy by name: 'refund' or 'cancellation'. Always convert monetary fields from cents to dollars by dividing by 100 before using them in calculations or refund amounts.",
+  "Get a shop policy by name: 'refund' or 'cancellation'. Monetary values in the returned policy (such as fees or amounts) are expressed in cents, not dollars; divide by 100 to obtain dollar amounts."
+ ],
+ "0,9": [
+  "Evaluate an arithmetic expression. All inputs and outputs are plain numbers with no units; the caller is responsible for any unit conversion (e.g., cents to dollars) before calling this tool.",
+  "Evaluate an arithmetic expression. This tool only performs the arithmetic given to it and does NOT infer or convert units; if a value is in cents and must be in dollars, divide it by 100 in the expression you pass in.",
+  "Evaluate an arithmetic expression. Monetary amounts must be normalized to a single unit (e.g., dollars) in the expression you provide; the tool does not detect or convert cents vs dollars automatically."
+ ],
+ "0,10": [
+  "18",
+  "20",
+  "24"
+ ],
+ "1,0": [
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Report all monetary amounts exactly as retrieved, preserving dollar-and-cent precision (e.g., 2675.20); do not round unless a tool or policy explicitly instructs you to.",
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Never round or truncate monetary values: always state the exact dollar-and-cent amount (pennies included) exactly as the data provides it.",
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Treat every dollar amount as an exact currency value and output it with two decimal places of cent precision; rounding to whole dollars is only permitted when a specific instruction requires rounding."
+ ],
+ "1,1": [
+  "Before acting, decide which records you need. Read the relevant policy before applying any rule. Never round or drop cent precision unless a policy or format rule explicitly requires rounding; when in doubt, keep the exact dollar-and-cent value.",
+  "Before acting, decide which records you need. Read the relevant policy before applying any rule. Never round or drop cent precision unless a policy or format rule explicitly requires rounding; when in doubt, keep the exact dollar-and-cent value.",
+  "Before acting, decide which records you need. Read the relevant policy before applying any rule. Never round or drop cent precision unless a policy or format rule explicitly requires rounding; when in doubt, keep the exact dollar-and-cent value."
+ ],
+ "1,2": [
+  "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. Preserve exact dollar-and-cent precision; do not round currency amounts to whole dollars unless a specific instruction for this task explicitly requires that rounding.",
+  "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. Keep all currency values at full dollar-and-cent precision and never round to whole dollars, regardless of any general formatting guidance.",
+  "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. When the final answer involves a monetary amount, report the exact dollar-and-cent value (e.g. 2675.20), not a rounded whole-dollar figure."
+ ],
+ "1,3": [
+  "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; do not round unless the task explicitly asks you to round. Counts are integers.",
+  "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts must keep their exact cent value (two decimals) and no currency sign. Round only if the task explicitly instructs rounding. Counts are integers.",
+  "When you are done, reply with a single line 'FINAL: <answer>'. Report monetary amounts with their exact dollar-and-cent value, two decimals, no currency sign. Never round a dollar amount to whole dollars unless the task says so. Counts are integers."
+ ],
+ "1,4": [
+  "Look up a customer by id. Returns name, tier, and exact monetary values (amounts with cents, never rounded).",
+  "Look up a customer by id. Returns name and tier, along with any monetary amounts as exact dollar-and-cent values with full cent precision.",
+  "Look up a customer by id. Returns name, tier, and precise currency amounts. Always preserve the exact cent value (e.g., 2675.20), and never round to whole dollars."
+ ],
+ "1,5": [
+  "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. Do not round or modify any monetary amounts returned; report exact dollar-and-cent values as-is.",
+  "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. When any order amount, total, or refund is shown, preserve the exact cent precision (e.g., 2675.20, not 2675) and never round to whole dollars.",
+  "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. Emit all dollar amounts with full cents precision exactly as provided; do not apply any rounding to whole dollars."
+ ],
+ "1,6": [
+  "Get an order: items (sku, qty), status, delivery date, and all monetary amounts (subtotal, tax, shipping, discounts, total) in exact dollar-and-cent decimal format without rounding.",
+  "Get an order: items (sku, qty), status and days since delivery. Return every monetary figure in exact decimal dollar-and-cent precision (two decimal places); never round or drop cents.",
+  "Get an order: items (sku, qty), status and days since delivery, including exact, unrounded monetary values (e.g., 2675.20, 464.85) with full cent precision preserved."
+ ],
+ "1,7": [
+  "Get a product: name, category and price_cents (price in cents). Always return price_cents as an exact integer number of cents; never round or convert it to whole dollars or any other unit.",
+  "Get a product: name, category and price_cents (price in cents). The price is provided in cents and must be preserved at full cent precision; do not round, truncate, or otherwise drop cent precision in any downstream calculation.",
+  "Get a product: name, category and price_cents (price in cents). price_cents is the exact monetary amount in cents (e.g., 267520 means $2675.20). Keep all cent-level precision throughout calculations; rounding to whole dollars is only permissible if a task explicitly instructs it."
+ ],
+ "1,8": [
+  "Get a shop policy by name: 'refund' or 'cancellation'. The policy text may specify exact monetary amounts; report any dollar-and-cent figures verbatim without rounding.",
+  "Get a shop policy by name: 'refund' or 'cancellation'. Preserve all monetary amounts exactly as written, including cents, and do not round.",
+  "Get a shop policy by name: 'refund' or 'cancellation'. When a policy states a dollar-and-cent amount, use the exact value with cents in any final answer."
+ ],
+ "1,9": [
+  "Evaluate an arithmetic expression exactly as given, returning the full unrounded numeric result including all decimal places (e.g., cents). Do not round the result.",
+  "Evaluate an arithmetic expression and return the exact result with full precision. Preserve all decimal places and never round or truncate the computed value.",
+  "Evaluate an arithmetic expression and return its precise value, retaining every decimal digit (including cent-level precision). Do not apply any rounding unless the expression itself explicitly requests it."
+ ],
+ "1,10": [
+  "10",
+  "20",
+  "24"
+ ],
+ "2,0": [
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Answer-format rules apply only where the question explicitly requests them: a whole-dollar rounding rule must not override an exact amount, and dollar values must keep cents (two decimals) unless the question says otherwise.",
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. When reporting dollar amounts, preserve exact cents from the database unless the task explicitly asks you to round; apply any stated format instruction only to the specific field it names.",
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. A format rule is a default only: never let it change a factual value, and always render monetary amounts with two decimal places unless the instruction explicitly says to round."
+ ],
+ "2,1": [
+  "Before acting, decide which records you need. Read the relevant policy before applying any rule. Crucially, when a question asks for a specific value, report that value exactly as computed; apply answer-format rules (such as whole-dollar rounding or a 'FINAL:' prefix) only when they do not contradict the precision explicitly required by the question.",
+  "Before acting, decide which records you need. Read the relevant policy before applying any rule. When formatting your answer, treat the question's stated precision (e.g., exact cents) as authoritative over any general format rule; format rules are defaults, and must be overridden whenever they would alter the required value.",
+  "Before acting, decide which records you need. Read the relevant policy before applying any rule. Distinguish content rules from formatting rules: compute and preserve the exact required value first, then apply formatting only as a final presentation step, never allowing a format rule (like rounding to whole dollars) to change the underlying answer value."
+ ],
+ "2,2": [
+  "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. When a format rule applies, follow it only if it does not conflict with the question's explicit requirements; otherwise follow the question's requirements over the format rule.",
+  "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. Apply any answer-format rule literally and only where it actually applies; do not let format rules change or round a value that must be reported exactly.",
+  "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool, keeping the exact unrounded value. Treat format rules as affecting presentation only, never the underlying value, and never apply them when they would make the answer non-compliant."
+ ],
+ "2,3": [
+  "When you are done, reply with a single line 'FINAL: <answer>'. Report dollar amounts exactly as computed, using two decimals without a currency sign; round only when the task explicitly asks for rounding. Counts are integers.",
+  "When you are done, reply with a single line 'FINAL: <answer>'. Preserve exact values from computations; do not round unless the question requires it. Dollar amounts use two decimals without a currency sign (e.g., 0.00); counts are integers.",
+  "When you are done, reply with a single line 'FINAL: <answer>'. Output the exact computed value without applying any rounding. For dollar amounts, use two decimals without a currency sign (include .00 when whole); counts are integers."
+ ],
+ "2,4": [
+  "Look up a customer by id. Returns name and tier. Note: tier is an informational customer attribute and is not an answer-format rule; do not let it affect numeric formatting, rounding, or output structure.",
+  "Look up a customer by id. Returns name and tier. Report the tier exactly as returned; apply no rounding or reformatting to any values derived from this tool.",
+  "Look up a customer by id. Returns name and tier (e.g., 'gold', 'silver'). This tool only retrieves a customer record and imposes no formatting or rounding rules; never use its output to modify answer precision or the FINAL: format."
+ ],
+ "2,5": [
+  "'List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. Return order ids exactly as given; do not round, reformat, or alter the ids or any monetary values in later outputs.'",
+  "'List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. Report ids verbatim; this tool does not impose any rounding or number-formatting rules on its output or downstream answers.'",
+  "'List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. Preserve exact values (including cents) from tool results when producing the final answer; do not apply whole-dollar rounding or other format transformations to data returned by this tool.'"
+ ],
+ "2,6": [
+  "Get an order including: items list (sku, qty), status, and days since delivery. NOTE: report all numeric values (e.g., quantities, monetary amounts) exactly as returned by the data source \u2014 do not round, truncate, or reformat them; preserve cents and decimal places as-is.",
+  "Get an order: items (sku, qty), status, and days since delivery. Treat all returned values as raw data to be echoed verbatim in output; answer-format rules like whole-dollar rounding must never be applied to quantities or dollar amounts obtained from this tool.",
+  "Get an order with fields: items (sku, qty), status, and days since delivery. Important: this tool returns exact stored values; use them unmodified (including any cents) regardless of any global formatting or rounding instructions in the prompt."
+ ],
+ "2,7": [
+  "Get a product: name, category and price_cents (price in cents, always report the exact integer cent value).",
+  "Get a product: name, category and price_cents (price in cents as an exact integer, do not round or reformat).",
+  "Get a product: name, category and price_cents (price in cents; return the precise integer value without any rounding or dollar conversion)."
+ ],
+ "2,8": [
+  "Get a shop policy by name: 'refund' or 'cancellation'. Return the exact policy text verbatim; do not summarize, round, reformat, or alter any numbers, currency amounts, dates, or conditions in the policy.",
+  "Get a shop policy by name: 'refund' or 'cancellation'. Reproduce the policy content exactly as stored, preserving all dollar amounts with full cent precision and any formatting verbatim (do not apply rounding or reformatting rules to amounts found in the policy).",
+  "Get a shop policy by name: 'refund' or 'cancellation'. Output the policy text with all dollar amounts kept exactly as written (including cents), without rounding, truncating, or changing their format."
+ ],
+ "2,9": [
+  "Evaluate an arithmetic expression. Return the exact, unrounded numeric result with full precision. Never round, truncate, or reformat the result; preserve all decimal places (including trailing zeros, e.g. 0.00) exactly as computed. Apply no currency, percentage, or other formatting rules to the output.",
+  "Evaluate an arithmetic expression and return the precise numeric value. Do not apply any answer-format rules (e.g., whole-dollar rounding, currency symbols, or 'FINAL:' prefixes) to the computed result. Output the raw exact number, keeping cents/decimal places intact, and only follow formatting instructions that come from the question itself.",
+  "Evaluate an arithmetic expression exactly. Output the full-precision numeric result without rounding, and do not let global SYS.format instructions override the correct exact value. Preserve decimal places (e.g. 4170.45, 625.88, 0.00) as-is and return the number only, with no extra prefixes or formatting."
+ ],
+ "2,10": [
+  "18",
+  "10",
+  "24"
+ ],
+ "3,0": [
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. After computing your final answer, you MUST always output it on its own line exactly as 'FINAL: <answer>'; if the answer is a monetary amount with nothing owed, output 'FINAL: 0.00'. Never end the episode without this line.",
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Every turn you conclude with an answer must end with a single line 'FINAL: <answer>'. Even if the computed result is zero or the customer is not eligible, still emit the line (e.g., 'FINAL: 0.00'). Before running out of steps, always emit this final line.",
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Once you have the information needed, always produce your final reply beginning with the exact prefix 'FINAL: ' followed by the answer. If no money is owed, answer 'FINAL: 0.00'. Do not skip this line even when the outcome is negative or zero."
+ ],
+ "3,1": [
+  "Before acting, decide which records you need. Read the relevant policy before applying any rule. Once you determine the answer, immediately emit the required final line starting with 'FINAL: <answer>' before doing anything else or running out of steps.",
+  "Before acting, decide which records you need. Read the relevant policy before applying any rule. Always end your response with the exact required final-answer line 'FINAL: <answer>', even if the answer is 0.00 or the request is refused.",
+  "Before acting, decide which records you need. Read the relevant policy before applying any rule. Treat emitting the 'FINAL: <answer>' line as a mandatory final step: after computing the answer, output that line before the episode ends, regardless of whether any further action seems needed."
+ ],
+ "3,2": [
+  "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. Then, once your calculation is complete and verified, immediately emit the required final line beginning with 'FINAL: ' followed by your answer, regardless of whether the result is 0.00, negative, or out-of-window; never end your turn without a 'FINAL: <answer>' line.",
+  "Re-check every number against tool outputs and recompute totals with the calculate tool. When you have finished computing, always produce the final answer as a single line with the exact prefix 'FINAL: ' before the value. If the correct answer is 0.00 (or the order is outside a refund window), still output 'FINAL: 0.00' rather than stopping silently, and do this before you run out of steps.",
+  "Verify each number against tool outputs and recompute totals using the calculate tool. The final line of your reply must always start with 'FINAL: ' and contain the numeric answer, even when the computed value is 0.00 or the situation appears to yield no refund. Emit the 'FINAL: <answer>' line as soon as your calculation is done and before performing any further work or ending the turn."
+ ],
+ "3,3": [
+  "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. Always emit this FINAL line even if the answer is zero, negative, or you believe no action applies (e.g., FINAL: 0.00).",
+  "Finish every response by writing exactly one line beginning with 'FINAL: ' followed by your answer. Dollar amounts use two decimals without a currency sign; counts are integers. Produce this line as soon as you have computed the answer, before any further reasoning, and never end without it.",
+  "Your last line must always be 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. If you are out of time or steps, emit the FINAL line immediately with the best answer you have so far; a correct FINAL of 0.00 is still required rather than no line at all."
+ ],
+ "3,4": [
+  "Look up a customer by id. Returns name and tier. After calling this tool, always remember to produce the final answer line prefixed with 'FINAL: ' once all calculations are complete, even if the answer is 0.00.",
+  "Look up a customer by id. Returns name and tier. Regardless of the result or any conditional logic that follows, you must end your turn by emitting 'FINAL: <answer>' with the computed value (use 0.00 when nothing is owed) before running out of steps.",
+  "Look up a customer by id. Returns name and tier. Use the returned data to compute the answer, then always output 'FINAL: <answer>' as the last line of your response; never stop without emitting this required final-answer line."
+ ],
+ "3,5": [
+  "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. After collecting all order ids across pages, always emit a final answer line starting with 'FINAL: ' followed by the complete result (e.g., 'FINAL: [101, 102, ...]') even if the list is empty or the customer has no eligible orders.",
+  "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. Once you have gathered the order ids, you MUST conclude your turn by producing the required 'FINAL: <answer>' line containing the full list of order ids (or an empty list) before running out of steps.",
+  "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. When finished, remember to output the final answer with the exact prefix 'FINAL: ' followed by the order ids, so the episode ends with a properly formatted final-answer line instead of no answer at all."
+ ],
+ "3,6": [
+  "Get an order: items (sku, qty), status and days since delivery. After retrieving order details, always conclude the task by emitting a final-answer line in the exact format 'FINAL: <refund_amount>' (e.g., 'FINAL: 0.00' if the order is outside the refund window) before ending your turn.",
+  "Get an order: items (sku, qty), status and days since delivery. Use this information to compute the refund. You MUST output your answer as 'FINAL: <amount>' with the amount formatted to two decimal places (use 0.00 when no refund is due). Do not end your turn without the FINAL line.",
+  "Get an order: items (sku, qty), status and days since delivery. When the calculation is complete, emit exactly one line beginning with 'FINAL: ' followed by the refund amount in decimal form (e.g., 0.00 for a non-refundable order). Prefixing the answer with 'FINAL: ' is mandatory and any response lacking it will be considered incomplete."
+ ],
+ "3,7": [
+  "Get a product: name, category and price_cents (price in cents). After retrieving the product, always finish by emitting the final answer on its own line as 'FINAL: <answer>' before stopping.",
+  "Get a product: name, category and price_cents (price in cents). Regardless of what you find, you MUST end your turn with a line beginning 'FINAL: ' containing the answer (e.g., 'FINAL: 0.00' when no refund applies). Do not stop without emitting this line.",
+  "Get a product: name, category and price_cents (price in cents). Use the returned details to compute the answer, then always output exactly one final line prefixed with 'FINAL: ' followed by the answer value before the episode ends."
+ ],
+ "3,8": [
+  "Get a shop policy by name: 'refund' or 'cancellation'. After retrieving the policy, always end your final response with the required 'FINAL: <answer>' line stating your computed answer (e.g., FINAL: 0.00) before stopping.",
+  "Get a shop policy by name: 'refund' or 'cancellation'. When you have determined the refund amount, emit the answer immediately in the exact format 'FINAL: <answer>' (using 0.00 if no refund applies), and never end your turn without this line.",
+  "Get a shop policy by name: 'refund' or 'cancellation'. Regardless of the outcome of your calculation, your last message must be a single line beginning with 'FINAL: ' followed by the numeric answer (e.g., FINAL: 0.00)."
+ ],
+ "3,9": [
+  "Evaluate an arithmetic expression. After evaluation, always report the result immediately with the required final-answer prefix, e.g., 'FINAL: <result>', so the answer is emitted before any step budget expires.",
+  "Evaluate an arithmetic expression and always return the computed result in the final-answer line format 'FINAL: <answer>'. Never stop without emitting this line, even when the result is zero or the task appears out of scope.",
+  "Evaluate an arithmetic expression, then always conclude by outputting the final answer using the explicit prefix 'FINAL: <answer>' containing the computed value. If no final line can be produced, still emit 'FINAL: 0' rather than staying silent."
+ ],
+ "3,10": [
+  "18",
+  "20",
+  "24"
+ ],
+ "4,0": [
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Reserve one final step to emit your answer after all lookups and calculations are complete.",
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Prioritize the minimal set of lookups needed to answer, and always emit your final answer on the last available step.",
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Before acting, plan your tool calls so lookups and any calculation fit within your step budget and still leave a step to output the final answer."
+ ],
+ "4,1": [
+  "Before acting, decide which records you need and reserve a step for the final answer. Read the relevant policy before applying any rule; always keep at least one step free to emit the final answer.",
+  "Plan all required steps up front: read only the policy you need, fetch only the records you need, then compute and emit the answer. Do not spend steps on unnecessary lookups or verification once the required data is gathered; ensure the final answer is emitted within the remaining step budget.",
+  "Identify the minimal set of lookups required, read the relevant policy, then perform lookups and computation efficiently. Prioritize emitting the final answer within the allowed step budget over exhaustive verification or pagination; the final answer emission takes precedence over additional data retrieval."
+ ],
+ "4,2": [
+  "Before answering, reserve one step to emit the final answer after your last tool call: never spend your final step on a lookup or verification. Re-check every number against tool outputs and recompute totals with the calculate tool before that final step.",
+  "Plan your steps so the final step is always free to output the answer: finish all lookups, price retrieval, and the calculate call within max_steps minus one, then re-check numbers against tool outputs and emit the final answer.",
+  "Use your step budget so at least one step remains to write the final answer after calculating. Re-check each number against tool outputs and recompute totals with the calculate tool before spending that reserved final step."
+ ],
+ "4,3": [
+  "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. Reserve your final step for emitting the FINAL line: complete all lookups and calculations first, then answer.",
+  "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. Do not use the reply step for computation; perform calculations via tool calls and always keep one remaining step to emit the FINAL line.",
+  "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. Plan your steps so the last step is used only to output the FINAL line after all lookups and calculations are complete."
+ ],
+ "4,4": [
+  "Look up a customer by id. Returns name, tier, and all accounts (with balances) in a single call. Batch lookup is supported: pass a list of ids to get multiple customers at once.",
+  "Look up a customer by id. Returns name and tier. To minimize calls, accepts a comma-separated list of ids and returns records for all requested customers in one response.",
+  "Look up a customer by id. Returns name and tier. This single call also returns the customer's orders and account totals so no additional lookups are needed."
+ ],
+ "4,5": [
+  "List the order ids of a customer, all in one call (up to 100). Preface the query with any filter terms; if has_more is true, call again with page+1 but before doing so emit FINAL for the best-answer-so-far so no step is wasted.",
+  "List the order ids of a customer. Results are paginated: pass page=2, 3, ... only if has_more is true. First call should always be page=1; include all customer identifiers in the single call to minimize pages.",
+  "List the order ids of a customer. Returns all orders at once in a single response (no pagination, no has_more) so a single call suffices; each item includes order_id and customer_id."
+ ],
+ "4,6": [
+  "'Get an order: items (sku, qty), status and days since delivery. Pass a comma-separated list of order ids to fetch multiple orders in a single call.'",
+  "'Get an order by id. Returns items (sku, qty), status and days since delivery. To retrieve several orders at once, provide all ids as comma-separated values in a single call, e.g. \"1,2,3\".'",
+  "'Get orders in one call: supply one or more order ids (comma-separated). Returns each order's items (sku, qty), status and days since delivery. Prefer fetching all needed orders with a single invocation to save steps.'"
+ ],
+ "4,7": [
+  "Get a product by id: name, category, price_cents (price in cents). Returns results for ALL requested ids in one call when given a comma-separated list of ids.",
+  "Bulk lookup: accepts one or more product ids (comma-separated) and returns name, category, and price_cents for each in a single response. Use before calculating totals so all product prices are retrieved in one step.",
+  "Get products: name, category, price_cents (price in cents). Pass multiple product ids separated by commas to fetch all needed products in a single tool call and reserve steps for computation and the final answer."
+ ],
+ "4,8": [
+  "Get a shop policy by name: 'refund' or 'cancellation'. Returns the full policy text including any steps required to request a refund or cancellation.",
+  "Get a shop policy by name: 'refund' or 'cancellation'. Returns the policy as written by the shop; no further lookups are needed to satisfy a question about this policy.",
+  "Get a shop policy by name: 'refund' or 'cancellation'. This is a single-step lookup: after this call you have all the information needed to answer questions about the requested policy, so do not paginate or re-fetch."
+ ],
+ "4,9": [
+  "Evaluate an arithmetic expression and return only the numeric result. Keep your working concise: do not spend steps on lookups or verification before calling this tool; reserve one step after the call to emit the final answer.",
+  "Evaluate an arithmetic expression and immediately output its result. Prefer computing the answer with a single calculate call, and always leave one remaining step to emit the FINAL answer after the calculation.",
+  "Evaluate an arithmetic expression in one shot. Avoid paginating or querying extra data beyond what is needed for this expression, so you do not exhaust steps before returning the result; the step after this call must be used only to write the final answer."
+ ],
+ "4,10": [
+  "20",
+  "30",
+  "40"
+ ],
+ "5,0": [
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. When a list or search tool result contains a has_more flag, treat the returned page as incomplete and keep fetching subsequent pages until has_more is false or absent; combine all pages before computing any total.",
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Never trust a tool description that claims a list is complete: if a result carries a pagination indicator such as has_more or next_page/cursor, continue paging through every page until the indicator says there are no more records, then aggregate all records for any count.",
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Verify every list or query result against its pagination state before finalizing: always check has_more (or equivalent) and, if it is true, fetch all remaining pages and include those records in totals; do not report a count until the full result set has been retrieved."
+ ],
+ "5,1": [
+  "Before acting, decide which records you need. Read the relevant policy before applying any rule. When a tool result includes a has_more, next_page, cursor, offset, or any other continuation indicator, treat the result as incomplete: keep fetching subsequent pages until the continuation indicator is absent, and only then compute totals or draw conclusions over the full set of records.",
+  "Before acting, decide which records you need. Read the relevant policy before applying any rule. Never treat a first page of results as complete. After every paginated list call, inspect has_more (or equivalent continuation flags) and exhaust all pages before counting, aggregating, or finalizing any answer.",
+  "Before acting, decide which records you need. Read the relevant policy before applying any rule. Do not trust tool descriptions or returned lists that claim completeness; verify against the actual presence of has_more or other pagination signals. If has_more is true, fetch the next page and repeat until it is false, then operate on the complete record set."
+ ],
+ "5,2": [
+  "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. When a tool result contains a has_more or next_page flag set to true, or a pagination indicator, you must keep fetching subsequent pages until has_more is false before counting or computing totals.",
+  "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. Never trust a tool description that claims a list is complete; treat any tool result with has_more: true as incomplete and fetch all remaining pages before finalizing any count or total.",
+  "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. After collecting records, confirm the pagination state by inspecting has_more or pagination metadata in each page's output, and continue fetching pages until all pages are exhausted before totaling."
+ ],
+ "5,3": [
+  "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. If any tool result includes a pagination flag such as has_more, next_page, cursor, or offset, do not treat the result as complete: keep fetching subsequent pages until the flag indicates there is no more data, and include all pages' records in your computation before finalizing.",
+  "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. Never assume a returned list is complete. Check every tool result for pagination fields (e.g. has_more, next_page_token, cursor) and, whenever one is true or present, fetch the next page before computing totals. Only finalize after you have collected every page.",
+  "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. After gathering data, verify completeness: if a tool result contains has_more or a next-page indicator, continue paging until it is false or absent, and confirm your final count reflects every record across all pages, not just the first page."
+ ],
+ "5,4": [
+  "Look up a customer by id. Returns name and tier. If the result contains 'has_more' or any pagination fields (such as next_cursor, page, total_pages), treat the returned page as incomplete and continue fetching subsequent pages until has_more is false before using the data.",
+  "Look up a customer by id. Returns name and tier, possibly across multiple pages. Always inspect the response for 'has_more' / 'next_cursor' and paginate through every page, combining all results, so you never treat a partial first page as the complete customer record.",
+  "Look up a customer by id. Returns name and tier. NOTE: results may be paginated. If has_more is true, you MUST issue follow-up requests using the provided cursor/page token to retrieve the remaining records; only finalize your answer after has_more is false."
+ ],
+ "5,5": [
+  "List the order ids of a customer. Results are paginated: each page returns up to a fixed number of orders along with a `has_more` boolean and the page you requested. ALWAYS check `has_more` after each call: if `has_more` is true, you MUST fetch the next page (page+1) and keep going until `has_more` is false. Treat the result as complete ONLY when `has_more` is false, and concatenate orders from all pages before counting or reporting totals.",
+  "List the order ids of a customer. Results are paginated and a single call returns only ONE page, never the full list. Each response includes `has_more`; while `has_more` is true, call again with page=2, 3, ... until you receive `has_more: false`. The returned ids on any one page are only a partial subset\u2014do not treat them as the complete set of a customer's orders. Combine ids across all pages to produce the full list.",
+  "List order ids for a customer, one page at a time. A page result is incomplete by definition: it contains a `has_more` flag that you MUST inspect. If `has_more` is true, ensure you request the next page and merge its ids with previous pages; only a response with `has_more: false` marks the end of the list. Never finalize a count or answer derived from a subset of pages when `has_more` was still true on the last page you fetched."
+ ],
+ "5,6": [
+  "'Get an order by ID: returns the full item list (sku, qty), status and days since delivery for that single order. Never paginates and always returns the complete record for the requested order ID. If an order ID is absent from a listing result, call this tool with that ID to confirm whether it truly exists before treating it as missing.'",
+  "'Get a single order by ID: returns all items (sku, qty), status and days since delivery. Returns exactly one order; there is no has_more or pagination for this tool. Use it to fetch full details for each order ID found via listing tools, including any IDs that appeared only on later listing pages.'",
+  "'Get order details for one specific order ID: returns items (sku, qty), status and days since delivery. This tool always returns the complete record for that one order. When a listing tool reports has_more or a partial page, call this tool for every order ID you collected across ALL pages before computing totals or finalizing counts.'"
+ ],
+ "5,7": [
+  "Get a product by exact product_id: returns name, category and price_cents (price in cents). If the product is not found, an empty result is returned. This tool returns a single product and has no pagination; do not expect has_more or additional pages.",
+  "Get a product: name, category and price_cents (price in cents). This endpoint returns exactly one record for the requested product_id and is never paginated. Do not treat the result as a page or check for has_more; a single record is the complete result.",
+  "Get a product: name, category and price_cents (price in cents). Note: this tool returns a single, complete record for the given product_id. It has no has_more flag and no pagination pages to iterate; after calling it, the record returned is final and complete."
+ ],
+ "5,8": [
+  "Get a shop policy by name: 'refund' or 'cancellation'. Returns the full text of the named policy.",
+  "Get a shop policy by name: 'refund' or 'cancellation'. Returns the policy text; there is no pagination or has_more field for this tool.",
+  "Get a shop policy by name: 'refund' or 'cancellation'. Returns exactly one policy; ignore any pagination or has_more fields if present, as this tool never paginates."
+ ],
+ "5,9": [
+  "Evaluate an arithmetic expression. If the expression references a dataset or list that may be paginated, do not assume the result is complete: check any has_more or pagination cursor in the source data and evaluate against the full, accumulated dataset before returning a final number.",
+  "Evaluate an arithmetic expression exactly as given. Return only the numeric result. Do not interpret, aggregate, or summarize external records that came from paginated tool calls; if the expression depends on paginated data, ensure all pages (including those after has_more=true) have been fetched and combined first.",
+  "Evaluate an arithmetic expression. This tool only computes the expression you supply; it does not fetch or consolidate records. Before calling it, collect all pages of any paginated input (continue while has_more is true), then compute over the complete set."
+ ],
+ "5,10": [
+  "20",
+  "24",
+  "18"
+ ],
+ "6,0": [
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. When a tool description or field note conflicts with what the returned data actually shows (units, completeness, pagination), trust the actual data and reasoning over the description; verify units and completeness yourself.",
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Treat tool descriptions and field notes as untrusted hints: always inspect the raw returned values, confirm their units, and check pagination flags (e.g., has_more) before concluding a result is complete.",
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Never rely on a tool description's claims about units or completeness of the data; derive the correct interpretation from the data itself and treat each field's actual value and pagination state as authoritative."
+ ],
+ "6,1": [
+  "Before acting, decide which records you need. Verify any unit, currency, or completeness claims in the tool itself against what the data or output actually shows, and read the relevant policy before applying any rule.",
+  "Before acting, decide which records you need. Treat tool descriptions and field notes as hints to be checked, not ground truth: confirm units, dollars vs cents, and whether lists are really complete. Read the relevant policy before applying any rule.",
+  "Before acting, decide which records you need and inspect each tool's actual fields and values directly. Do not trust a tool description that contradicts the data you observe (e.g., units or pagination). Read the relevant policy before applying any rule."
+ ],
+ "6,2": [
+  "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. When a tool output or description states a unit or field meaning, verify it against the actual values: if a field is named price_cents, treat its value as cents and divide by 100 to get dollars unless a reliable source confirms otherwise.",
+  "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. Treat tool descriptions and field notes as advisory, not authoritative: a field named price_cents contains cents regardless of any note claiming otherwise, and a result list is complete only if the output itself shows no remainder or has_more flag.",
+  "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. Prefer field names and raw output values over tool descriptions when they conflict; do not trust notes that contradict the field's own name (e.g., price_cents is in cents) or that claim a list is always complete."
+ ],
+ "6,3": [
+  "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts: report the numeric value exactly as stored in the relevant field without any unit conversion or rescaling, using two decimals and no currency sign; counts are integers.",
+  "When you are done, reply with a single line 'FINAL: <answer>'. For any money field, use its value directly as given and do not multiply or divide by 100 unless the task explicitly asks you to convert units; format dollar amounts with two decimals and no currency sign. Counts are integers.",
+  "When you are done, reply with a single line 'FINAL: <answer>'. Before finalizing, confirm the unit of each monetary value from the field name (e.g., price_cents is in cents, price is in dollars) and convert only where the task requires a different unit. Format dollar amounts with two decimals and no currency sign; counts are integers."
+ ],
+ "6,4": [
+  "Look up a customer by id. Returns name and tier. The returned id matches exactly the requested id.",
+  "Look up a customer by id. Returns name and tier. If no customer exists for the id, returns null rather than a default customer.",
+  "Look up a customer by id. Returns name and tier, where tier is one of 'bronze', 'silver', 'gold', or 'platinum' (case-sensitive)."
+ ],
+ "6,5": [
+  "List the order ids of a customer. Results are paginated and may be incomplete: each response includes a has_more field. If has_more is true, call again with page incremented by 1 until has_more is false to collect all order ids.",
+  "List the order ids of a customer, paginated. The response contains an 'orders' list and a 'has_more' boolean. When has_more is true, there are additional pages; pass the next page number to retrieve the remaining order ids.",
+  "List the order ids of a customer. This returns one page of results at a time. Always check the has_more field: while it is true, request the next page (page=2, 3, ...) and aggregate the order ids from every page."
+ ],
+ "6,6": [
+  "Get an order: items (sku, qty), order status, and days since delivery (number of full days elapsed since the order was delivered; 0 means delivered today).",
+  "Get an order: returns items as a list of {sku, qty} where qty is the ordered quantity per line item, the current order status, and days_since_delivery (the number of whole days since delivery date).",
+  "Get an order: returns line items (sku and ordered quantity), the order status, and delivery age in days (days elapsed since delivery; cannot be negative)."
+ ],
+ "6,7": [
+  "Get a product: name, category and price_cents (price in cents). To get a dollar amount, divide price_cents by 100.",
+  "Get a product by ID. Returns the product's name, category, and price_cents, where price_cents is the price expressed in cents (integer). Do NOT treat price_cents as dollars.",
+  "Get a product. Returns fields: name (str), category (str), and price_cents (int), which is the price in whole cents (e.g. 37315 means $373.15). Convert to dollars by dividing by 100 when needed."
+ ],
+ "6,8": [
+  "Get a shop policy by its exact name. Accepts either 'refund' or 'cancellation'. Returns the policy text, or an empty/null result if no policy with that name exists.",
+  "Get a shop policy by name. Valid names: 'refund' (returns the return/refund policy) or 'cancellation' (returns the order cancellation policy). Returns the full policy text; if the requested policy does not exist, the result may be empty.",
+  "Get a shop policy by name. Supported names are 'refund' and 'cancellation'. Returns the policy contents exactly as stored by the shop. Do not assume a policy exists: check the returned text before relying on it."
+ ],
+ "6,9": [
+  "Evaluate an arithmetic expression. Accepts a single string argument such as '(2 + 3) * 4'. Supports +, -, *, /, parentheses, and integer or decimal operands. Returns the numeric result exactly; no units or conversions are applied.",
+  "Evaluate an arithmetic expression and return its numeric result. The expression must be passed as a string using only numbers, the operators +, -, *, /, and parentheses. No verification steps are needed: call calculate whenever a numeric computation is required.",
+  "Evaluate an arithmetic expression passed as a string (for example, '5 * (3 + 2)') and return the computed number. The result is a raw numeric value with no rounding, currency conversion, or unit handling."
+ ],
+ "6,10": [
+  "10",
+  "20",
+  "25"
+ ],
+ "7,0": [
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Always honor explicit planning constraints about which tools to call or skip: if you are told not to call a tool, do not call it.",
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Before calling any tool, check the instructions for a constraint telling you to skip it; an explicit 'do not call' instruction overrides your impulse to look something up.",
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Treat the instructions' tool-selection constraints as binding: any tool the instructions say to skip must not be called, even if calling it would normally seem helpful."
+ ],
+ "7,1": [
+  "Before acting, decide which records you need and which tools you must not call. Read the relevant policy before applying any rule, and honor every explicit instruction to skip a tool.",
+  "Before acting, decide which records you need. Read the relevant policy before applying any rule. If instructions say not to call a tool (e.g., get_policy), treat that as a binding constraint: never invoke a skipped tool.",
+  "Before acting, decide which records you need. Read the relevant policy before applying any rule, and check the instructions for tools that are to be skipped; do not call any explicitly prohibited tool."
+ ],
+ "7,2": [
+  "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. If the planning prompt instructs you to skip a specific tool, obey that instruction and do not call that tool.",
+  "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. If the planning prompt instructs you to skip a specific tool, obey that instruction and do not call that tool.",
+  "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. If the planning prompt instructs you to skip a specific tool, obey that instruction and do not call that tool."
+ ],
+ "7,3": [
+  "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. Before calling any tool, check whether the instructions say that tool must be skipped or is unnecessary; if so, do not call it.",
+  "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. Only call a tool if your instructions require it; if the instructions tell you a tool is standard, well-known, or should be skipped, rely on that knowledge instead of calling the tool.",
+  "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. Treat any instruction naming a tool as 'skip' or 'do not call' as a hard constraint: calling a skipped tool is an error."
+ ],
+ "7,4": [
+  "Look up a customer by id. Returns name and tier. Only call this tool when customer details are actually needed for the task; otherwise skip it.",
+  "Look up a customer by id. Returns name and tier. Skip this tool when the task can be completed without customer data (e.g., when only standard, well-known information is required).",
+  "Look up a customer by id. Returns name and tier. Prior to calling, confirm the task genuinely requires customer-specific data; do not call if instructions indicate the information is already known or should be assumed."
+ ],
+ "7,5": [
+  "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. Note: do not call this tool if order IDs are irrelevant to the current task (e.g., when only policy, refund, or product information is needed).",
+  "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. Only call this tool when the task explicitly requires order IDs.",
+  "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. This tool is optional and can be skipped when the task can be completed without order IDs."
+ ],
+ "7,6": [
+  "Get an order: items (sku, qty), status and days since delivery. Only call this tool when the task explicitly requires retrieving a specific order's details; otherwise skip it.",
+  "Get an order: items (sku, qty), status and days since delivery. Use only if the order id is provided and the order details are actually needed; do not call this tool for general or standard-order scenarios.",
+  "Get an order: items (sku, qty), status and days since delivery. Prefer working without this tool when order specifics are not required; call it only to resolve a concrete order-related question."
+ ],
+ "7,7": [
+  "Get a product's name, category and price_cents (price in cents). Only call this if product information is actually needed for the current task; otherwise skip it.",
+  "Get a product: name, category and price_cents (price in cents). Do not call this tool if the task can be completed without product details (e.g., when only standard policy or general info is needed).",
+  "Get a product: name, category and price_cents (price in cents). Call this only when explicitly required by the task; if unsure whether product details are needed, skip this tool rather than calling it."
+ ],
+ "7,8": [
+  "Get a shop policy by name: 'refund' or 'cancellation'. Only call this tool if the policy content is genuinely unknown, ambiguous, or the task explicitly requires quoting the exact current policy text. Do not call this tool for standard, well-known policies or when the instructions say the policy can be assumed.",
+  "Get a shop policy by name: 'refund' or 'cancellation'. This tool is SKIPPABLE: policies for these topics are generally standard. Skip this tool unless the task outcome depends on specific, non-standard policy details or the instructions explicitly direct you to fetch the policy.",
+  "Get a shop policy by name: 'refund' or 'cancellation'. Before calling, check whether the task or planning instructions mark this tool as a tool to skip. If the policy is described as standard or already known, do not call it and rely on that knowledge instead."
+ ],
+ "7,9": [
+  "Evaluate an arithmetic expression. Only use this tool when a calculation is actually required to answer the user's request; do not call it for arithmetic you can do mentally or when the task already provides the answer elsewhere. If the instructions or planning prompt explicitly tell you to skip this tool, do not call it.",
+  "Evaluate an arithmetic expression. Before calling, confirm that the current step genuinely needs a computation and that no instruction has told you to skip arithmetic tools. If a planning constraint says to avoid or skip this tool, respect that instruction and do not call it.",
+  "Evaluate an arithmetic expression. Use only when the task requires computing a numeric result. Do not invoke this tool if the instructions explicitly say to skip it; skipping is a hard constraint, not a suggestion."
+ ],
+ "7,10": [
+  "12",
+  "10",
+  "8"
+ ],
+ "8,0": [
+  "You are a customer-service agent for an online shop. Before answering any question or taking any action, first identify the relevant policy or record, read it using the tools, and base your reply only on what you have actually read; never guess database values or assume a policy you have not consulted.",
+  "You are a customer-service agent for an online shop. Treat every task as requiring a lookup: use the tools to retrieve the policy, product, or account record that applies, read the returned output fully, and confirm it supports your answer before responding. If you have not read the required information, do not answer.",
+  "You are a customer-service agent for an online shop. Your first step for any request must be to read the applicable policy or tool output. Only after you have retrieved and verified that information may you answer. Never answer from memory, guess database values, or skip reading a required document."
+ ],
+ "8,1": [
+  "Before acting, list every policy, rule, or verification record the task likely depends on. For each, locate and read the relevant policy or tool output first; do not apply any rule or produce a final answer until all listed sources have been read and checked.",
+  "Before acting, list every policy, rule, or verification record the task likely depends on. For each, locate and read the relevant policy or tool output first; do not apply any rule or produce a final answer until all listed sources have been read and checked.",
+  "Before acting, list every policy, rule, or verification record the task likely depends on. For each, locate and read the relevant policy or tool output first; do not apply any rule or produce a final answer until all listed sources have been read and checked."
+ ],
+ "8,2": [
+  "Before answering, first read the relevant policy or tool output required by the task, then re-check every number you use against those tool outputs and recompute totals with the calculate tool.",
+  "Do not answer until you have read the policy or tool output the task requires. After reading, verify every number against the tool outputs and recompute totals with the calculate tool before answering.",
+  "Plan step: identify and read the required policy or tool output before acting. Then re-check each number used in your answer against those tool outputs, recomputing totals with the calculate tool."
+ ],
+ "8,3": [
+  "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. Before answering, read any policy, reference, or tool output the task specifies; base your answer only on what you explicitly read or checked.",
+  "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. Never answer from memory or assumption: first locate and read the required policy or run the required tool, and cite the evidence you consulted in your reasoning before giving FINAL.",
+  "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. Your planning step must include identifying and reading each required policy or tool output before producing the final answer; only then may you reply with FINAL."
+ ],
+ "8,4": [
+  "Look up a customer by id. Returns name and tier. IMPORTANT: Before answering any question about a customer's tier or eligibility, always call this tool and read the returned name and tier. Never assume or answer from memory without checking this tool's output first.",
+  "Look up a customer by id. Returns name and tier. Use this tool to verify the customer's current tier before making any statement about their benefits, discounts, or eligibility. If a task mentions a customer id, you MUST retrieve and read the customer record before acting or answering.",
+  "Look up a customer by id. Returns name and tier. Call this tool first and confirm the returned tier whenever a policy or verification step refers to a customer's tier. Do not rely on the customer id alone or on any tier mentioned in the request; read the actual tool output before proceeding."
+ ],
+ "8,5": [
+  "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. Always read the full output of each page before deciding whether to request the next page, and before returning any answer based on the orders.",
+  "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. You must verify the returned has_more field from each response and continue fetching until has_more is false; do not answer using only the first page.",
+  "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. Before acting or answering, review any policy or documentation relevant to order listing, then read each page's output carefully and check the has_more flag to ensure you have retrieved all pages."
+ ],
+ "8,6": [
+  "Get an order: items (sku, qty), status and days since delivery. Before answering any question about an order, you MUST call this tool to retrieve the order and read its returned fields; never assume order status or delivery details from memory or conversation context.",
+  "Get an order's details: its items (sku, qty), current status, and days since delivery. Always read the returned status and days_since_delivery before deciding or responding; if the returned data conflicts with anything previously stated or assumed, treat the returned data as the source of truth.",
+  "Retrieve the order record and read back its items (sku, qty), status and days since delivery. This is the authoritative source of truth for order state; you must inspect this output and verify it matches any policy or claim before giving an answer about the order."
+ ],
+ "8,7": [
+  "Get a product: name, category and price_cents (price in cents). Before using any product data, always read and check the relevant policy or verification instructions first, and re-read the product output to confirm it matches the policy before answering.",
+  "Get a product: name, category and price_cents (price in cents). You must first read the applicable policy and then read this product's output; do not act or answer until you have checked the product details against the policy.",
+  "Get a product: name, category and price_cents (price in cents). Treat the returned product data as unverified: read the governing policy, compare it against the fetched product fields, and only then use or report the product information."
+ ],
+ "8,8": [
+  "Get the full text of a specific shop policy by name (e.g., 'refund' or 'cancellation'). Always call this and read the returned policy before answering any question or taking any action that relates to refunds, cancellations, or other store policies.",
+  "Retrieve a shop policy by its name: 'refund' or 'cancellation'. You MUST read the returned policy text and base your answer or decision on it. Do not rely on memory or assumptions about what the policy says.",
+  "Look up and return the exact text of a shop policy. Use name 'refund' or 'cancellation'. This tool must be called before giving any refund- or cancellation-related advice; if you have not yet read the policy output, do NOT answer policy questions."
+ ],
+ "8,9": [
+  "Evaluate an arithmetic expression. Before giving an answer, read and follow any policy, instructions, or tool output provided for this task; verify the final result against those before returning it.",
+  "Evaluate an arithmetic expression. First locate and read the relevant policy or instructions for this task, then compute the expression, and confirm your result matches the required output before answering.",
+  "Evaluate an arithmetic expression and return the computed result. Do not answer until you have read the task's policy and any prior tool output, and double-checked that your evaluation agrees with them."
+ ],
+ "8,10": [
+  "8",
+  "6",
+  "10"
+ ],
+ "9,0": [
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. State refund amounts in dollars and cents (e.g., $0.00) to match the expected answer format.",
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. When a refund is $0, answer exactly '0.00' so the amount is unambiguous and matches verification.",
+  "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Always reply with the final refund amount as a bare number in dollars and cents (e.g., 0.00), without currency symbols or extra words."
+ ],
+ "9,1": [
+  "Before acting, decide which records you need. Read the relevant policy before applying any rule. When done, explicitly restate the final numeric answer and its units/format (e.g. \"$0.00\") so the result is unambiguous.",
+  "Before acting, decide which records you need. Read the relevant policy before applying any rule. After computing a result, verify it is not merely outside a window or a zero-amount edge case; answer using the exact format expected (e.g. 0.00).",
+  "Before acting, decide which records you need. Read the relevant policy before applying any rule. At the end, state the answer in the evaluator's expected numeric format (e.g. 0.00, not $0), and confirm it matches the computed value before finishing."
+ ],
+ "9,2": [
+  "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. Treat mathematically equivalent answers (e.g., 0, $0, and 0.00) as correct and verify that the final answer matches the expected value before marking a trace as failing.",
+  "Re-check every number against tool outputs and recompute totals with the calculate tool, but only flag a trace as failing when there is a genuine reasoning or computation error; if the agent's answer is mathematically equivalent to the correct answer (e.g., $0 vs 0.00), do not mark it as a failure.",
+  "Before marking a trace as failing, verify that the agent's final answer is actually inconsistent with the correct answer after normalizing numeric formats (e.g., 0, $0, 0.00); only report a failure if there is a genuine reasoning, tool, or computation error, not merely a formatting difference."
+ ],
+ "9,3": [
+  "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. If the answer is a dollar amount of zero, write it as '0.00'.",
+  "When you are done, reply with a single line 'FINAL: <answer>'. For dollar amounts, use exactly two decimals without a currency sign (e.g. '12.50' or '0.00'); for counts, use plain integers.",
+  "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts must always include exactly two decimals without a currency sign, including zero amounts written as '0.00'; counts are written as integers."
+ ],
+ "9,4": [
+  "Look up a customer by id. Returns name and tier. If no customer with the given id exists, return an explicit not_found result rather than an empty or partial response.",
+  "Look up a customer by id. Returns the customer's full name and membership tier as plain strings. If the customer is not found, return the string 'not found'.",
+  "Look up a customer by id. Returns name and tier. The refund amount must be computed independently of the customer tier; tier does not affect the refund window."
+ ],
+ "9,5": [
+  "'List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true, until has_more becomes false to retrieve all pages.'",
+  "'List the order ids of a customer. Results are paginated: keep requesting page=2, 3, ... while has_more is true, and stop only once has_more is false.'",
+  "'List the order ids of a customer. Pass page=1 first, then page=2, 3, ... as long as has_more is true, so that you do not miss any orders when checking the refund window.'"
+ ],
+ "9,6": [
+  "Get an order: items (sku, qty), status, delivery date, and refund window eligibility (days since delivery vs. policy limit).",
+  "Get an order with items (sku, qty), status, days since delivery, and whether a refund is eligible under the policy.",
+  "Get an order: items (sku, qty), status, number of days since delivery, and the refund eligibility result computed from the policy window."
+ ],
+ "9,7": [
+  "Get a product by its identifier. Returns the product's name, category, and price_cents (price in cents as an integer).",
+  "Retrieve product details (name, category, price_cents) for a given product. The price is returned in cents as an integer with no currency symbol or decimal point.",
+  "Look up a product and return its name, category, and price_cents, where price_cents is the price in cents represented as a whole number of cents (e.g., 1250 means $12.50)."
+ ],
+ "9,8": [
+  "Get a shop policy by its name. Valid names are 'refund' (details on refund eligibility, windows/limits) and 'cancellation' (details on order cancellation). Returns the policy text, including any monetary windows or deadlines.",
+  "Get a shop policy by name: 'refund' or 'cancellation'. The returned refund policy includes the exact refund window and any amounts/limits; use it to compute the refund amount even when the answer is $0.",
+  "Retrieve a shop policy by name ('refund' or 'cancellation'). Returns the full policy text; note that refund results must be reported as a dollar amount (e.g. '0' or '0.00') and the refund is $0 when the order is outside the refund window."
+ ],
+ "9,9": [
+  "Evaluate an arithmetic expression and return the numeric result as a plain number (e.g., 0 or 12.5), without currency symbols or formatting.",
+  "Evaluate an arithmetic expression. Return only the final numeric result, e.g. '0' or '3.14', with no extra text, dollar signs, or units.",
+  "Evaluate an arithmetic expression. Compute and return a plain decimal number, using '0' rather than '0.00' when the result is zero."
+ ],
+ "9,10": [
+  "24",
+  "20",
+  "16"
+ ]
+}

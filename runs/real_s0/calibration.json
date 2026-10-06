@@ -1,0 +1,2130 @@
+{
+ "n": 144,
+ "n_pairs": 48,
+ "p_pass_given_fail": [
+  0.1267605633802817,
+  71
+ ],
+ "p_pass_given_success": [
+  0.6027397260273972,
+  73
+ ],
+ "p_pass_bad_patch": [
+  0.09523809523809523,
+  42
+ ],
+ "p_pass_given_fail_bad_patch": [
+  0.09523809523809523,
+  42
+ ],
+ "p_pass_given_fail_good_patch": [
+  0.1724137931034483,
+  29
+ ],
+ "replay_success": 0.5069444444444444,
+ "tok_full": 1258.9375,
+ "tok_single": 951.1458333333334,
+ "patches": {
+  "4,10": [
+   "20",
+   "30",
+   "40"
+  ],
+  "9,2": [
+   "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. Treat mathematically equivalent answers (e.g., 0, $0, and 0.00) as correct and verify that the final answer matches the expected value before marking a trace as failing.",
+   "Re-check every number against tool outputs and recompute totals with the calculate tool, but only flag a trace as failing when there is a genuine reasoning or computation error; if the agent's answer is mathematically equivalent to the correct answer (e.g., $0 vs 0.00), do not mark it as a failure.",
+   "Before marking a trace as failing, verify that the agent's final answer is actually inconsistent with the correct answer after normalizing numeric formats (e.g., 0, $0, 0.00); only report a failure if there is a genuine reasoning, tool, or computation error, not merely a formatting difference."
+  ],
+  "2,3": [
+   "When you are done, reply with a single line 'FINAL: <answer>'. Report dollar amounts exactly as computed, using two decimals without a currency sign; round only when the task explicitly asks for rounding. Counts are integers.",
+   "When you are done, reply with a single line 'FINAL: <answer>'. Preserve exact values from computations; do not round unless the question requires it. Dollar amounts use two decimals without a currency sign (e.g., 0.00); counts are integers.",
+   "When you are done, reply with a single line 'FINAL: <answer>'. Output the exact computed value without applying any rounding. For dollar amounts, use two decimals without a currency sign (include .00 when whole); counts are integers."
+  ],
+  "1,3": [
+   "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; do not round unless the task explicitly asks you to round. Counts are integers.",
+   "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts must keep their exact cent value (two decimals) and no currency sign. Round only if the task explicitly instructs rounding. Counts are integers.",
+   "When you are done, reply with a single line 'FINAL: <answer>'. Report monetary amounts with their exact dollar-and-cent value, two decimals, no currency sign. Never round a dollar amount to whole dollars unless the task says so. Counts are integers."
+  ],
+  "6,7": [
+   "Get a product: name, category and price_cents (price in cents). To get a dollar amount, divide price_cents by 100.",
+   "Get a product by ID. Returns the product's name, category, and price_cents, where price_cents is the price expressed in cents (integer). Do NOT treat price_cents as dollars.",
+   "Get a product. Returns fields: name (str), category (str), and price_cents (int), which is the price in whole cents (e.g. 37315 means $373.15). Convert to dollars by dividing by 100 when needed."
+  ],
+  "0,7": [
+   "Get a product: name, category and price_cents (price in cents, NOT dollars; divide by 100 to get dollars). Example: price_cents=3050 means $30.50.",
+   "Get a product: name, category and price_cents. IMPORTANT: price_cents is an integer amount in cents (e.g. 3050 = $30.50). Always convert to dollars by dividing by 100 before using it as a dollar amount.",
+   "Get a product: name, category and price_cents. price_cents is the price in CENTS. To obtain the dollar amount, divide price_cents by 100 (e.g. 100 cents = $1.00). Do not use price_cents directly as dollars."
+  ],
+  "3,3": [
+   "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. Always emit this FINAL line even if the answer is zero, negative, or you believe no action applies (e.g., FINAL: 0.00).",
+   "Finish every response by writing exactly one line beginning with 'FINAL: ' followed by your answer. Dollar amounts use two decimals without a currency sign; counts are integers. Produce this line as soon as you have computed the answer, before any further reasoning, and never end without it.",
+   "Your last line must always be 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. If you are out of time or steps, emit the FINAL line immediately with the best answer you have so far; a correct FINAL of 0.00 is still required rather than no line at all."
+  ],
+  "5,5": [
+   "List the order ids of a customer. Results are paginated: each page returns up to a fixed number of orders along with a `has_more` boolean and the page you requested. ALWAYS check `has_more` after each call: if `has_more` is true, you MUST fetch the next page (page+1) and keep going until `has_more` is false. Treat the result as complete ONLY when `has_more` is false, and concatenate orders from all pages before counting or reporting totals.",
+   "List the order ids of a customer. Results are paginated and a single call returns only ONE page, never the full list. Each response includes `has_more`; while `has_more` is true, call again with page=2, 3, ... until you receive `has_more: false`. The returned ids on any one page are only a partial subset\u2014do not treat them as the complete set of a customer's orders. Combine ids across all pages to produce the full list.",
+   "List order ids for a customer, one page at a time. A page result is incomplete by definition: it contains a `has_more` flag that you MUST inspect. If `has_more` is true, ensure you request the next page and merge its ids with previous pages; only a response with `has_more: false` marks the end of the list. Never finalize a count or answer derived from a subset of pages when `has_more` was still true on the last page you fetched."
+  ],
+  "5,2": [
+   "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. When a tool result contains a has_more or next_page flag set to true, or a pagination indicator, you must keep fetching subsequent pages until has_more is false before counting or computing totals.",
+   "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. Never trust a tool description that claims a list is complete; treat any tool result with has_more: true as incomplete and fetch all remaining pages before finalizing any count or total.",
+   "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. After collecting records, confirm the pagination state by inspecting has_more or pagination metadata in each page's output, and continue fetching pages until all pages are exhausted before totaling."
+  ],
+  "6,10": [
+   "10",
+   "20",
+   "25"
+  ],
+  "0,1": [
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. For every monetary field, check its unit from the field name or tool description (e.g., price_cents is in cents, not dollars) and convert explicitly whenever a conversion is required.",
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. When a monetary value is named *_cents or described as cents, divide by 100 to get dollars; when named as dollars or described as already in dollars, do not convert.",
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. Verify the currency unit of every monetary field by reading its tool description and field name, and apply any required conversions (e.g., cents to dollars) before computing amounts."
+  ],
+  "8,1": [
+   "Before acting, list every policy, rule, or verification record the task likely depends on. For each, locate and read the relevant policy or tool output first; do not apply any rule or produce a final answer until all listed sources have been read and checked.",
+   "Before acting, list every policy, rule, or verification record the task likely depends on. For each, locate and read the relevant policy or tool output first; do not apply any rule or produce a final answer until all listed sources have been read and checked.",
+   "Before acting, list every policy, rule, or verification record the task likely depends on. For each, locate and read the relevant policy or tool output first; do not apply any rule or produce a final answer until all listed sources have been read and checked."
+  ],
+  "5,9": [
+   "Evaluate an arithmetic expression. If the expression references a dataset or list that may be paginated, do not assume the result is complete: check any has_more or pagination cursor in the source data and evaluate against the full, accumulated dataset before returning a final number.",
+   "Evaluate an arithmetic expression exactly as given. Return only the numeric result. Do not interpret, aggregate, or summarize external records that came from paginated tool calls; if the expression depends on paginated data, ensure all pages (including those after has_more=true) have been fetched and combined first.",
+   "Evaluate an arithmetic expression. This tool only computes the expression you supply; it does not fetch or consolidate records. Before calling it, collect all pages of any paginated input (continue while has_more is true), then compute over the complete set."
+  ],
+  "0,8": [
+   "Get a shop policy by name: 'refund' or 'cancellation'. Note: any monetary amounts returned by tools are in cents unless explicitly labeled otherwise (e.g., 3050 = $30.50).",
+   "Get a shop policy by name: 'refund' or 'cancellation'. Always convert monetary fields from cents to dollars by dividing by 100 before using them in calculations or refund amounts.",
+   "Get a shop policy by name: 'refund' or 'cancellation'. Monetary values in the returned policy (such as fees or amounts) are expressed in cents, not dollars; divide by 100 to obtain dollar amounts."
+  ],
+  "3,0": [
+   "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. After computing your final answer, you MUST always output it on its own line exactly as 'FINAL: <answer>'; if the answer is a monetary amount with nothing owed, output 'FINAL: 0.00'. Never end the episode without this line.",
+   "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Every turn you conclude with an answer must end with a single line 'FINAL: <answer>'. Even if the computed result is zero or the customer is not eligible, still emit the line (e.g., 'FINAL: 0.00'). Before running out of steps, always emit this final line.",
+   "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Once you have the information needed, always produce your final reply beginning with the exact prefix 'FINAL: ' followed by the answer. If no money is owed, answer 'FINAL: 0.00'. Do not skip this line even when the outcome is negative or zero."
+  ],
+  "1,6": [
+   "Get an order: items (sku, qty), status, delivery date, and all monetary amounts (subtotal, tax, shipping, discounts, total) in exact dollar-and-cent decimal format without rounding.",
+   "Get an order: items (sku, qty), status and days since delivery. Return every monetary figure in exact decimal dollar-and-cent precision (two decimal places); never round or drop cents.",
+   "Get an order: items (sku, qty), status and days since delivery, including exact, unrounded monetary values (e.g., 2675.20, 464.85) with full cent precision preserved."
+  ]
+ },
+ "rows": [
+  {
+   "cell": [
+    4,
+    10
+   ],
+   "patch": 0,
+   "trace": "T0117",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1432,
+   "tok_single": 1048,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    4,
+    10
+   ],
+   "patch": 0,
+   "trace": "T0012",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 545,
+   "tok_single": 822,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    4,
+    10
+   ],
+   "patch": 0,
+   "trace": "T0081",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 770,
+   "tok_single": 1238,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    4,
+    10
+   ],
+   "patch": 1,
+   "trace": "T0012",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 474,
+   "tok_single": 955,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    4,
+    10
+   ],
+   "patch": 1,
+   "trace": "T0223",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 634,
+   "tok_single": 1210,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    4,
+    10
+   ],
+   "patch": 1,
+   "trace": "T0117",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 1512,
+   "tok_single": 1049,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    4,
+    10
+   ],
+   "patch": 2,
+   "trace": "T0010",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 396,
+   "tok_single": 826,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    4,
+    10
+   ],
+   "patch": 2,
+   "trace": "T0234",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 1959,
+   "tok_single": 1169,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    4,
+    10
+   ],
+   "patch": 2,
+   "trace": "T0030",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 2235,
+   "tok_single": 1419,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    9,
+    2
+   ],
+   "patch": 0,
+   "trace": "T0042",
+   "y": 1,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 725,
+   "tok_single": 1011,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    9,
+    2
+   ],
+   "patch": 0,
+   "trace": "T0132",
+   "y": 0,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1187,
+   "tok_single": 694,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    9,
+    2
+   ],
+   "patch": 0,
+   "trace": "T0132",
+   "y": 1,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1238,
+   "tok_single": 674,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    9,
+    2
+   ],
+   "patch": 1,
+   "trace": "T0130",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1688,
+   "tok_single": 1107,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    9,
+    2
+   ],
+   "patch": 1,
+   "trace": "T0023",
+   "y": 1,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1601,
+   "tok_single": 1143,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    9,
+    2
+   ],
+   "patch": 1,
+   "trace": "T0130",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1375,
+   "tok_single": 1108,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    9,
+    2
+   ],
+   "patch": 2,
+   "trace": "T0130",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1430,
+   "tok_single": 1129,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    9,
+    2
+   ],
+   "patch": 2,
+   "trace": "T0074",
+   "y": 0,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 387,
+   "tok_single": 769,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    9,
+    2
+   ],
+   "patch": 2,
+   "trace": "T0023",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 940,
+   "tok_single": 1135,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    2,
+    3
+   ],
+   "patch": 0,
+   "trace": "T0094",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1432,
+   "tok_single": 1382,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    2,
+    3
+   ],
+   "patch": 0,
+   "trace": "T0003",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 2029,
+   "tok_single": 1710,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    2,
+    3
+   ],
+   "patch": 0,
+   "trace": "T0197",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1874,
+   "tok_single": 1979,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    2,
+    3
+   ],
+   "patch": 1,
+   "trace": "T0091",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 2592,
+   "tok_single": 2361,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    2,
+    3
+   ],
+   "patch": 1,
+   "trace": "T0104",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1224,
+   "tok_single": 911,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    2,
+    3
+   ],
+   "patch": 1,
+   "trace": "T0152",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 742,
+   "tok_single": 1012,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    2,
+    3
+   ],
+   "patch": 2,
+   "trace": "T0091",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 2593,
+   "tok_single": 2298,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    2,
+    3
+   ],
+   "patch": 2,
+   "trace": "T0197",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 2232,
+   "tok_single": 2055,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    2,
+    3
+   ],
+   "patch": 2,
+   "trace": "T0009",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 2129,
+   "tok_single": 2518,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 0,
+   "trace": "T0238",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 1724,
+   "tok_single": 1513,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 0,
+   "trace": "T0058",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1946,
+   "tok_single": 1680,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 0,
+   "trace": "T0191",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1468,
+   "tok_single": 1311,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 1,
+   "trace": "T0018",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 2081,
+   "tok_single": 1756,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 1,
+   "trace": "T0014",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1221,
+   "tok_single": 939,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 1,
+   "trace": "T0238",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1677,
+   "tok_single": 1511,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 2,
+   "trace": "T0238",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1713,
+   "tok_single": 1487,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 2,
+   "trace": "T0034",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1683,
+   "tok_single": 1870,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 2,
+   "trace": "T0086",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 967,
+   "tok_single": 1394,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    6,
+    7
+   ],
+   "patch": 0,
+   "trace": "T0052",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 932,
+   "tok_single": 1049,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    6,
+    7
+   ],
+   "patch": 0,
+   "trace": "T0194",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 930,
+   "tok_single": 951,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    6,
+    7
+   ],
+   "patch": 0,
+   "trace": "T0225",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 893,
+   "tok_single": 972,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    6,
+    7
+   ],
+   "patch": 1,
+   "trace": "T0052",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1332,
+   "tok_single": 1069,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    6,
+    7
+   ],
+   "patch": 1,
+   "trace": "T0218",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 1453,
+   "tok_single": 1179,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    6,
+    7
+   ],
+   "patch": 1,
+   "trace": "T0016",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1345,
+   "tok_single": 1123,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    6,
+    7
+   ],
+   "patch": 2,
+   "trace": "T0218",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 1482,
+   "tok_single": 1190,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    6,
+    7
+   ],
+   "patch": 2,
+   "trace": "T0118",
+   "y": 0,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 689,
+   "tok_single": 585,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    6,
+    7
+   ],
+   "patch": 2,
+   "trace": "T0190",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 980,
+   "tok_single": 990,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    0,
+    7
+   ],
+   "patch": 0,
+   "trace": "T0171",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 1963,
+   "tok_single": 1516,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    0,
+    7
+   ],
+   "patch": 0,
+   "trace": "T0108",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1447,
+   "tok_single": 1020,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    0,
+    7
+   ],
+   "patch": 0,
+   "trace": "T0098",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1611,
+   "tok_single": 1195,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    0,
+    7
+   ],
+   "patch": 1,
+   "trace": "T0173",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1092,
+   "tok_single": 1001,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    0,
+    7
+   ],
+   "patch": 1,
+   "trace": "T0053",
+   "y": 0,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 872,
+   "tok_single": 963,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    0,
+    7
+   ],
+   "patch": 1,
+   "trace": "T0098",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1096,
+   "tok_single": 1213,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    0,
+    7
+   ],
+   "patch": 2,
+   "trace": "T0108",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1162,
+   "tok_single": 1161,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    0,
+    7
+   ],
+   "patch": 2,
+   "trace": "T0098",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1043,
+   "tok_single": 606,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    0,
+    7
+   ],
+   "patch": 2,
+   "trace": "T0053",
+   "y": 0,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 756,
+   "tok_single": 961,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    3,
+    3
+   ],
+   "patch": 0,
+   "trace": "T0136",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1290,
+   "tok_single": 1114,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    3,
+    3
+   ],
+   "patch": 0,
+   "trace": "T0076",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 817,
+   "tok_single": 567,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    3,
+    3
+   ],
+   "patch": 0,
+   "trace": "T0076",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 830,
+   "tok_single": 521,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    3,
+    3
+   ],
+   "patch": 1,
+   "trace": "T0076",
+   "y": 1,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 809,
+   "tok_single": 310,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    3,
+    3
+   ],
+   "patch": 1,
+   "trace": "T0038",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1096,
+   "tok_single": 912,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    3,
+    3
+   ],
+   "patch": 1,
+   "trace": "T0136",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1276,
+   "tok_single": 1093,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    3,
+    3
+   ],
+   "patch": 2,
+   "trace": "T0201",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1249,
+   "tok_single": 961,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    3
+   ],
+   "patch": 2,
+   "trace": "T0136",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 775,
+   "tok_single": 1039,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    3
+   ],
+   "patch": 2,
+   "trace": "T0201",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 246,
+   "tok_single": 972,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    5,
+    5
+   ],
+   "patch": 0,
+   "trace": "T0116",
+   "y": 0,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1532,
+   "tok_single": 894,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    5,
+    5
+   ],
+   "patch": 0,
+   "trace": "T0214",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 3153,
+   "tok_single": 1569,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    5,
+    5
+   ],
+   "patch": 0,
+   "trace": "T0065",
+   "y": 1,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 1399,
+   "tok_single": 744,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    5,
+    5
+   ],
+   "patch": 1,
+   "trace": "T0065",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1401,
+   "tok_single": 733,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    5,
+    5
+   ],
+   "patch": 1,
+   "trace": "T0214",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 3089,
+   "tok_single": 1569,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    5,
+    5
+   ],
+   "patch": 1,
+   "trace": "T0149",
+   "y": 0,
+   "z": 0,
+   "true_edge": true,
+   "tok_full": 729,
+   "tok_single": 592,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    5,
+    5
+   ],
+   "patch": 2,
+   "trace": "T0096",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 2780,
+   "tok_single": 428,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    5,
+    5
+   ],
+   "patch": 2,
+   "trace": "T0116",
+   "y": 0,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 1231,
+   "tok_single": 908,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    5,
+    5
+   ],
+   "patch": 2,
+   "trace": "T0096",
+   "y": 1,
+   "z": 1,
+   "true_edge": true,
+   "tok_full": 2939,
+   "tok_single": 1195,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    5,
+    2
+   ],
+   "patch": 0,
+   "trace": "T0149",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 817,
+   "tok_single": 529,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    5,
+    2
+   ],
+   "patch": 0,
+   "trace": "T0149",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 829,
+   "tok_single": 545,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    5,
+    2
+   ],
+   "patch": 0,
+   "trace": "T0065",
+   "y": 1,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1482,
+   "tok_single": 671,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    5,
+    2
+   ],
+   "patch": 1,
+   "trace": "T0217",
+   "y": 1,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 3160,
+   "tok_single": 1384,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    5,
+    2
+   ],
+   "patch": 1,
+   "trace": "T0065",
+   "y": 1,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 935,
+   "tok_single": 674,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    5,
+    2
+   ],
+   "patch": 1,
+   "trace": "T0214",
+   "y": 1,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 2635,
+   "tok_single": 1502,
+   "patch_full_success": 1.0
+  },
+  {
+   "cell": [
+    5,
+    2
+   ],
+   "patch": 2,
+   "trace": "T0214",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 2165,
+   "tok_single": 1595,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    5,
+    2
+   ],
+   "patch": 2,
+   "trace": "T0116",
+   "y": 0,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1455,
+   "tok_single": 491,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    5,
+    2
+   ],
+   "patch": 2,
+   "trace": "T0116",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 878,
+   "tok_single": 446,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    6,
+    10
+   ],
+   "patch": 0,
+   "trace": "T0225",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 402,
+   "tok_single": 1001,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    6,
+    10
+   ],
+   "patch": 0,
+   "trace": "T0164",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 956,
+   "tok_single": 1551,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    6,
+    10
+   ],
+   "patch": 0,
+   "trace": "T0218",
+   "y": 1,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 633,
+   "tok_single": 1173,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    6,
+    10
+   ],
+   "patch": 1,
+   "trace": "T0190",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 280,
+   "tok_single": 963,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    6,
+    10
+   ],
+   "patch": 1,
+   "trace": "T0218",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 784,
+   "tok_single": 404,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    6,
+    10
+   ],
+   "patch": 1,
+   "trace": "T0190",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 313,
+   "tok_single": 639,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    6,
+    10
+   ],
+   "patch": 2,
+   "trace": "T0052",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 500,
+   "tok_single": 482,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    6,
+    10
+   ],
+   "patch": 2,
+   "trace": "T0052",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 532,
+   "tok_single": 486,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    6,
+    10
+   ],
+   "patch": 2,
+   "trace": "T0151",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 470,
+   "tok_single": 948,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    0,
+    1
+   ],
+   "patch": 0,
+   "trace": "T0098",
+   "y": 1,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1503,
+   "tok_single": 399,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    0,
+    1
+   ],
+   "patch": 0,
+   "trace": "T0171",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 2024,
+   "tok_single": 1577,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    0,
+    1
+   ],
+   "patch": 0,
+   "trace": "T0171",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1988,
+   "tok_single": 542,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    0,
+    1
+   ],
+   "patch": 1,
+   "trace": "T0002",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1512,
+   "tok_single": 1093,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    0,
+    1
+   ],
+   "patch": 1,
+   "trace": "T0002",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1656,
+   "tok_single": 1067,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    0,
+    1
+   ],
+   "patch": 1,
+   "trace": "T0171",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1438,
+   "tok_single": 486,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    0,
+    1
+   ],
+   "patch": 2,
+   "trace": "T0171",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1985,
+   "tok_single": 746,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    0,
+    1
+   ],
+   "patch": 2,
+   "trace": "T0053",
+   "y": 0,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1247,
+   "tok_single": 525,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    0,
+    1
+   ],
+   "patch": 2,
+   "trace": "T0171",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 604,
+   "tok_single": 549,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    8,
+    1
+   ],
+   "patch": 0,
+   "trace": "T0224",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1061,
+   "tok_single": 695,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    8,
+    1
+   ],
+   "patch": 0,
+   "trace": "T0224",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 489,
+   "tok_single": 644,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    8,
+    1
+   ],
+   "patch": 0,
+   "trace": "T0224",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 548,
+   "tok_single": 706,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    8,
+    1
+   ],
+   "patch": 1,
+   "trace": "T0224",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 525,
+   "tok_single": 629,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    8,
+    1
+   ],
+   "patch": 1,
+   "trace": "T0224",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 538,
+   "tok_single": 613,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    8,
+    1
+   ],
+   "patch": 1,
+   "trace": "T0224",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 528,
+   "tok_single": 747,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    8,
+    1
+   ],
+   "patch": 2,
+   "trace": "T0224",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 453,
+   "tok_single": 448,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    8,
+    1
+   ],
+   "patch": 2,
+   "trace": "T0224",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 724,
+   "tok_single": 445,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    8,
+    1
+   ],
+   "patch": 2,
+   "trace": "T0224",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 523,
+   "tok_single": 599,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    5,
+    9
+   ],
+   "patch": 0,
+   "trace": "T0149",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 451,
+   "tok_single": 412,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    5,
+    9
+   ],
+   "patch": 0,
+   "trace": "T0065",
+   "y": 0,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 605,
+   "tok_single": 506,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    5,
+    9
+   ],
+   "patch": 0,
+   "trace": "T0096",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1541,
+   "tok_single": 583,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    5,
+    9
+   ],
+   "patch": 1,
+   "trace": "T0116",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1150,
+   "tok_single": 462,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    5,
+    9
+   ],
+   "patch": 1,
+   "trace": "T0096",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1434,
+   "tok_single": 591,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    5,
+    9
+   ],
+   "patch": 1,
+   "trace": "T0217",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 2165,
+   "tok_single": 1398,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    5,
+    9
+   ],
+   "patch": 2,
+   "trace": "T0096",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1440,
+   "tok_single": 546,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    5,
+    9
+   ],
+   "patch": 2,
+   "trace": "T0149",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 449,
+   "tok_single": 397,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    5,
+    9
+   ],
+   "patch": 2,
+   "trace": "T0149",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 188,
+   "tok_single": 407,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    0,
+    8
+   ],
+   "patch": 0,
+   "trace": "T0173",
+   "y": 1,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1141,
+   "tok_single": 360,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    0,
+    8
+   ],
+   "patch": 0,
+   "trace": "T0098",
+   "y": 1,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1236,
+   "tok_single": 566,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    0,
+    8
+   ],
+   "patch": 0,
+   "trace": "T0002",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1044,
+   "tok_single": 584,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    0,
+    8
+   ],
+   "patch": 1,
+   "trace": "T0031",
+   "y": 1,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1229,
+   "tok_single": 1059,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    0,
+    8
+   ],
+   "patch": 1,
+   "trace": "T0098",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 1380,
+   "tok_single": 550,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    0,
+    8
+   ],
+   "patch": 1,
+   "trace": "T0098",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 467,
+   "tok_single": 595,
+   "patch_full_success": 0.6666666666666666
+  },
+  {
+   "cell": [
+    0,
+    8
+   ],
+   "patch": 2,
+   "trace": "T0108",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1128,
+   "tok_single": 1099,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    0,
+    8
+   ],
+   "patch": 2,
+   "trace": "T0053",
+   "y": 0,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 862,
+   "tok_single": 442,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    0,
+    8
+   ],
+   "patch": 2,
+   "trace": "T0031",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1262,
+   "tok_single": 1027,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    0
+   ],
+   "patch": 0,
+   "trace": "T0201",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1264,
+   "tok_single": 445,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    0
+   ],
+   "patch": 0,
+   "trace": "T0136",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 782,
+   "tok_single": 525,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    0
+   ],
+   "patch": 0,
+   "trace": "T0201",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 231,
+   "tok_single": 438,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    3,
+    0
+   ],
+   "patch": 1,
+   "trace": "T0136",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1249,
+   "tok_single": 617,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    3,
+    0
+   ],
+   "patch": 1,
+   "trace": "T0201",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1283,
+   "tok_single": 424,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    3,
+    0
+   ],
+   "patch": 1,
+   "trace": "T0076",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 841,
+   "tok_single": 314,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    3,
+    0
+   ],
+   "patch": 2,
+   "trace": "T0076",
+   "y": 1,
+   "z": 1,
+   "true_edge": false,
+   "tok_full": 820,
+   "tok_single": 267,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    3,
+    0
+   ],
+   "patch": 2,
+   "trace": "T0038",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1132,
+   "tok_single": 907,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    3,
+    0
+   ],
+   "patch": 2,
+   "trace": "T0076",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 201,
+   "tok_single": 357,
+   "patch_full_success": 0.3333333333333333
+  },
+  {
+   "cell": [
+    1,
+    6
+   ],
+   "patch": 0,
+   "trace": "T0018",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1853,
+   "tok_single": 1857,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    1,
+    6
+   ],
+   "patch": 0,
+   "trace": "T0034",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 2056,
+   "tok_single": 658,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    1,
+    6
+   ],
+   "patch": 0,
+   "trace": "T0034",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 2034,
+   "tok_single": 698,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    1,
+    6
+   ],
+   "patch": 1,
+   "trace": "T0007",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 2474,
+   "tok_single": 2127,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    1,
+    6
+   ],
+   "patch": 1,
+   "trace": "T0138",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 943,
+   "tok_single": 1008,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    1,
+    6
+   ],
+   "patch": 1,
+   "trace": "T0238",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1514,
+   "tok_single": 661,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    1,
+    6
+   ],
+   "patch": 2,
+   "trace": "T0018",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1860,
+   "tok_single": 598,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    1,
+    6
+   ],
+   "patch": 2,
+   "trace": "T0058",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1680,
+   "tok_single": 1766,
+   "patch_full_success": 0.0
+  },
+  {
+   "cell": [
+    1,
+    6
+   ],
+   "patch": 2,
+   "trace": "T0058",
+   "y": 0,
+   "z": 0,
+   "true_edge": false,
+   "tok_full": 1752,
+   "tok_single": 662,
+   "patch_full_success": 0.0
+  }
+ ],
+ "sens": 0.6027397260273972,
+ "fpr_good": 0.1724137931034483,
+ "fpr_bad": 0.09523809523809523
+}

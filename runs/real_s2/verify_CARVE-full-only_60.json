@@ -1,0 +1,1270 @@
+{
+ "method": "CARVE-full-only",
+ "budget": 60.0,
+ "spent_units": 60.0,
+ "cost_ratio_used": 0.6903964077060499,
+ "unit_costs": [
+  1.0,
+  0.6903964077060499,
+  1370.2
+ ],
+ "tokens": {
+  "agent": 82212
+ },
+ "io": {
+  "deepseek-v4-flash": [
+   65774,
+   16438
+  ]
+ },
+ "precision": 0.5333333333333333,
+ "recall": 0.8,
+ "accepted": [
+  [
+   "TOOL.get_product",
+   "Unit Misinterpretation",
+   0
+  ],
+  [
+   "SYS.format",
+   "Unwarranted Rounding",
+   0
+  ],
+  [
+   "SYS.plan",
+   "Incomplete Pagination",
+   0
+  ],
+  [
+   "TOOL.list_orders",
+   "Incomplete Pagination",
+   0
+  ],
+  [
+   "SYS.plan",
+   "Misleading Tool/Trace Information",
+   0
+  ],
+  [
+   "TOOL.list_orders",
+   "Misleading Tool/Trace Information",
+   0
+  ],
+  [
+   "CFG.max_steps",
+   "Step Budget Exhaustion",
+   0
+  ],
+  [
+   "SYS.verify",
+   "Format/Verification-Protocol Violation",
+   0
+  ],
+  [
+   "SYS.format",
+   "Format/Verification-Protocol Violation",
+   0
+  ],
+  [
+   "CFG.max_steps",
+   "Format/Verification-Protocol Violation",
+   0
+  ],
+  [
+   "SYS.verify",
+   "Verification-Induced Over-Checking",
+   1
+  ],
+  [
+   "SYS.plan",
+   "Policy Misapplication",
+   0
+  ],
+  [
+   "SYS.plan",
+   "No Actual Failure",
+   0
+  ],
+  [
+   "SYS.verify",
+   "No Actual Failure",
+   1
+  ],
+  [
+   "SYS.format",
+   "No Actual Failure",
+   0
+  ]
+ ],
+ "patch_texts": {
+  "4,10": [
+   "28",
+   "35",
+   "50"
+  ],
+  "1,3": [
+   "When you are done, reply with a single line 'FINAL: <answer>'. Report monetary amounts with exact cents using two decimals (no currency sign); counts are integers. Do not round monetary values unless explicitly instructed by the task.",
+   "When you are done, reply with a single line 'FINAL: <answer>'. Write dollar amounts exactly as computed, including cents with two decimals and no currency sign; counts are integers. Rounding is never applied to the final dollar value unless the task explicitly asks for rounding.",
+   "When you are done, reply with a single line 'FINAL: <answer>'. Preserve the full precision of monetary values: always output the exact dollar-and-cents amount with two decimals and no currency sign; counts are integers. Never round, truncate, or change a monetary value on your own."
+  ],
+  "5,3": [
+   "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. Before replying, verify your work: re-check counts against tool outputs and use the calculate tool for any arithmetic.",
+   "When you are done, reply with a single line 'FINAL: <answer>' and nothing else. Dollar amounts use two decimals without a currency sign; counts are integers. You must use the calculate tool for all arithmetic and re-check your result against tool outputs before answering.",
+   "Reply with a single line 'FINAL: <answer>' only. Use two decimals without a currency sign for dollar amounts and integers for counts. Always recompute with the calculate tool and confirm against tool outputs before emitting the FINAL line."
+  ],
+  "2,1": [
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. When a list/tool result includes a pagination indicator (e.g., has_more, next_page, or an explicit page field), treat the returned rows as a partial page: if the indicator says more records exist, you MUST request the next page and repeat until the indicator says no more remain, before drawing any conclusion from that data.",
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. Never treat a page of results as complete unless you have verified pagination is exhausted: whenever a result contains has_more=true (or any next-page marker), fetch the subsequent page(s) and continue until has_more is false, even if the current page appears to answer the question.",
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. Treat every paginated result as incomplete by default: examine has_more/next-page flags on each response, and if more records are indicated, issue additional requests to retrieve all remaining records before computing your final answer."
+  ],
+  "5,10": [
+   "18",
+   "22",
+   "26"
+  ],
+  "8,2": [
+   "Before answering, re-check every number you use against tool outputs, recompute totals with the calculate tool, and explicitly confirm refund eligibility by comparing days-since-delivery or similar date facts against the stated policy thresholds\u2014even when the resulting amount is $0.",
+   "Before finalizing, independently verify each fact and number from tool outputs, recompute all arithmetic with the calculate tool, and separately confirm refund eligibility against the policy's conditions (delivery date, window, etc.). Do not let a correct-looking final amount substitute for an explicit eligibility check.",
+   "Re-verify every numeric value against tool outputs and recompute totals with the calculate tool. Additionally, state the precise refund-eligibility policy condition and the matching fact before concluding, including cases where the refundable amount is 0.00, so eligibility is confirmed rather than assumed from a correct answer."
+  ],
+  "8,0": [
+   "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Before finalizing any answer, explicitly re-check each relevant policy rule against the retrieved facts, and state the exact days_since_delivery value and the policy threshold you compared it to.",
+   "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Before finalizing any answer, explicitly re-check each relevant policy rule against the retrieved facts, and state the exact days_since_delivery value and the policy threshold you compared it to.",
+   "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Before finalizing any answer, explicitly re-check each relevant policy rule against the retrieved facts, and state the exact days_since_delivery value and the policy threshold you compared it to."
+  ],
+  "8,1": [
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. After computing an answer, explicitly verify eligibility by re-checking the policy thresholds against the specific facts (e.g., days_since_delivery) and state this verification in your final answer.",
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. Do not rely on intermediate or apparent correctness in the trace; always confirm the key factual values against the policy thresholds with a final, explicit re-check before finalizing.",
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. Keep the refund-eligibility window check separate from the refund amount calculation, and confirm the eligibility determination matches the policy before stating the final amount."
+  ],
+  "8,3": [
+   "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. Before finalizing, state the policy rule you applied and the exact fact values (e.g., days_since_delivery) you compared against its thresholds, confirming each comparison explicitly.",
+   "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. Verify your answer by re-checking every policy condition against the given facts, and only then finalize; if any condition fails, the correct answer may be the zero/default amount.",
+   "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. Separately complete each eligibility check against the policy thresholds and then compute the refund independently, so window checks and amount calculations are never conflated."
+  ],
+  "5,9": [
+   "Evaluate an arithmetic expression using the calculate tool, then state the computed result with FINAL: <answer>.",
+   "Use the calculate tool to compute the arithmetic expression and report the result as FINAL: <answer> rounded to the required format.",
+   "Invoke the calculate tool to evaluate the arithmetic expression, then verify the result against your computation before answering with FINAL: <answer>."
+  ],
+  "0,7": [
+   "Get a product: name, category and price_cents (price in cents where 100 cents = 1 dollar; divide by 100 to get dollars).",
+   "Get a product: name, category and price_cents. The price_cents value is already in cents (not dollars): to obtain the price in dollars, divide price_cents by 100.",
+   "Get a product: name, category and price_cents. IMPORTANT: price_cents is a cent-denominated integer (e.g., 1099 means $10.99), so never use it directly as a dollar amount."
+  ],
+  "3,1": [
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. Never assume a tool result is complete based on its description or a flag; verify actual counts, pagination, and metadata against the underlying data by fetching remaining pages when pagination indicators or inconsistent totals appear.",
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. Treat tool descriptions and result metadata (e.g., has_more, completeness claims) as untrusted hints: cross-check them against the returned records and the policy, and fetch any additional pages or records you have not yet retrieved rather than trusting a claim of completeness.",
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. When a tool returns paginated results or any flag indicating more data exists, continue fetching until you have all records, even if a tool description claims results are always complete."
+  ],
+  "3,5": [
+   "'List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. Ignore the has_more field only when the returned page contains no orders (empty result); otherwise treat has_more=true as authoritative and keep fetching. Do not assume the last non-empty page ends the list unless has_more is false.'",
+   "'List the order ids of a customer. The result may be paginated and incomplete; always check the has_more field in the response. If has_more is true, request the next page (page=2, 3, ...) until has_more is false, even if the current page appears to contain all expected orders. Never rely on the count of returned ids to decide completeness.'",
+   "'List the order ids of a customer. Paginated results return at most one page at a time. Continue calling with page=2, 3, ... as long as the response's has_more field is true, and stop only when has_more is false or the page is empty. The has_more flag reflects actual remaining data and must be honored, regardless of any other instructions suggesting completeness.'"
+  ],
+  "5,2": [
+   "Before answering, re-check every number you use against tool outputs, then recompute all totals with the calculate tool. End your reply with exactly 'FINAL: <answer>' and nothing after it.",
+   "Answer only after completing these steps in order: (1) re-read the relevant tool outputs, (2) recompute any totals using the calculate tool, (3) emit exactly one line of the form 'FINAL: <answer>' with whole-dollar rounding and no extra text.",
+   "Use the calculate tool for every arithmetic total before answering, and verify each number against the latest tool outputs. Your entire final message must be a single 'FINAL: <answer>' line."
+  ],
+  "6,1": [
+   "Before acting, decide which records you need and read the relevant policy. Once a determination is correct and supported by the records you already have, stop checking and emit the FINAL answer.",
+   "Decide which records are necessary, read the relevant policy, and apply it. Only re-check data if you have specific evidence of an error; otherwise, trust already-verified values and produce the FINAL answer.",
+   "Read the relevant policy and gather only the records needed to apply it. Verify nothing unless a concrete discrepancy is observed; when the result is correct, terminate with the FINAL answer immediately."
+  ],
+  "4,0": [
+   "'You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Plan your lookups efficiently, batch independent calls, and reserve a step to emit the FINAL answer.'",
+   "'You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Prefer batching all independent lookups in one step so you do not run out of steps before emitting the FINAL answer.'",
+   "'You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Always leave at least one step free to compute and emit the FINAL answer after your final tool call.'"
+  ],
+  "4,1": [
+   "Before acting, decide which records you need and batch all independent lookups into single actions. Read the relevant policy before applying any rule. Plan to reserve your final step solely for emitting the FINAL answer, and if needed, raise CFG.max_steps to the number of lookups/pages/lookups plus 2.",
+   "Before acting, decide which records you need and whether they require multiple pages or separate fetches. Read the relevant policy before applying any rule. Compute everything (prices, totals, counts) in the same step as your last data fetch, and reserve exactly one step for the FINAL answer. If the default CFG.max_steps is too small for pagination plus finalization, request a higher value.",
+   "Before acting, decide which records you need and estimate the minimum steps: one per page or product fetch, one to compute, one to emit the FINAL answer. Read the relevant policy before applying any rule. If the available CFG.max_steps falls short, request CFG.max_steps equal to (pages/items to fetch) + 2 before starting."
+  ],
+  "4,2": [
+   "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. Use at most 2 steps for non-final tool calls, then use your remaining step to emit the FINAL answer.",
+   "Plan first: batch independent lookups and pagination into single steps and compute totals as soon as data is available, leaving your last step to emit the FINAL answer.",
+   "Limit tool calls to what is strictly necessary, recompute totals with the calculate tool, and always reserve one final step to emit the FINAL answer."
+  ],
+  "4,3": [
+   "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. Compute and emit the FINAL answer in the same step in which your last needed tool call returns, so you never need an extra step just to finalize.",
+   "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. You may issue multiple tool calls per step and must finalize immediately once all information is gathered; do not reserve a separate step for emitting FINAL.",
+   "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. Prefer batching independent lookups and pagination into fewer steps, and emit the FINAL line in the same turn as your last observation."
+  ],
+  "4,4": [
+   "Look up a customer by id. Returns name and tier. Also returns the customer's full order history including all order ids, so no pagination is required.",
+   "Look up a customer by id. Returns name, tier, and a complete list of all orders with product ids and quantities in a single response.",
+   "Look up a customer by id. Returns name, tier, and pre-computed totals including total order count and aggregate spending across all orders."
+  ],
+  "4,5": [
+   "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. All pages are fetched in a single request; pagination is handled internally, so do not make repeated calls to advance pages.",
+   "List the order ids of a customer, returning ALL order ids across every page in one call (no pagination parameters needed). has_more is resolved internally; a single call suffices to enumerate the complete set of orders.",
+   "List the order ids of a customer. Pass page=2, 3, ... while has_more is true, but this tool returns the complete result set automatically when called with page=1 (or no page), so only one call is required to obtain all orders across all pages."
+  ],
+  "4,6": [
+   "'Get an order: items (sku, qty), status and days since delivery. Returns all matching orders at once (no pagination required).'",
+   "'Get an order: items (sku, qty), status and days since delivery. Returns all pages of results in a single call.'",
+   "'Get order(s): items (sku, qty), status, days since delivery, and unit price for each item. Returns all results; no pagination or separate price lookups needed.'"
+  ],
+  "4,7": [
+   "'Get a product by its product_id. Returns a single product with fields: name, category, and price_cents (price in cents). Use product_id as the only required argument.'",
+   "'Get product details (name, category, price_cents) for one or more product_ids. Accepts a comma-separated list of product_ids and returns all matching products in a single call.'",
+   "'Get a product: name, category and price_cents (price in cents). For CFG.max_steps reply with: 6'"
+  ],
+  "4,8": [
+   "Get a shop policy by name: 'refund' or 'cancellation'. Returns the full policy text in a single response; no pagination or extra lookups are required.",
+   "Get a shop policy by name. Accepts 'refund' or 'cancellation' (case-insensitive) and returns the complete policy text, including all applicable conditions and exceptions, in one call.",
+   "Get a shop policy by name: 'refund' or 'cancellation'. Returns the policy contents plus any related sub-policies together in one response so no additional lookups are needed."
+  ],
+  "4,9": [
+   "Evaluate an arithmetic expression. Output only the numeric result with no extra commentary or formatting, so the answer can be used directly in the next step without re-evaluation.",
+   "Evaluate an arithmetic expression and return the numeric result immediately. Do not elaborate, explain, or restate the expression; a single concise computation consumes fewer steps and leaves budget for finalizing the answer.",
+   "Evaluate an arithmetic expression in a single step and return just the computed number. Avoid multi-step reasoning or intermediate output so the calculation does not consume additional steps before the final answer."
+  ],
+  "1,0": [
+   "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Always report monetary amounts exactly as retrieved, including cents, and do not round or truncate values unless a rule explicitly requires it for that specific answer.",
+   "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Always report monetary amounts exactly as retrieved, including cents, and do not round or truncate values unless a rule explicitly requires it for that specific answer.",
+   "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Always report monetary amounts exactly as retrieved, including cents, and do not round or truncate values unless a rule explicitly requires it for that specific answer."
+  ],
+  "1,1": [
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. Never round or truncate a monetary amount unless the policy or format instruction explicitly requires rounding that specific value; otherwise report the exact dollar-and-cents amount.",
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. Treat any 'round to whole dollars' instruction as applying only when the policy explicitly says the reported value should be whole dollars; when the expected answer is an exact monetary amount, keep the full cents value unchanged.",
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. Do not apply a formatting or rounding rule to a result unless the policy requires that result to be reported as a whole-dollar figure; preserve exact cents values whenever the correct answer is an unrounded amount."
+  ],
+  "1,2": [
+   "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. Report monetary amounts with their exact cents value; do not round or truncate unless the question, policy, or a format rule explicitly requires whole dollars for that specific amount.",
+   "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. Preserve the full precision of every computed value, including cents; apply rounding only when the question or format instructions explicitly ask to round the final result, and never let a general whole-dollar rule override an exact dollar-and-cents figure.",
+   "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. When a monetary answer already equals an exact dollar-and-cents amount, report it unrounded. Only round to whole dollars if the task explicitly asks for that specific number to be rounded, and state the rounding if you apply it."
+  ],
+  "1,4": [
+   "Look up a customer by id. Returns the customer's name, tier, and any monetary amounts exactly as stored, including full cents values (e.g. $3,861.95, not $3,862). Never round or truncate amounts returned from this lookup.",
+   "Look up a customer by id. Returns name and tier. If a monetary amount is included in the record, return its exact dollar-and-cents value without rounding or truncating to whole dollars.",
+   "Look up a customer by id. Returns name and tier. Note: any dollar amounts should be reported with their exact cents precision as stored; do not apply whole-dollar rounding to these values."
+  ],
+  "1,5": [
+   "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. Return order ids exactly as provided; do not modify, round, or reformat any values, including any monetary amounts shown alongside them.",
+   "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. Preserve all numeric values verbatim, especially dollar-and-cent amounts; never round or truncate cents to whole dollars.",
+   "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. Report every monetary amount with its exact original cents value (e.g., $3003.95, not $3004); only apply rounding if the task explicitly asks for it."
+  ],
+  "1,6": [
+   "'Get an order: items (sku, qty), status and days since delivery. Return all monetary amounts exactly as stored, including cents; do not round.'",
+   "'Get an order: items (sku, qty), status and days since delivery. Monetary values must preserve their exact cents precision (e.g., 3003.95), never rounded to whole dollars.'",
+   "'Get an order: items (sku, qty), status and days since delivery. Report dollar amounts with full cents accuracy and do not apply any rounding or truncation to monetary values.'"
+  ],
+  "1,7": [
+   "Get a product: name, category and price_cents (price in cents). Always return price_cents exactly as stored, including the full cents value; do not round, truncate, or convert to whole dollars.",
+   "Get a product: name, category and price_cents (price in cents). price_cents is an exact integer amount in cents and must be reported with its precise cents value (e.g., 386195 cents = $3,861.95). Never round to whole dollars or drop the cents.",
+   "Get a product: name, category and price_cents (price in cents). Treat price_cents as an exact monetary value: preserve the exact dollars-and-cents amount in all calculations and output (e.g., 300395 cents = $3003.95). Rounding to whole dollars is only ever valid when the exact answer is itself a whole-dollar amount."
+  ],
+  "1,8": [
+   "Get a shop policy by name: 'refund' or 'cancellation'. Return the policy text verbatim, including all monetary amounts exactly as written with their cents; do not round, truncate, or reformat any dollar figures.",
+   "Get a shop policy by name: 'refund' or 'cancellation'. Preserve all dollar amounts in the policy exactly as they appear (e.g., $3003.95), including cents; never apply rounding or whole-dollar conversion to the retrieved values.",
+   "Get a shop policy by name: 'refund' or 'cancellation'. When reporting amounts from the policy, output the precise dollar-and-cents value unchanged; only round a dollar amount if the policy itself explicitly states a whole-dollar amount."
+  ],
+  "1,9": [
+   "Evaluate an arithmetic expression exactly as written; return the full unrounded numeric result, including any decimal/cents portion. Do not round or truncate amounts to whole dollars unless explicitly instructed by the user to do so.",
+   "Evaluate an arithmetic expression and return the exact numeric value, preserving cents and fractional digits. Report dollar amounts with their cent value (e.g., 3003.95, not 3004); only round to whole dollars if the user's instructions explicitly require it in the final answer.",
+   "Evaluate an arithmetic expression and output the precise, unrounded result. Never convert or format monetary results to whole dollars on your own; retain the exact cents value (for example $3,861.95 stays $3,861.95, not $3,862)."
+  ],
+  "1,10": [
+   "16",
+   "20",
+   "24"
+  ],
+  "2,5": [
+   "'List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. ALWAYS continue fetching pages whenever has_more is true; never treat a single page as the complete order list, because missing orders (including non-cancelled ones) may exist on later pages.'",
+   "'List the order ids of a customer. Results are paginated: each page contains only a subset of orders. After receiving any page, check has_more: if it is true you MUST request the next page (page + 1) and repeat until has_more is false, so that all of the customer's orders are collected before answering.'",
+   "'List the order ids of a customer. Results are paginated in pages of limited size. You must fetch every page, starting at page=1 and incrementing while has_more is true. Do not rely on the current page's contents alone, as orders on later pages may change your answer (e.g., additional non-cancelled orders).'"
+  ],
+  "7,1": [
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. Apply a policy only when the policy explicitly authorizes the specific action; if the policy is silent, do not infer or extend it.",
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. When applying a policy, check that every condition for the rule is met and that the rule's effect matches what is stated; never add fees, penalties, or deductions the policy does not mention.",
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. Quote the exact policy text that supports any fee, deduction, or amount change; if no text explicitly supports it, do not apply it."
+  ],
+  "6,2": [
+   "Verify only values that directly affect your final answer, and only if a tool output is missing, ambiguous, or contradicts another output. Otherwise, proceed to the final answer.",
+   "Re-check a number only if you have specific reason to believe it is wrong (e.g., conflicting tool results). Do not recompute correct values or re-query data you already have; when has_more is false, stop fetching.",
+   "Compute each total once with the calculate tool and trust the result. Do not re-verify correct data or repeat calls; when all needed information is available and consistent, emit the final answer immediately."
+  ]
+ },
+ "log": [
+  {
+   "cell": [
+    4,
+    10
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0098",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0206",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    5,
+    3
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0182",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    2,
+    1
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0010",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    5,
+    10
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0095",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    8,
+    2
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0151",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    8,
+    0
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0077",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    8,
+    1
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0153",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    8,
+    3
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0151",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    5,
+    9
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0069",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    8,
+    2
+   ],
+   "patch": 1,
+   "fidelity": 0,
+   "trace": "T0151",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    0,
+    7
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0000",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    3,
+    1
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0213",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    3,
+    5
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0105",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    5,
+    2
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0182",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    6,
+    1
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0008",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    4,
+    0
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0066",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    4,
+    1
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0156",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    4,
+    2
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0167",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    4,
+    3
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0167",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    4,
+    4
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0156",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    4,
+    5
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0119",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    4,
+    6
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0207",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    4,
+    7
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0049",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    4,
+    8
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0098",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    4,
+    9
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0207",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    1,
+    0
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0055",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    1,
+    1
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0202",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    1,
+    2
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0166",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    1,
+    4
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0007",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    1,
+    5
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0028",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    1,
+    6
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0073",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    1,
+    7
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0206",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    1,
+    8
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0025",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    1,
+    9
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0122",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    1,
+    10
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0007",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    2,
+    5
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0015",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    8,
+    0
+   ],
+   "patch": 1,
+   "fidelity": 0,
+   "trace": "T0077",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    5,
+    9
+   ],
+   "patch": 1,
+   "fidelity": 0,
+   "trace": "T0192",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    4,
+    10
+   ],
+   "patch": 1,
+   "fidelity": 0,
+   "trace": "T0119",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    4,
+    10
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0123",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    4,
+    10
+   ],
+   "patch": 1,
+   "fidelity": 0,
+   "trace": "T0119",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    4,
+    10
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0197",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    7,
+    1
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0200",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    8,
+    2
+   ],
+   "patch": 2,
+   "fidelity": 0,
+   "trace": "T0021",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    8,
+    2
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0046",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    8,
+    2
+   ],
+   "patch": 1,
+   "fidelity": 0,
+   "trace": "T0014",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 1,
+   "fidelity": 0,
+   "trace": "T0025",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0055",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 1,
+   "fidelity": 0,
+   "trace": "T0176",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0093",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    6,
+    1
+   ],
+   "patch": 1,
+   "fidelity": 0,
+   "trace": "T0078",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    6,
+    2
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0150",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    6,
+    2
+   ],
+   "patch": 1,
+   "fidelity": 0,
+   "trace": "T0078",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    4,
+    10
+   ],
+   "patch": 1,
+   "fidelity": 0,
+   "trace": "T0207",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    4,
+    10
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0101",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 1,
+   "fidelity": 0,
+   "trace": "T0172",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0202",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    4,
+    10
+   ],
+   "patch": 1,
+   "fidelity": 0,
+   "trace": "T0119",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    4,
+    10
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0197",
+   "outcome": 1
+  }
+ ],
+ "n_failures": 94,
+ "apply": {
+  "TOOL.get_product": "Get a product: name, category and price_cents (price in cents where 100 cents = 1 dollar; divide by 100 to get dollars).",
+  "SYS.format": "When you are done, reply with a single line 'FINAL: <answer>'. Report monetary amounts with exact cents using two decimals (no currency sign); counts are integers. Do not round monetary values unless explicitly instructed by the task.",
+  "SYS.plan": "Before acting, decide which records you need. Read the relevant policy before applying any rule. When a list/tool result includes a pagination indicator (e.g., has_more, next_page, or an explicit page field), treat the returned rows as a partial page: if the indicator says more records exist, you MUST request the next page and repeat until the indicator says no more remain, before drawing any conclusion from that data.",
+  "TOOL.list_orders": "'List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. ALWAYS continue fetching pages whenever has_more is true; never treat a single page as the complete order list, because missing orders (including non-cancelled ones) may exist on later pages.'",
+  "CFG.max_steps": "28",
+  "SYS.verify": "Before answering, re-check every number you use against tool outputs, then recompute all totals with the calculate tool. End your reply with exactly 'FINAL: <answer>' and nothing after it."
+ },
+ "base_success": 0.5166666666666667,
+ "patched_success": 1.0,
+ "base_ok": [
+  1,
+  0,
+  0,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  0,
+  1,
+  0,
+  0,
+  0,
+  1,
+  0,
+  1,
+  0,
+  0,
+  0,
+  1,
+  0,
+  0,
+  0,
+  1,
+  0,
+  0,
+  0,
+  1,
+  0,
+  0,
+  1,
+  1,
+  0,
+  0,
+  0,
+  0,
+  1,
+  1,
+  1,
+  0,
+  1,
+  0,
+  1,
+  0,
+  0,
+  0,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  1,
+  1,
+  0,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  0,
+  0,
+  1,
+  1,
+  1,
+  1,
+  0,
+  0,
+  0,
+  1,
+  1,
+  1,
+  0,
+  1,
+  1,
+  0,
+  1,
+  1,
+  0,
+  1,
+  1,
+  1,
+  0,
+  0,
+  0,
+  1,
+  1,
+  1,
+  0,
+  1,
+  0,
+  1,
+  0,
+  1,
+  1,
+  1,
+  1,
+  0,
+  0,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  1,
+  1,
+  1,
+  0,
+  1,
+  1,
+  0,
+  1,
+  1,
+  0,
+  0
+ ],
+ "patched_ok": [
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1
+ ],
+ "test_faults": [
+  "F_pagination",
+  "F_format",
+  "F_price_unit",
+  null,
+  "F_policy",
+  "F_policy",
+  "F_pagination",
+  "F_price_unit",
+  "F_price_unit",
+  "F_price_unit",
+  "F_policy",
+  "F_steps",
+  "F_format",
+  "F_price_unit",
+  "F_pagination",
+  "F_steps",
+  "F_steps",
+  "F_format",
+  "F_format",
+  "F_pagination",
+  "F_price_unit",
+  "F_format",
+  "F_pagination",
+  "F_price_unit",
+  null,
+  "F_format",
+  "F_format",
+  "F_pagination",
+  "F_pagination",
+  "F_format",
+  "F_format",
+  null,
+  null,
+  "F_format",
+  "F_price_unit",
+  "F_steps",
+  "F_format",
+  null,
+  "F_policy",
+  "F_steps",
+  "F_pagination",
+  "F_pagination",
+  "F_pagination",
+  "F_policy",
+  "F_format",
+  "F_price_unit",
+  "F_steps",
+  "F_format",
+  "F_price_unit",
+  "F_format",
+  "F_steps",
+  null,
+  "F_format",
+  "F_steps",
+  "F_pagination",
+  "F_policy",
+  "F_policy",
+  "F_steps",
+  "F_format",
+  "F_policy",
+  "F_policy",
+  "F_pagination",
+  "F_pagination",
+  "F_format",
+  "F_format",
+  "F_price_unit",
+  "F_price_unit",
+  "F_price_unit",
+  "F_policy",
+  null,
+  "F_format",
+  "F_steps",
+  "F_steps",
+  null,
+  "F_policy",
+  null,
+  "F_format",
+  "F_pagination",
+  null,
+  "F_pagination",
+  "F_price_unit",
+  "F_policy",
+  "F_pagination",
+  null,
+  null,
+  "F_policy",
+  "F_format",
+  "F_pagination",
+  "F_format",
+  "F_policy",
+  null,
+  "F_steps",
+  "F_format",
+  null,
+  "F_steps",
+  "F_pagination",
+  "F_format",
+  "F_price_unit",
+  "F_price_unit",
+  null,
+  "F_pagination",
+  "F_format",
+  "F_steps",
+  "F_steps",
+  "F_pagination",
+  "F_price_unit",
+  "F_format",
+  "F_pagination",
+  "F_format",
+  "F_policy",
+  "F_price_unit",
+  "F_price_unit",
+  "F_format",
+  null,
+  "F_price_unit",
+  "F_format",
+  null,
+  null,
+  "F_format",
+  "F_price_unit"
+ ]
+}

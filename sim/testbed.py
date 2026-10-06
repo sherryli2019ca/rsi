@@ -98,10 +98,27 @@ class World:
         y = rng.random() < p + (1 - p) * cfg.b
         if fidelity == 0:
             return int(y)
+        return self._check(src, j, k, y)
+
+    def _check(self, src, j, k, y) -> int:
+        cfg = self.cfg
         fpr = cfg.fpr
         if cfg.fooled_fpr is not None and self.Q[src, j, k] < 0.3:
             fpr = cfg.fooled_fpr            # plausible-looking bad patches fool the judge
-        return int(rng.random() < (cfg.sens if y else fpr))
+        return int(self.rng.random() < (cfg.sens if y else fpr))
+
+    def paired(self, i, j, k):
+        """One full replay and a single-step check on the same trajectory, as in a
+        calibration set. Returns (y, z)."""
+        cfg, rng = self.cfg, self.rng
+        src = i
+        if rng.random() > cfg.lam:
+            others = np.delete(np.arange(cfg.I), i)
+            w = self.f[others] / self.f[others].sum()
+            src = rng.choice(others, p=w)
+        p = self.Q[src, j, k] if self.E[src, j] else 0.0
+        y = rng.random() < p + (1 - p) * cfg.b
+        return int(y), self._check(src, j, k, y)
 
     # ---- evaluation --------------------------------------------------------
     def repaired_mass(self, acc, patch, f=None) -> np.ndarray:

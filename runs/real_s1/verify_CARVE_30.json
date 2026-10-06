@@ -1,0 +1,856 @@
+{
+ "method": "CARVE",
+ "budget": 30.0,
+ "spent_units": 30.0,
+ "cost_ratio_used": 0.7092602278904239,
+ "unit_costs": [
+  1.0,
+  0.7092602278904239,
+  620.5666666666667
+ ],
+ "tokens": {
+  "agent": 18617
+ },
+ "io": {
+  "deepseek-v4-flash": [
+   13166,
+   5451
+  ]
+ },
+ "precision": 0.7,
+ "recall": 0.4375,
+ "accepted": [
+  [
+   "SYS.format",
+   "Missing final answer format",
+   0
+  ],
+  [
+   "SYS.format",
+   "Insufficient step budget (max_steps)",
+   1
+  ],
+  [
+   "TOOL.calculate",
+   "Insufficient step budget (max_steps)",
+   0
+  ],
+  [
+   "CFG.max_steps",
+   "Insufficient step budget (max_steps)",
+   0
+  ],
+  [
+   "SYS.format",
+   "Rounding error",
+   0
+  ],
+  [
+   "TOOL.get_product",
+   "Unit misreading (price_cents vs dollars)",
+   0
+  ],
+  [
+   "TOOL.list_orders",
+   "Incomplete pagination (trusted has_more/complete claim)",
+   0
+  ],
+  [
+   "TOOL.list_orders",
+   "Tool description defect",
+   0
+  ],
+  [
+   "SYS.plan",
+   "Policy misapplication",
+   0
+  ],
+  [
+   "SYS.verify",
+   "Evaluation/answer misconfiguration",
+   0
+  ]
+ ],
+ "patch_texts": {
+  "4,2": [
+   "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. Do not round dollar amounts to whole dollars unless the question or policy explicitly requires whole-dollar rounding; otherwise keep the exact cent value (two decimals), using integer cent arithmetic or the calculate tool for any dollar math.",
+   "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. Do not round dollar amounts to whole dollars unless the question or policy explicitly requires whole-dollar rounding; otherwise keep the exact cent value (two decimals), using integer cent arithmetic or the calculate tool for any dollar math.",
+   "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. Do not round dollar amounts to whole dollars unless the question or policy explicitly requires whole-dollar rounding; otherwise keep the exact cent value (two decimals), using integer cent arithmetic or the calculate tool for any dollar math."
+  ],
+  "2,3": [
+   "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. Before any tool call, budget at least one final step to emit the FINAL line.",
+   "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. Prioritize emitting the FINAL answer: if steps are nearly exhausted, skip optional lookups and output your best answer.",
+   "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. Perform all required lookups and calculations first, and always reserve your last step for the FINAL answer line."
+  ],
+  "2,10": [
+   "20",
+   "25",
+   "30"
+  ],
+  "2,0": [
+   "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Plan your tool calls to stay within your step budget: batch independent lookups, verify calculations, and always leave at least one step to emit 'FINAL: <answer>'.",
+   "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. Before answering, double-check your step usage: gather only the facts you need, avoid redundant calls, and reserve a final step for the 'FINAL: <answer>' line.",
+   "You are a customer-service agent for an online shop. Use the tools to look up facts; never guess database values. If your step budget is small, skip optional re-verification steps and prioritize completing all required lookups and emitting 'FINAL: <answer>' before the budget runs out."
+  ],
+  "2,1": [
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. Plan your tool calls to finish within the step budget; reserve your final step to emit the FINAL answer line.",
+   "Before acting, decide which records you need and prioritize the lookups and computations required to produce the final answer. Read the relevant policy, then apply the rule and emit the FINAL: line without redundant tool calls.",
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. Keep tool calls minimal and reserve at least one step at the end to output the FINAL: answer."
+  ],
+  "2,2": [
+   "Before answering, re-check every number you use against tool outputs; use the calculate tool only for critical totals or restocking fees, and always leave at least one remaining step to emit 'FINAL: <answer>' before the episode ends.",
+   "Use tool outputs to verify each number, but skip redundant lookups and calculations; whenever a step budget (max_steps) applies, perform only essential tool calls and reserve your final step to print 'FINAL: <answer>'.",
+   "Re-check numbers against tool outputs as you go, and only recompute what is strictly necessary with the calculate tool; if you see max_steps is small, prioritize emitting 'FINAL: <answer>' over extra verification calls."
+  ],
+  "2,4": [
+   "Look up a customer by id. Returns name and tier, plus a compact summary of their orders and policies, so all required data is available in a single call.",
+   "Look up a customer by id. Returns name, tier, and a precomputed recommendation checklist (order totals, restocking fees, and eligibility windows already resolved) to minimize follow-up tool calls.",
+   "Look up a customer by id. Returns name, tier, and any related order/product/policy data needed for the answer, with all monetary values already in dollars, eliminating the need for additional conversion or re-verification steps."
+  ],
+  "2,5": [
+   "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. If has_more is true, always fetch the next page so no orders are missed.",
+   "List all order ids of a customer, returning every page (page=1,2,3,...) automatically in a single call, so the caller never needs to paginate manually.",
+   "Return all order ids for a customer in one response. Pagination is handled internally: keep calling with page=2, 3, ... until has_more is false, and display every page's results together."
+  ],
+  "2,6": [
+   "Get an order: items (sku, qty), status and days since delivery. Include item unit price in cents and any applicable category for fee calculation.",
+   "Get an order: items (sku, qty, unit_price_cents), status, days since delivery, and total amount already charged.",
+   "Get an order: items (sku, qty), status, days since delivery, and order-level totals including subtotal, discount, shipping, and tax."
+  ],
+  "2,7": [
+   "Get a product by ID in a single call, returning all fields needed for computations: name, category, price_cents (price in cents). Combine multiple lookups into one request to conserve steps.",
+   "Get a product compactly, returning one line per product: name, category, and price_cents (e.g. 'Widget|Electronics|1000'). Returns all products at once when no ID is given, so no repeated calls are needed.",
+   "Get a product's essential fields in one step: name, category, price_cents. This call always succeeds and returns minimal output so the agent has enough remaining steps to finish calculations and emit the final answer."
+  ],
+  "2,8": [
+   "Get a shop policy by name: 'refund' or 'cancellation'. Also accepts 'all' (or no name) to return both policies in a single call, reducing the number of tool calls required.",
+   "Get a shop policy by name: 'refund' or 'cancellation'. Use 'all' to retrieve every policy at once and avoid repeated lookups.",
+   "Get a shop policy by name. Pass 'all' to fetch both 'refund' and 'cancellation' policies in one call so you spend fewer steps on lookups."
+  ],
+  "2,9": [
+   "Evaluate an arithmetic expression and return the numeric result directly, so the agent can complete calculations in a single tool call without consuming extra steps.",
+   "Evaluate the given arithmetic expression in one step, returning the computed value as plain text; supports chained operations to avoid multiple round-trips.",
+   "Evaluate an arithmetic expression and output only the final numeric answer, minimizing tool-call steps needed to reach a FINAL response."
+  ],
+  "0,1": [
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. Skip any call that does not provide information needed to answer the question.",
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. Only take an action if it directly contributes to answering the user's question.",
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. Avoid unnecessary calls that do not change the final answer."
+  ],
+  "0,0": [
+   "You are a customer-service agent for an online shop. Only use the following tools for lookups; base every answer strictly on database values obtained through the tools, and never state a fact unless a tool returned it.",
+   "You are a customer-service agent for an online shop. Before answering, use the tools to retrieve the specific facts required by the customer's query; do not rely on memory or assumptions about database values.",
+   "You are a customer-service agent for an online shop. Use the tools to look up facts needed to answer the question, and minimize extra tool calls; only call a tool when its result is necessary for the answer."
+  ],
+  "7,5": [
+   "List the order ids of a customer. Results are paginated: read the has_more flag, and if it is true, call again with page=2, 3, ... until has_more is false, collecting all ids.",
+   "List the order ids of a customer. The response may be incomplete: always check has_more, and keep requesting the next page (page=2, 3, ...) while has_more is true to obtain all order ids.",
+   "List the order ids of a customer, one page at a time. Pass page=2, 3, ... to fetch subsequent pages, and continue until has_more is false so that no orders are missed."
+  ],
+  "0,2": [
+   "Before answering, verify each number against its source tool output; recompute any total using the calculate tool only if the component values came from tool outputs.",
+   "Use numbers exactly as returned by tool outputs; only run the calculate tool when you have added or combined tool-returned values, and skip it when the answer is already directly given by the tools.",
+   "Check that every number in your answer matches the tool outputs you actually received, and run the calculate tool only to combine those values when the tool outputs do not already state the result."
+  ],
+  "4,9": [
+   "Evaluate an arithmetic expression. Return the exact numerical result without any rounding; if the result is not an integer, return it to full precision as a decimal value.",
+   "Evaluate an arithmetic expression exactly using integer or decimal arithmetic (never floating point). Compute the full unrounded result; apply no rounding. When a monetary value is involved, express it in dollars and cents to the exact cent (two decimals) and do not round to whole dollars.",
+   "Evaluate an arithmetic expression and return the exact result. Do not apply any rounding rules: preserve fractional cent values, and only round to two decimals when the final answer explicitly requires a dollar-and-cent value, using standard round-half-away-from-zero to the nearest cent."
+  ],
+  "4,3": [
+   "When you are done, reply with a single line 'FINAL: <answer>'. Use the exact value computed; do not round unless the task explicitly specifies a rounding rule. Dollar amounts must use exactly two decimals without a currency sign (e.g. 997.25, 1300.84); counts are integers. If a value has more than two decimals, truncate (do not round) to two decimals for dollar amounts.",
+   "When you are done, reply with a single line 'FINAL: <answer>'. Preserve exact cent precision: never round dollar amounts to whole dollars, and never round half-cents upward. Perform all arithmetic in integer cents (not floating point), then convert by dividing by 100 and keeping exactly two decimal places. Dollar amounts use two decimals without a currency sign; counts are integers.",
+   "When you are done, reply with a single line 'FINAL: <answer>'. Report dollar amounts with exactly two decimals and no currency sign, and counts as integers. Do not round or truncate the value: use the unrounded result, and round per-item fees (not the total) only if the task requires rounding. Round half values to the nearest cent using integer cent arithmetic, never rounding half-cents upward or to whole dollars."
+  ],
+  "8,1": [
+   "Before acting, decide which records you need. Read the applicable policy in full before applying any rule, and verify the scenario type (cancellation vs delivered-order refund) and any per-SKU or duplicate line-item rules against the policy text before computing amounts.",
+   "Before acting, decide which records you need. Retrieve and read the relevant policy before applying any rule, then confirm the policy covers the exact scenario at hand: identify cancelled vs delivered orders, duplicate SKUs, and any restocking-fee conditions stated in the policy, and apply each rule only where the policy explicitly says it applies.",
+   "Before acting, decide which records you need. Obtain and read the relevant policy before applying any rule. For each line item, check the policy for scenario-specific rules (refund eligibility, restocking fees, cancellation handling, and duplicate SKUs) and apply them exactly as written in the policy, never importing assumptions from a default window or fee."
+  ],
+  "1,2": [
+   "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. After your reasoning is complete, you must end with exactly one line beginning with 'FINAL: ' followed by the answer.",
+   "Re-check every number you use against tool outputs and recompute totals with the calculate tool. Then, as your final step, output the required 'FINAL: <answer>' line and nothing else after it.",
+   "Verify each number against tool outputs and recompute totals with the calculate tool. Always finish your response by emitting a single line of the exact form 'FINAL: <answer>'; never substitute alternatives like 'None' for the required format."
+  ]
+ },
+ "log": [
+  {
+   "cell": [
+    4,
+    2
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0043",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    2,
+    3
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0064",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    2,
+    10
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0064",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    4,
+    2
+   ],
+   "patch": 1,
+   "fidelity": 0,
+   "trace": "T0142",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    2,
+    0
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0075",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    2,
+    1
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0233",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    2,
+    2
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0226",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    2,
+    4
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0123",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    2,
+    5
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0117",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    2,
+    6
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0189",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    2,
+    7
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0106",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    2,
+    8
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0189",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    2,
+    9
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0052",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    0,
+    1
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0149",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    0,
+    1
+   ],
+   "patch": 1,
+   "fidelity": 0,
+   "trace": "T0169",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    0,
+    0
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0025",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    0,
+    1
+   ],
+   "patch": 2,
+   "fidelity": 0,
+   "trace": "T0098",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    7,
+    5
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0145",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    0,
+    2
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0098",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    2,
+    3
+   ],
+   "patch": 1,
+   "fidelity": 0,
+   "trace": "T0233",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    4,
+    9
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0208",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    4,
+    3
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0142",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    0,
+    2
+   ],
+   "patch": 1,
+   "fidelity": 0,
+   "trace": "T0126",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    0,
+    2
+   ],
+   "patch": 2,
+   "fidelity": 0,
+   "trace": "T0203",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    0,
+    2
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0122",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    0,
+    2
+   ],
+   "patch": 1,
+   "fidelity": 0,
+   "trace": "T0126",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    4,
+    2
+   ],
+   "patch": 2,
+   "fidelity": 0,
+   "trace": "T0124",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    0,
+    2
+   ],
+   "patch": 2,
+   "fidelity": 0,
+   "trace": "T0203",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    8,
+    1
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0072",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    1,
+    2
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0214",
+   "outcome": 0
+  }
+ ],
+ "n_failures": 95,
+ "apply": {
+  "SYS.format": "When you are done, you MUST reply with exactly one line that begins with 'FINAL: ' followed by your answer. Before ending your turn, always emit that line as your last message. Dollar amounts use two decimals without a currency sign; counts are integers.",
+  "TOOL.calculate": "Evaluate an arithmetic expression and return the numeric result directly, so the agent can complete calculations in a single tool call without consuming extra steps.",
+  "CFG.max_steps": "20",
+  "TOOL.get_product": "Get a product: name, category and price_cents (price in cents). Note: price_cents is in cents; divide by 100 to convert to dollars.",
+  "TOOL.list_orders": "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. A response with has_more=true is incomplete; you must keep requesting subsequent pages until has_more is false before counting or reporting order ids.",
+  "SYS.plan": "Before acting, decide which records you need. Read the applicable policy in full before applying any rule, and verify the scenario type (cancellation vs delivered-order refund) and any per-SKU or duplicate line-item rules against the policy text before computing amounts.",
+  "SYS.verify": "Before answering, recompute any totals with the calculate tool when they are derived from tool outputs, and verify any number you state in the final answer against its source tool output."
+ },
+ "base_success": 0.65,
+ "patched_success": 0.9833333333333333,
+ "base_ok": [
+  1,
+  0,
+  1,
+  1,
+  0,
+  1,
+  1,
+  1,
+  0,
+  1,
+  0,
+  0,
+  1,
+  0,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  0,
+  1,
+  0,
+  1,
+  0,
+  1,
+  0,
+  1,
+  0,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  1,
+  1,
+  1,
+  0,
+  1,
+  1,
+  1,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  1,
+  0,
+  0,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  1,
+  1,
+  1,
+  1,
+  0,
+  1,
+  0,
+  1,
+  1,
+  1,
+  1,
+  1,
+  0,
+  1,
+  1,
+  0,
+  0,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  1,
+  1,
+  1,
+  1,
+  0,
+  0,
+  1,
+  1
+ ],
+ "patched_ok": [
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  0,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  0,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1
+ ],
+ "test_faults": [
+  "F_pagination",
+  "F_steps",
+  "F_steps",
+  "F_pagination",
+  "F_format",
+  "F_steps",
+  "F_policy",
+  null,
+  "F_steps",
+  "F_price_unit",
+  "F_steps",
+  "F_price_unit",
+  "F_policy",
+  "F_format",
+  "F_steps",
+  "F_pagination",
+  "F_pagination",
+  null,
+  "F_policy",
+  "F_steps",
+  "F_steps",
+  "F_policy",
+  "F_policy",
+  null,
+  "F_pagination",
+  "F_pagination",
+  null,
+  "F_pagination",
+  "F_steps",
+  "F_policy",
+  null,
+  "F_price_unit",
+  null,
+  "F_price_unit",
+  "F_pagination",
+  "F_steps",
+  "F_price_unit",
+  "F_format",
+  "F_price_unit",
+  "F_format",
+  "F_policy",
+  "F_steps",
+  null,
+  "F_policy",
+  null,
+  "F_policy",
+  "F_policy",
+  null,
+  "F_steps",
+  "F_policy",
+  "F_pagination",
+  "F_format",
+  "F_price_unit",
+  "F_price_unit",
+  "F_pagination",
+  "F_policy",
+  "F_pagination",
+  "F_format",
+  null,
+  "F_policy",
+  null,
+  "F_format",
+  "F_policy",
+  "F_steps",
+  "F_policy",
+  "F_steps",
+  "F_format",
+  "F_steps",
+  "F_steps",
+  "F_policy",
+  "F_steps",
+  "F_pagination",
+  "F_format",
+  null,
+  "F_price_unit",
+  "F_format",
+  "F_steps",
+  null,
+  null,
+  "F_pagination",
+  null,
+  "F_format",
+  "F_steps",
+  "F_steps",
+  "F_steps",
+  "F_price_unit",
+  null,
+  null,
+  "F_pagination",
+  null,
+  "F_steps",
+  "F_format",
+  "F_format",
+  "F_price_unit",
+  "F_price_unit",
+  "F_policy",
+  null,
+  "F_policy",
+  "F_price_unit",
+  "F_format",
+  "F_price_unit",
+  "F_policy",
+  "F_pagination",
+  "F_price_unit",
+  "F_format",
+  "F_policy",
+  "F_policy",
+  "F_price_unit",
+  "F_price_unit",
+  "F_steps",
+  "F_steps",
+  "F_price_unit",
+  "F_policy",
+  null,
+  "F_steps",
+  "F_format",
+  "F_steps",
+  "F_format",
+  "F_steps",
+  "F_pagination"
+ ]
+}

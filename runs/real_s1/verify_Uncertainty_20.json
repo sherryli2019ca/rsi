@@ -1,0 +1,684 @@
+{
+ "method": "Uncertainty",
+ "budget": 20.0,
+ "spent_units": 20.0,
+ "cost_ratio_used": 0.7092602278904239,
+ "unit_costs": [
+  1.0,
+  0.7092602278904239,
+  638.95
+ ],
+ "tokens": {
+  "agent": 12779
+ },
+ "io": {
+  "deepseek-v4-flash": [
+   8780,
+   3999
+  ]
+ },
+ "precision": 1.0,
+ "recall": 0.375,
+ "accepted": [
+  [
+   "SYS.format",
+   "Missing final answer format",
+   1
+  ],
+  [
+   "CFG.max_steps",
+   "Insufficient step budget (max_steps)",
+   0
+  ],
+  [
+   "SYS.format",
+   "Rounding error",
+   0
+  ],
+  [
+   "TOOL.get_product",
+   "Unit misreading (price_cents vs dollars)",
+   0
+  ],
+  [
+   "TOOL.list_orders",
+   "Incomplete pagination (trusted has_more/complete claim)",
+   0
+  ],
+  [
+   "SYS.plan",
+   "Policy misapplication",
+   0
+  ]
+ ],
+ "patch_texts": {
+  "2,10": [
+   "20",
+   "25",
+   "30"
+  ],
+  "0,2": [
+   "Before answering, verify each number against its source tool output; recompute any total using the calculate tool only if the component values came from tool outputs.",
+   "Use numbers exactly as returned by tool outputs; only run the calculate tool when you have added or combined tool-returned values, and skip it when the answer is already directly given by the tools.",
+   "Check that every number in your answer matches the tool outputs you actually received, and run the calculate tool only to combine those values when the tool outputs do not already state the result."
+  ],
+  "4,3": [
+   "When you are done, reply with a single line 'FINAL: <answer>'. Use the exact value computed; do not round unless the task explicitly specifies a rounding rule. Dollar amounts must use exactly two decimals without a currency sign (e.g. 997.25, 1300.84); counts are integers. If a value has more than two decimals, truncate (do not round) to two decimals for dollar amounts.",
+   "When you are done, reply with a single line 'FINAL: <answer>'. Preserve exact cent precision: never round dollar amounts to whole dollars, and never round half-cents upward. Perform all arithmetic in integer cents (not floating point), then convert by dividing by 100 and keeping exactly two decimal places. Dollar amounts use two decimals without a currency sign; counts are integers.",
+   "When you are done, reply with a single line 'FINAL: <answer>'. Report dollar amounts with exactly two decimals and no currency sign, and counts as integers. Do not round or truncate the value: use the unrounded result, and round per-item fees (not the total) only if the task requires rounding. Round half values to the nearest cent using integer cent arithmetic, never rounding half-cents upward or to whole dollars."
+  ],
+  "5,7": [
+   "Get a product: name, category and price_cents (price in cents). Note: price_cents is in cents; divide by 100 to convert to dollars.",
+   "Get a product: name, category and price_cents. The price_cents value is already in dollars; use it directly as the dollar price (do not divide by 100).",
+   "Get a product: name, category and price_cents. price_cents stores price in cents (e.g., 22110 means $221.10), so divide by 100 before treating it as dollars."
+  ],
+  "0,1": [
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. Skip any call that does not provide information needed to answer the question.",
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. Only take an action if it directly contributes to answering the user's question.",
+   "Before acting, decide which records you need. Read the relevant policy before applying any rule. Avoid unnecessary calls that do not change the final answer."
+  ],
+  "1,3": [
+   "When you are done, you MUST reply with exactly one line that begins with 'FINAL: ' followed by your answer. Before ending your turn, always emit that line as your last message. Dollar amounts use two decimals without a currency sign; counts are integers.",
+   "Your final message must be a single line of the form 'FINAL: <answer>'. Do not reply with any other value (such as 'None') in place of the answer; if there is no applicable answer, still emit 'FINAL: ' followed by your best available result. Dollar amounts use two decimals without a currency sign; counts are integers.",
+   "End every response with one and only one line: 'FINAL: <answer>'. Emit this line even if the answer is empty or a no-result, and do not put any other text on that line. Dollar amounts use two decimals without a currency sign; counts are integers."
+  ],
+  "11,2": [
+   "Before answering, recompute any totals with the calculate tool when they are derived from tool outputs, and verify any number you state in the final answer against its source tool output.",
+   "Verify each number you state in the final answer by checking it against the corresponding tool output. Use the calculate tool whenever a number is a computed total or derived value.",
+   "Before answering, confirm that each number in your final answer matches its source tool output, and recompute derived totals with the calculate tool. Do not add extra calculation steps when the value already matches the tool output exactly."
+  ],
+  "4,2": [
+   "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. Do not round dollar amounts to whole dollars unless the question or policy explicitly requires whole-dollar rounding; otherwise keep the exact cent value (two decimals), using integer cent arithmetic or the calculate tool for any dollar math.",
+   "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. Do not round dollar amounts to whole dollars unless the question or policy explicitly requires whole-dollar rounding; otherwise keep the exact cent value (two decimals), using integer cent arithmetic or the calculate tool for any dollar math.",
+   "Before answering, re-check every number you use against tool outputs and recompute totals with the calculate tool. Do not round dollar amounts to whole dollars unless the question or policy explicitly requires whole-dollar rounding; otherwise keep the exact cent value (two decimals), using integer cent arithmetic or the calculate tool for any dollar math."
+  ],
+  "6,5": [
+   "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. A response with has_more=true is incomplete; you must keep requesting subsequent pages until has_more is false before counting or reporting order ids.",
+   "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. Do not treat any single page as the full order list: always check has_more and continue fetching pages until has_more is false to retrieve all order ids.",
+   "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. Never assume the returned order_ids are complete if has_more is true; if has_more is true, the current page is truncated and you must fetch the remaining pages before using the result."
+  ],
+  "2,3": [
+   "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. Before any tool call, budget at least one final step to emit the FINAL line.",
+   "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. Prioritize emitting the FINAL answer: if steps are nearly exhausted, skip optional lookups and output your best answer.",
+   "When you are done, reply with a single line 'FINAL: <answer>'. Dollar amounts use two decimals without a currency sign; counts are integers. Perform all required lookups and calculations first, and always reserve your last step for the FINAL answer line."
+  ]
+ },
+ "log": [
+  {
+   "cell": [
+    2,
+    10
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0052",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    0,
+    2
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0020",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    0,
+    2
+   ],
+   "patch": 1,
+   "fidelity": 0,
+   "trace": "T0020",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    4,
+    3
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0142",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    0,
+    2
+   ],
+   "patch": 2,
+   "fidelity": 0,
+   "trace": "T0195",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    5,
+    7
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0152",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    0,
+    1
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0183",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0214",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    11,
+    2
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0184",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    0,
+    2
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0195",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    4,
+    2
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0124",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    6,
+    5
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0078",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    1,
+    3
+   ],
+   "patch": 1,
+   "fidelity": 0,
+   "trace": "T0179",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    11,
+    2
+   ],
+   "patch": 1,
+   "fidelity": 0,
+   "trace": "T0104",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    0,
+    1
+   ],
+   "patch": 1,
+   "fidelity": 0,
+   "trace": "T0149",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    2,
+    3
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0052",
+   "outcome": 1
+  },
+  {
+   "cell": [
+    2,
+    3
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0181",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    2,
+    3
+   ],
+   "patch": 0,
+   "fidelity": 0,
+   "trace": "T0226",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    2,
+    3
+   ],
+   "patch": 1,
+   "fidelity": 0,
+   "trace": "T0075",
+   "outcome": 0
+  },
+  {
+   "cell": [
+    2,
+    3
+   ],
+   "patch": 2,
+   "fidelity": 0,
+   "trace": "T0143",
+   "outcome": 0
+  }
+ ],
+ "n_failures": 95,
+ "apply": {
+  "SYS.format": "Your final message must be a single line of the form 'FINAL: <answer>'. Do not reply with any other value (such as 'None') in place of the answer; if there is no applicable answer, still emit 'FINAL: ' followed by your best available result. Dollar amounts use two decimals without a currency sign; counts are integers.",
+  "CFG.max_steps": "20",
+  "TOOL.get_product": "Get a product: name, category and price_cents (price in cents). Note: price_cents is in cents; divide by 100 to convert to dollars.",
+  "TOOL.list_orders": "List the order ids of a customer. Results are paginated: pass page=2, 3, ... while has_more is true. A response with has_more=true is incomplete; you must keep requesting subsequent pages until has_more is false before counting or reporting order ids.",
+  "SYS.plan": "Before acting, decide which records you need. Read the applicable policy in full before applying any rule, and verify the scenario type (cancellation vs delivered-order refund) and any per-SKU or duplicate line-item rules against the policy text before computing amounts."
+ },
+ "base_success": 0.65,
+ "patched_success": 1.0,
+ "base_ok": [
+  1,
+  0,
+  1,
+  1,
+  0,
+  1,
+  1,
+  1,
+  0,
+  1,
+  0,
+  0,
+  1,
+  0,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  0,
+  1,
+  0,
+  1,
+  0,
+  1,
+  0,
+  1,
+  0,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  1,
+  1,
+  1,
+  0,
+  1,
+  1,
+  1,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  1,
+  0,
+  0,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  1,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  1,
+  1,
+  1,
+  1,
+  0,
+  1,
+  0,
+  1,
+  1,
+  1,
+  1,
+  1,
+  0,
+  1,
+  1,
+  0,
+  0,
+  0,
+  1,
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  1,
+  1,
+  1,
+  1,
+  0,
+  0,
+  1,
+  1
+ ],
+ "patched_ok": [
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1
+ ],
+ "test_faults": [
+  "F_pagination",
+  "F_steps",
+  "F_steps",
+  "F_pagination",
+  "F_format",
+  "F_steps",
+  "F_policy",
+  null,
+  "F_steps",
+  "F_price_unit",
+  "F_steps",
+  "F_price_unit",
+  "F_policy",
+  "F_format",
+  "F_steps",
+  "F_pagination",
+  "F_pagination",
+  null,
+  "F_policy",
+  "F_steps",
+  "F_steps",
+  "F_policy",
+  "F_policy",
+  null,
+  "F_pagination",
+  "F_pagination",
+  null,
+  "F_pagination",
+  "F_steps",
+  "F_policy",
+  null,
+  "F_price_unit",
+  null,
+  "F_price_unit",
+  "F_pagination",
+  "F_steps",
+  "F_price_unit",
+  "F_format",
+  "F_price_unit",
+  "F_format",
+  "F_policy",
+  "F_steps",
+  null,
+  "F_policy",
+  null,
+  "F_policy",
+  "F_policy",
+  null,
+  "F_steps",
+  "F_policy",
+  "F_pagination",
+  "F_format",
+  "F_price_unit",
+  "F_price_unit",
+  "F_pagination",
+  "F_policy",
+  "F_pagination",
+  "F_format",
+  null,
+  "F_policy",
+  null,
+  "F_format",
+  "F_policy",
+  "F_steps",
+  "F_policy",
+  "F_steps",
+  "F_format",
+  "F_steps",
+  "F_steps",
+  "F_policy",
+  "F_steps",
+  "F_pagination",
+  "F_format",
+  null,
+  "F_price_unit",
+  "F_format",
+  "F_steps",
+  null,
+  null,
+  "F_pagination",
+  null,
+  "F_format",
+  "F_steps",
+  "F_steps",
+  "F_steps",
+  "F_price_unit",
+  null,
+  null,
+  "F_pagination",
+  null,
+  "F_steps",
+  "F_format",
+  "F_format",
+  "F_price_unit",
+  "F_price_unit",
+  "F_policy",
+  null,
+  "F_policy",
+  "F_price_unit",
+  "F_format",
+  "F_price_unit",
+  "F_policy",
+  "F_pagination",
+  "F_price_unit",
+  "F_format",
+  "F_policy",
+  "F_policy",
+  "F_price_unit",
+  "F_price_unit",
+  "F_steps",
+  "F_steps",
+  "F_price_unit",
+  "F_policy",
+  null,
+  "F_steps",
+  "F_format",
+  "F_steps",
+  "F_format",
+  "F_steps",
+  "F_pagination"
+ ]
+}
