@@ -35,6 +35,8 @@ class ObsParams:
     fpr: float = 0.15        # single-step false-positive rate
     q_a: float = 2.0         # Beta prior on patch quality
     q_b: float = 2.0
+    fooled_fpr: float | None = None   # single-step FPR for bad patches (q < bad_q), if modelled
+    bad_q: float = 0.3
 
 
 class GraphPosterior:
@@ -62,22 +64,38 @@ class GraphPosterior:
         """Return (likelihood over q-grid under e=1, likelihood under e=0)."""
         p1, p0 = self._p1(), self.p.b
         if fidelity == SINGLE:
-            p1 = self.p.sens * p1 + self.p.fpr * (1 - p1)
-            p0 = self.p.sens * p0 + self.p.fpr * (1 - p0)
+            fpr1, fpr0 = self.p.fpr, self.p.fpr
+            if self.p.fooled_fpr is not None:
+                # judges are fooled more often by bad patches; under e=0 the patch's
+                # quality is irrelevant to y, so average over the prior bad-patch rate
+                bad = self.grid < self.p.bad_q
+                fpr1 = np.where(bad, self.p.fooled_fpr, self.p.fpr)
+                w = self.grid ** (self.p.q_a - 1) * (1 - self.grid) ** (self.p.q_b - 1)
+                pb = w[bad].sum() / w.sum()
+                fpr0 = pb * self.p.fooled_fpr + (1 - pb) * self.p.fpr
+            p1 = self.p.sens * p1 + fpr1 * (1 - p1)
+            p0 = self.p.sens * p0 + fpr0 * (1 - p0)
         if outcome == 1:
             return p1, p0
         return 1 - p1, 1 - p0
 
     # ---- posterior quantities ------------------------------------------------
-    def logit_edge(self) -> np.ndarray:
-        return self.prior_logit + (self.log_ev1 - self.log_ev0).sum(-1)
+    def _sl(self, cell):
+        if cell is None:
+            return np.s_[:, :]
+        i, j = cell
+        return np.s_[i:i + 1, j:j + 1]
 
-    def p_edge(self) -> np.ndarray:
-        return 1 / (1 + np.exp(-self.logit_edge()))
+    def logit_edge(self, cell=None) -> np.ndarray:
+        sl = self._sl(cell)
+        return self.prior_logit[sl] + (self.log_ev1[sl] - self.log_ev0[sl]).sum(-1)
 
-    def q_mean(self) -> np.ndarray:
-        """Posterior mean patch quality given e=1, shape (I, J, K)."""
-        return (self.W * self.grid).sum(-1)
+    def p_edge(self, cell=None) -> np.ndarray:
+        return 1 / (1 + np.exp(-self.logit_edge(cell)))
+
+    def q_mean(self, cell=None) -> np.ndarray:
+        """Posterior mean patch quality given e=1, shape (I, J, K) or (1, 1, K)."""
+        return (self.W[self._sl(cell)] * self.grid).sum(-1)
 
     def best_patch(self) -> np.ndarray:
         return self.q_mean().argmax(-1)
@@ -106,13 +124,7 @@ class GraphPosterior:
         """
         from scipy.special import comb
 
-        if cell is None:
-            W, logit = self.W, self.logit_edge()
-        else:
-            i, j = cell
-            W = self.W[i:i + 1, j:j + 1]
-            logit = self.prior_logit[i:i + 1, j:j + 1] + \
-                (self.log_ev1[i:i + 1, j:j + 1] - self.log_ev0[i:i + 1, j:j + 1]).sum(-1)
+        W, logit = self.W[self._sl(cell)], self.logit_edge(cell)
         l1_succ, l0_succ = self.lik(fidelity, 1)
         s = np.arange(n + 1)
         # (n+1, G) likelihood over the q-grid, and (n+1,) under e=0

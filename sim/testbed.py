@@ -33,6 +33,7 @@ class WorldConfig:
     n_attr: int = 20            # attributed traces per category
     joint_rate: float = 0.0     # share of categories needing two components changed together
     joint_solo: float = 0.2     # repair factor of a single patch in a joint category
+    fooled_fpr: float | None = None   # single-step FPR for bad patches (judge fooled)
     extra: dict = field(default_factory=dict)
 
 
@@ -97,7 +98,10 @@ class World:
         y = rng.random() < p + (1 - p) * cfg.b
         if fidelity == 0:
             return int(y)
-        return int(rng.random() < (cfg.sens if y else cfg.fpr))
+        fpr = cfg.fpr
+        if cfg.fooled_fpr is not None and self.Q[src, j, k] < 0.3:
+            fpr = cfg.fooled_fpr            # plausible-looking bad patches fool the judge
+        return int(rng.random() < (cfg.sens if y else fpr))
 
     # ---- evaluation --------------------------------------------------------
     def repaired_mass(self, acc, patch, f=None) -> np.ndarray:

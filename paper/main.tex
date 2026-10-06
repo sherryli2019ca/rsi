@@ -28,7 +28,7 @@
 \maketitle
 
 \begin{abstract}
-Self-improving LLM agents increasingly rely on an LLM to read failed trajectories, name a root cause, and decide which part of the agent to change. These attributions are cheap but unreliable, and checking them by replaying the agent with a candidate fix is reliable but expensive. We ask which attributions are worth checking under a fixed replay budget. We cast the problem as learning a causal bipartite graph from failure categories to modifiable agent components, where each edge is an unknown intervention effect. Our method, \carve{}, places a Bayesian model on this graph that separates whether a component is a cause from how good a particular patch is, uses LLM attributions as a calibrated prior rather than as a verdict, and accounts for noisy category labels. It chooses the next intervention (which category, which component, which patch, and whether to run a cheap single-step check or a full replay) by maximising the expected decision value gained per unit cost. Two short propositions characterise when the LLM prior saves replays and when cheap checks pay off, and both predictions match our simulations. In a controlled testbed with known ground truth, \carve{} recovers 79\% of the oracle's repairable failure mass at a budget of 50 full replays, against 58\% for uncertainty sampling and 27\% for a do-then-verify baseline; inside a multi-round self-improvement loop it reaches in two rounds a success rate that the strongest baseline reaches only after six. We release the method and a fault-injected tool-use environment for real-agent studies.
+Self-improving LLM agents increasingly rely on an LLM to read failed trajectories, name a root cause, and decide which part of the agent to change. These attributions are cheap but unreliable, and checking them by replaying the agent with a candidate fix is reliable but expensive. We ask which attributions are worth checking under a fixed replay budget. We cast the problem as learning a causal bipartite graph from failure categories to modifiable agent components, where each edge is an unknown intervention effect. Our method, \carve{}, places a Bayesian model on this graph that separates whether a component is a cause from how good a particular patch is, uses LLM attributions as a prior rather than a verdict, and accounts for noisy category labels. It chooses the next intervention (which category, component and patch, and whether to run a cheap single-step check or a full replay) by maximising expected decision value per unit cost. Two propositions characterise when the LLM prior saves replays and when cheap checks pay off. In a controlled testbed with known ground truth, \carve{} recovers 79\% of the oracle's repairable failure mass at a budget of 50 replays, against 66\% for uncertainty sampling with the same cheap checks and at most 52\% for do-then-verify baselines, and in a multi-round self-improvement loop it reaches in two rounds the success rate that the strongest baseline reaches in four. Most of its advantage comes from how it uses cheap checks, so it fails when check errors correlate with patch quality unless that correlation is modelled. Real-agent experiments are pending; we release the method and a fault-injected tool-use environment for them.
 \end{abstract}
 
 \section{Introduction}
@@ -45,9 +45,9 @@ We make the following contributions.
 \begin{itemize}
 \setlength\itemsep{0pt}
 \item We formulate budgeted verification as learning a \emph{category--component causal graph} whose edges are unknown intervention effects, and we separate the causal question (is component $j$ a cause of category $i$?) from the engineering question (is this particular patch any good?) by giving each cell several candidate patches (\S\ref{sec:problem}).
-\item We propose \carve{} (Cost-Aware Replay for Verifying Edges), a Bayesian method that uses LLM attributions as a calibrated prior, models label noise and spurious recovery, and selects interventions across cells, patches and two fidelities (a cheap single-step check and a full replay) with a multi-step knowledge-gradient rule divided by cost (\S\ref{sec:method}).
+\item We propose \carve{} (Cost-Aware Replay for Verifying Edges), a Bayesian method that uses LLM attributions as a prior whose strength is set by the analyst's audited accuracy, models label noise and spurious recovery, and selects interventions across cells, patches and two fidelities (a cheap single-step check and a full replay) with a multi-step knowledge-gradient rule divided by cost (\S\ref{sec:method}).
 \item We give two propositions that say when the LLM prior saves replays and when a cheap check is worth running, in terms of quantities a practitioner can estimate (\S\ref{sec:analysis}).
-\item In a controlled testbed with known ground truth, \carve{} needs roughly a third of the budget of the strongest baseline to reach the same repaired failure mass, never does worse than a flat prior even when LLM attributions are nearly useless, and converts that efficiency into faster agent improvement inside a multi-round loop (\S\ref{sec:experiments}). We also release ShopDesk, a deterministic tool-use environment with injected faults that provides ground truth for real-LLM studies (\S\ref{sec:real}).
+\item In a controlled testbed with known ground truth, \carve{} needs about half the budget of the strongest baseline to reach the same repaired failure mass, is never worse than a flat prior even when LLM attributions are nearly useless, and converts that efficiency into faster agent improvement inside a multi-round loop. Stress tests identify its main failure mode: single-step checks whose errors correlate with patch quality (\S\ref{sec:experiments}). We also describe ShopDesk, a deterministic tool-use environment with injected faults that provides ground truth for real-LLM studies, together with the full pipeline (\S\ref{sec:real}); real-agent results are not yet included in this draft.
 \end{itemize}
 
 \section{Related Work}
@@ -59,10 +59,10 @@ We make the following contributions.
 DoVer generates hypotheses from logs and validates each by editing a message or plan and re-running, with several runs per intervention \citep{ma2025dover}. REFLECT tests diagnosis-specific patches by targeted replay and feeds verified outcome changes back into attribution \citep{lin2026reflect}. CausalFlow scores steps by their causal responsibility under counterfactual interventions \citep{bonagiri2026causalflow}, and Causal Agent Replay formalises step interventions in a structural causal model with a point-of-commitment rule \citep{shah2026car}. AgentDebugX provides a toolkit with policy-gated reruns and a store of failure--diagnosis--repair bundles \citep{zhu2026agentdebugx}. All of these operate per trajectory or per hypothesis and do not decide how to allocate a shared budget across hypotheses, patches and levels of fidelity, which is our focus. Our method can use any of them as the replay primitive.
 
 \paragraph{Self-improving agents.}
-Reflexion, Self-Refine and ExpeL turn feedback into verbal lessons \citep{shinn2023reflexion,madaan2023selfrefine,zhao2024expel}; ADAS, the Darwin G\"odel Machine and GEPA search over agent designs or prompts guided by evaluation and failure logs \citep{hu2025adas,zhang2025dgm,agrawal2025gepa}. HarnessFix attributes failures to harness artefacts and repairs them \citep{chen2026harnessfix}. Bayesian-Agent keeps Beta posteriors over the reliability of skills and applies threshold rules to patch, split or retire them \citep{wu2026bayesianagent}; its posterior is over skills rather than causal edges, and actions are chosen by fixed thresholds rather than by the value of information. \carve{} is complementary: it decides which proposed fixes to trust before they are applied.
+Reflexion, Self-Refine and ExpeL turn feedback into verbal lessons \citep{shinn2023reflexion,madaan2023selfrefine,zhao2024expel}; prompt optimisers such as ProTeGi, OPRO, TextGrad and DSPy use failures or textual feedback to rewrite prompts \citep{pryzant2023protegi,yang2024opro,yuksekgonul2025textgrad,khattab2024dspy}; ADAS, the Darwin G\"odel Machine and GEPA search over agent designs or prompts guided by evaluation and failure logs \citep{hu2025adas,zhang2025dgm,agrawal2025gepa}. HarnessFix attributes failures to harness artefacts and repairs them \citep{chen2026harnessfix}. Bayesian-Agent keeps Beta posteriors over the reliability of skills and applies threshold rules to patch, split or retire them \citep{wu2026bayesianagent}; its posterior is over skills rather than causal edges, and actions are chosen by fixed thresholds rather than by the value of information. \carve{} is complementary: it decides which proposed fixes to trust before they are applied.
 
 \paragraph{Experimental design.}
-Our selection rule is a knowledge-gradient policy \citep{frazier2008kg} within Bayesian experimental design \citep{chaloner1995bayesian}, with multi-fidelity observations \citep{kandasamy2016multifidelity} and a thresholding objective \citep{locatelli2016thresholding}; the stopping behaviour mirrors sequential testing \citep{wald1945sequential}. Active learning of causal structure from interventions is classical \citep{hauser2014active}. The contribution here is not a new design criterion but a formulation of agent self-improvement in which these tools apply, together with a model of the specific nuisances (bad patches, noisy labels, spurious recovery, LLM priors) that arise there.
+Our selection rule is the KG(*) variant of the knowledge gradient \citep{frazier2008kg,frazier2010paradoxes}, within Bayesian experimental design \citep{chaloner1995bayesian}. Related problems include multi-fidelity bandits and optimisation \citep{kandasamy2016multifidelity,poloczek2017miso}, thresholding and best-arm identification \citep{locatelli2016thresholding,audibert2010bai,russo2016toptwo}, sequential testing \citep{wald1945sequential}, active causal structure learning \citep{tong2001active,hauser2014active} and causal bandits \citep{lattimore2016causal}. In software engineering, delta debugging isolates failure-inducing changes by experiment \citep{zeller2002dd}, and program-repair work warns that a patch passing a failing test may not fix the fault \citep{smith2015overfitting}, which our separation of edges from patch quality reflects. Our contribution is not a new design criterion but a formulation of agent self-improvement in which these tools apply, with a model of its specific nuisances (bad patches, noisy labels, spurious recovery, LLM priors).
 
 \section{Problem Formulation}
 \label{sec:problem}
@@ -95,7 +95,7 @@ Our selection rule is a knowledge-gradient policy \citep{frazier2008kg} within B
 
 An agent is built from \emph{components} $j\in\{1,\dots,J\}$: sections of its system prompt, tool descriptions, tool implementations, orchestration settings. Its failures have been grouped into \emph{categories} $i\in\{1,\dots,I\}$ by an LLM, with $f_i$ the share of failures in category $i$. For every cell $(i,j)$ an analyst LLM can propose $K$ candidate patches $a_{ijk}$ that rewrite component $j$ to address category $i$.
 
-\paragraph{Interventions.} An intervention $(i,j,k,\ell)$ samples a failed trajectory labelled $i$, applies patch $a_{ijk}$, and observes a binary outcome at fidelity $\ell$. A \emph{full replay} ($\ell=F$) resumes the episode from the attributed failing step and records whether the task now succeeds. A \emph{single-step check} ($\ell=S$) regenerates only the failing step and asks a judge whether the diagnosed error is gone. They cost $c_F$ and $c_S\ll c_F$.
+\paragraph{Interventions.} An intervention $(i,j,k,\phi)$ samples a failed trajectory labelled $i$, applies patch $a_{ijk}$, and observes a binary outcome at fidelity $\phi$. A \emph{full replay} ($\phi=F$) resumes the episode from the attributed failing step and records whether the task now succeeds. A \emph{single-step check} ($\phi=S$) regenerates only the failing step and asks a judge whether the diagnosed error is gone. They cost $c_F$ and $c_S\ll c_F$.
 
 \paragraph{Edges and patch quality.} We write $e_{ij}\in\{0,1\}$ for whether component $j$ is a cause of category $i$, meaning some change to $j$ repairs a non-trivial fraction of its failures, and $q_{ijk}\in[0,1]$ for the repair probability of patch $k$ when $e_{ij}=1$. This separation matters because a negative replay outcome is ambiguous: either $j$ is the wrong component or $a_{ijk}$ is a bad patch. Testing several patches per cell resolves the ambiguity.
 
@@ -107,7 +107,7 @@ G(\mathcal{A}) = {}&\sum_i f_i\Big(1-\!\!\prod_{j\in\mathcal{A}_i^+}\!\!(1-q_{ij
 \end{aligned}
 \label{eq:gain}
 \end{equation}
-where $\mathcal{A}_i^+=\{j:(i,j)\in\mathcal{A},\,e_{ij}=1\}$. This is the net failure mass repaired, and report it as a fraction of the oracle value obtained by accepting exactly the true edges with their best patches.
+where $\mathcal{A}_i^+=\{j:(i,j)\in\mathcal{A},\,e_{ij}=1\}$. This is the net failure mass repaired; we report it as a fraction of the oracle value obtained by accepting exactly the true edges with their best patches.
 
 \section{\carve{}}
 \label{sec:method}
@@ -119,22 +119,23 @@ p_{ijk} = \begin{cases} \lambda\, q_{ijk} + (1-\lambda)\, b & e_{ij}=1,\\ b & e_
 \end{equation}
 where $b$ is the spurious recovery rate (stochastic re-generation sometimes succeeds regardless of the patch) and $\lambda$ is the accuracy of the category labels used to sample trajectories; a mislabelled trajectory is treated as unaffected by the patch. A single-step check returns $z=1$ with probability $s\,p+\epsilon\,(1-p)$, where $s$ and $\epsilon$ are the sensitivity and false-positive rate of the check relative to the full outcome. All four nuisance parameters can be estimated from a small calibration set on which both fidelities and a human audit are run.
 
-\subsection{Prior from LLM attributions}
+\subsection{Attribution-informed prior}
 Let $n_{ij}$ be the number of failures in category $i$ that the analyst attributed to component $j$, and $\hat r$ the analyst's attribution accuracy estimated on a small audited sample. With $d$ the expected number of causal components per category and $\rho=d/J$ the base edge density, we set
 \begin{equation}
 \pi_{ij} = (1-\hat r)\,\rho + \hat r\,\min\!\big(1,\ d\, n_{ij}/n_i\big),
 \label{eq:prior}
 \end{equation}
-so that an unreliable analyst ($\hat r\to0$) yields the flat prior $\rho$ and a reliable one concentrates mass on the components it names. Patch quality has prior $q_{ijk}\sim\mathrm{Beta}(\alpha_q,\beta_q)$.
+so that an unreliable analyst ($\hat r\to0$) yields the flat prior $\rho$ and a reliable one concentrates mass on the components it names. Eq.~\ref{eq:prior} is a heuristic interpolation, not a calibrated model; with a larger audit, $\pi$ could instead be fitted by logistic regression on audited attributions. Patch quality has prior $q_{ijk}\sim\mathrm{Beta}(\alpha_q,\beta_q)$.
 
 \subsection{Posterior}
 Cells are independent given the data. For each cell we keep the posterior log-odds of $e_{ij}$ and, for each patch, a posterior over $q_{ijk}$ on a fixed grid of $G=101$ points. With $\mathcal{D}_{ijk}$ the outcomes observed for patch $k$,
 \begin{equation}
 \begin{aligned}
-\log\frac{P(e_{ij}{=}1\mid\mathcal{D})}{P(e_{ij}{=}0\mid\mathcal{D})} ={}& \log\frac{\pi_{ij}}{1-\pi_{ij}}\\
-&+ \sum_k \log\frac{\int P(\mathcal{D}_{ijk}\mid q)\,dP(q)}{P(\mathcal{D}_{ijk}\mid e_{ij}{=}0)}.
+\mathrm{logit}\,P(e_{ij}{=}1\mid\mathcal{D}) ={}& \mathrm{logit}\,\pi_{ij}\\
+&+ \textstyle\sum_k \log\big(\bar L^{1}_{ijk}/L^{0}_{ijk}\big),
 \end{aligned}
 \end{equation}
+where $\bar L^{1}_{ijk}=\int P(\mathcal{D}_{ijk}\mid q,e_{ij}{=}1)\,dP(q)$ is the marginal likelihood of patch $k$'s outcomes under a true edge and $L^{0}_{ijk}=P(\mathcal{D}_{ijk}\mid e_{ij}{=}0)$.
 Every update multiplies one grid vector by a likelihood vector, so updates and look-aheads are vectorised dot products.
 
 \subsection{Selecting interventions}
@@ -142,27 +143,27 @@ The value of the current decision for cell $(i,j)$, with $P_{ij}$ its edge poste
 \begin{equation}
 V_{ij} = \max\big(P_{ij}\,f_i\,\hat Q_{ij} - (1-P_{ij})\,c_{\mathrm{fp}},\ 0\big),
 \end{equation}
-the expected contribution of the cell to Eq.~\ref{eq:gain} under the Bayes decision (accept iff the first term is positive). For an action $a=(i,j,k,\ell)$ repeated $n$ times, let $V'_{ij}(s)$ be the value after observing $s$ successes. The $n$-step knowledge gradient is
+the expected contribution of the cell to Eq.~\ref{eq:gain} under the Bayes decision (accept iff the first term is positive), treating cells as additive. Eq.~\ref{eq:gain} combines components of one category multiplicatively, so $V_{ij}$ slightly overstates the value of a second cause for an already repaired category; we accept this approximation because it keeps cells independent. For an action $a=(i,j,k,\phi)$ repeated $n$ times, let $V'_{ij}(s)$ be the value after observing $s$ successes. The $n$-step knowledge gradient is
 \begin{equation}
 \mathrm{KG}_n(a) = \sum_{s=0}^{n} P(s\mid\mathcal{D},a)\,V'_{ij}(s) - V_{ij},
 \end{equation}
 and \carve{} runs the action maximising
 \begin{equation}
-\mathrm{score}(a) = \max_{n\in\{1,2,4,8\}} \frac{\mathrm{KG}_n(a)}{n\,c_\ell}.
+\mathrm{score}(a) = \max_{n\in\{1,2,4,8\}} \frac{\mathrm{KG}_n(a)}{n\,c_\phi}.
 \label{eq:score}
 \end{equation}
-Looking ahead several observations matters because a single binary outcome often cannot flip a decision, in which case $\mathrm{KG}_1=0$ even for a valuable cell; maximising over $n$ is the standard remedy \citep{frazier2008kg}. Because cells are independent, only the observed cell's scores change after each outcome, so selection costs $O(KG)$ per step after an initial pass over all cells.
+Looking ahead several observations matters because a single binary outcome often cannot flip a decision, in which case $\mathrm{KG}_1=0$ even for a valuable cell; maximising over $n$ is the standard remedy \citep{frazier2008kg}. Because cells are independent, only the observed cell's scores change after each outcome, so each step rescores one cell in $O(KG)$ time after an initial pass over all cells.
 
-\paragraph{Decisions and stopping.} At any point the method accepts the cells whose current value is positive and applies their highest-posterior patch. It stops early when no action has a score above a small threshold, i.e.\ when no remaining experiment is expected to be worth its cost.
+\paragraph{Decisions and stopping.} At any point the method accepts the cells whose current value is positive and applies, for each, the patch with the highest posterior mean quality. It stops early when no action has a score above a small threshold, i.e.\ when no remaining experiment is expected to be worth its cost.
 
 \section{When Do Priors and Cheap Checks Help?}
 \label{sec:analysis}
 
-We analyse a single cell with fixed success probabilities $p_1$ (true edge, given patch) and $p_0=b$ under a sequential rule that stops when the posterior log-odds leaves $[-A,A]$, $A=\log\frac{1-\delta}{\delta}$. Let $D_1=\mathrm{KL}(p_1\Vert p_0)$ and $D_0=\mathrm{KL}(p_0\Vert p_1)$ be the expected log-likelihood-ratio drift per observation under each hypothesis. Proofs, which follow Wald's approximations \citep{wald1945sequential}, are in Appendix~\ref{app:proofs}.
+These results analyse an idealised per-cell sequential test, not \carve{}'s full policy; they explain which quantities govern the method's behaviour. We consider a single cell and a single patch with known success probabilities $p_1$ (true edge) and $p_0=b$, under a rule that stops when the posterior log-odds leaves $[-A,A]$, $A=\log\frac{1-\delta}{\delta}$. Let $D_1=\mathrm{KL}(p_1\Vert p_0)$ and $D_0=\mathrm{KL}(p_0\Vert p_1)$ be the expected log-likelihood-ratio drift per observation under each hypothesis. Proofs, which follow Wald's approximations \citep{wald1945sequential}, are in Appendix~\ref{app:proofs}.
 
 \begin{proposition}[Value of the LLM prior]
 \label{prop:prior}
-Neglecting overshoot and terminations at the wrong boundary, a cell with initial log-odds $\ell$ needs $N_1(\ell)=(A-\ell)/D_1$ observations in expectation if it is a true edge and $N_0(\ell)=(A+\ell)/D_0$ if not. Replacing a flat prior $\ell_\rho$ by LLM-derived log-odds $\ell_{ij}$ saves, in expectation over cells,
+Let $|\ell|<A$ and neglect overshoot and stopping at the wrong boundary (whose probability is approximately $\delta e^{-\ell}$ for a true edge and $\delta e^{\ell}$ for a false one). A cell with initial log-odds $\ell$ then needs $N_1(\ell)=(A-\ell)/D_1$ observations in expectation if it is a true edge and $N_0(\ell)=(A+\ell)/D_0$ if not. Replacing a flat prior $\ell_\rho$ by LLM-derived log-odds $\ell_{ij}$ saves, in expectation over cells,
 \begin{equation}
 \Delta = \frac{\rho\,\mathbb{E}[\delta\ell\mid e{=}1]}{D_1} - \frac{(1-\rho)\,\mathbb{E}[\delta\ell\mid e{=}0]}{D_0},
 \end{equation}
@@ -170,16 +171,18 @@ with $\delta\ell=\ell_{ij}-\ell_\rho$,
 observations per cell, which is positive exactly when the prior raises true edges more, relative to their base rate and drift, than it raises false ones.
 \end{proposition}
 
-Under Eq.~\ref{eq:prior}, $\ell_{ij}\to\ell_\rho$ as $\hat r\to0$, so $\Delta\to0$: a useless analyst costs nothing beyond the flat prior, whereas trusting its labels outright (LLM-only) makes permanent errors. A miscalibrated analyst can make $\Delta$ negative, but only by an amount linear in the log-odds shift, after which the evidence takes over.
+Under Eq.~\ref{eq:prior}, $\ell_{ij}\to\ell_\rho$ as $\hat r\to0$, so $\Delta\to0$: a useless analyst costs nothing beyond the flat prior, whereas trusting its labels outright (LLM-only) makes permanent errors. A miscalibrated analyst can make $\Delta$ negative, but only by an amount linear in the log-odds shift, after which the evidence takes over. Appendix~\ref{app:prop1} compares these predictions with simulated sequential tests.
 
 \begin{proposition}[Cheap checks]
 \label{prop:fidelity}
-Let $D^S_e$ denote the drifts of single-step outcomes, $z\sim\mathrm{Bern}(s\,p_e+\epsilon(1-p_e))$. Under the same approximations, single-step checks reach the stopping boundary at lower expected cost than full replays if and only if
+Let $D^S_e$ denote the drifts of single-step outcomes, $z\sim\mathrm{Bern}(s\,p_e+\epsilon(1-p_e))$. Under the same approximations, a test using only single-step checks reaches the stopping boundary at lower expected cost than one using only full replays if and only if
 \begin{equation}
 \frac{c_S}{c_F} < \frac{D^S_e}{D_e},
 \end{equation}
 where $e$ is the true state of the cell.
 \end{proposition}
+
+Since $e$ is unknown, the proposition gives a clear rule only when the cost ratio lies outside the interval spanned by the two critical ratios; inside it, which fidelity is better depends on the posterior, which is what \carve{}'s look-ahead weighs.
 
 With our default parameters ($p_1=0.54$, $b=0.05$, $s=0.85$, $\epsilon=0.15$) the critical ratio is $0.31$ for true edges and $0.44$ for false ones; with a weak check ($s=0.65$, $\epsilon=0.35$) it falls to $0.05$--$0.08$. Section~\ref{sec:res-fid} tests both predictions.
 
@@ -189,11 +192,11 @@ With our default parameters ($p_1=0.54$, $b=0.05$, $s=0.85$, $\epsilon=0.15$) th
 Real agents do not reveal which component truly caused a failure, so we first evaluate in a testbed where the causal graph is known and the method's model is deliberately misspecified.
 
 \subsection{Setup}
-\paragraph{Testbed.} Each world has $I=12$ categories with Zipfian frequencies, $J=20$ components and $K=3$ patches per cell. Every category has one or two true components and one \emph{decoy} component that wrong attributions prefer, mimicking symptom-level mislabelling. Patch quality is bimodal: with probability 0.3 a patch is bad ($q\sim\mathrm{Beta}(1,9)$), otherwise $q\sim\mathrm{Beta}(6,3)$. A trajectory sampled for category $i$ is mislabelled with probability $1-\lambda=0.2$, in which case it comes from another category (weighted by frequency) and is repaired only if \emph{its own} edge to $j$ exists. This differs from the model's flat treatment of mislabelled traces. The analyst attributes 20 failures per category with accuracy $r=0.5$; wrong attributions go to the decoy with probability 0.6. The analyst's accuracy is estimated from an audit of 20 attributions. Costs are $c_F=1$, $c_S=0.1$, $c_{\mathrm{fp}}=0.02$, and $s=0.85$, $\epsilon=0.15$, $b=0.05$. Full details are in Appendix~\ref{app:sim}.
+\paragraph{Testbed.} Each world has $I=12$ categories with Zipfian frequencies, $J=20$ components and $K=3$ patches per cell. Every category has one or two true components and one \emph{decoy} component that wrong attributions prefer, mimicking symptom-level mislabelling. Patch quality is bimodal: with probability 0.3 a patch is bad ($q\sim\mathrm{Beta}(1,9)$), otherwise $q\sim\mathrm{Beta}(6,3)$. A trajectory sampled for category $i$ is mislabelled with probability $1-\lambda=0.2$, in which case it comes from another category (weighted by frequency) and is repaired only if \emph{its own} edge to $j$ exists, unlike the model's flat treatment of mislabelled traces. The analyst attributes 20 failures per category with accuracy $r=0.5$; wrong attributions go to the decoy with probability 0.6. The analyst's accuracy is estimated from an audit of 20 attributions. Costs are $c_F=1$, $c_S=0.1$, $c_{\mathrm{fp}}=0.02$, and $s=0.85$, $\epsilon=0.15$, $b=0.05$. Section~\ref{sec:robust} relaxes the assumptions the generator shares with the model. Full details are in Appendix~\ref{app:sim}.
 
-\paragraph{Baselines.} \emph{LLM-only} accepts, for every category, the most-attributed component and any component holding at least 40\% of the attributions, with the first patch; this corresponds to acting on an induced taxonomy without verification, as in AdaMAST-style pipelines. \emph{Replay-each} tests attributed hypotheses in order of attribution count with three full replays of the first patch and accepts a hypothesis if at least two succeed, mirroring do-then-verify methods such as DoVer; untested hypotheses fall back to LLM-only. \emph{Uncertainty sampling} uses \carve{}'s posterior and decision rule but replays the cell with the largest frequency-weighted uncertainty $f_i\min(P_{ij},1-P_{ij})$ at full fidelity, cycling through patches. It isolates the contribution of the selection rule.
+\paragraph{Baselines.} \emph{LLM-only} accepts, for every category, the most-attributed component and any component holding at least 40\% of the attributions, with the first patch, i.e.\ it acts on an induced taxonomy without verification. \emph{Replay-each} tests attributed hypotheses in order of attribution count with three full replays of the first patch and accepts a hypothesis if at least two succeed, mirroring do-then-verify methods such as DoVer; \emph{Replay-each, 3 patches} gives each hypothesis two replays of each of three patches and accepts if any patch succeeds twice; \emph{Sequential-each} replays each hypothesis, cycling through patches, until \carve{}'s own posterior leaves $[0.05,0.95]$. Untested hypotheses fall back to LLM-only, except for Sequential-each, which uses the Bayes decision. \emph{Thompson sampling} samples $(e,q)$ from the posterior and replays the cell and patch with the largest sampled repair. \emph{Uncertainty sampling} replays the cell with the largest frequency-weighted uncertainty $f_i\min(P_{ij},1-P_{ij})$, cycling through patches, at full fidelity; \emph{Uncertainty + cheap checks} first runs three single-step checks per (cell, patch) and then confirms with full replays. All baselines except LLM-only and the Replay-each variants share \carve{}'s posterior and decision rule, so comparisons among them isolate the selection rule.
 
-\paragraph{Metrics.} Net gain (Eq.~\ref{eq:gain}) as a fraction of the oracle, and edge F1. We report means and standard errors over 50 worlds for the main experiment and 30 for sweeps.
+\paragraph{Metrics.} Net gain (Eq.~\ref{eq:gain}) as a fraction of the oracle, and edge F1. We report means and standard errors over 50 worlds for the main experiment and 30 for the others; all methods see the same worlds, so differences are paired.
 
 \subsection{Main results}
 
@@ -221,9 +224,13 @@ Method & 20 & 50 & 100 & 200 \\
 \label{tab:main}
 \end{table}
 
-Figure~\ref{fig:budget} and Table~\ref{tab:main} show that \carve{} dominates every baseline at every budget. With 20 units it recovers 67\% of the oracle gain, against 46\% for uncertainty sampling. It passes 80\% of the oracle between 50 and 75 units; uncertainty sampling needs about 200. LLM-only is stuck at 30\% because it accepts decoys and bad first patches. Replay-each is initially \emph{worse} than not verifying at all: three replays of a single patch reject many true edges whose first patch is bad or whose sampled traces were mislabelled, and its fixed per-hypothesis cost exhausts small budgets on frequent but already-certain hypotheses.
+Figure~\ref{fig:budget} and Table~\ref{tab:main} show that \carve{} is best at every budget. With 50 units it recovers 79\% of the oracle gain; the strongest baseline, uncertainty sampling with the same cheap checks, recovers 66\% and needs about twice the budget (100 units, 78\%) to match it. The gap narrows at large budgets (90\% vs.\ 88\% at 200), as every reasonable method eventually resolves the frequent categories.
 
-\paragraph{Ablations.} Each component of \carve{} contributes (Table~\ref{tab:main}, lower block). Removing single-step checks costs 15--18 points at small budgets. Restricting the look-ahead to one observation helps early but plateaus at 73\%, because many cells cannot be flipped by a single outcome and are never revisited. A flat prior costs 32 points at budget 20, and the gap closes only at large budgets. With one patch per cell, the method plateaus at 69\%: it cannot distinguish a wrong component from a bad patch, so it rejects true edges for good. The label-noise term makes no measurable difference here (0.902 vs.\ 0.922 at budget 200, overlapping within two standard errors), which we attribute to the generator's mislabelled traces sometimes being repairable, unlike in the model; we keep the term because it costs nothing and matters when labels are worse.
+\paragraph{Where the gain comes from.} Two comparisons separate the selection rule from the cheap checks. With full replays only, \carve{} beats uncertainty sampling by 1--6 points (e.g.\ 0.609 vs.\ 0.581 at budget 50): the knowledge-gradient rule alone helps only modestly. Given cheap checks, its advantage grows to 7--13 points (0.787 vs.\ 0.662 at 50), because it decides per action whether a check is informative enough for its price and stops checking a cell once checks can no longer change the decision, whereas a fixed check-then-confirm schedule wastes checks on resolved cells. Most of \carve{}'s advantage is therefore in \emph{how it uses} cheap checks, which also makes their calibration critical (\S\ref{sec:robust}).
+
+\paragraph{Verification baselines.} LLM-only is stuck at 30\% because it accepts decoys and bad first patches. Replay-each is initially \emph{worse} than not verifying: with $p_1\approx0.54$, requiring two successes in three replays rejects about 44\% of true edges even when the patch is good, and its fixed per-hypothesis cost exhausts small budgets on frequent but already-certain hypotheses. Testing three patches (61\% at 200) or stopping adaptively (81\% at 200) helps, but both remain well below \carve{} at small budgets (32\% and 52\% at 50). Thompson sampling spends most replays on cells it already believes in and reaches only 63\% at 200.
+
+\paragraph{Ablations.} Removing single-step checks costs 15--18 points at small budgets. Restricting the look-ahead to one observation is below the full method at every budget and plateaus at 73\%, because many cells cannot be flipped by a single outcome and are never revisited. A flat prior costs 32 points at budget 20 and still 10 points at 200. With one patch per cell the method plateaus at 69\%: it cannot tell a wrong component from a bad patch and rejects true edges for good. Dropping the label-noise term makes no difference at the default label accuracy $\lambda=0.8$ (it is even slightly better at large budgets, 0.922 vs.\ 0.902 at 200), but it matters when labels are worse (\S\ref{sec:robust}).
 
 \subsection{When does the LLM prior help?}
 
@@ -234,23 +241,162 @@ Figure~\ref{fig:budget} and Table~\ref{tab:main} show that \carve{} dominates ev
 \label{fig:prior}
 \end{figure}
 
-Figure~\ref{fig:prior} varies the analyst's accuracy $r$. As Proposition~\ref{prop:prior} predicts, \carve{} improves monotonically with $r$ and never falls below the flat-prior variant: at $r=0.1$ it scores $0.51\pm0.02$ against $0.48\pm0.03$, because the calibrated prior collapses to the flat one. Acting on attributions directly is harmful below $r\approx0.35$, where LLM-only has a \emph{negative} net gain (regressions outweigh repairs), and even at $r=0.95$ it reaches only 71\% of the oracle against 96\% for \carve{}, since it cannot detect bad patches. Replay-each improves with $r$ but stays below the flat-prior variant of \carve{} throughout.
+Figure~\ref{fig:prior} varies the analyst's accuracy $r$. As Proposition~\ref{prop:prior} suggests, \carve{} improves monotonically with $r$ and is never below the flat-prior variant: at $r=0.1$ it scores $0.51\pm0.02$ against $0.48\pm0.03$. The prior is not exactly flat there (the decoy still receives about twice the base rate), but its shifts are small, so evidence quickly dominates. Acting on attributions directly is harmful below $r\approx0.35$, where LLM-only has a \emph{negative} net gain (regressions outweigh repairs), and even at $r=0.95$ it reaches only 71\% of the oracle against 96\% for \carve{}, since it cannot detect bad patches. Replay-each improves with $r$ and only matches the flat-prior variant of \carve{} at $r=0.95$ ($0.48$ vs.\ $0.48$).
 
 \subsection{When do cheap checks help?}
 \label{sec:res-fid}
 
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.85\textwidth]{figures/fidelity.pdf}
-\caption{Effect of the single-step check's cost (left, quality fixed at $s{=}0.85$, $\epsilon{=}0.15$) and quality (right, cost fixed at 0.1) on net gain at budget 50.}
-\label{fig:fid}
-\end{figure*}
+Figure~\ref{fig:fid} (Appendix~\ref{app:extra}) is qualitatively consistent with Proposition~\ref{prop:fidelity}. With the default check, the benefit of cheap checks shrinks as their cost grows and vanishes between 0.35 and 0.5 ($0.64\pm0.02$ vs.\ $0.61\pm0.03$ at 0.35, overlapping; $0.59$ vs.\ $0.61$ at 0.5), in line with the predicted critical ratios of 0.31 and 0.44. At cost 0.1, a check of quality $s-\epsilon=0.5$ (critical ratio 0.14--0.22) still helps, while one of quality 0.3 (critical ratio 0.05--0.08) brings no gain. At cost 0.5 \carve{} is slightly below its full-replay-only variant although its action set contains every full-replay action, which shows that the greedy rule is not exactly cost-optimal when the two fidelities are nearly equally efficient.
 
-Figure~\ref{fig:fid} matches Proposition~\ref{prop:fidelity}. With the default check, \carve{} beats the full-replay-only variant for cost ratios up to 0.35 ($0.64\pm0.02$ vs.\ $0.61\pm0.03$) and ties at 0.5 ($0.59$ vs.\ $0.61$), consistent with the predicted crossover between 0.31 and 0.44. At cost 0.1, a check of quality $s-\epsilon=0.5$ (predicted crossover 0.14--0.22) still helps, while one of quality $0.3$ (predicted 0.05--0.08) brings no gain; \carve{} then simply stops choosing it, so a useless check does not hurt.
-
-\subsection{Robustness and scale}
+\subsection{Robustness}
+\label{sec:robust}
 
 \begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcc}
+\toprule
+Condition (budget 50) & Unc.\ + checks & \carve{} \\
+\midrule
+\csname @@input\endcsname tables/stress.tex 
+\bottomrule
+\end{tabular}}
+\caption{Violations of the model's assumptions (30 worlds). The judge-fooled row is the one setting where \carve{} loses.}
+\label{tab:stress}
+\end{table}
+
+The generator shares several assumptions with the model: check errors depend only on the full outcome, cells are independent, the analyst's accuracy is estimated without bias, and the regression cost is small. Table~\ref{tab:stress} and Appendix~\ref{app:extra} relax each in turn.
+
+\paragraph{Worse labels.} With label accuracy $\lambda=0.5$ both methods lose ground, and the label-noise term now matters: \carve{} scores 0.688, against 0.588 without the term and 0.513 for the baseline.
+
+\paragraph{Biased analyst audit.} If the audit overstates the analyst's accuracy by 0.3, \carve{} actually improves (0.857), because a stronger prior concentrates the budget and the evidence corrects the decoys. Understating it by 0.3 costs 12 points (0.653), still above the baseline. Under-trusting a decent analyst is thus the more costly error in this testbed.
+
+\paragraph{Regression cost.} Raising $c_{\mathrm{fp}}$ from 0.005 to 0.1 leaves \carve{} between 0.78 and 0.82, while LLM-only falls from 0.39 to $-0.13$: the more costly a wrong change, the more verification is worth.
+
+\paragraph{Joint causes.} When 30\% of categories need two components changed together (a single patch then repairs only a fifth as often), violating cell independence, \carve{} drops from 0.787 to 0.661 at budget 50 but stays ahead of uncertainty sampling with checks (0.558; Table~\ref{tab:joint}).
+
+\paragraph{Correlated check errors.} The one setting where \carve{} loses is when the single-step judge is fooled by plausible-looking bad patches (false-positive rate 0.6 for patches with $q<0.3$). \carve{} then trusts checks that systematically pass bad patches and falls to 0.377, below every method that relies on full replays (0.58--0.61). Modelling the dependence (a quality-dependent false-positive rate in the likelihood) restores it to 0.584, on par with full replays, at a cost of 9 points when the judge is not fooled (0.684 vs.\ 0.776). Whether real judges behave this way is therefore the most important quantity to measure before relying on cheap checks.
+
+\paragraph{Nuisance parameters and scale.} Misspecifying $b$, $\lambda$ or the patch-quality prior changes the result by at most 5 points (Table~\ref{tab:misspec}, Appendix~\ref{app:extra}); misstating the check's sensitivity and false-positive rate costs 6--14 points. On a larger graph ($I=20$, $J=50$; Table~\ref{tab:scale}) the gap widens: at budget 50 \carve{} reaches 78\% of the oracle against 60\% for uncertainty sampling with checks.
+
+\subsection{Inside a self-improvement loop}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/rsi.pdf}
+\caption{Agent success over six rounds of attribute--verify--patch, with a budget of 40 units per round (30 worlds, $\pm1$ s.e.).}
+\label{fig:rsi}
+\end{figure}
+
+Finally we embed each method in a loop. The agent starts at 40\% success. In each round the analyst attributes 240 new failures, sampled in proportion to the current failure distribution; the method spends 40 units; accepted patches are applied, which repairs failures (true edges) or adds a regression of $c_{\mathrm{fp}}$ times the current failure mass (false edges); and the failure distribution is recomputed, so priorities shift towards categories that remain. Posteriors carry over between rounds.
+
+Figure~\ref{fig:rsi} shows that \carve{} reaches 80\% success after one round and 85\% after two, close to its plateau of 86\% (the oracle ceiling is 91.5\%). Uncertainty sampling with checks needs four rounds to reach 84\% and ends at 85\%; without checks it needs six. LLM-only and Replay-each plateau at 61\% and 66\%: once their accepted false edges and rejected true edges are fixed in place, new attributions do not correct them.
+
+\section{Real-Agent Study}
+\label{sec:real}
+
+\paragraph{Environment.} ShopDesk is a customer-service environment with a seeded database, six deterministic tools and exactly checkable answers (refund amounts, order counts, spend totals), so replay from any step is exact. The agent is a ReAct-style tool-use loop \citep{yao2023react} assembled from 11 named components (four system-prompt sections, six tool descriptions and the step limit), and every step records which components shaped it.
+
+\paragraph{Ground truth by fault injection.} Following the fault-injection idea of \citet{zhang2026agentracer}, each training task runs under exactly one of five injected faults or none: a tool description that misstates price units, a list tool whose description omits pagination, a format instruction that rounds to whole dollars, a planning instruction that hard-codes the wrong refund policy, and a step limit that is too small. The responsible component of every failure is therefore known. After the analyst attributes failures and induces a taxonomy in TnT-LLM style \citep{wan2024tntllm}, an edge is true when at least 30\% of a category's failures come from that component's fault.
+
+\paragraph{Protocol.} All methods share the same attributions, taxonomy and token budget. Single-step checks use an LLM judge \citep{zheng2023judge}; the analyst generates three patches per cell on demand, charged to the method; cost units come from measured tokens. We report edge precision, recall and held-out success after applying accepted patches.
+
+\paragraph{Status.} \todo{The real-agent experiments have not yet been run: the environment used to prepare this draft had no model API access. The pipeline is implemented and tested end to end with a mock model (\texttt{agent\_exp/}); results, the measured cost ratio $c_S/c_F$, the analyst's measured attribution accuracy and a qualitative analysis of accepted patches will be added here. No numbers in this section should be read as results.}
+
+\section{Discussion}
+
+\paragraph{What the analyst LLM is for.} Our results suggest moving LLM attribution from judge to prior: good attributions focus the budget, bad ones fall back to an uninformed prior, whereas acting on them directly causes regressions that later rounds do not undo. Modelling patch quality separately, with several patches per cell, is what keeps a bad first patch from rejecting a true edge for good.
+
+\paragraph{Cheap checks are a double-edged sword.} \carve{}'s advantage over the strongest baseline comes mostly from spending cheap checks well. The same reliance makes it fragile when a judge systematically approves plausible but wrong patches, a pattern analogous to patch overfitting in program repair \citep{smith2015overfitting}. In practice, the check's false-positive rate should be measured separately for patches that later fail full replay, and a final full-replay confirmation before applying a patch is a cheap safeguard.
+
+\section{Conclusion}
+We framed verification in failure-driven self-improvement as budgeted learning of a causal category--component graph. \carve{} treats LLM attributions as a prior, separates causes from patch quality, and allocates replays by expected value per unit cost. In controlled experiments it matches the strongest baseline with about half the budget, but it relies on cheap checks whose errors must not correlate with patch quality; measuring that correlation on real agents is the main open item.
+
+\section*{Limitations}
+The quantitative results in this draft come from a simulated testbed. Although the generator is deliberately richer than the model (systematic decoy attributions, bimodal patch quality, mislabelled traces that can still be repaired), real agents may violate the model in ways we did not simulate. Our stress tests cover joint causes, correlated check errors, biased audits and worse labels, but not patches that help one category while hurting another beyond a constant regression cost, nor non-stationary edges as the agent changes. The prior of Eq.~\ref{eq:prior} is a heuristic, and its parameter $d$ is set to the generator's mean. The method also assumes that failures can be replayed from the attributed step; this holds for deterministic tools and sandboxes but not for live web environments. The single-step check relies on an LLM judge whose quality must be calibrated; Table~\ref{tab:stress} shows that if its errors correlate with patch quality, \carve{} can do worse than methods that use full replays only. Finally, the propositions use Wald's approximations and ignore overshoot and errors at the boundary; they are guides to when the method helps, not guarantees.
+
+\section*{Ethics Statement}
+Automated self-improvement changes an agent's behaviour without a human reviewing each change. \carve{} makes these changes more reliable by requiring interventional evidence before acceptance, but accepted patches should still be reviewed before deployment in settings where errors carry real costs. Our environment uses synthetic data only.
+
+\bibliography{references}
+
+\appendix
+
+\section{Proofs}
+\label{app:proofs}
+
+\paragraph{Proposition~\ref{prop:prior}.} Let $L_t=\ell+\sum_{u\le t}\log\frac{P(o_u\mid e=1)}{P(o_u\mid e=0)}$ be the posterior log-odds after $t$ observations. Under $e=1$, the increments are i.i.d.\ with mean $D_1=\mathrm{KL}(p_1\Vert p_0)>0$. The rule stops at $N=\inf\{t: L_t\notin(-A,A)\}$. By Wald's identity, $\mathbb{E}_1[L_N-\ell]=D_1\,\mathbb{E}_1[N]$. Wald's approximations give $P_1(L_N\le -A)\approx e^{-(A+\ell)}\approx\delta e^{-\ell}$ and $P_0(L_N\ge A)\approx\delta e^{\ell}$. Neglecting overshoot and this probability (which requires $\delta e^{|\ell|}\ll1$), $L_N=A$, hence $\mathbb{E}_1[N]=(A-\ell)/D_1$; if $\ell\ge A$ no observation is taken, which is why we assume $|\ell|<A$. Symmetrically, under $e=0$ the drift is $-D_0$ and $\mathbb{E}_0[N]=(A+\ell)/D_0$. Taking the difference between $\ell_\rho$ and $\ell_{ij}$ and averaging over cells with $P(e{=}1)=\rho$ gives $\Delta$. When the patch quality $q$ is unknown, outcomes are exchangeable rather than i.i.d.\ under the marginal likelihood, and Wald's identity does not apply directly; conditioning on $q$ recovers the result with $D_1=D_1(q)$, which approaches zero for a bad patch. This is the formal reason a single bad patch can stall verification and why \carve{} keeps several patches per cell.
+
+\paragraph{Proposition~\ref{prop:fidelity}.} By the same argument a single-step test needs $(A\mp\ell)/D^S_e$ observations at cost $c_S$ each, and a full-replay test needs $(A\mp\ell)/D_e$ at cost $c_F$. The single-step test is cheaper iff $c_S/D^S_e<c_F/D_e$. Since the single-step outcome is a garbling of the full outcome, the data-processing inequality gives $D^S_e\le D_e$, so the critical ratio is at most one.
+
+\section{Simulation Details}
+\label{app:sim}
+
+Category frequencies are $f_i\propto 1/i$. For each category the number of true components is uniform on $\{1,2\}$ and the decoy is a further distinct component. The audit estimate $\hat r$ is a binomial proportion from 20 audited attributions. The prior uses $d=1.5$. The model's grid has 101 points; look-ahead horizons are $\{1,2,4,8\}$; the stopping threshold is $10^{-6}$. Replay-each uses three replays and accepts with at least two successes. Uncertainty sampling switches to an untried patch once the current patch has three full observations. In the loop experiment, 240 attributions per round are allocated to categories by a multinomial draw with the current failure distribution. All randomness is seeded; the code reproduces every number in this paper with \texttt{python -m sim.experiments all}.
+
+\section{Checking Proposition 1}
+\label{app:prop1}
+
+Table~\ref{tab:prop1} compares the predicted expected number of observations with simulated sequential tests ($p_1=0.543$, $p_0=0.05$, $\delta=0.02$, 4000 runs per row). The predictions capture the direction and approximate size of the effect of the initial log-odds; they are least accurate when $|\ell|$ is large, where overshoot and wrong-boundary exits (last column) are no longer negligible.
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{rcccc}
+\toprule
+$\ell$ & $e$ & predicted $N$ & simulated $N$ & wrong exit \\
+\midrule
+\csname @@input\endcsname tables/prop1.tex 
+\bottomrule
+\end{tabular}
+\caption{Proposition~\ref{prop:prior}: predicted vs.\ simulated observations to a decision.}
+\label{tab:prop1}
+\end{table}
+
+\section{Additional Results}
+\label{app:extra}
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/fidelity.pdf}
+\caption{Effect of the single-step check's cost (left, quality fixed at $s{=}0.85$, $\epsilon{=}0.15$) and quality (right, cost fixed at 0.1) on net gain at budget 50.}
+\label{fig:fid}
+\end{figure}
+
+\begin{table}[h]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lccc}
+\toprule
+Method & 50 & 100 & 300 \\
+\midrule
+\csname @@input\endcsname tables/scale.tex 
+\bottomrule
+\end{tabular}}
+\caption{Net gain on a larger graph ($I{=}20$, $J{=}50$), 20 worlds.}
+\label{tab:scale}
+\end{table}
+
+\begin{table}[h]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+Method & 20 & 50 & 100 & 200 \\
+\midrule
+\csname @@input\endcsname tables/joint.tex 
+\bottomrule
+\end{tabular}}
+\caption{Net gain when 30\% of categories need two components changed together (30 worlds).}
+\label{tab:joint}
+\end{table}
+
+\begin{table}[h]
 \centering
 \small
 \begin{tabular}{lc}
@@ -268,88 +414,8 @@ Patch prior $\mathrm{Beta}(1,1)$ ($\mathrm{Beta}(2,2)$) & 0.811\,{\scriptsize$\p
 Patch prior $\mathrm{Beta}(5,2)$ ($\mathrm{Beta}(2,2)$) & 0.777\,{\scriptsize$\pm$0.020}\\
 \bottomrule
 \end{tabular}
-\caption{\carve{} with misspecified nuisance parameters, budget 50, 30 worlds.}
+\caption{\carve{} with misspecified nuisance parameters, budget 50, 30 worlds. Several ``wrong'' values do slightly better than the generator's, a reminder that the model is misspecified in other ways too.}
 \label{tab:misspec}
-\end{table}
-
-Table~\ref{tab:misspec} perturbs the model's nuisance parameters. Most errors change the result by less than three standard errors, and several "wrong" settings do slightly better than the generator's values, a reminder that the model is misspecified in other ways too. The one setting that matters is the quality of the single-step check: overstating it (0.717) makes the method trust cheap checks too much, and understating it (0.636) makes it under-use them. This parameter should be calibrated on a small set where both fidelities are run.
-
-On a larger graph ($I=20$, $J=50$; Table~\ref{tab:scale} in Appendix~\ref{app:extra}) the gap widens: at budget 50 \carve{} reaches 78\% of the oracle against 61\% for its full-replay variant and 50\% for uncertainty sampling.
-
-\subsection{Inside a self-improvement loop}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{figures/rsi.pdf}
-\caption{Agent success over six rounds of attribute--verify--patch, with a budget of 40 units per round (30 worlds, $\pm1$ s.e.).}
-\label{fig:rsi}
-\end{figure}
-
-Finally we embed each method in a loop. The agent starts at 40\% success. In each round the analyst attributes 240 new failures, sampled in proportion to the current failure distribution; the method spends 40 units; accepted patches are applied, which repairs failures (true edges) or adds a regression of $c_{\mathrm{fp}}$ times the current failure mass (false edges); and the failure distribution is recomputed, so priorities shift towards categories that remain. Posteriors carry over between rounds.
-
-Figure~\ref{fig:rsi} shows that \carve{} reaches 80\% success after one round and 85\% after two, close to its plateau of 86\% (the oracle ceiling is 91.5\%). Uncertainty sampling reaches 84.5\% only after six rounds, i.e.\ with three times the cumulative budget, and the full-replay variant of \carve{} plateaus at 81\%. LLM-only and Replay-each plateau at 61\% and 66\%: once their accepted false edges and rejected true edges are fixed in place, new attributions do not correct them.
-
-\section{Real-Agent Study}
-\label{sec:real}
-
-\paragraph{Environment.} ShopDesk is a customer-service environment with a seeded database of customers, orders, products and policies, six deterministic tools and exactly checkable answers (refund amounts, order counts, spend totals). Determinism makes replay from any step exact: recorded tool results are re-used and only the agent's generation is re-sampled. The agent is a ReAct-style tool-use loop \citep{yao2023react} assembled from 11 named components (four system-prompt sections, six tool descriptions and the step limit), and every step records which components shaped it.
-
-\paragraph{Ground truth by fault injection.} Following the fault-injection idea of \citet{zhang2026agentracer}, each training task runs under exactly one of five injected faults or none: a tool description that misstates price units, a list tool whose description omits pagination, a format instruction that rounds to whole dollars, a planning instruction that hard-codes the wrong refund policy, and a step limit that is too small. The responsible component of every failure is therefore known. After the analyst attributes the failures, induces a taxonomy in TnT-LLM style \citep{wan2024tntllm} and labels each failure, a category--component edge is defined as true when at least 30\% of the category's failures come from that component's fault.
-
-\paragraph{Protocol.} Every method receives the same attributions, taxonomy and token budget. Full replays resume from the attributed step; single-step checks regenerate that step and use an LLM judge \citep{zheng2023judge}. Patches are generated lazily by the analyst, three per cell, and their tokens are charged to the method. Cost units are calibrated from measured tokens. We report edge precision and recall, and the held-out success rate after applying each method's accepted patches.
-
-\paragraph{Status.} \todo{The real-agent experiments have not yet been run: the environment used to prepare this draft had no model API access. The pipeline is implemented and tested end to end with a mock model (\texttt{agent\_exp/}); results, the measured cost ratio $c_S/c_F$, the analyst's measured attribution accuracy and a qualitative analysis of accepted patches will be added here. No numbers in this section should be read as results.}
-
-\section{Discussion}
-
-\paragraph{What the analyst LLM is for.} Our results suggest a change of role for LLM attribution in self-improvement loops: from judge to prior. When attributions are good, they focus the budget; when they are bad, a calibrated prior falls back to an uninformed one, whereas acting on them directly causes regressions that later rounds do not undo.
-
-\paragraph{Why patches must be modelled.} The single largest failure mode of fixed-replay verification in our experiments is rejecting a true edge because its first patch was bad. Treating patch quality as a separate latent variable, and generating more than one patch, is cheap and removes this failure mode.
-
-\paragraph{Beyond categories and components.} The graph formulation does not depend on how categories or components are defined. Categories could come from a fixed taxonomy such as MAST, from AdaMAST, or from clustering; components could be finer (individual sentences of a prompt) or coarser (whole agents in a multi-agent system). The replay primitive can be any of the intervention methods in \S2.
-
-\section{Conclusion}
-We framed the verification step of failure-driven agent self-improvement as budgeted learning of a causal category--component graph, and proposed \carve{}, which treats LLM attributions as a calibrated prior, separates causes from patch quality, and allocates replays across cells, patches and fidelities by expected value per unit cost. In controlled experiments it reaches the same repaired failure mass as the strongest baseline with about a third of the budget and degrades gracefully when attributions are poor. The real-agent evaluation is the main open item.
-
-\section*{Limitations}
-The quantitative results in this draft come from a simulated testbed. Although the generator is deliberately richer than the model (systematic decoy attributions, bimodal patch quality, mislabelled traces that can still be repaired), real agents may violate the model in ways we did not simulate, most notably through interactions between components, where two changes are needed together, and through patches that help one category while hurting another beyond a constant regression cost. Our cell-independence assumption ignores both. The method also assumes that failures can be replayed from the attributed step; this holds for deterministic tools and sandboxes but not for live web environments. The single-step check relies on an LLM judge whose quality must be calibrated, and Table~\ref{tab:misspec} shows that this calibration matters. Finally, the propositions use Wald's approximations and ignore overshoot and errors at the boundary; they are guides to when the method helps, not guarantees.
-
-\section*{Ethics Statement}
-Automated self-improvement changes an agent's behaviour without a human reviewing each change. \carve{} makes these changes more reliable by requiring interventional evidence before acceptance, but accepted patches should still be reviewed before deployment in settings where errors carry real costs. Our environment uses synthetic data only.
-
-\bibliography{references}
-
-\appendix
-
-\section{Proofs}
-\label{app:proofs}
-
-\paragraph{Proposition~\ref{prop:prior}.} Let $L_t=\ell+\sum_{u\le t}\log\frac{P(o_u\mid e=1)}{P(o_u\mid e=0)}$ be the posterior log-odds after $t$ observations. Under $e=1$, the increments are i.i.d.\ with mean $D_1=\mathrm{KL}(p_1\Vert p_0)>0$. The rule stops at $N=\inf\{t: L_t\notin(-A,A)\}$. By Wald's identity, $\mathbb{E}_1[L_N-\ell]=D_1\,\mathbb{E}_1[N]$. Neglecting overshoot and the probability (at most of order $\delta$) of exiting at $-A$, $L_N=A$, hence $\mathbb{E}_1[N]=(A-\ell)/D_1$. Symmetrically, under $e=0$ the drift is $-D_0$ and $\mathbb{E}_0[N]=(A+\ell)/D_0$. Taking the difference between $\ell_\rho$ and $\ell_{ij}$ and averaging over cells with $P(e{=}1)=\rho$ gives $\Delta$. When the patch quality $q$ is unknown, $p_1$ is replaced by its posterior predictive, which changes $D_1$ but not the form of the result.
-
-\paragraph{Proposition~\ref{prop:fidelity}.} By the same argument a single-step test needs $(A\mp\ell)/D^S_e$ observations at cost $c_S$ each, and a full-replay test needs $(A\mp\ell)/D_e$ at cost $c_F$. The single-step test is cheaper iff $c_S/D^S_e<c_F/D_e$. Since the single-step outcome is a garbling of the full outcome, the data-processing inequality gives $D^S_e\le D_e$, so the critical ratio is at most one.
-
-\section{Simulation Details}
-\label{app:sim}
-
-Category frequencies are $f_i\propto 1/i$. For each category the number of true components is uniform on $\{1,2\}$ and the decoy is a further distinct component. The audit estimate $\hat r$ is a binomial proportion from 20 audited attributions. The prior uses $d=1.5$. The model's grid has 101 points; look-ahead horizons are $\{1,2,4,8\}$; the stopping threshold is $10^{-6}$. Replay-each uses three replays and accepts with at least two successes. Uncertainty sampling switches to an untried patch once the current patch has three full observations. In the loop experiment, 240 attributions per round are allocated to categories by a multinomial draw with the current failure distribution. All randomness is seeded; the code reproduces every number in this paper with \texttt{python -m sim.experiments all}.
-
-\section{Additional Results}
-\label{app:extra}
-
-\begin{table}[h]
-\centering
-\small
-\setlength{\tabcolsep}{3pt}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{lccc}
-\toprule
-Method & 50 & 100 & 300 \\
-\midrule
-\csname @@input\endcsname tables/scale.tex 
-\bottomrule
-\end{tabular}}
-\caption{Net gain on a larger graph ($I{=}20$, $J{=}50$), 20 worlds.}
-\label{tab:scale}
 \end{table}
 
 \end{document}

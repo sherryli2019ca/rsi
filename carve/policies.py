@@ -45,8 +45,8 @@ class CARVE:
             q, pe, fw = post.q_mean(), post.p_edge(), f[:, None]
         else:
             i, j = cell
-            q = post.q_mean()[i:i + 1, j:j + 1]
-            pe = post.p_edge()[i:i + 1, j:j + 1]
+            q = post.q_mean(cell)
+            pe = post.p_edge(cell)
             fw = f[i:i + 1, None]
         v_now = np.maximum(accept_value(pe, q.max(-1), fw[:, 0], self.c_fp), 0)[..., None]
         # best quality among the *other* patches, per k
@@ -112,6 +112,53 @@ class UncertaintySampling:
         if n[k] >= 3 and (n == 0).any():
             k = int(np.argmax(n == 0))
         return int(i), int(j), k, FULL
+
+    def decide(self, post, f):
+        return bayes_decide(post, f, self.c_fp)
+
+
+class UncertaintyMF(UncertaintySampling):
+    """Uncertainty sampling with access to single-step checks: each (cell, patch)
+    first gets `n_check` cheap checks, after which full replays confirm."""
+
+    name = "Uncertainty-MF"
+
+    def __init__(self, c_fp=0.02, n_check=3, min_risk=1e-4):
+        super().__init__(c_fp, min_risk)
+        self.n_check = n_check
+
+    def select(self, post, f):
+        act = super().select(post, f)
+        if act is None:
+            return None
+        i, j, k, _ = act
+        fid = SINGLE if post.n_obs[i, j, k, SINGLE] < self.n_check else FULL
+        return i, j, k, fid
+
+
+class SequentialEach:
+    """Do-then-verify with adaptive stopping: hypotheses in order of attribution
+    count, each replayed (cycling through patches) until CARVE's own posterior
+    leaves [lo, hi]; full replays only."""
+
+    name = "Sequential-each"
+
+    def __init__(self, counts, c_fp=0.02, lo=0.05, hi=0.95, max_per=12):
+        self.c_fp, self.lo, self.hi, self.max_per = c_fp, lo, hi, max_per
+        order = np.argsort(-counts, axis=None, kind="stable")
+        self.queue = [np.unravel_index(o, counts.shape) for o in order if counts.flat[o] > 0]
+
+    def select(self, post, f):
+        pe = post.p_edge()
+        while self.queue:
+            i, j = self.queue[0]
+            n = post.n_obs[i, j, :, FULL]
+            blocked = getattr(self, "blocked", None)
+            if (blocked is None or not blocked[i, j]) and self.lo < pe[i, j] < self.hi \
+                    and n.sum() < self.max_per:
+                return int(i), int(j), int(np.argmin(n)), FULL
+            self.queue.pop(0)
+        return None
 
     def decide(self, post, f):
         return bayes_decide(post, f, self.c_fp)

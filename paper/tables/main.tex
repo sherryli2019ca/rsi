@@ -1,8 +1,12 @@
 LLM attribution only & 0.297\,{\scriptsize$\pm$0.021} & 0.297\,{\scriptsize$\pm$0.021} & 0.297\,{\scriptsize$\pm$0.021} & 0.297\,{\scriptsize$\pm$0.021} \\
 Replay-each (do-then-verify) & 0.255\,{\scriptsize$\pm$0.021} & 0.270\,{\scriptsize$\pm$0.021} & 0.466\,{\scriptsize$\pm$0.027} & 0.468\,{\scriptsize$\pm$0.026} \\
+Replay-each, 3 patches & 0.301\,{\scriptsize$\pm$0.025} & 0.317\,{\scriptsize$\pm$0.026} & 0.401\,{\scriptsize$\pm$0.026} & 0.612\,{\scriptsize$\pm$0.026} \\
+Sequential-each (adaptive stopping) & 0.426\,{\scriptsize$\pm$0.016} & 0.522\,{\scriptsize$\pm$0.018} & 0.643\,{\scriptsize$\pm$0.016} & 0.813\,{\scriptsize$\pm$0.014} \\
+Thompson sampling & 0.407\,{\scriptsize$\pm$0.020} & 0.419\,{\scriptsize$\pm$0.020} & 0.500\,{\scriptsize$\pm$0.017} & 0.625\,{\scriptsize$\pm$0.014} \\
 Uncertainty sampling & 0.455\,{\scriptsize$\pm$0.016} & 0.581\,{\scriptsize$\pm$0.019} & 0.690\,{\scriptsize$\pm$0.017} & 0.804\,{\scriptsize$\pm$0.016} \\
+Uncertainty + cheap checks & 0.549\,{\scriptsize$\pm$0.018} & 0.662\,{\scriptsize$\pm$0.016} & 0.784\,{\scriptsize$\pm$0.015} & 0.876\,{\scriptsize$\pm$0.009} \\
 \midrule
-CARVE (full) & 0.666\,{\scriptsize$\pm$0.019} & 0.787\,{\scriptsize$\pm$0.015} & 0.853\,{\scriptsize$\pm$0.011} & 0.902\,{\scriptsize$\pm$0.009} \\
+CARVE (all components) & 0.666\,{\scriptsize$\pm$0.019} & 0.787\,{\scriptsize$\pm$0.015} & 0.853\,{\scriptsize$\pm$0.011} & 0.902\,{\scriptsize$\pm$0.009} \\
 \quad full replay only & 0.514\,{\scriptsize$\pm$0.016} & 0.609\,{\scriptsize$\pm$0.020} & 0.697\,{\scriptsize$\pm$0.017} & 0.825\,{\scriptsize$\pm$0.012} \\
 \quad myopic ($n{=}1$ look-ahead) & 0.591\,{\scriptsize$\pm$0.016} & 0.652\,{\scriptsize$\pm$0.014} & 0.706\,{\scriptsize$\pm$0.016} & 0.729\,{\scriptsize$\pm$0.014} \\
 \quad uninformed prior & 0.347\,{\scriptsize$\pm$0.019} & 0.474\,{\scriptsize$\pm$0.017} & 0.631\,{\scriptsize$\pm$0.015} & 0.800\,{\scriptsize$\pm$0.012} \\

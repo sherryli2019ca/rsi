@@ -19,15 +19,18 @@ from sim.testbed import WorldConfig
 
 OUT = os.path.join(os.path.dirname(__file__), "..", "results")
 CPS = [0, 10, 20, 30, 50, 75, 100, 150, 200]
-METHODS = ["LLM-only", "Replay-each", "Replay-each-3patch", "Uncertainty", "Thompson",
-           "CARVE-full-only",
+METHODS = ["LLM-only", "Replay-each", "Replay-each-3patch", "Sequential-each", "Uncertainty",
+           "Thompson", "Uncertainty-MF", "CARVE-full-only",
            "CARVE-myopic", "CARVE-uniform-prior", "CARVE-one-patch",
            "CARVE-no-label-noise", "CARVE"]
 
 
 def _ep(args):
     cfg, method, seed, cps, costs, overrides = args
-    res = episode(cfg, method, seed, cps, costs=costs, model_overrides=overrides)
+    overrides = dict(overrides or {})
+    c_fp = overrides.pop("c_fp", 0.02)
+    res = episode(cfg, method, seed, cps, costs=costs, c_fp=c_fp,
+                  model_overrides=overrides or None)
     return {str(k): v for k, v in res.items()}
 
 
@@ -130,7 +133,8 @@ def exp_scale(seeds=20):
     cfg = replace(WorldConfig(), I=20, J=50)
     cps = [0, 25, 50, 100, 200, 300]
     out = {"checkpoints": cps, "methods": {}}
-    for m in ["LLM-only", "Replay-each", "Uncertainty", "CARVE-full-only", "CARVE"]:
+    for m in ["LLM-only", "Replay-each", "Uncertainty", "Uncertainty-MF", "CARVE-full-only",
+              "CARVE"]:
         res = run_grid([(cfg, m, s, cps, (1.0, 0.1), None) for s in range(seeds)])
         out["methods"][m] = summarise(res, cps)
         print("scale", m, np.round(out["methods"][m]["gain_mean"], 3), flush=True)
@@ -143,11 +147,84 @@ def exp_joint(seeds=30):
     cfg = replace(WorldConfig(), joint_rate=0.3)
     cps = [0, 20, 50, 100, 200]
     out = {"checkpoints": cps, "methods": {}}
-    for m in ["LLM-only", "Replay-each", "Uncertainty", "Thompson", "CARVE"]:
+    for m in ["LLM-only", "Replay-each", "Uncertainty", "Thompson", "Uncertainty-MF", "CARVE"]:
         res = run_grid([(cfg, m, s, cps, (1.0, 0.1), None) for s in range(seeds)])
         out["methods"][m] = summarise(res, cps)
         print("joint", m, np.round(out["methods"][m]["gain_mean"], 3), flush=True)
     save("joint", out)
+
+
+def exp_stress(seeds=30, budget=50):
+    """Violations of the model's assumptions, CARVE vs the strongest baseline."""
+    base = WorldConfig()
+    cases = {
+        "default": base,
+        "labels lam=0.5": replace(base, lam=0.5),
+        "judge fooled by bad patches": replace(base, fooled_fpr=0.6),
+        "analyst overconfident (r_hat+0.3)": replace(base, extra={"r_bias": 0.3}),
+        "analyst underconfident (r_hat-0.3)": replace(base, extra={"r_bias": -0.3}),
+    }
+    out = {"budget": budget, "cases": {}}
+    for name, cfg in cases.items():
+        out["cases"][name] = {}
+        ms = ["Uncertainty-MF", "CARVE"] + (["CARVE-no-label-noise"] if "lam" in name else [])
+        for m in ms:
+            res = run_grid([(cfg, m, s, [budget], (1.0, 0.1), None) for s in range(seeds)])
+            out["cases"][name][m] = summarise(res, [budget])
+        print("stress", name, {m: round(v["gain_mean"][0], 3) for m, v in out["cases"][name].items()},
+              flush=True)
+    # regression cost sweep (both decision rule and evaluation use c_fp)
+    out["c_fp"] = {}
+    for c in [0.005, 0.02, 0.05, 0.1]:
+        out["c_fp"][str(c)] = {}
+        for m in ["LLM-only", "Uncertainty-MF", "CARVE"]:
+            res = run_grid([(base, m, s, [budget], (1.0, 0.1), {"c_fp": c}) for s in range(seeds)])
+            out["c_fp"][str(c)][m] = summarise(res, [budget])
+        print("c_fp", c, {m: round(v["gain_mean"][0], 3) for m, v in out["c_fp"][str(c)].items()},
+              flush=True)
+    save("stress", out)
+
+
+def exp_fooled(seeds=30, budget=50):
+    """Correlated check errors: the judge is fooled by bad patches (FPR 0.6)."""
+    out = {"budget": budget, "cases": {}}
+    for name, cfg in {"default": WorldConfig(),
+                      "judge fooled": replace(WorldConfig(), fooled_fpr=0.6)}.items():
+        out["cases"][name] = {}
+        for m in ["Uncertainty", "Uncertainty-MF", "CARVE-full-only", "CARVE-robust-check", "CARVE"]:
+            res = run_grid([(cfg, m, s, [budget], (1.0, 0.1), None) for s in range(seeds)])
+            out["cases"][name][m] = summarise(res, [budget])
+        print("fooled", name, {m: round(v["gain_mean"][0], 3)
+                               for m, v in out["cases"][name].items()}, flush=True)
+    save("fooled", out)
+
+
+def exp_prop1(reps=4000, delta=0.02):
+    """Single-cell check of Proposition 1: predicted vs simulated observations to a
+    decision under a sequential test with known p1, p0."""
+    from scipy.stats import bernoulli  # noqa: F401  (scipy is a dependency anyway)
+    rng = np.random.default_rng(0)
+    p1, p0 = 0.8 * (6 / 9) + 0.2 * 0.05, 0.05
+    kl = lambda a, b: a * np.log(a / b) + (1 - a) * np.log((1 - a) / (1 - b))
+    D1, D0 = kl(p1, p0), kl(p0, p1)
+    A = np.log((1 - delta) / delta)
+    llr1, llr0 = np.log(p1 / p0), np.log((1 - p1) / (1 - p0))
+    rows = []
+    for ell in [-3.0, -2.0, -1.0, 0.0, 1.0, 2.0]:
+        for e, p, D in [(1, p1, D1), (0, p0, D0)]:
+            ns, wrong = [], 0
+            for _ in range(reps):
+                L, n = ell, 0
+                while -A < L < A:
+                    L += llr1 if rng.random() < p else llr0
+                    n += 1
+                ns.append(n)
+                wrong += (L >= A) != (e == 1)
+            pred = max(0.0, (A - ell) / D) if e == 1 else max(0.0, (A + ell) / D)
+            rows.append({"ell": ell, "e": e, "pred": pred, "sim": float(np.mean(ns)),
+                         "wrong": wrong / reps})
+            print("prop1", rows[-1], flush=True)
+    save("prop1", {"p1": p1, "p0": p0, "delta": delta, "rows": rows})
 
 
 def _rsi(args):
@@ -166,7 +243,8 @@ def exp_rsi(seeds=30):
         keep = np.prod(np.where(w.E, 1 - w.Q.max(-1), 1.0), axis=1)
         ceil.append(1 - 0.6 * (w.f * keep).sum())
     out["oracle_success"] = float(np.mean(ceil))
-    for m in ["LLM-only", "Replay-each", "Uncertainty", "CARVE-full-only", "CARVE"]:
+    for m in ["LLM-only", "Replay-each", "Uncertainty", "Uncertainty-MF", "CARVE-full-only",
+              "CARVE"]:
         with Pool(4) as p:
             H = np.array(p.map(_rsi, [(cfg, m, s) for s in range(seeds)]))
         out["methods"][m] = {
@@ -182,7 +260,8 @@ if __name__ == "__main__":
     which = sys.argv[1] if len(sys.argv) > 1 else "all"
     exps = {"main": exp_main, "prior": exp_prior, "fidelity": exp_fidelity,
             "misspec": exp_misspec, "scale": exp_scale, "rsi": exp_rsi,
-            "joint": exp_joint}
+            "joint": exp_joint, "stress": exp_stress, "prop1": exp_prop1,
+            "fooled": exp_fooled}
     for k, fn in exps.items():
         if which in (k, "all"):
             fn()

@@ -4,8 +4,8 @@ from __future__ import annotations
 import numpy as np
 
 from carve.model import FULL, GraphPosterior, ObsParams
-from carve.policies import (CARVE, LLMOnly, ReplayEach, ThompsonSampling,
-                            UncertaintySampling)
+from carve.policies import (CARVE, LLMOnly, ReplayEach, SequentialEach, ThompsonSampling,
+                            UncertaintyMF, UncertaintySampling)
 from sim.testbed import World, WorldConfig, edge_prior
 
 
@@ -14,6 +14,7 @@ def make_posterior(world: World, counts, rng, uniform_prior=False, K=None,
     cfg = world.cfg
     # r is estimated from a small human audit of LLM attributions
     r_hat = rng.binomial(audit_n, cfg.r) / audit_n
+    r_hat = float(np.clip(r_hat + cfg.extra.get("r_bias", 0.0), 0.0, 1.0))
     prior = edge_prior(counts, r_hat)
     if uniform_prior:
         prior = np.full_like(prior, 1.5 / cfg.J)
@@ -31,7 +32,8 @@ def make_policy(name, counts, costs, c_fp):
         return CARVE(costs=costs, c_fp=c_fp, horizons=(1,))
     if name == "CARVE-full-only":
         return CARVE(costs=costs, c_fp=c_fp, fidelities=(FULL,))
-    if name in ("CARVE-uniform-prior", "CARVE-one-patch", "CARVE-no-label-noise"):
+    if name in ("CARVE-uniform-prior", "CARVE-one-patch", "CARVE-no-label-noise",
+                "CARVE-robust-check"):
         return CARVE(costs=costs, c_fp=c_fp)
     if name == "Uncertainty":
         return UncertaintySampling(c_fp=c_fp)
@@ -41,6 +43,10 @@ def make_policy(name, counts, costs, c_fp):
         return ReplayEach(counts)
     if name == "Replay-each-3patch":
         return ReplayEach(counts, reps=2, need=2, patches=3)
+    if name == "Uncertainty-MF":
+        return UncertaintyMF(c_fp=c_fp)
+    if name == "Sequential-each":
+        return SequentialEach(counts, c_fp=c_fp)
     if name == "Thompson":
         return ThompsonSampling(c_fp=c_fp)
     raise ValueError(name)
@@ -59,7 +65,8 @@ def episode(cfg: WorldConfig, method: str, seed: int, checkpoints,
         uniform_prior=method == "CARVE-uniform-prior",
         K=1 if method == "CARVE-one-patch" else None,
         lam=1.0 if method == "CARVE-no-label-noise" else None,
-        overrides=model_overrides)
+        overrides=dict(model_overrides or {}, **({"fooled_fpr": 0.6}
+                       if method == "CARVE-robust-check" else {})))
     pol = make_policy(method, counts, costs, c_fp)
     oracle_gain = world.oracle(c_fp)[0]
 
