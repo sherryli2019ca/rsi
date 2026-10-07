@@ -41,6 +41,11 @@
 Hyperparameters come from domains/<domain>/rrsi.json; any of them can be
 overridden on the command line (--T, --k, --m, --b-min, --b-max, --w,
 --m-draft, --delta, --beta0, --beta1, --w-s, --w-c, --w-n, --n-prune).
+
+Additions of this repository: --selection full|none|judge|sample@b|replay@b|
+replaynull@b|net@b (default full = RRSI's own selection; see verify/live.py)
+and --branch-ns <ns> (branches evolve/<ns>/<domain>, so several runs can share
+one repository).
 """
 
 import argparse
@@ -59,7 +64,9 @@ from rrsi.loop import Run                    # noqa: E402
 from rrsi.schedule import budget_table       # noqa: E402
 
 OVERRIDES = ["T", "k", "m", "b_min", "b_max", "w", "m_draft", "delta", "delta_z",
-             "beta0", "beta1", "w_s", "w_c", "w_n", "n_prune", "eval_parallel"]
+             "beta0", "beta1", "w_s", "w_c", "w_n", "n_prune", "eval_parallel",
+             "selection", "branch_ns"]
+STR_OVERRIDES = ("selection", "branch_ns")
 
 
 def main():
@@ -68,8 +75,9 @@ def main():
     ap.add_argument("--domain", required=True)
     ap.add_argument("--runs", default=str(ROOT / "runs" / "rrsi"))
     for name in OVERRIDES:
-        typ = int if name in ("T", "k", "m", "b_min", "b_max", "w", "m_draft",
-                              "n_prune", "eval_parallel") else float
+        typ = (str if name in STR_OVERRIDES else
+               int if name in ("T", "k", "m", "b_min", "b_max", "w", "m_draft",
+                               "n_prune", "eval_parallel") else float)
         ap.add_argument("--" + name.replace("_", "-"), dest=name, type=typ, default=None)
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("baseline").add_argument("--job", default="base")
@@ -95,6 +103,9 @@ def main():
     domain = load_domain(args.domain)
     cfg = RRSIConfig.load(domain.root / "rrsi.json",
                            **{k: getattr(args, k) for k in OVERRIDES})
+    if cfg.selection != "full":
+        from verify.live import parse_mode
+        parse_mode(cfg.selection)               # fail fast on an unknown rule
     run = Run(domain, cfg, ROOT, Path(args.runs))
 
     if args.cmd == "baseline":

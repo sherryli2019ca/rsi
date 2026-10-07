@@ -82,6 +82,15 @@ class RRSIConfig:
     proposer_model: str = "claude-opus-4-8"
     analyst_model: str = "claude-opus-4-8"
     critic_model: str = "claude-opus-4-8"
+    # ---- additions of this repository (rrsi/NOTICE.md) ---------------------
+    # selection: "full" is RRSI's own step 5-6 (every screened candidate is
+    # evaluated on the whole evolve set, Algorithm 2 on those measurements);
+    # any other value ("none", "judge", "sample@b", "replay@b", "replaynull@b",
+    # "net@b") selects with that verification evidence (verify/live.py).
+    selection: str = "full"
+    # branch_ns: namespace of the git branches (evolve/<ns>/<domain>,
+    # <ns>/<domain>/r<t><v>), so several runs can share one repository.
+    branch_ns: str = ""
     notes: dict = field(default_factory=dict)
 
     @classmethod

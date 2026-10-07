@@ -39,6 +39,9 @@ side), for round t = 0..T-1 of one domain.
              liveness smoke (compile / construct / few tasks)   domain.smoke
       5. Evaluate(H', D_evolve, k) for the screened set        evaluate.evaluate (parallel optional)
       6. admissibility, argmax, S*, history records, B_t       select.select_round
+         (cfg.selection != "full", an addition of this repository: 5-6 are
+         replaced by one verification evidence type per candidate at a fixed
+         episode budget and a full evaluation of the winner only; verify/live.py)
       7. fast-forward evolve/<domain> to the winner, update frontier
 
 Everything written under runs/<domain>/ is resume-safe: a round that crashed
@@ -72,6 +75,25 @@ def log(domain: str, msg: str) -> None:
     print(f"[rrsi:{domain}] {time.strftime('%H:%M:%S')} {msg}", flush=True)
 
 
+def _num(x, spec: str) -> str:
+    return "-" if x is None else format(x, spec)
+
+
+def account_full(run, t, rdir, cands) -> None:
+    """Selection cost of RRSI's own step 5 (r<t>/selection.json), in the same
+    units as verify/live.py; never fails the round."""
+    try:
+        from verify.live import account_full as _acc
+        _acc(run, t, rdir, cands)
+    except Exception as e:  # noqa: BLE001 - accounting only
+        log(run.domain.name, f"selection cost accounting failed: {e!r}")
+
+
+def select_with_evidence(run, t, cands, inc_ev, rdir, ids, counts):
+    from verify.live import select_with_evidence as _sel
+    return _sel(run, t, cands, inc_ev, rdir, ids, counts)
+
+
 class Run:
     """Paths, state and git plumbing of one domain's evolution."""
 
@@ -85,7 +107,9 @@ class Run:
         self.global_analysis = self.runs / "global_analysis.json"
         self.attribution_path = self.runs / "attribution.jsonl"
         self.history = History(self.runs / "history.jsonl")
-        self.branch = f"evolve/{domain.name}"
+        ns = (cfg.branch_ns or "").strip("/")
+        self.branch = f"evolve/{ns}/{domain.name}" if ns else f"evolve/{domain.name}"
+        self.cand_prefix = f"{ns}/{domain.name}" if ns else domain.name
         self.harness_rel = os.path.normpath(f"domains/{domain.name}/{domain.harness_path}")
         for d in (self.runs, self.jobs, self.wt_root, self.runs / "logs"):
             d.mkdir(parents=True, exist_ok=True)
@@ -296,21 +320,29 @@ class Run:
                                      budget, explore, reserved, prune, hist_rows,
                                      skill_md, patterns_md))
 
-        # 5) Evaluate(H', D_evolve, k) for the screened set, in parallel
         live = [c for c in cands if c.gate_failure is None]
-        with ThreadPoolExecutor(max_workers=max(1, cfg.eval_parallel)) as ex:
-            list(ex.map(lambda c: self._evaluate(t, c, rdir, ids), live))
-
-        # 6) Algorithm 2: admissibility, argmax, S*, history
         counts = self.history.incumbent_component_counts()
-        winner, decisions = select_round(cands, inc_ev, fr["S_star"], delta, cfg,
-                                         counts, guard_fn=d.guards)
+        if cfg.selection == "full":
+            # 5) Evaluate(H', D_evolve, k) for the screened set, in parallel
+            with ThreadPoolExecutor(max_workers=max(1, cfg.eval_parallel)) as ex:
+                list(ex.map(lambda c: self._evaluate(t, c, rdir, ids), live))
+
+            # 6) Algorithm 2: admissibility, argmax, S*, history
+            winner, decisions = select_round(cands, inc_ev, fr["S_star"], delta, cfg,
+                                             counts, guard_fn=d.guards)
+            account_full(self, t, rdir, cands)
+        else:
+            # 5'-6') this repository: one verification evidence type at a fixed
+            # episode budget per candidate, the same rule, and a full evaluation
+            # of the winner only (verify/live.py)
+            winner, decisions = select_with_evidence(self, t, cands, inc_ev, rdir, ids,
+                                                     counts)
         (rdir / "decisions.json").write_text(json.dumps(
             [x.to_json() for x in decisions], indent=1))
         for c, dec in zip(cands, decisions):
             if self.history.has(t, c.variant):
                 continue                      # resumed round: already recorded
-            if c.ev is None:
+            if c.gate_failure is not None or (c.ev is None and cfg.selection == "full"):
                 outcome = c.gate_failure or "not_evaluated"
                 self.history.append_candidate(t, c.variant, c.edits, outcome, None, None,
                                               False, None, None, c.diff_path, c.detail)
@@ -320,9 +352,10 @@ class Run:
             self.history.append_candidate(t, c.variant, c.edits, outcome, dec.delta_S,
                                           dec.delta_C, c is winner, dec.S, dec.C,
                                           c.diff_path, dec.reason)
-            self.attribute(t, c.variant, c.edits, inc_ev, c.ev)
-            log(d.name, f"{c.variant}: S={dec.S:.4f} dS={dec.delta_S:+.4f} "
-                f"dC={dec.delta_C:+.3f} nu={dec.novelty} -> {outcome}: {dec.reason}")
+            if c.ev is not None:
+                self.attribute(t, c.variant, c.edits, inc_ev, c.ev)
+            log(d.name, f"{c.variant}: S={_num(dec.S, '.4f')} dS={_num(dec.delta_S, '+.4f')} "
+                f"dC={_num(dec.delta_C, '+.3f')} nu={dec.novelty} -> {outcome}: {dec.reason}")
 
         # 7) H_{t+1}
         if winner is not None:
@@ -352,6 +385,9 @@ class Run:
         the incumbent H_t it was drafted from. Rounds after t must have been
         removed first, since their candidates were drafted from the old H_{t+1}."""
         d, cfg = self.domain, self.cfg
+        if cfg.selection != "full":
+            raise SystemExit("readjudicate re-runs Algorithm 2 on full evaluations; "
+                             "it applies to selection = full only")
         fr = self.frontier()
         if len(fr["trajectory"]) > t + 2:
             raise SystemExit(f"rounds after {t} exist in the frontier; remove them first")
@@ -426,6 +462,8 @@ class Run:
         was invalid or corrupted by an infrastructure failure, then re-adjudicate
         the round. Rounds after t must have been removed first."""
         d = self.domain
+        if self.cfg.selection != "full":
+            raise SystemExit("reevaluate applies to selection = full only")
         rdir = self.runs / f"r{t}"
         ids = d.evolve_ids()
         for vdir in sorted(p for p in rdir.iterdir() if p.is_dir() and len(p.name) == 1):
@@ -455,7 +493,7 @@ class Run:
         d, cfg = self.domain, self.cfg
         vdir = rdir / vid
         vdir.mkdir(exist_ok=True)
-        branch = f"{d.name}/r{t}{vid}"
+        branch = f"{self.cand_prefix}/r{t}{vid}"
         wt = self.wt_root / f"r{t}{vid}"
         prep_path = vdir / "prep.json"
         # resume: candidate already drafted and committed in an earlier attempt

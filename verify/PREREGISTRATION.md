@@ -78,3 +78,19 @@ start earlier, by component.
 Domains, splits, models and temperatures, T, m, k, budgets, evidence
 definitions, the decision rule, z = 2, the held-out trial counts (except the
 pre-specified increase above), the margin and the endpoints.
+
+## Changes after registration
+
+- 2026-10-07, before any held-out episode of E1 had run: in
+  `verify/analyze.py`, the failure share f of the replay estimators was
+  computed from the replay references only, which are capped at 20 tasks, so
+  it fell short of the registered definition (failed trials / trials of the
+  incumbent's evaluation) whenever more than 20 evolve tasks failed. It now
+  follows the definition.
+- Same day, also before any held-out episode: the registered secondary
+  Net(N) was listed but not yet computed; `net_values` in `verify/analyze.py`
+  now computes it per rule as the mean over rounds of N (v dep - dc_run) -
+  C_verify, in episodes of running cost (dc_run: the chosen harness's relative
+  change in policy tokens per held-out episode; C_verify: the rule's episode
+  equivalents; dC_change = 0, since candidate generation is the same for every
+  rule), for N in {100, 1000, 10000} and v in {1, 10}. Nothing else changed.

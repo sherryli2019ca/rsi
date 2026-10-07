@@ -68,6 +68,8 @@ M = 400
 B = 2000
 MARGIN = 0.0075
 PRIORS = {"audited": {"tau2_retail": 0.41, "tau2_airline": 0.29}, "orig": 0.7, "weak": 0.2}
+NET_N = (100, 1000, 10000)       # deployment horizons (episodes) of the secondary Net(N)
+NET_V = (1, 10)                  # value of one success, in episodes of running cost
 
 
 # ----------------------------------------------------------------- loading --
@@ -106,12 +108,13 @@ def load(name: str, runs: Path, out: Path) -> dict:
     dom = load_domain(name)
     run_dir, vdir = Path(runs) / name, Path(out) / name
     k_h = int(dom.cfg.get("heldout_k", 4))
-    data = {"name": name, "cfg": dom.cfg, "rounds": [], "heldout": {}}
+    data = {"name": name, "cfg": dom.cfg, "rounds": [], "heldout": {}, "heldout_C": {}}
 
     def heldout(commit):
         key = commit[:12]
         if key not in data["heldout"]:
             ev = _ev(vdir / "jobs" / "heldout" / key / "eval.json")
+            data["heldout_C"][key] = None if ev is None else ev.C
             data["heldout"][key] = None if ev is None else {
                 t: tr.rewards for t, tr in ev.per_task.items()}
         return data["heldout"][key]
@@ -124,7 +127,8 @@ def load(name: str, runs: Path, out: Path) -> dict:
         counts = _accepted_components(run_dir, rnd.t)
         R = {"t": rnd.t, "inc_commit": rnd.inc_commit, "inc": inc, "refs": refs,
              "null": _replays(vdir / "replays" / f"r{rnd.t}" / "null"),
-             "accepted": rnd.accepted, "inc_heldout": heldout(rnd.inc_commit), "cands": {}}
+             "accepted": rnd.accepted, "inc_heldout": heldout(rnd.inc_commit),
+             "inc_heldout_C": data["heldout_C"].get(rnd.inc_commit[:12]), "cands": {}}
         for c in rnd.cands:
             if not c.measured:
                 continue
@@ -136,7 +140,8 @@ def load(name: str, runs: Path, out: Path) -> dict:
                 "judge": json.loads(jp.read_text()).get("dS") if jp.exists() else None,
                 "novelty": sum(1 for x in comps if x in K_STR and counts.get(x, 0) == 0),
                 "components": sorted(comps), "decision": c.decision,
-                "heldout": heldout(c.commit)}
+                "heldout": heldout(c.commit),
+                "heldout_C": data["heldout_C"].get(c.commit[:12])}
         data["rounds"].append(R)
     data["k_h"] = k_h
     traj = json.loads((run_dir / "frontier.json").read_text())["trajectory"]
@@ -205,7 +210,7 @@ def estimate(rule: str, b: int, R: dict, v: str, rng, mu0: float | None = None,
     C = R["cands"][v]
     inc = R["inc"]
     n_trials = sum(len(tr.rewards) for tr in inc.per_task.values())
-    f = sum(r["n_failed"] for r in R["refs"]) / max(1, n_trials)
+    f = sum(1 for tr in inc.per_task.values() for r in tr.rewards if r < 1) / max(1, n_trials)
     if rule == "judge":
         return None if C["judge"] is None else (C["judge"], 0.0, 0.0, 0, 0.0)
     pairs = _pairs(inc, C["full"])
@@ -339,7 +344,9 @@ def domain_tables(D: dict) -> dict:
             probs[lab], ep, eq = choice_probs(rule, b, R, cfg, seed=1000 * R["t"] + b, mu0=mu0,
                                               ep_tok=D["ep_tokens"])
             cost[lab] = {"episodes": ep, "episode_equivalents": eq}
-        rows.append({"t": R["t"], "dep": dep, "probs": probs, "cost": cost,
+        dcr = {v: (C["heldout_C"] - R["inc_heldout_C"]) / R["inc_heldout_C"]
+               if C["heldout_C"] and R["inc_heldout_C"] else 0.0 for v, C in R["cands"].items()}
+        rows.append({"t": R["t"], "dep": dep, "dcr": dcr, "probs": probs, "cost": cost,
                      "evolve_dS": {v: C["decision"].get("delta_S") for v, C in R["cands"].items()},
                      "judge": {v: C["judge"] for v, C in R["cands"].items()},
                      "replay_full": {v: estimate("replay", 10 ** 6, R, v, random.Random(0),
@@ -376,6 +383,27 @@ def decision_values(tables: list[dict], rng: np.random.Generator, boot: bool) ->
             for rule in rows[i]["probs"]:
                 per_rule.setdefault(rule, []).append(round_value(rows[i], rule, tasks))
     return {r: float(np.mean(v)) for r, v in per_rule.items()}
+
+
+def net_values(tables: list[dict]) -> dict:
+    """Secondary: Net(N) = N (v dep - dc_run) - C_verify per round, in episodes of
+    running cost, mean over the rounds of all domains. dc_run is the chosen
+    harness's relative change in policy tokens per held-out episode; C_verify the
+    rule's episode equivalents in that round; dC_change = 0 (candidate generation
+    is the same for every rule)."""
+    out = {}
+    for T in tables:
+        for row in T["rows"]:
+            for rule, probs in row["probs"].items():
+                dp = sum(p * float(np.mean(list(row["dep"][c].values())))
+                         for c, p in probs.items() if c is not None and row["dep"].get(c))
+                drun = sum(p * (row["dcr"].get(c) or 0.0) for c, p in probs.items() if c is not None)
+                cv = row["cost"][rule]["episode_equivalents"]
+                for N in NET_N:
+                    for v in NET_V:
+                        out.setdefault(rule, {}).setdefault(f"N={N},v={v}", []).append(
+                            N * (v * dp - drun) - cv)
+    return {r: {k: float(np.mean(x)) for k, x in d.items()} for r, d in out.items()}
 
 
 def holm(ps: dict) -> dict:
@@ -444,6 +472,7 @@ def main():
                                                     for row in T["rows"]]))
                                  for k in ("episodes", "episode_equivalents")}
                              for r in point if tables and tables[0]["rows"]}
+    res["net_N"] = net_values(tables)
     res["tables"] = tables
     dest = Path(args.out) / "e1_analysis.json"
     dest.write_text(json.dumps(res, indent=1, default=lambda o: None))

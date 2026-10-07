@@ -18,9 +18,20 @@ Modifications made in this repository:
   every `generate(...)` call is tagged with its role for the cost accounting.
 - `rrsi/propose.py`: a `done()` with no file changes and no edits is bounced like
   an `abort` (at most 3 times) instead of ending the draft with no candidate.
-- `rrsi.py`: the default `--runs` directory is `runs/rrsi`.
+- `rrsi.py`: the default `--runs` directory is `runs/rrsi`; options
+  `--selection` and `--branch-ns` (below).
+- `rrsi/config.py`, `rrsi/loop.py`: two configuration keys. `selection`
+  (default `full`, RRSI's own steps 5-6, unchanged) can instead select each
+  round's winner with one verification evidence type at a fixed episode budget
+  (`none`, `judge`, `sample@b`, `replay@b`, `replaynull@b`, `net@b`;
+  implemented in `verify/live.py`, which then evaluates only the winner on the
+  full evolve set); `readjudicate` and `reevaluate` apply to `full` only.
+  `branch_ns` (default empty, upstream branch names) namespaces the git
+  branches so that several runs can share one repository. In every mode a round
+  writes its selection cost to `r<t>/selection.json` in the same units.
 - Upstream domains (coding, eng, workspace) are not included. This repository
   adds `domains/tau2/` (shared tau2-bench adapter, frozen episode driver with
   mid-step replay, starting harness) and `domains/tau2_retail/`,
   `domains/tau2_airline/` (configs, constitutions, starting harnesses), written
-  against RRSI's `Domain` interface.
+  against RRSI's `Domain` interface, and `domains/appworld/` (frozen AppWorld
+  driver with mid-step replay, adapter, starting harness, configuration).
