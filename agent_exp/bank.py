@@ -308,22 +308,37 @@ def net_gain(acc, patch, E, Q, f, c_fp):
 
 
 class BankWorld:
+    """Draws recorded outcomes from the bank. By default with replacement; with
+    BANK_NOREPLACE=1 each list is drawn without replacement (a fresh random order
+    once it is exhausted), so a policy never sees the same record twice until it
+    has seen them all."""
+
     def __init__(self, bank, rng):
         self.c, self.reg, self.rng = bank["cells"], bank["reg"], rng
         self.null = list(bank["null"].values())
+        self.replace = os.environ.get("BANK_NOREPLACE", "0") != "1"
+        self._order = {}
+
+    def _draw(self, key, n):
+        if self.replace:
+            return int(self.rng.integers(n))
+        q = self._order.get(key)
+        if not q:
+            q = self._order[key] = list(self.rng.permutation(n))
+        return int(q.pop())
 
     def intervene(self, i, j, k, fid):
         c = self.c[f"{i},{j},{k}"]
-        r = self.rng.integers(len(c["y"]))
+        r = self._draw(("cell", i, j, k), len(c["y"]))
         return int(c["y"][r] if fid == FULL else c["z"][r])
 
     def control(self, i):
         ys = [v["y"] for v in self.null if v["cat"] == i] or [0]
-        return int(ys[self.rng.integers(len(ys))])
+        return int(ys[self._draw(("null", i), len(ys))])
 
     def regress(self, i, j, k):
         runs = self.reg.get(f"{i},{j},{k}") or [{"y": 1}]
-        return int(runs[self.rng.integers(len(runs))]["y"])
+        return int(runs[self._draw(("reg", i, j, k), len(runs))]["y"])
 
 
 class HarnessFix:

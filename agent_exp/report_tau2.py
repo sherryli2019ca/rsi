@@ -40,7 +40,8 @@ def fmt(v, bold=False):
 
 def main_table(R):
     groups = [(d, c) for d in DOMS for c in (0.0, 0.02)]
-    res = {g: R[g[0]][f"main|sig|wrong|{g[1]}"]["res"] for g in groups}
+    res = {g: {k: [v["mean"]] for k, v in R[g[0]]["post|main"][f"{g[1]}"].items()
+               if not k.startswith("p_best")} for g in groups}
     best = {(g, B): max(res[g][f"{m}|{B}"][0] for m, _ in NAMES) for g in groups for B in BUDGETS}
     rows = []
     for m, name in NAMES:
@@ -53,31 +54,51 @@ def main_table(R):
     return rows
 
 
+def sig_table(R):
+    """Appendix: the same table with only significant regressions charged."""
+    groups = [(d, c) for d in DOMS for c in (0.0, 0.02)]
+    res = {g: R[g[0]][f"main|sig|wrong|{g[1]}"]["res"] for g in groups}
+    best = {(g, B): max(res[g][f"{m}|{B}"][0] for m, _ in NAMES) for g in groups for B in BUDGETS}
+    rows = []
+    for m, name in NAMES:
+        cells = [fmt(res[g][f"{m}|{B}"][0], res[g][f"{m}|{B}"][0] >= best[g, B] - 1e-9)
+                 for g in groups for B in BUDGETS]
+        rows.append(f"{name} & " + " & ".join(cells) + " \\\\")
+        if m == "LLM-only":
+            rows.append("\\midrule")
+    open("paper/tables/tau2_sig.tex", "w").write("\n".join(rows) + "\n")
+    return rows
+
+
 def heldout_table():
     H = json.load(open("runs/tau2_retail/heldout_breakdown.json"))
     cols = ("all", "clean", "no_step_fault")
-    rows = ["Unpatched & " + " & ".join(f"{H['unpatched'][c][0]:.2f}" for c in cols) + " & 0 \\\\",
+    rows = ["Unpatched & " + " & ".join(f"{H['unpatched'][c][0]:.2f}" for c in cols) + " & & 0 \\\\",
             "\\midrule"]
     for m, name in NAMES:
         r = H.get(f"{m}|10")
         if r:
+            va = r["vs_apply"]["all"]
+            dv = "--" if m == "LLM-only" else f"{fmt(va[0])} {{\\scriptsize[{fmt(va[2])}, {fmt(va[3])}]}}"
             rows.append(f"{name} & " + " & ".join(f"{r[c][0]:.2f}" for c in cols) +
-                        f" & {r['n_patches']:.1f} \\\\")
+                        f" & {dv} & {r['n_patches']:.1f} \\\\")
     open("paper/tables/heldout.tex", "w").write("\n".join(rows) + "\n")
-    ses = [H[k][c][1] for k in H if k != "n_episodes" for c in cols]
+    ses = [H[k][c][1] for k in H if k != "n_episodes" and isinstance(H[k], dict) for c in cols]
     return rows, (min(ses), max(ses)), H["n_episodes"]
 
 
 def vpi_table(R):
     rows = []
     for d in DOMS:
-        for key, lab in (("vpi|sig|wrong|0.0", "measured harm only"),
-                         ("vpi|sig|wrong|0.02", "$+$ $c_{\\mathrm w}=0.02$"),
-                         ("vpi|sig|apply|0.02", "$+$ $c_{\\mathrm a}=0.02$")):
-            v = R[d][key]
-            first = d.capitalize() if lab.startswith("measured") else ""
-            rows.append(f"{first} & {lab} & {fmt(v['default'])} & {fmt(v['harm'])} & "
-                        f"{fmt(v['select'])} & {fmt(v['discover'])} \\\\")
+        pv = R[d]["post|main"]["vpi"]
+        for n, (v, lab) in enumerate(((pv["0.0"], "posterior, $c=0$"),
+                                      (pv["0.02"], "posterior, $c_{\\mathrm w}=0.02$"))):
+            first = d.capitalize() if n == 0 else ""
+            rows.append(f"{first} & {lab} & " + " & ".join(
+                fmt(v[k][0]) for k in ("default", "harm", "select", "discover")) + " \\\\")
+        v = R[d]["vpi|sig|wrong|0.0"]
+        rows.append(f" & significant only, $c=0$ & {fmt(v['default'])} & {fmt(v['harm'])} & "
+                    f"{fmt(v['select'])} & {fmt(v['discover'])} \\\\")
         if d == "retail":
             rows.append("\\midrule")
     open("paper/tables/vpi.tex", "w").write("\n".join(rows) + "\n")
@@ -85,25 +106,29 @@ def vpi_table(R):
 
 
 def robust_table(R, B=40):
-    """One block per domain; columns are alternative scorings at budget B."""
+    """One block per domain: posterior value with interval and probability of
+    beating Apply attributed, then sensitivity scorings (significant harm,
+    c_w = 0.02 unless stated) at budget B."""
     rows = []
     for d in DOMS:
         r = R[d]
+        po = r["post|main"]["0.02"]
         sp = r["split"]
-        cb = r["regression"]["cont_bootstrap"]
         for m in SHORT:
             name = dict(NAMES)[m]
-            bb = 10 if m == "LLM-only" else B
-            cols = [r["main|sig|wrong|0.02"]["res"][f"{m}|{bb}"][0],
-                    r["sweep|apply|0.02"]["res"][f"{m}|{bb}"][0],
-                    sp[f"edge|0.02|{m}|{bb}"][0],
-                    r["natural|0.02"]["res"][f"{m}|{bb}"][0],
-                    r["nostep|0.02"]["res"][f"{m}|{bb}"][0]]
-            c = cb[f"{m}|{bb}"]
-            cont = f"{fmt(c[0])} {{\\scriptsize[{fmt(c[1])}, {fmt(c[2])}]}}"
+            p = po[f"{m}|{B}"]
+            post = f"{fmt(p['mean'])} {{\\scriptsize[{fmt(p['lo'])}, {fmt(p['hi'])}]}}"
+            pb = "--" if m == "LLM-only" else f"{p['p_better']:.2f}"
+            cols = [r["main|sig|wrong|0.02"]["res"][f"{m}|{B}"][0],
+                    r["sweep|apply|0.02"]["res"][f"{m}|{B}"][0],
+                    sp[f"edge|0.02|{m}|{B}"][0],
+                    r["natural|0.02"]["res"][f"{m}|{B}"][0],
+                    r["nostep|0.02"]["res"][f"{m}|{B}"][0],
+                    r["component|0.02"][f"{m}|{B}"][0],
+                    r["post_sig|norep"]["0.02"][f"{m}|{B}"][0]]
             first = d.capitalize() if m == SHORT[0] else ""
-            rows.append(f"{first} & {name} & " + " & ".join(fmt(x) for x in cols) +
-                        f" & {cont} \\\\")
+            rows.append(f"{first} & {name} & {post} & {pb} & " + " & ".join(fmt(x) for x in cols) +
+                        " \\\\")
         if d == "retail":
             rows.append("\\midrule")
     open("paper/tables/robust.tex", "w").write("\n".join(rows) + "\n")
@@ -128,7 +153,7 @@ def csweep_table(R, B=40):
 
 def main():
     R = load()
-    for rows in (main_table(R), vpi_table(R), robust_table(R), csweep_table(R)):
+    for rows in (main_table(R), sig_table(R), vpi_table(R), robust_table(R), csweep_table(R)):
         print("\n".join(rows), "\n")
     rows, se, n = heldout_table()
     print("\n".join(rows), "\nheld-out s.e. range", se, n)

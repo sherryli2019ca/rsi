@@ -53,22 +53,31 @@ def main():
     tasks = np.array([t for t, _, _ in test])
     none = np.array(res["runs"]["none"], float)
 
-    def paired(keys):
-        """Mean over seeds of (patched - unpatched) on the same episodes, with a
-        standard error clustered by task."""
+    def paired(keys, base=None):
+        """Mean over seeds of (patched - base) on the same episodes (base: the
+        unpatched agent unless given), with a standard error clustered by task."""
         y = np.mean([np.array(res["runs"][k], float) for k in keys], 0)
+        b = none if base is None else base
         r = {}
         for g, sel in groups.items():
-            d, t = y[sel] - none[sel], tasks[sel]
+            d, t = y[sel] - b[sel], tasks[sel]
             sums = np.array([d[t == u].sum() for u in np.unique(t)])
             cnt = np.array([(t == u).sum() for u in np.unique(t)])
             r[g] = [float(d.mean()), float(np.sqrt(((sums - d.mean() * cnt) ** 2).sum()) / len(d))]
         return r
 
     out["unpatched"] = stats(["none"])
+    apply = np.mean([np.array(res["runs"][k], float) for k in sets["LLM-only|10"]], 0)
+    margin = 0.05
+    out["noninferiority_margin"] = margin
     for g, keys in sets.items():
         out[g] = stats(keys)
         out[g]["diff"] = paired(keys)
+        # verified set minus applying the attributed patches; applying is
+        # non-inferior at margin m if the one-sided 95% upper bound is below m
+        dv = paired(keys, apply)
+        out[g]["vs_apply"] = {k: v + [v[0] - 1.645 * v[1], v[0] + 1.645 * v[1],
+                                      bool(v[0] + 1.645 * v[1] < margin)] for k, v in dv.items()}
     _save(os.path.join(args.out, "heldout_breakdown.json"), out)
     for g, r in out.items():
         if g != "n_episodes":

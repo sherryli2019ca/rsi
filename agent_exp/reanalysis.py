@@ -15,7 +15,7 @@ Settings (policy side):
 Scoring (report side):
   sig        regressions charged only when significant (one-sided binomial vs r0)
   cont       every accepted patch charged its unthresholded regression estimate
-             w (fail/n - r0) / (1 - r0), with a posterior bootstrap over the
+             w (fail/n - r0), with a posterior bootstrap over the
              regression runs and r0
   per-wrong vs per-applied change cost c, c in {0, 0.01, 0.02, 0.05}
   natural / injected: failure shares f recomputed from natural or injected
@@ -95,6 +95,10 @@ def setting(name):
     if name == "nostep":
         inb[:, CTX["step"]] = False
         return bank, inb, 0.02, ALL, (10, 40, 80), 100
+    if name == "norep":
+        # run with BANK_NOREPLACE=1: outcomes drawn without replacement
+        assert os.environ.get("BANK_NOREPLACE") == "1"
+        return bank, inb, 0.02, ALL, (10, 40, 80), 100
     if name.startswith("split"):
         A, _ = split_bank(bank, int(name[5:]))
         return A, inb, 0.02, ALL, (10, 40, 80), 40
@@ -157,7 +161,7 @@ def truth(bank, I, J, r0, w, alpha=0.05):
         nf[i, j, k] = len(runs) - sum(r["y"] for r in runs)
         if not runs:
             continue
-        ex = w * (nf[i, j, k] / n[i, j, k] - r0) / (1 - r0)
+        ex = w * (nf[i, j, k] / n[i, j, k] - r0)
         R_cont[i, j, k] = ex
         if binom.sf(nf[i, j, k] - 1, n[i, j, k], r0) < alpha:
             R_sig[i, j, k] = max(0.0, ex)
@@ -298,13 +302,33 @@ def stage_report(args):
         for c, ctype in ((0.0, "wrong"), (0.02, "wrong"), (0.02, "apply")):
             rep[f"vpi|{reg}|{ctype}|{c}"] = vpi_decomp(dec, T, f, T[f"R_{reg}"], c, ctype, inb)
 
-    # 7. regression evidence: per-patch CIs, equivalence, baselines
+    # 7. posterior expected utility: hierarchical regression posterior, r0
+    # posterior and a bootstrap of the bank's adjudication, decisions fixed
+    for name in ("main", "norep"):
+        if any(k.startswith(f"{name}|") for k in dec):
+            rep[f"post|{name}"] = posterior_eval(dec, name, T, r0, w)
+    rep["post_sig|norep"] = {f"{c}": summarise(dec, "norep", ALL, B3, T, f, T["R_sig"], c, "wrong", inb)[1]
+                             for c in (0.0, 0.02)} if any(k.startswith("norep|") for k in dec) else None
+
+    # 8. one patch per component, as deployed: keep the cell of the most frequent category
+    comp = {}
+    for k, v in dec.items():
+        if k.startswith("main|"):
+            best = {}
+            for i, j, kk in v[0]:
+                if j not in best or f[i] > f[best[j][0]]:
+                    best[j] = (i, j, kk)
+            comp[k] = [[list(x) for x in best.values()], v[1]]
+    for c in (0.0, 0.02):
+        rep[f"component|{c}"] = summarise(comp, "main", ALL, B3, T, f, T["R_sig"], c, "wrong", inb)[1]
+
+    # 9. regression evidence: per-patch CIs, equivalence, baselines
     rep["regression"] = regression_report(dec, T, r0, w)
     _save(os.path.join(args.out, "reanalysis.json"), rep)
     print(json.dumps({k: v for k, v in rep.items() if k in ("n_edges", "regression")}, indent=1))
 
 
-def vpi_decomp(dec, T, f, R, c, ctype, inb):
+def vpi_decomp(dec, T, f, R, c, ctype, inb, o=None):
     """Realised value of perfect information over the apply-attributed default, per
     cell and additive (Prop. 1): avoided harm of default patches with negative net
     effect, better patch choice in default cells, and discovery of cells the
@@ -325,9 +349,103 @@ def vpi_decomp(dec, T, f, R, c, ctype, inb):
                 select += best - max(0.0, dk)
             else:
                 disc += best
-    o = yardstick(T, f)
+    o = yardstick(T, f) if o is None else o
     return {"harm": harm / o, "select": select / o, "discover": disc / o,
             "default": score(dec["main|LLM-only|10|0"][0], T, f, R, c, ctype) / o}
+
+
+def hier_rho(nf, n, r0, rng):
+    """One posterior draw of every patch's absolute excess failure rate rho_k, with
+    rho_k ~ N(mu, tau^2) across patches (empirical Bayes, method of moments) given
+    a draw of r0; patches without runs get mu."""
+    has = n > 0
+    y = np.where(has, nf / np.maximum(n, 1), 0.0) - r0
+    pbar = nf[has].sum() / n[has].sum()
+    v = np.where(has, pbar * (1 - pbar) / np.maximum(n, 1), np.inf)
+    yy, vv = y[has], v[has]
+    tau2 = max(0.0, np.var(yy) - vv.mean())
+    wts = 1 / (vv + tau2)
+    mu_hat = (wts * yy).sum() / wts.sum()
+    mu = mu_hat + rng.standard_normal() * np.sqrt(1 / wts.sum())
+    if tau2 == 0:
+        return np.full(n.shape, mu), mu, tau2
+    prec = 1 / v + 1 / tau2
+    m = (np.where(has, y / v, 0.0) + mu / tau2) / prec
+    return m + rng.standard_normal(n.shape) / np.sqrt(prec), mu, tau2
+
+
+def boot_bank(bank, rng):
+    """Nonparametric bootstrap of the replay outcomes behind the edge labels."""
+    B = {"cells": {}, "null": {}, "reg": bank["reg"]}
+    for key, c in bank["cells"].items():
+        idx = rng.integers(len(c["y"]), size=len(c["y"]))
+        B["cells"][key] = {"y": [c["y"][x] for x in idx]}
+    bycat = {}
+    for key, v in bank["null"].items():
+        bycat.setdefault(v["cat"], []).append(key)
+    for cat, keys in bycat.items():
+        for n, x in enumerate(rng.integers(len(keys), size=len(keys))):
+            B["null"][f"{cat}|b{n}"] = bank["null"][keys[x]]
+    return B
+
+
+def posterior_eval(dec, name, T, r0, w, n_draw=300, n_seed=40, budgets=(10, 40, 80)):
+    """Value of each policy's decisions under uncertainty about harm and about the
+    bank's adjudication: each draw takes r0 from its posterior, every patch's
+    excess failure rate from a hierarchical posterior, and edges and repair rates
+    from a bootstrap of the replays. Values are fractions of the fixed yardstick."""
+    rng = np.random.default_rng(1)
+    f, inb, bank = CTX["f"], CTX["inb"], CTX["bank"]
+    I, J = inb.shape
+    r0s, _ = r0_draws(CTX["data"], n_draw, rng)
+    o = yardstick(T, f)
+    groups = {}
+    for key, v in dec.items():
+        nm, m, B, s = key.split("|")
+        if nm == name and int(B) in budgets and int(s) < n_seed:
+            groups.setdefault(f"{m}|{B}", []).append(v[0])
+    vals = {c: {g: [] for g in groups} for c in (0.0, 0.02)}
+    mus, taus, edges, vpis = [], [], [], {}
+    for d in range(n_draw):
+        rho, mu, tau2 = hier_rho(T["nf"], T["n"], r0s[d], rng)
+        mus.append(mu)
+        taus.append(np.sqrt(tau2))
+        Tb = truth(boot_bank(bank, rng), I, J, r0, w)
+        edges.append(int(Tb["E"].sum()))
+        R = w * rho
+        for c in (0.0, 0.02):
+            vd = vpi_decomp(dec, Tb, f, R, c, "wrong", inb, o=o)
+            for k, v in vd.items():
+                vpis.setdefault(f"{c}", {}).setdefault(k, []).append(v)
+        for g, sets in groups.items():
+            rep_ = np.mean([repair(cs, Tb, f) for cs in sets])
+            reg_ = np.mean([sum(R[i, j, k] for i, j, k in cs) for cs in sets])
+            nw = np.mean([sum(not Tb["E"][i, j] for i, j, k in cs) for cs in sets])
+            for c in vals:
+                vals[c][g].append((rep_ - reg_ - c * nw) / o)
+    out = {"mu": [float(np.mean(mus)), float(np.quantile(mus, 0.05)), float(np.quantile(mus, 0.95))],
+           "tau": float(np.mean(taus)),
+           "edges": [float(np.mean(edges)), int(np.min(edges)), int(np.max(edges))],
+           "vpi": {c: {k: [float(np.mean(v)), float(np.quantile(v, 0.05)), float(np.quantile(v, 0.95))]
+                       for k, v in d.items()} for c, d in vpis.items()}}
+    for c, vs in vals.items():
+        res = {}
+        for g, v in vs.items():
+            v = np.array(v)
+            B = g.split("|")[1]
+            ref = np.array(vs[f"LLM-only|{B}"])
+            dlt = v - ref
+            res[g] = {"mean": float(v.mean()), "lo": float(np.quantile(v, 0.05)),
+                      "hi": float(np.quantile(v, 0.95)),
+                      "d_lo": float(np.quantile(dlt, 0.05)), "d_hi": float(np.quantile(dlt, 0.95)),
+                      "p_better": float((dlt > 0).mean())}
+        for B in budgets:
+            gs = [g for g in vs if g.endswith(f"|{B}")]
+            M = np.array([vs[g] for g in gs])
+            best = np.bincount(M.argmax(0), minlength=len(gs)) / M.shape[1]
+            res[f"p_best|{B}"] = {g.split("|")[0]: float(b) for g, b in zip(gs, best)}
+        out[f"{c}"] = res
+    return out
 
 
 def matched_r0(bank, data):
@@ -377,7 +495,7 @@ def regression_report(dec, T, r0, w, n_draw=4000, margins=(0.05, 0.10, 0.15)):
     for k in keys20:
         nf, n = T["nf"][k], T["n"][k]
         p = rng.beta(nf + 0.5, n - nf + 0.5, n_draw)
-        rho = (p - r0s) / (1 - r0s)
+        rho = p - r0s
         lo, hi = np.quantile(rho, [0.05, 0.95])
         rows.append(dict(key=list(map(int, k)), edge=bool(T["E"][k[:2]]), fail=nf / n,
                          rho=float(np.mean(rho)), lo=float(lo), hi=float(hi)))
@@ -400,7 +518,7 @@ def regression_report(dec, T, r0, w, n_draw=4000, margins=(0.05, 0.10, 0.15)):
             cnt[idx[t]] += 1
         mean = y.mean()
         se_task = np.sqrt(((tot - mean * cnt) ** 2).sum()) / cnt.sum()
-        draws = (mean + se_task * rng.standard_normal(n_draw) - r0s) / (1 - r0s)
+        draws = mean + se_task * rng.standard_normal(n_draw) - r0s
         lo, hi = np.quantile(draws, [0.05, 0.95])
         out[f"pooled_{grp}"] = dict(n_patches=len(sel), n_runs=len(y), fail=float(mean),
                                     se_task=float(se_task), rho=float(draws.mean()),
@@ -475,7 +593,7 @@ def cont_bootstrap(dec, T, r0s, w, rng, n=1000):
     for d in range(n):
         r0 = r0s[d]
         p = rng.beta(T["nf"] + 0.5, T["n"] - T["nf"] + 0.5)
-        R = np.where(T["n"] > 0, w * (p - r0) / (1 - r0), 0.0)
+        R = np.where(T["n"] > 0, w * (p - r0), 0.0)
         o = yardstick(T, f)
         for g in groups:
             vals[g].append((rep[g] - (freq[g] * R).sum()) / o)
