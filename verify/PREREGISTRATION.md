@@ -94,3 +94,12 @@ pre-specified increase above), the margin and the endpoints.
   change in policy tokens per held-out episode; C_verify: the rule's episode
   equivalents; dC_change = 0, since candidate generation is the same for every
   rule), for N in {100, 1000, 10000} and v in {1, 10}. Nothing else changed.
+- 15:40Z, power rule: the evolve-side disagreement rate between net@40 and
+  full on the six rounds with collected evidence (retail 2, airline 4) is 0.58,
+  above the registered 0.40, which calls for about 230 held-out episodes per
+  harness instead of 160. The follower's progress log prints each deployed
+  harness's held-out success rate, and a few of these lines were seen while
+  monitoring the run; no held-out analysis was run, and the decision uses only
+  the registered formula on evolve-side evidence. The increase is put to the
+  project owner because it adds cost to the approved run; the outcome will be
+  recorded here.
