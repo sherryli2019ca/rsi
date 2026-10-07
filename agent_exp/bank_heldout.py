@@ -83,7 +83,7 @@ def main():
                 acc, patch, spent = run_method(m, bank, counts, f, inb, costs, b_hat, s, B,
                                                cal=cal, r0=ev.get("r0", 0.1), w=ev.get("w", 2.8))
                 ps = patch_set(D, acc, patch, patches, f[:, None] * np.ones_like(acc, float))
-                key = json.dumps(ps, sort_keys=True)
+                key = json.dumps(ps, sort_keys=True) if ps else "none"
                 res["sets"][f"{m}|{int(B)}|{s}"] = key
                 if key not in res["runs"]:
                     res["runs"][key] = run_set(key, ps)

@@ -55,9 +55,40 @@ def load(out, domain):
     nat = np.array([sum(attrs[u]["true_fault"] is None for u in m) for m in members], float)
     inj = np.array([len(m) for m in members], float) - nat
     step = D.comp_ids.index("CFG.max_steps")
-    return dict(D=D, attrs=attrs, tax=tax, bank=bank, data=data, ev=ev, cats=cats,
-                counts=counts, f=f, inb=inb, I=I, J=J, f_nat=nat / nat.sum(),
-                f_inj=inj / inj.sum(), step=step, comp_ids=D.comp_ids)
+    ctx = dict(D=D, attrs=attrs, tax=tax, bank=bank, data=data, ev=ev, cats=cats,
+               counts=counts, f=f, inb=inb, I=I, J=J, f_nat=nat / nat.sum(),
+               f_inj=inj / inj.sum(), step=step, comp_ids=D.comp_ids)
+    # unpatched runs on every regression task (second-review experiment A): each
+    # patch's baseline is the failure rate of the tasks its regression runs used
+    base = _load(os.path.join(out, "baseline_A.json"))
+    if base:
+        tasks = sorted(base)
+        col = {t: n for n, t in enumerate(tasks)}
+        M = np.zeros((I, J, 3, len(tasks)))
+        for key, runs in bank["reg"].items():
+            i, j, k = map(int, key.split(","))
+            for r in runs:
+                M[i, j, k, col[r["task"]]] += 1
+        nfail = np.array([len(base[t]) - sum(base[t]) for t in tasks], float)
+        nrun = np.array([len(base[t]) for t in tasks], float)
+        ctx.update(base=base, base_tasks=tasks, base_M=M, base_nf=nfail, base_n=nrun)
+    return ctx
+
+
+def base_r0(p0):
+    """Task-matched baseline failure rate of every patch, given per-task unpatched
+    failure rates p0 (patches without regression runs get the mean)."""
+    M = CTX["base_M"]
+    n = M.sum(-1)
+    return np.where(n > 0, (M @ p0) / np.maximum(n, 1), p0.mean())
+
+
+def base_draws(n, rng):
+    """Draws of each regression task's unpatched failure rate, resampling its runs
+    (a per-task Jeffreys posterior would add about 0.5/11 to every task with no
+    failures in 10 runs, biasing the matched baseline upwards)."""
+    nf, nr = CTX["base_nf"], CTX["base_n"]
+    return rng.binomial(nr.astype(int), nf / nr, (n, len(nf))) / nr
 
 
 def split_bank(bank, t):
@@ -161,9 +192,10 @@ def truth(bank, I, J, r0, w, alpha=0.05):
         nf[i, j, k] = len(runs) - sum(r["y"] for r in runs)
         if not runs:
             continue
-        ex = w * (nf[i, j, k] / n[i, j, k] - r0)
+        r0k = r0[i, j, k] if np.ndim(r0) else r0
+        ex = w * (nf[i, j, k] / n[i, j, k] - r0k)
         R_cont[i, j, k] = ex
-        if binom.sf(nf[i, j, k] - 1, n[i, j, k], r0) < alpha:
+        if binom.sf(nf[i, j, k] - 1, n[i, j, k], r0k) < alpha:
             R_sig[i, j, k] = max(0.0, ex)
     # edge-free repair estimate: unclipped (y - b) / (1 - b) of every cell
     Qraw = np.zeros((I, J, K))
@@ -242,6 +274,13 @@ def stage_report(args):
     rm = matched_r0(CTX["bank"], CTX["data"])
     Tm = truth(CTX["bank"], I, J, rm, w)
     T["R_contm"] = Tm["R_cont"]
+    regs = ("sig", "cont", "contm")
+    if "base" in CTX:
+        # same scorings against the task-matched unpatched baseline (experiment
+        # A; a binomial test that ignores the baseline's own noise)
+        TA = truth(CTX["bank"], I, J, base_r0(CTX["base_nf"] / CTX["base_n"]), w)
+        T["R_sigA"], T["R_contA"] = TA["R_sig"], TA["R_cont"]
+        regs += ("sigA", "contA")
     rep = {"r0": r0, "r0_matched": rm, "w": w, "n_edges": int(T["E"].sum()),
            "yardstick": yardstick(T, f)}
     for c in (0.0, 0.02):
@@ -250,7 +289,7 @@ def stage_report(args):
     B4, B3 = (10, 20, 40, 80), (10, 40, 80)
 
     # 1. main table under significant vs continuous regression estimates
-    for reg in ("sig", "cont", "contm"):
+    for reg in regs:
         for c in (0.0, 0.02):
             o, s = summarise(dec, "main", ALL, B4, T, f, T[f"R_{reg}"], c, "wrong", inb)
             rep[f"main|{reg}|wrong|{c}"] = {"oracle": o, "res": s}
@@ -298,15 +337,19 @@ def stage_report(args):
                     if not k.endswith("edges") else v for k, v in split.items()}
 
     # 6. what perfect verification could add to the no-evidence default, by source
-    for reg in ("sig", "cont", "contm"):
+    for reg in regs:
         for c, ctype in ((0.0, "wrong"), (0.02, "wrong"), (0.02, "apply")):
             rep[f"vpi|{reg}|{ctype}|{c}"] = vpi_decomp(dec, T, f, T[f"R_{reg}"], c, ctype, inb)
 
     # 7. posterior expected utility: hierarchical regression posterior, r0
     # posterior and a bootstrap of the bank's adjudication, decisions fixed
+    # (with experiment A the primary posterior uses the task-matched unpatched
+    # baseline; "post_paired" keeps the paired-trial r0 of the training runs)
     for name in ("main", "norep"):
         if any(k.startswith(f"{name}|") for k in dec):
-            rep[f"post|{name}"] = posterior_eval(dec, name, T, r0, w)
+            rep[f"post|{name}"] = posterior_eval(dec, name, T, r0, w, use_base="base" in CTX)
+            if "base" in CTX and name == "main":
+                rep[f"post_paired|{name}"] = posterior_eval(dec, name, T, r0, w)
     rep["post_sig|norep"] = {f"{c}": summarise(dec, "norep", ALL, B3, T, f, T["R_sig"], c, "wrong", inb)[1]
                              for c in (0.0, 0.02)} if any(k.startswith("norep|") for k in dec) else None
 
@@ -389,7 +432,8 @@ def boot_bank(bank, rng):
     return B
 
 
-def posterior_eval(dec, name, T, r0, w, n_draw=300, n_seed=40, budgets=(10, 40, 80)):
+def posterior_eval(dec, name, T, r0, w, n_draw=300, n_seed=40, budgets=(10, 40, 80),
+                   use_base=False):
     """Value of each policy's decisions under uncertainty about harm and about the
     bank's adjudication: each draw takes r0 from its posterior, every patch's
     excess failure rate from a hierarchical posterior, and edges and repair rates
@@ -398,6 +442,9 @@ def posterior_eval(dec, name, T, r0, w, n_draw=300, n_seed=40, budgets=(10, 40, 
     f, inb, bank = CTX["f"], CTX["inb"], CTX["bank"]
     I, J = inb.shape
     r0s, _ = r0_draws(CTX["data"], n_draw, rng)
+    if use_base:
+        p0s = base_draws(n_draw, rng)
+        r0s = [base_r0(p) for p in p0s]
     o = yardstick(T, f)
     groups = {}
     for key, v in dec.items():
@@ -567,6 +614,64 @@ def regression_report(dec, T, r0, w, n_draw=4000, margins=(0.05, 0.10, 0.15)):
     out["task_adjusted_tested"] = len(worse)
     # continuous-regression policy values with posterior uncertainty
     out["cont_bootstrap"] = cont_bootstrap(dec, T, r0s, w, rng)
+    if "base" in CTX:
+        out["A"] = regression_vs_base(T, keys20, margins, rng, n_draw)
+    return out
+
+
+def regression_vs_base(T, keys20, margins, rng, n_draw):
+    """Excess failure of patches over the unpatched agent on the same tasks
+    (experiment A). Per patch: posterior of its failure rate minus the posterior
+    of its task-matched baseline. Pooled: run-weighted mean of (patched failure -
+    unpatched failure rate of that task), with a bootstrap over tasks that also
+    resamples the unpatched runs within each task."""
+    bank, base = CTX["bank"], CTX["base"]
+    tasks = CTX["base_tasks"]
+    nf0, n0 = CTX["base_nf"], CTX["base_n"]
+    out = {"n_tasks": len(tasks), "n_runs": int(n0.sum()),
+           "fail_unpatched": float(nf0.sum() / n0.sum()),
+           "fail_unpatched_matched": float(np.mean([base_r0(nf0 / n0)[k] for k in keys20]))}
+    p0s = base_draws(n_draw, rng)
+    M = CTX["base_M"]
+    rows = []
+    for k in keys20:
+        nf, n = T["nf"][k], T["n"][k]
+        p = rng.beta(nf + 0.5, n - nf + 0.5, n_draw)
+        r0k = (p0s @ M[k]) / M[k].sum()
+        rho = p - r0k
+        lo, hi = np.quantile(rho, [0.05, 0.95])
+        rows.append(dict(key=list(map(int, k)), edge=bool(T["E"][k[:2]]), fail=nf / n,
+                         base=float(r0k.mean()), rho=float(rho.mean()), lo=float(lo),
+                         hi=float(hi)))
+    out["patches"] = rows
+    for m in margins:
+        out[f"equivalent_{m}"] = sum(r["hi"] < m and r["lo"] > -m for r in rows)
+        out[f"harm_excluded_{m}"] = sum(r["hi"] < m for r in rows)
+    out["harm_significant"] = sum(r["lo"] > 0 for r in rows)
+    out["benefit_significant"] = sum(r["hi"] < 0 for r in rows)
+    col = {t: n for n, t in enumerate(tasks)}
+    for grp in ("all", "wrong", "true"):
+        sel = [k for k in keys20 if grp == "all" or bool(T["E"][k[:2]]) == (grp == "true")]
+        tf, tn = np.zeros(len(tasks)), np.zeros(len(tasks))
+        for k in sel:
+            for r in bank["reg"][f"{k[0]},{k[1]},{k[2]}"]:
+                tf[col[r["task"]]] += 1 - r["y"]
+                tn[col[r["task"]]] += 1
+        use = np.nonzero(tn)[0]
+
+        def est(idx, p0):
+            return float((tf[idx] - tn[idx] * p0[idx]).sum() / tn[idx].sum())
+        point = est(use, nf0 / n0)
+        bs = []
+        for _ in range(2000):
+            idx = rng.choice(use, len(use))
+            pf = rng.binomial(tn[idx].astype(int), np.clip(tf[idx] / tn[idx], 0, 1))
+            p0 = rng.binomial(n0[idx].astype(int), nf0[idx] / n0[idx]) / n0[idx]
+            bs.append(float((pf - tn[idx] * p0).sum() / tn[idx].sum()))
+        lo, hi = np.quantile(bs, [0.05, 0.95])
+        out[f"pooled_{grp}"] = dict(n_patches=len(sel), n_runs=int(tn.sum()),
+                                    fail=float(tf.sum() / tn.sum()), rho=point,
+                                    lo=float(lo), hi=float(hi), p_harm=float(np.mean(np.array(bs) > 0)))
     return out
 
 

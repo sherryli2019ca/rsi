@@ -72,19 +72,58 @@ def sig_table(R):
 
 def heldout_table():
     H = json.load(open("runs/tau2_retail/heldout_breakdown.json"))
-    cols = ("all", "clean", "no_step_fault")
-    rows = ["Unpatched & " + " & ".join(f"{H['unpatched'][c][0]:.2f}" for c in cols) + " & & 0 \\\\",
-            "\\midrule"]
+    A = json.load(open("runs/tau2_airline/heldout_breakdown.json"))
+    cols = ("all", "clean")
+
+    def vs(r):
+        va = r["vs_apply"]["all"]
+        return f"{fmt(va[0])} {{\\scriptsize[{fmt(va[2])}, {fmt(va[3])}]}}"
+    rows = ["Unpatched & " + " & ".join(f"{H['unpatched'][c][0]:.2f}" for c in cols) +
+            f" & & {A['unpatched']['all'][0]:.2f} & \\\\", "\\midrule"]
     for m, name in NAMES:
-        r = H.get(f"{m}|10")
+        r, a = H.get(f"{m}|10"), A.get(f"{m}|10")
         if r:
-            va = r["vs_apply"]["all"]
-            dv = "--" if m == "LLM-only" else f"{fmt(va[0])} {{\\scriptsize[{fmt(va[2])}, {fmt(va[3])}]}}"
+            dv = "--" if m == "LLM-only" else vs(r)
+            air = " & " if not a else (f"{a['all'][0]:.2f} & " + ("--" if m == "LLM-only" else vs(a)))
             rows.append(f"{name} & " + " & ".join(f"{r[c][0]:.2f}" for c in cols) +
-                        f" & {dv} & {r['n_patches']:.1f} \\\\")
+                        f" & {dv} & {air} \\\\")
     open("paper/tables/heldout.tex", "w").write("\n".join(rows) + "\n")
     ses = [H[k][c][1] for k in H if k != "n_episodes" and isinstance(H[k], dict) for c in cols]
     return rows, (min(ses), max(ses)), H["n_episodes"]
+
+
+def ablate_table():
+    """Appendix: second-review held-out runs on retail (C, D, F)."""
+    R = json.load(open("runs/tau2_retail/review2_heldout.json"))
+
+    def ci(v):
+        return f"{fmt(v[0])} {{\\scriptsize[{fmt(v[2])}, {fmt(v[3])}]}}"
+    rows = []
+    for m, v in R["C"].items():
+        rows.append(f"{dict(NAMES)[m]} & {ci(v['full_minus_nostep']['all'])} & "
+                    f"{ci(v['full_minus_nostep']['no_step_fault'])} & "
+                    f"{ci(v['full_minus_nostep']['step_fault'])} & "
+                    f"{ci(v['nostep_minus_unpatched']['no_step_fault'])} \\\\")
+    open("paper/tables/ablate_step.tex", "w").write("\n".join(rows) + "\n")
+    rows2 = []
+    for c, v in R["D"]["contribution"].items():
+        rows2.append(f"\\texttt{{{c.replace('_', '\\_')}}} & {ci(v['all'])} & {ci(v['no_step_fault'])} \\\\")
+    rows2.append("\\midrule")
+    rows2.append(f"Whole set vs unpatched & {ci(R['D']['full_minus_unpatched']['all'])} & "
+                 f"{ci(R['D']['full_minus_unpatched']['no_step_fault'])} \\\\")
+    rows2.append(f"Whole set $-$ sum of parts & {ci(R['D']['interaction']['all'])} & "
+                 f"{ci(R['D']['interaction']['no_step_fault'])} \\\\")
+    open("paper/tables/ablate_loo.tex", "w").write("\n".join(rows2) + "\n")
+    F = R["F"]
+    rows3 = []
+    for m in ("unpatched", "LLM-only", "Net", "HarnessFix-gate", "HarnessFix"):
+        v = F[m]
+        name = "Unpatched" if m == "unpatched" else dict(NAMES)[m]
+        du = "--" if m == "unpatched" else ci(v["minus_unpatched"])
+        da = "--" if m == "LLM-only" else ci(v["minus_LLM-only"])
+        rows3.append(f"{name} & {v['old']:.2f} & {v['new']:.2f} & {v['pooled']:.2f} & {du} & {da} \\\\")
+    open("paper/tables/ablate_clean.tex", "w").write("\n".join(rows3) + "\n")
+    return rows + rows2 + rows3
 
 
 def vpi_table(R):
@@ -155,6 +194,7 @@ def main():
     R = load()
     for rows in (main_table(R), sig_table(R), vpi_table(R), robust_table(R), csweep_table(R)):
         print("\n".join(rows), "\n")
+    print("\n".join(ablate_table()), "\n")
     rows, se, n = heldout_table()
     print("\n".join(rows), "\nheld-out s.e. range", se, n)
 

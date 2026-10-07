@@ -61,9 +61,16 @@ for d in tau2_retail tau2_airline; do
   python -m agent_exp.reanalysis --out runs/$d --domain $d --stage report   # all scorings -> reanalysis.json
 done
 python -m agent_exp.heldout_breakdown --out runs/tau2_retail                # held-out by episode type
+python -m agent_exp.heldout_breakdown --out runs/tau2_airline --domain tau2_airline
+python -m agent_exp.review2_report --out runs/tau2_retail                  # step-patch removal, leave-one-out, clean episodes
 python -m agent_exp.report_tau2                                             # paper/tables/*.tex
 cd paper && latexmk -pdf main.tex
 ```
+
+Second-review runs (API calls, about 3,800 episodes): `runs/review2_runs.sh` runs the task-matched
+unpatched baseline (`agent_exp.review2_runs --stage baseline`, both domains), the airline held-out sets
+(`agent_exp.bank_heldout`), and the retail step-patch removal, leave-one-out and clean-episode runs
+(`--stage nostep|loo|clean`).
 
 Re-collecting a bank: `python -m agent_exp.bank --out runs/tau2_retail --domain tau2_retail --stage bank`
 (prompts in `agent_exp/analyst.py`, environment and faults in `agent_exp/tau2_env.py`).

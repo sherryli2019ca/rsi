@@ -80,7 +80,7 @@ def main():
                                       bool(v[0] + 1.645 * v[1] < margin)] for k, v in dv.items()}
     _save(os.path.join(args.out, "heldout_breakdown.json"), out)
     for g, r in out.items():
-        if g != "n_episodes":
+        if isinstance(r, dict) and g != "n_episodes":
             print(g, {k: (round(v[0], 3) if isinstance(v, list) else v if isinstance(v, dict) else round(v, 2)) for k, v in r.items()})
     print(out["n_episodes"])
 
