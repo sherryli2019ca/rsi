@@ -56,24 +56,38 @@ def tables(bank):
     return N, NF
 
 
+def solved_weights():
+    """Weight of each regression task: the number of solved clean training
+    episodes of that task, i.e. its share of the frame regression tasks were
+    drawn from."""
+    n = {}
+    for d in CTX["data"]:
+        if d["reward"] and d["variant"] is None:
+            n[str(d["task_id"])] = n.get(str(d["task_id"]), 0) + 1
+    return np.array([n.get(str(t), 0) for t in CTX["base_tasks"]], float)
+
+
 class BinomHarm:
     """Posterior draws of rho (I, J, 3) and of the mean unpatched failure rate."""
 
-    def __init__(self, bank, seeds=(0, 1, 2, 3), iters=20000, burn=5000, thin=25):
+    def __init__(self, bank, seeds=(0, 1, 2, 3), iters=20000, burn=5000, thin=25,
+                 slope=True, weighted=True):
         N, NF = tables(bank)
         self.has = N.sum(1) > 0
         n0, f0 = CTX["base_n"], CTX["base_nf"]
-        chains = [HB.sample(N[self.has], NF[self.has], n0, f0, iters, burn, thin, seed=s)
+        chains = [HB.sample(N[self.has], NF[self.has], n0, f0, iters, burn, thin, seed=s,
+                            slope=slope)
                   for s in seeds]
         self.chains = chains
+        self.wt = solved_weights() if weighted else None
         self.draws = {k: np.concatenate([c[k] for c in chains]) for k in chains[0]}
         rng = np.random.default_rng(7)
-        rho, base = HB.rho_draws(self.draws)
+        rho, base = HB.rho_draws(self.draws, self.wt)
         S = len(base)
         full = np.zeros((S, len(self.has)))
         full[:, self.has] = rho
         for p in np.nonzero(~self.has)[0]:
-            full[:, p] = HB.new_patch_rho(self.draws, rng)
+            full[:, p] = HB.new_patch_rho(self.draws, rng, self.wt)
         self.rho = full.reshape(S, CTX["I"], CTX["J"], 3)
         self.base = base
         self.N, self.NF = N, NF
@@ -82,12 +96,13 @@ class BinomHarm:
         """Split-free Gelman-Rubin R-hat over the chains for mu, sd and pooled rho."""
         out = {}
         for name, f in (("mu", lambda c: c["mu"]), ("sd", lambda c: c["sd"]),
-                        ("pooled_rho", lambda c: HB.rho_draws(c)[0].mean(1))):
+                        ("beta", lambda c: c["beta"]),
+                        ("pooled_rho", lambda c: HB.rho_draws(c, self.wt)[0].mean(1))):
             x = np.array([f(c) for c in self.chains])
             m, n = x.shape
             B = n * x.mean(1).var(ddof=1)
             W = x.var(1, ddof=1).mean()
-            out[name] = float(np.sqrt(((n - 1) / n * W + B / n) / W))
+            out[name] = float(np.sqrt(((n - 1) / n * W + B / n) / W)) if W > 0 else 1.0
         return out
 
     def summary(self):
@@ -95,6 +110,7 @@ class BinomHarm:
         pooled = self.rho[:, self.has.reshape(self.rho.shape[1:])].mean(1)
         spread = self.rho[:, self.has.reshape(self.rho.shape[1:])].std(1)
         return {"mu_logit": q(self.draws["mu"]), "sd_logit": q(self.draws["sd"]),
+                "beta": q(self.draws["beta"]),
                 "pooled_rho": q(pooled), "spread_rho": q(spread), "base": q(self.base),
                 "rhat": self.rhat(), "n_draws": len(self.base)}
 
@@ -398,19 +414,34 @@ def main():
     CTX["T"] = T
     o = yardstick(T, CTX["f"])
     rep["yardstick_abs"] = o / (1 + w)
-    todo = set(args.only or ["binom", "split", "clean", "audit", "payback", "judges"])
+    todo = set(args.only or ["binom", "split", "clean", "audit", "weak", "payback", "judges"])
+    H = None
     if "binom" in todo:
         H = BinomHarm(CTX["bank"])
         rep["binom"] = H.summary()
         sel = H.N[H.has].sum(1) >= 20
         rep["binom"]["ppc"] = HB.ppc({k: v for k, v in H.draws.items()},
                                      H.N[H.has], H.NF[H.has], CTX["base_n"],
-                                     np.random.default_rng(3), sel)
+                                     np.random.default_rng(3), sel, f0=CTX["base_nf"])
+        # sensitivity: logit-additive (no slope), and tasks weighted equally
+        Ha = BinomHarm(CTX["bank"], slope=False)
+        rep["binom_additive"] = Ha.summary()
+        rep["binom_additive"]["ppc"] = HB.ppc(Ha.draws, Ha.N[Ha.has], Ha.NF[Ha.has],
+                                              CTX["base_n"], np.random.default_rng(3), sel,
+                                              f0=CTX["base_nf"])
+        rho_u, _ = HB.rho_draws(H.draws, None)
+        q = lambda v: [float(np.mean(v)), float(np.quantile(v, .05)), float(np.quantile(v, .95))]
+        rep["binom"]["pooled_rho_unweighted"] = q(rho_u.mean(1))
         rep["primary"] = score(dec, "main", CTX["bank"], H, w, o, args.draws, with_vpi=True)
-        if any(k.startswith("audit|") for k in dec):
-            rep["audit"] = score(dec, "audit", CTX["bank"], H, w, o, args.draws)
+        rep["primary_additive"] = score(dec, "main", CTX["bank"], Ha, w, o, args.draws, with_vpi=True)
         RA._save(path, rep)
         print("binom", json.dumps(rep["binom"]), flush=True)
+    for name in ("audit", "weak"):
+        if name in todo and any(k.startswith(f"{name}|") for k in dec):
+            H = H or BinomHarm(CTX["bank"])
+            rep[name] = score(dec, name, CTX["bank"], H, w, o, args.draws)
+            RA._save(path, rep)
+            print(name, "done", flush=True)
     for kind, splitter, n_seed in (("split", split_bank, 40), ("clean", split_bank_grouped, 20)):
         if kind not in todo:
             continue

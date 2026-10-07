@@ -207,9 +207,10 @@ def setting(name):
         A, _ = split_bank(bank, int(name[5:]))
         return A, inb, 0.02, ALL, (10, 40, 80), 40
     r_aud = float(CTX["ev"]["attr_acc_injected"])
-    if name == "audit":
-        # fifth review: edge priors at the audited analyst accuracy
-        OVR[name] = {"r_hat": r_aud}
+    if name in ("audit", "weak"):
+        # fifth review: edge priors at the audited analyst accuracy, or at half of
+        # it (a weaker prior that trusts the attribution counts less)
+        OVR[name] = {"r_hat": r_aud if name == "audit" else r_aud / 2}
         return bank, inb, 0.02, ALL, (10, 40, 80), 40
     if name.startswith("clean"):
         # fifth review: halves share no source trajectory or regression task, and

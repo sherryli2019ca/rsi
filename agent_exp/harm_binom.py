@@ -141,21 +141,26 @@ def sample(N, NF, n0, f0, iters=20000, burn=5000, thin=25, seed=0, slope=False):
     return res
 
 
-def rho_draws(draws):
+def rho_draws(draws, wt=None):
     """(S, P) average excess failure probability of each patch over the tasks,
-    and (S,) mean unpatched failure probability."""
+    and (S,) mean unpatched failure probability. wt (T,) weights the tasks: the
+    estimand of Eq. 1 averages over previously solved episodes, so a task counts
+    in proportion to how often it was solved (the regression-task sampling frame);
+    None weights tasks equally."""
     al, de = draws["alpha"], draws["delta"]
     be, c = draws["beta"][:, None], draws["c"][:, None]
+    wt = np.full(al.shape[1], 1 / al.shape[1]) if wt is None else wt / wt.sum()
     base = expit(al)
-    rho = (expit(patched(al, de, be, c)) - base[:, None, :]).mean(-1)
-    return rho, base.mean(-1)
+    rho = (expit(patched(al, de, be, c)) - base[:, None, :]) @ wt
+    return rho, base @ wt
 
 
-def new_patch_rho(draws, rng):
+def new_patch_rho(draws, rng, wt=None):
     """rho of a patch with no regression runs: delta from the fitted population."""
     d = draws["mu"] + draws["sd"] * rng.standard_normal(len(draws["mu"]))
     al, be, c = draws["alpha"], draws["beta"][:, None], draws["c"][:, None]
-    return (expit(al * (1 + be) - be * c + d[:, None]) - expit(al)).mean(-1)
+    wt = np.full(al.shape[1], 1 / al.shape[1]) if wt is None else wt / wt.sum()
+    return (expit(al * (1 + be) - be * c + d[:, None]) - expit(al)) @ wt
 
 
 def _task_stats(f0, n0, NF, N):
