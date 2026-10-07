@@ -10,7 +10,10 @@ Two backends:
              roles run with thinking disabled and analyst JSON comes from a
              forced tool call validated against the schema.
 
-Set AGENT_MODEL / ANALYST_MODEL to change models. The analyst (attribution,
+Set AGENT_MODEL / ANALYST_MODEL to change models, and LLM_TEMPERATURE (or the
+`temperature` argument) to fix the sampling temperature of the agent and user
+simulator; unset, the provider's default is used, as in all runs before the
+harness check. The analyst (attribution,
 taxonomy, patches, single-step judge) and the agent are kept separate so their
 token costs can be reported separately.
 """
@@ -44,8 +47,13 @@ def _valid(obj, schema):
 
 
 class LLM:
-    def __init__(self, agent_effort="low", analyst_effort="medium"):
+    def __init__(self, agent_effort="low", analyst_effort="medium", temperature=None):
         import anthropic
+
+        if temperature is None and os.environ.get("LLM_TEMPERATURE"):
+            temperature = float(os.environ["LLM_TEMPERATURE"])
+        # the SDK has no temperature argument; the endpoint accepts it in the body
+        self.temp = {} if temperature is None else {"extra_body": {"temperature": temperature}}
 
         if BACKEND == "deepseek":
             # The key is injected by the environment's egress proxy.
@@ -88,7 +96,8 @@ class LLM:
     def agent_step(self, system, tools, messages, purpose="agent"):
         if BACKEND == "deepseek":
             resp = self._create(model=AGENT_MODEL, max_tokens=4000, system=system,
-                                tools=tools, messages=messages, thinking={"type": "disabled"})
+                                tools=tools, messages=messages, thinking={"type": "disabled"},
+                                **self.temp)
         else:
             resp = self._create(model=AGENT_MODEL, max_tokens=4000, system=system, tools=tools,
                                 messages=messages, output_config={"effort": self.agent_effort})
@@ -100,7 +109,7 @@ class LLM:
         model = model or AGENT_MODEL
         kw = {"thinking": {"type": "disabled"}} if BACKEND == "deepseek" else {}
         resp = self._create(model=model, max_tokens=2000, system=system,
-                            messages=messages, **kw)
+                            messages=messages, **kw, **self.temp)
         self._count(purpose, model, resp)
         return "".join(b.text for b in resp.content if b.type == "text")
 

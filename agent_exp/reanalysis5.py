@@ -453,6 +453,7 @@ def main():
             HBh = BinomHarm(Bh, seeds=(0, 1), iters=12000, burn=3000, thin=30)
             parts.append(score(dec, f"{kind}{t}", Bh, HBh, w, o, args.split_draws, n_seed=n_seed,
                                seed=10 + t))
+            print(f"{kind}{t} scored", flush=True)
         if parts:
             rep[kind] = pool_scores(parts)
             rep[kind]["n_halvings"] = len(parts)

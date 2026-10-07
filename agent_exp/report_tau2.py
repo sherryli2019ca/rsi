@@ -334,8 +334,65 @@ def judges_table(R5):
     return rows
 
 
+def deploy_table():
+    """Main table: held-out success of every policy's patch set (budget 10) in
+    percent, the paired difference from Apply attributed in points with a
+    task-clustered 90% interval, patches per set and verification episodes."""
+    D = {d: json.load(open(f"runs/tau2_{d}/deployment.json")) for d in DOMS}
+
+    def pct(v):
+        return f"{100 * v:.1f}"
+
+    def pts(v):
+        return f"{100 * v:+.1f}".replace("+", "").replace("-", "$-$")
+
+    def block(a, m):
+        if a is None:
+            return " & & & & "
+        if m == "unpatched":
+            dv, C = "", ""
+        elif m == "LLM-only":
+            dv, C = "--", "0"
+        else:
+            v = a["vs_apply|all"]
+            dv = f"{pts(v[0])} {{\\footnotesize[{pts(v[2])}, {pts(v[3])}]}}"
+            C = f"{a['C_verify']:.0f}"
+        return f"{pct(a['all'])} & {pct(a['clean'])} & {dv} & {a['n_patches']:.1f} & {C}"
+    rows = ["Unpatched & " + block(D["retail"]["arms"]["unpatched"], "unpatched") + " & " +
+            block(D["airline"]["arms"]["unpatched"], "unpatched") + " \\\\", "\\midrule"]
+    for m, name in NAMES:
+        r, a = D["retail"]["arms"].get(m), D["airline"]["arms"].get(m)
+        rows.append(f"{name.replace(' (ours)', '')} & {block(r, m)} & {block(a, m)} \\\\")
+        if m == "LLM-only":
+            rows.append("\\midrule")
+    open("paper/tables/deploy.tex", "w").write("\n".join(rows) + "\n")
+    return rows
+
+
+def transfer_data():
+    """Figure data: distinct patch sets, gain over the unpatched agent predicted
+    from their bank replays (net of spurious recovery) against the observed
+    held-out gain, in points, with 90% half-widths."""
+    out = {}
+    for d in DOMS:
+        T = json.load(open(f"runs/tau2_{d}/deployment.json"))["transfer"]
+        seen = {}
+        for p in T["points"]:
+            seen.setdefault((round(p["pred_replay"], 5), round(p["obs"], 5)), p)
+        for step in (True, False):
+            lines = ["x y e"]
+            for p in seen.values():
+                if p["has_step"] == step and p["n_patches"] > 0:
+                    lines.append(f"{100 * p['pred_replay']:.2f} {100 * p['obs']:.2f} {164.5 * p['se']:.2f}")
+            open(f"paper/tables/transfer_{d}_{'step' if step else 'nostep'}.dat", "w").write("\n".join(lines) + "\n")
+        out[d] = {"n": len(seen), "corr": T["corr_replay"], "corr_judge": T["corr_judge"]}
+    return out
+
+
 def main():
     R, R3, R4, R5 = load(), load3(), load4(), load5()
+    print("\n".join(deploy_table()), "\n")
+    print(transfer_data())
     for rows in (main_table(R5), sig_table(R), vpi_table(R3, R5), robust_table(R, R3), csweep_table(R),
                  harm_models_table(R3, R5), netabl_table(R3), judges_table(R5), payback_table(R5)):
         print("\n".join(rows), "\n")
