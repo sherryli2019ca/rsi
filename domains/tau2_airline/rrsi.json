@@ -28,7 +28,7 @@
  "policy_temperature": 0.0,
  "concurrency": 8,
  "max_harness_error_rate": 0.02,
- "heldout_k": 8,
- "heldout_k_endpoints": 10,
+ "heldout_k": 12,
+ "heldout_k_endpoints": 12,
  "judge_model": "deepseek-v4-pro"
 }

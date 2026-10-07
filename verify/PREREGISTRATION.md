@@ -103,3 +103,10 @@ pre-specified increase above), the margin and the endpoints.
   the registered formula on evolve-side evidence. The increase is put to the
   project owner because it adds cost to the approved run; the outcome will be
   recorded here.
+- 15:52Z: the project owner approved the increase. Held-out trials per task
+  for every incumbent and measured candidate: retail 4 -> 6, airline 8 -> 12
+  (240 episodes per harness); the airline endpoints get 12 instead of 10 so
+  that they are never fewer than the per-harness count. Rounds already
+  processed were topped up (resume-safe, only missing trials run). The final
+  disagreement rate over all rounds will be checked against the same formula
+  before the analysis is run.
