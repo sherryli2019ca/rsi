@@ -67,6 +67,11 @@ for d in tau2_retail tau2_airline; do   # third review: deployable sets, Bayes d
   python -m agent_exp.reanalysis --out runs/$d --domain $d --stage decide --settings netabl
   python -m agent_exp.reanalysis3 --out runs/$d --domain $d                 # -> reanalysis3.json
 done
+for d in tau2_retail tau2_airline; do   # fourth review: judge configurations, split-bank scoring, payback
+  python -m agent_exp.judge_configs --out runs/$d --domain $d --n 360 --n_full 40   # API calls, ~150 episode-equivalents
+  python -m agent_exp.judge_configs --out runs/$d --domain $d --report      # -> judge_configs_report.json
+  python -m agent_exp.reanalysis4 --out runs/$d --domain $d                 # -> reanalysis4.json
+done
 python -m agent_exp.report_tau2                                             # paper/tables/*.tex
 cd paper && latexmk -pdf main.tex
 ```

@@ -43,22 +43,31 @@ def load3():
     return {d: json.load(open(f"runs/tau2_{d}/reanalysis3.json")) for d in DOMS}
 
 
-def main_table(R3):
+def load4():
+    return {d: json.load(open(f"runs/tau2_{d}/reanalysis4.json")) for d in DOMS}
+
+
+def main_table(R3, R4):
     """Posterior value of deployable sets (one patch per component, support-capped
-    harm), c = 0 and c_w = 0.02, budgets 10/40/80, with the Bayes default."""
-    groups = [(d, c) for d in DOMS for c in ("0.0", "0.02")]
-    res = {g: R3[g[0]]["primary"][g[1]] for g in groups}
-    best = {(g, B): max(res[g][f"{m}|{B}"]["mean"] for m, _ in NAMES) for g in groups for B in BUDGETS}
-    rows = []
-    for m, name in NAMES:
-        cells = [fmt(res[g][f"{m}|{B}"]["mean"], res[g][f"{m}|{B}"]["mean"] >= best[g, B] - 1e-9)
-                 for g in groups for B in BUDGETS]
-        rows.append(f"{name} & " + " & ".join(cells) + " \\\\")
-        if m == "LLM-only":
-            bd = [fmt(res[g][f"Bayes-default-{g[1]}|0"]["mean"]) for g in groups for B in BUDGETS]
-            rows.append("Bayes default (Prop.~\\ref{prop:vpi}) & " + " & ".join(bd) + " \\\\")
-            rows.append("\\midrule")
-    open("paper/tables/tau2.tex", "w").write("\n".join(rows) + "\n")
+    harm), budgets 10/40/80, with the Bayes default: on the full bank, and with
+    policy evidence (half A) separated from outcome assessment (half B)."""
+    for c, path in (("0.0", "paper/tables/tau2.tex"), ("0.02", "paper/tables/tau2_cw.tex")):
+        groups = [(d, k) for d in DOMS for k in ("full", "split")]
+        res = {g: (R3[g[0]]["primary"][c] if g[1] == "full" else R4[g[0]]["split"][c])
+               for g in groups}
+        best = {(g, B): max(res[g][f"{m}|{B}"]["mean"] for m, _ in NAMES) for g in groups
+                for B in BUDGETS}
+        rows = []
+        for m, name in NAMES:
+            cells = [fmt(res[g][f"{m}|{B}"]["mean"], res[g][f"{m}|{B}"]["mean"] >= best[g, B] - 1e-9)
+                     for g in groups for B in BUDGETS]
+            rows.append(f"{name} & " + " & ".join(cells) + " \\\\")
+            if m == "LLM-only":
+                bd = [fmt(res[g][f"Bayes-default-{c}|0"]["mean"]) if g[1] == "full" else "--"
+                      for g in groups for B in BUDGETS]
+                rows.append("Bayes default (Prop.~\\ref{prop:vpi}) & " + " & ".join(bd) + " \\\\")
+                rows.append("\\midrule")
+        open(path, "w").write("\n".join(rows) + "\n")
     return rows
 
 
@@ -138,8 +147,8 @@ def ablate_table():
 
 def vpi_table(R3):
     """Value of perfect information over two deployable defaults (posterior means),
-    with the decision-rule gap; last row per domain: per-cell additive and uncapped,
-    as in the previous version of the paper."""
+    with the decision-rule gap; indented rows: over Apply at c = 0 under other harm
+    models, and per cell (additive, not deployable)."""
     rows = []
     for d in DOMS:
         P = R3[d]["primary"]
@@ -150,11 +159,14 @@ def vpi_table(R3):
             first = d.capitalize() if n == 0 else ""
             rows.append(f"{first} & Apply, {lab_c} & {fmt(va['default'][0])} & {fmt(gap)} & " +
                         " & ".join(fmt(va[k][0]) for k in ("harm", "select", "discover", "total")) + " \\\\")
-            rows.append(f" & Bayes, {lab_c} & {fmt(vb['default'][0])} & -- & " +
-                        " & ".join(fmt(vb[k][0]) for k in ("harm", "select", "discover", "total")) + " \\\\")
-        u = R3[d]["undeployed"]["vpi"]["0.0|apply"]
-        rows.append(f" & \\quad per cell, $c=0$ & {fmt(u['default'][0])} & & " +
-                    " & ".join(fmt(u[k][0]) for k in ("harm", "select", "discover", "total")) + " \\\\")
+            if c == "0.0":
+                rows.append(f" & Bayes, {lab_c} & {fmt(vb['default'][0])} & -- & " +
+                            " & ".join(fmt(vb[k][0]) for k in ("harm", "select", "discover", "total")) + " \\\\")
+        for key, lab in (("model|pool", "pooled ($\\tau{=}0$)"), ("model|nopool", "no pooling"),
+                         ("model|task", "tasks resampled"), ("undeployed", "per cell")):
+            u = R3[d][key]["vpi"]["0.0|apply"]
+            rows.append(f" & \\quad {lab} & {fmt(u['default'][0])} & & " +
+                        " & ".join(fmt(u[k][0]) for k in ("harm", "select", "discover", "total")) + " \\\\")
         if d == "retail":
             rows.append("\\midrule")
     open("paper/tables/vpi.tex", "w").write("\n".join(rows) + "\n")
@@ -243,6 +255,21 @@ def csweep_table(R, B=40):
     return rows
 
 
+def payback_table(R4):
+    lab = dict(NAMES)
+    rows = []
+    for d in DOMS:
+        rows.append(f"\\multicolumn{{6}}{{l}}{{\\emph{{{d.capitalize()}}}}} \\\\")
+        for m, r in R4[d]["payback"].items():
+            if m not in lab:
+                continue
+            p = r["ca"]
+            rows.append(f"{lab[m]} & {fmt(r['mean'])} [{r['se']:.2f}] & {p['N300']:.2f} & "
+                        f"{p['N1000']:.2f} & {p['N10000']:.2f} & {p['p_pos']:.2f} \\\\")
+    open("paper/tables/payback.tex", "w").write("\n".join(rows) + "\n")
+    return rows
+
+
 def judges_table():
     import os
     labs = (("bank", "Bank judge (analyst, full trajectory)"),
@@ -273,9 +300,9 @@ def judges_table():
 
 
 def main():
-    R, R3 = load(), load3()
-    for rows in (main_table(R3), sig_table(R), vpi_table(R3), robust_table(R, R3), csweep_table(R),
-                 harm_models_table(R3), netabl_table(R3), judges_table()):
+    R, R3, R4 = load(), load3(), load4()
+    for rows in (main_table(R3, R4), sig_table(R), vpi_table(R3), robust_table(R, R3), csweep_table(R),
+                 harm_models_table(R3), netabl_table(R3), judges_table(), payback_table(R4)):
         print("\n".join(rows), "\n")
     print("\n".join(ablate_table()), "\n")
     rows, se, n = heldout_table()
