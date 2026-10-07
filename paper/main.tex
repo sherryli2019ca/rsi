@@ -29,22 +29,22 @@
 \maketitle
 
 \begin{abstract}
-Self-improving LLM agents let an analyst model read failed trajectories, blame a component, and patch it. Because attributions are unreliable, recent systems verify a patch before applying it: they replay the failure with the patch, ask an LLM judge, or re-run tasks that used to pass. Methods for this step usually assume that some evidence is cheap. We measured it on three tool-use settings, a fault-injected customer-service environment and the retail and airline domains of $\tau^2$-bench, using over 14,000 agent runs and judge checks. Every kind of evidence costs about one episode: a single-step judge check costs 23--72\% of a full replay, and its sensitivity is only 0.37--0.57. We therefore recast verification as allocating a budget of episodes among targeted replays, null replays that measure spurious recovery, and regression runs, so as to maximise the net effect of the applied patches on success. A value-of-information argument shows that verification can pay only when a wrong patch does real harm: its value is bounded by $\min(\pi G,(1-\pi)H)$, where $\pi$ is the chance that the patch is right, $G$ its gain if right, and $H$ its harm if wrong. On $\tau^2$-bench, wrong patches almost never hurt: only 3 of 121 patches significantly raise failures on previously solved tasks. Consistent with the bound, applying every attributed patch without evidence is as good as any verification policy on held-out tasks (success 0.76$\to$0.88, against 0.83--0.88 for verified patch sets). When wrong changes carry a fixed cost, verification becomes useful, but no allocation policy dominates: the best one changes with domain and budget. A net-effect allocation that prices every experiment in episodes improves steadily with budget on both domains, whereas a multi-fidelity design method built on cheap checks degrades on airline as its budget grows. We release the environments, fault suites and intervention banks.
+Self-improving LLM agents let an analyst model read failed trajectories, blame a component, and patch it. Because attributions are unreliable, recent systems verify a patch before applying it: they replay the failure with the patch, ask an LLM judge, or re-run tasks that used to pass. Methods for this step usually assume that some evidence is cheap. We measured it on three tool-use settings, a fault-injected customer-service environment and the retail and airline domains of $\tau^2$-bench, using over 14,000 agent runs and judge checks. Every kind of evidence consumes a substantial fraction of an episode: a single-step judge check costs 23--72\% of a full replay, and its sensitivity is only 0.37--0.57. We therefore recast verification as allocating a budget of episodes among targeted replays, null replays that measure spurious recovery, and regression runs, so as to maximise the net effect of the applied patches on success. A value-of-information analysis splits what verification can be worth into avoiding harm, choosing among candidate patches and discovering causes the analyst missed, and bounds the first by a patch's expected harm. On $\tau^2$-bench the realised value lies mostly in discovery, which no budgeted policy could afford, and only 3 of 121 patches significantly raise failures on previously solved tasks; yet 20 regression runs per patch cannot rule out harms large enough to cancel the gains, and how harm is scored reverses the ranking of policies. Tested as whole sets on held-out tasks, applying the attributed patches without evidence is as good as any verified set (success 0.76$\to$0.88, against 0.83--0.88) and large joint harm is excluded. With a cost per wrong change, verification pays, but the best allocation policy changes with domain, budget and scoring. We release the environments, fault suites and intervention banks.
 \end{abstract}
 
 \section{Introduction}
 
 A growing family of systems improves LLM agents from their own failures: the agent runs, an analyst model reads the failed trajectories, and its diagnosis drives a change to a prompt, a tool description or the orchestration \citep{shinn2023reflexion,zhao2024expel,hu2025adas,zhang2025dgm,agrawal2025gepa,chen2026harnessfix}. The diagnosis step, \emph{failure attribution}, is unreliable \citep{zhang2025whichagent,liu2026whowhenpro}: models label failures by their visible symptom rather than their cause, so a loop that trusts them will often change the wrong component. The common remedy is to verify before acting: patch the blamed component and replay the failure \citep{ma2025dover,lin2026reflect,shah2026car}, ask a judge whether the failing step is fixed, or re-run tasks that used to pass and keep the patch only if nothing breaks \citep{chen2026harnessfix}.
 
-Verification costs agent episodes, so the natural research question is how to spend them. A tempting answer, and the one we started from, treats LLM judgements as cheap evidence and full replays as expensive, and allocates a budget across both by Bayesian experimental design. In a simulator built on these assumptions that approach needs half the budget of the strongest baseline (Appendix~\ref{app:carve}). On real agents the premise fails. Across three tool-use settings, a judge check costs 23--72\% of a full replay, because the judge must read the trajectory, and it detects only 37--57\% of real repairs. No evidence is cheap.
+Verification costs agent episodes, so the natural research question is how to spend them. A tempting answer, and the one we started from, treats LLM judgements as cheap evidence and full replays as expensive, and allocates a budget across both by Bayesian experimental design. In a simulator built on these assumptions that approach needs half the budget of the strongest baseline (Appendix~\ref{app:carve}). On real agents the premise fails. Across three tool-use settings, a judge check costs 23--72\% of a full replay, because the judge must read the trajectory, and it detects only 37--57\% of real repairs. No evidence is cheap: every kind consumes a substantial fraction of an episode.
 
 We therefore pose the problem with every piece of evidence priced in episodes, and ask a prior question: \emph{when is a diagnosis worth verifying at all?} Our contributions are:
 \begin{itemize}
 \setlength\itemsep{0pt}
 \item A formulation of failure-driven self-improvement as \emph{episode-priced evidence allocation}. A patch's net effect on success decomposes into repair on its target category, spurious recovery that mimics repair, and regressions on other tasks; targeted replays, null replays and regression runs each estimate one term (\S\ref{sec:problem}).
-\item A decision-theoretic bound: the value of verifying a patch is at most $\min(\pi G,(1-\pi)H)$, so verification pays only when a wrong patch is both likely and harmful. Together with the sample sizes needed to estimate each term, this yields a test practitioners can run before spending a budget on verification (\S\ref{sec:when}).
-\item Measurements on ShopDesk and offline intervention banks on $\tau^2$-bench retail and airline, with paired replays and judge checks for every patch, null replays, and 20 regression runs for every patch any method accepts. Evaluating eleven policies against them shows that on these agents wrong patches are nearly harmless, and that applying attributed patches without evidence matches every verification policy on held-out tasks, as the bound predicts (\S\ref{sec:results}).
-\item A net-effect allocation method that models the three terms with per-category spurious recovery and chooses experiments by knowledge gradient per unit cost. When wrong changes are costly, its gain grows steadily with budget on both domains, although no policy, ours included, is best everywhere (\S\ref{sec:method}, \S\ref{sec:results}).
+\item A value-of-information decomposition: what any verification can add to acting on the attributions splits into avoiding harm, which is bounded by the expected harm of the default patch, choosing among candidate patches, and discovering causes the analyst missed. The familiar bound $\min(\pi G,(1-\pi)H)$ is the special case in which only the edge is uncertain. With the sample sizes needed to estimate each term, this tells practitioners where verification could pay before they spend a budget on it (\S\ref{sec:when}).
+\item Measurements on ShopDesk and offline intervention banks on $\tau^2$-bench retail and airline, with paired replays and judge checks for every patch, null replays, and 20 regression runs for every patch an original policy accepts. Evaluating eleven policies under several cost models, with independent adjudication and with alternative harm scorings, shows that the realised value of verification lies mostly in discovery, that per-patch harm cannot be measured precisely enough to fix a ranking, and that on held-out tasks applying attributed patches without evidence matches every verified set (\S\ref{sec:results}).
+\item A net-effect allocation method that models the three terms with per-category spurious recovery and chooses experiments by knowledge gradient per unit cost. When wrong changes are costly, its value grows with budget on both domains and it keeps positive value under independent adjudication, although no policy, ours included, is best everywhere (\S\ref{sec:method}, \S\ref{sec:results}).
 \end{itemize}
 
 
@@ -69,7 +69,7 @@ Our selection rule is the KG(*) variant of the knowledge gradient \citep{frazier
 
 \paragraph{Net effect.} Applying patch $k$ of cell $(i,j)$ changes the success rate by
 \begin{equation}
-\Delta_k \;=\; F f_i\, e_{ij}\, q_k \;-\; (1-F)\,\rho_k \;-\; c_{\mathrm{a}} \;-\; c_{\mathrm{w}}\,(1-e_{ij}),
+\Delta_k = F f_i e_{ij} q_k - (1-F)\rho_k - c_{\mathrm{a}} - c_{\mathrm{w}}(1-e_{ij}),
 \label{eq:delta}
 \end{equation}
 where $\rho_k$ is the patch's excess failure probability on tasks that used to succeed (regressions, which may hit any category), $c_{\mathrm a}\ge0$ is a cost charged for every applied change (review, maintenance) and $c_{\mathrm w}\ge0$ a penalty charged only for a change aimed at a wrong component (risk not captured by $\rho_k$). We report costs as fractions of the failure mass $F$ and vary both. The goal is to choose a set of patches, at most one per cell, that maximises $\sum_k\Delta_k$ on held-out tasks.\footnote{Effects of patches to different components are treated as additive. We do not test interactions directly; held-out success of whole patch sets (\S\ref{sec:results}) is the only check.}
@@ -128,18 +128,18 @@ When verification is warranted, the budget must still be allocated across cells,
 \begin{table*}[t]
 \centering
 \small
-\setlength{\tabcolsep}{3.5pt}
+\setlength{\tabcolsep}{3.2pt}
 \begin{tabular}{lcccccccccccc}
 \toprule
  & \multicolumn{6}{c}{$\tau^2$ retail (development)} & \multicolumn{6}{c}{$\tau^2$ airline (held out)} \\
 \cmidrule(lr){2-7}\cmidrule(lr){8-13}
- & \multicolumn{3}{c}{measured harm ($c{=}0$)} & \multicolumn{3}{c}{$+$ change cost $c$} & \multicolumn{3}{c}{measured harm ($c{=}0$)} & \multicolumn{3}{c}{$+$ change cost $c$} \\
-Budget & 10 & 40 & 80 & 10 & 40 & 80 & 10 & 40 & 80 & 10 & 40 & 80 \\
+ & \multicolumn{3}{c}{significant harm} & \multicolumn{3}{c}{$+\,c_{\mathrm w}{=}0.02$} & \multicolumn{3}{c}{significant harm} & \multicolumn{3}{c}{$+\,c_{\mathrm w}{=}0.02$} \\
+Budget (episodes) & 10 & 40 & 80 & 10 & 40 & 80 & 10 & 40 & 80 & 10 & 40 & 80 \\
 \midrule
 \csname @@input\endcsname tables/tau2.tex
 \bottomrule
 \end{tabular}
-\caption{Net gain as a fraction of the oracle on the $\tau^2$ intervention banks, mean over 200 resampling seeds; bold is the best per column. ``Measured harm'' charges each accepted patch its significant measured regression; ``$+$ change cost'' also charges $c=0.02$ of the failure mass per wrong change. Standard errors are at most 0.08 (retail) and 0.03 (airline); they reflect resampling only, not the finite bank.}
+\caption{Value of each policy's patch set on the $\tau^2$ intervention banks as a fraction of the repair-only oracle, mean over 200 resampling seeds; bold is the best per column. Accepted patches are charged their significant measured regressions, and in the right blocks $0.02$ of the failure mass for every patch aimed at a wrong edge. Resampling standard errors are at most 0.08 (retail) and 0.03 (airline) and do not include the uncertainty of the finite bank, which Table~\ref{tab:robust} probes.}
 \label{tab:tau2}
 \end{table*}
 
@@ -150,7 +150,7 @@ Budget & 10 & 40 & 80 & 10 & 40 & 80 & 10 & 40 & 80 & 10 & 40 & 80 \\
 
 \paragraph{Faults that look like defects.} Each training episode runs clean or with one injected fault, written as a plausible authoring mistake rather than an obvious artefact. In retail: a policy section allowing gift-card refunds, a cancellation rule without the reason check, a product-tool description that confuses item and product ids, and a tight step limit. In airline: a wrong bag allowance, a 7-day instead of 24-hour cancellation window, a missing basic-economy restriction, proactive compensation, and a tight step limit. Clean episodes contribute natural failures: 22 of 137 on retail and 28 of 112 on airline.
 
-\paragraph{Banks.} For each $\tau^2$ domain we take the 36 most-blamed (category, component) cells and generate three patches per cell. For every patch we record 20 paired targeted replays and single-step checks. We also record 20 null replays per category and 4 regression runs per patch, extended to 20 for every patch that any policy accepts (121 patches). Policies run offline by sampling outcomes from the bank, with costs in measured tokens and full replay $=1$, over 200 seeds. \emph{Ground truth needs no injected label}: an edge is real if its best patch's replay success exceeds the category's null rate by at least 0.2 (one-sided Fisher $p<0.05$), and a patch counts as regressing if its failure rate on previously solved tasks exceeds $r_0$ (one-sided binomial $p<0.05$). This yields 4 real edges on retail and 7 on airline. We report net gain (Eq.~\ref{eq:delta}) as a fraction of the oracle that applies exactly the real edges' best patches. We also apply the accepted patch sets to 40 unseen retail tasks.
+\paragraph{Banks.} For each $\tau^2$ domain we take 36 cells, the attributed cells in order of blame plus random unattributed cells of populated categories, and generate three patches per cell. For every patch we record 20 paired targeted replays and single-step checks. We also record 20 null replays per category and 4 regression runs per patch, extended to 20 for the 121 patches that any of the original policies accepted. Policies run offline by sampling outcomes from the bank, with costs in measured tokens and full replay $=1$, over 200 seeds. \emph{Ground truth needs no injected label}: an edge is real if its best patch's replay success exceeds the category's null rate by at least 0.2 (one-sided Fisher $p<0.05$), giving 4 real edges on retail and 7 on airline. Because the best of three patches is chosen on the same replays, this label is optimistic; we therefore also adjudicate on held-back halves of the bank (\S\ref{sec:results}). In the main tables a patch is charged a regression only if its failure rate on previously solved tasks exceeds $r_0$ significantly (one-sided binomial $p<0.05$); we also report unthresholded estimates with intervals. Values are fractions of the \emph{repair-only oracle}, the failure mass repaired by the real edges' best patches with no cost, a fixed yardstick for every scoring. Independently of the bank, we apply the accepted patch sets to 40 unseen retail tasks.
 
 \paragraph{Protocol.} Retail was the development domain for every method, including the variants in Appendix~\ref{app:dev}. Airline was evaluated once for the original policies and once, later, for the net-effect method, which was frozen on retail beforehand.
 
@@ -164,7 +164,7 @@ Budget & 10 & 40 & 80 & 10 & 40 & 80 & 10 & 40 & 80 & 10 & 40 & 80 \\
 \centering
 \small
 \setlength{\tabcolsep}{3pt}
-\begin{tabular}{lccc}
+\resizebox{\columnwidth}{!}{\begin{tabular}{lccc}
 \toprule
  & ShopDesk & Retail & Airline \\
 \midrule
@@ -179,73 +179,110 @@ Judge check: cost / replay & 0.72 & 0.28 & 0.23 \\
 Spurious recovery $b$ (mean) & -- & 0.23 & 0.20 \\
 \quad range over categories & -- & 0--0.50 & 0--0.50 \\
 Repair $q$ of real edges (median) & -- & 0.50 & 0.41 \\
-Replays to decide an edge (Prop.~\ref{prop:cost}) & -- & 5 & 7 \\
+Replays to decide an edge & -- & 5 & 7 \\
 \midrule
-Natural re-run failure $r_0$ & -- & 0.11 & 0.14 \\
+Re-run failure $r_0$ & -- & 0.11 & 0.14 \\
+\quad matched to regression tasks & -- & 0.09 & 0.12 \\
 Patches regressing ($p{<}0.05$) & -- & 2/61 & 1/60 \\
-Excess failure, wrong patches & -- & $+0.03$ & $-0.03$ \\
+\quad worse than peers, same tasks & -- & 0/61 & 2/60 \\
+$\rho{>}0.10$ excluded (95\%) & -- & 16/61 & 16/60 \\
+Within $\pm0.10$ (TOST) & -- & 0/61 & 0/60 \\
+Pooled $\rho$, wrong edges & -- & $+0.03$ & $-0.04$ \\
+\quad 90\% interval & -- & $[-0.03,0.08]$ & $[-0.14,0.04]$ \\
 \bottomrule
-\end{tabular}
-\caption{Measured quantities. ``Real edges among blamed cells'' is the precision of applying every attributed patch. The break-even cost ratio is the cost below which judge checks are more informative per unit cost than replays (Appendix~\ref{app:carve}). Excess failure is relative to $r_0$; both have a standard error of about 0.01, and $r_0$ itself is uncertain by 0.03--0.04.}
+\end{tabular}}
+\caption{Measured quantities. ``Real edges among blamed cells'' is the precision of applying every attributed patch. The break-even cost ratio is the cost below which judge checks are more informative per unit cost than replays (Appendix~\ref{app:carve}). Regression rows use the patches with 20 regression runs; intervals combine the binomial uncertainty of each patch, task clustering, and the posterior of $r_0$.}
 \label{tab:measured}
 \end{table}
 
 Table~\ref{tab:measured} reports the quantities that Propositions~\ref{prop:vpi} and~\ref{prop:cost} depend on.
 
-\paragraph{No evidence is cheap.} A judge check costs 23--72\% of a full replay, because the judge reads the trajectory, and it recognises only 37--57\% of real repairs. Its information per unit cost is below that of a replay in every environment: the break-even cost ratio is about 0.1, and the measured ratio is 0.23 or more. Its false-positive rate is no higher for bad patches than for good ones, so the failure mode we feared, a judge fooled by plausible bad patches, did not occur. The judge is weak, not misled.
+\paragraph{No evidence is cheap.} A judge check costs 23--72\% of a full replay, because the judge reads the trajectory, and it recognises only 37--57\% of real repairs. Its information per unit cost is below that of a replay in every environment: the break-even cost ratio is about 0.1, and the measured ratio is 0.23 or more. Its false-positive rate is no higher for bad patches than for good ones, so a judge fooled by plausible bad patches did not occur. The judge is weak, not misled.
 
 \paragraph{Replays need controls.} Without any patch, 20--23\% of replays from the failing step succeed anyway, and the rate ranges from 0 to 0.5 across categories. A replay success rate of 0.5 is strong evidence in one category and none in another. Deciding one edge takes 5--7 replays even with the right $b_i$.
 
-\paragraph{Wrong patches are nearly harmless.} With 20 regression runs per patch, only 3 of 121 patches raise failures on previously solved tasks significantly, about what chance alone would produce at $p<0.05$. On average, wrong patches change that failure rate by $+0.03$ on retail and $-0.03$ on airline, within the uncertainty of $r_0$. The exception we observed is on ShopDesk: a formatting patch (``reply \texttt{FINAL: N/A} rather than guessing'') made 26\% of held-out tasks answer N/A; removing it raises held-out success from 0.73 to 0.89. It passed its target-category replays, which by construction cannot see such harm (\S\ref{sec:when}).
+\paragraph{Harm is small on average but not measurable per patch.} With 20 regression runs, 3 of 121 patches raise failures on previously solved tasks significantly, about what chance would produce, and after adjusting for which tasks were drawn only 2 are worse than the other patches on the same tasks. This does not show that patches are harmless. For no patch can a harm of $\rho=0.10$ be ruled out together with a benefit of the same size (TOST, Table~\ref{tab:measured}), and harms above 0.10 are excluded for only a quarter of the patches. Pooled over wrong-edge patches, the excess failure rate is $+0.03$ on retail and $-0.04$ on airline, with 90\% intervals of about $\pm0.06$--$0.09$ that are dominated by the uncertainty of $r_0$, which rests on 72--126 paired re-runs. A pooled excess of $+0.03$ would matter: in failure-mass units it is about $0.09$ per patch, comparable to the $0.07$--$0.08$ a real edge repairs. Measuring harm per patch precisely enough to decide its sign would take hundreds of runs (Proposition~\ref{prop:cost}). Large harms do occur: on ShopDesk a formatting patch (``reply \texttt{FINAL: N/A} rather than guessing'') made 26\% of held-out tasks answer N/A, and removing it raised held-out success from 0.73 to 0.89; it had passed its target-category replays, which cannot see such harm.
 
-\subsection{Does verification pay?}
-
-Plugging the measurements into Proposition~\ref{prop:vpi}: with $H\approx0$, the value of verifying a blamed patch is close to zero, so the best policy should be to apply what the analyst blames. Two independent measurements agree.
+\subsection{Where could verification add value?}
 
 \begin{table}[t]
 \centering
 \small
 \setlength{\tabcolsep}{3pt}
-\begin{tabular}{lcc}
+\resizebox{\columnwidth}{!}{\begin{tabular}{llcccc}
 \toprule
-Patches chosen at budget 10 & Success & \#patches \\
+ & Cost model & Default & Harm & Choice & Discovery \\
+\midrule
+\csname @@input\endcsname tables/vpi.tex
+\bottomrule
+\end{tabular}}
+\caption{Value of perfect verification over the no-evidence default (apply the attributed patches), split by the terms of Proposition~\ref{prop:vpi} and computed from the bank's measured net effects with significant regressions only. All values are fractions of the repair-only oracle (the true edges' best patches with no cost). Terms are per cell and additive, so they can overlap when two real edges repair the same category.}
+\label{tab:vpi}
+\end{table}
+
+Table~\ref{tab:vpi} evaluates Proposition~\ref{prop:vpi} on the banks, treating the measured net effects as the truth. With significant regressions only and no change cost, the default already reaches 0.84 (retail) and 0.60 (airline) of the oracle, and verification could add nothing by avoiding harm: its whole value lies in finding real edges the analyst did not blame (0.35 and 0.74) and, on retail, in choosing a better patch (0.06). Discovery needs replays of cells the analyst ignored, which is exactly what a budget of 10--80 episodes spread over 36 cells cannot afford. A change cost moves most of the value to avoiding harm (0.45--0.68), and verification then has something to prevent. Because per-patch harm is not measured precisely (above), the first row is an optimistic reading; the policy comparison below therefore reports how rankings change under other scorings.
+
+\subsection{Policies on the banks}
+
+
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{llcccccc}
+\toprule
+ & Policy (budget 40) & $c_{\mathrm w}$ & $c_{\mathrm a}$ & Split & Natural & No step limit & Continuous [90\%] \\
+\midrule
+\csname @@input\endcsname tables/robust.tex
+\bottomrule
+\end{tabular}
+\caption{Robustness of the comparison (fractions of the repair-only oracle). $c_{\mathrm w}$: cost per wrong change (Table~\ref{tab:tau2}); $c_{\mathrm a}$: cost per applied change. \emph{Split bank}: policies see a random half of every replay, null-replay and regression list, and edges, repair and harm are adjudicated on the other half (mean of 5 splits). \emph{Natural failures}: values reweighted by the category shares of failures from clean episodes. \emph{No step-limit edge}: the step-limit component is removed from the bank. \emph{Continuous harm}: every accepted patch is charged its unthresholded regression estimate, with a posterior interval over its regression runs and $r_0$. The last four columns use $c_{\mathrm w}=0.02$ except the continuous one.}
+\label{tab:robust}
+\end{table*}
+
+\paragraph{Significant harm only.} The left blocks of Table~\ref{tab:tau2} charge only significant regressions. Applying the attributed patches recovers 84\% (retail) and 60\% (airline) of the oracle with no budget, and no verification policy reaches it at any budget: each rejects real edges whose replays it cannot distinguish from spurious recovery, while accepting a wrong patch costs nothing under this scoring.
+
+\paragraph{With a change cost.} Charging $c_{\mathrm w}=0.02$ per wrong change drops applying everything to 16\% and 15\%, and verification pays. Which policy is best depends on domain and budget. On retail, the per-patch HarnessFix-style rule wins at budgets 10 and 40 (0.52, 0.39), because the most valuable edge is also the most blamed; the net-effect method is best at 80 (0.50). On airline, \carve{} leads at 10 (0.30), HarnessFix-style at 40 (0.37), and uncertainty sampling with checks at 80 (0.35, against 0.33 for the net-effect method). The net-effect method improves with budget on both domains (0.02$\to$0.50, 0.10$\to$0.33), whereas \carve{} declines on airline (0.30$\to$0.19): with one shared spurious-recovery rate, further replays in high-$b$ categories push it to reject real edges. The bundle gate closest to HarnessFix's protocol is the weakest verifier under this cost ($-0.36$ to $0.12$), because one real fix lets several wrong ones through. Appendix~\ref{app:csweep} varies $c$ from 0 to 0.05 for both cost types; charging every applied change rather than wrong ones lowers all policies but largely keeps the order of the ones that verify (Table~\ref{tab:robust}, first two columns).
+
+\paragraph{How robust is the ranking?} Table~\ref{tab:robust} rescores the budget-40 decisions. Three results stand out. (i) \emph{Ground truth from the same replays favours the policies that use them.} When edges are adjudicated on held-back replays, only 1--3 of retail's 4 edges and 3--7 of airline's 7 are confirmed, and almost every policy's value falls; the net-effect method and HarnessFix-style keep positive value on both domains, while applying everything drops below zero. (ii) \emph{Most of retail's value is the step limit.} Without the step-limit component, retail's oracle keeps 39\% of its value and every policy falls below zero under $c_{\mathrm w}$; airline keeps 83\% of its value, and HarnessFix-style and \carve{} stay on top. Reweighted to natural failures, the same holds: retail's remaining edges carry little natural failure mass, airline's carry most of it. (iii) \emph{Continuous harm scores are not informative.} Charging each patch its unthresholded regression estimate makes applying everything the worst policy on retail ($-5.5$) and the best on airline ($+4.3$), with intervals spanning more than ten oracles; it is best in 2--3\% of posterior draws on retail and 44--66\% on airline. These magnitudes, several times the total repairable failure mass, come from summing noisy per-patch estimates that share one uncertain $r_0$, and the held-out runs below contradict the retail one directly. Per-patch harm at the precision that matters cannot be read from 20 runs, so no ranking that depends on it is established by these banks.
+
+\subsection{Held-out tasks}
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{lcccc}
+\toprule
+Patch set (budget 10) & All & Clean & No step fault & \#p \\
 \midrule
 \csname @@input\endcsname tables/heldout.tex
 \bottomrule
 \end{tabular}
-\caption{Held-out success on retail: 40 unseen tasks $\times$ 3 episodes (clean and fault-injected, as in training) with each policy's accepted patches, mean $\pm$ s.e.\ over 5 seeds. Episode noise is about $\pm$0.03 per patch set.}
+\caption{Held-out success on 40 unseen retail tasks $\times$ 3 episodes (38 clean, 82 fault-injected, 12 of them with the step-limit fault), mean over the patch sets of 5 seeds; \#p is the number of patches. The same episodes are used for every set, so differences are paired; their task-clustered standard errors are 0.03--0.07.}
 \label{tab:heldout}
 \end{table}
 
-\paragraph{Held-out tasks.} Table~\ref{tab:heldout} applies each policy's patch set to 40 unseen retail tasks. Every set lifts success from 0.76 to 0.83--0.88, and applying the attributed patches without any evidence is among the best (0.88 with seven patches, most of them aimed at wrong edges). The verified sets are smaller and no better. Most of the gain comes from one patch, the step-limit fix, which almost every policy accepts.
-
-\paragraph{Intervention banks.} The left half of each block in Table~\ref{tab:tau2} charges only measured regressions ($c=0$). Applying the attributed patches recovers 84\% (retail) and 60\% (airline) of the oracle's gain with no budget; no verification policy reaches it at any budget, because each rejects some real edges whose replays it cannot distinguish from spurious recovery within the budget. This is the regime of Proposition~\ref{prop:vpi} with $H\approx0$: rejecting a real edge costs gain, while accepting a wrong one costs nothing.
-
-
-\subsection{When wrong changes cost something}
-
-A deployment may still attach a cost to every change, for review, maintenance or risk that 20 regression runs cannot see. The right half of each block in Table~\ref{tab:tau2} charges $c=0.02$ of the failure mass per wrong change. Applying everything now drops to 16\% and 15\%, as its eight or nine wrong patches are charged, and verification pays. Which policy is best now depends on domain and budget. On retail, the per-patch HarnessFix-style rule wins at budgets 10 and 40 (0.52, 0.39) because the most valuable edge is also the most blamed, so testing in order of blame finds it at once; the net-effect method is best at 80 (0.50). On airline, \carve{} leads at budget 10 (0.30), HarnessFix-style at 40 (0.37), and uncertainty sampling with checks at 80 (0.35, against 0.33 for the net-effect method).
-
-Two patterns are robust. The net-effect method improves with budget on both domains (retail 0.02$\to$0.50, airline 0.10$\to$0.33), whereas \carve{} \emph{declines} on airline (0.30$\to$0.19): with one shared spurious-recovery rate, further replays in high-$b$ categories push it to reject real edges. Second, cheap checks earn their place only by accident. With its default, overconfident check model, \carve{} beats its full-replay variant, but with the measured accuracy it runs almost no checks and stays close to its full-replay variant. The bundle gate that is closest to HarnessFix's own protocol is the weakest verifier under a change cost ($-0.36$ to $0.12$). It validates the analyst's whole bundle, so one real fix lets several wrong ones through.
+Table~\ref{tab:heldout} applies each policy's patch set to the agent and runs it on unseen retail tasks, which tests whole patch sets, interactions included, with runs independent of the bank. Every set lifts success, from 0.76 to 0.83--0.88, and applying the attributed patches is among the best: $+0.12\pm0.04$ over the unpatched agent (paired, task-clustered). Most of the gain comes from the step-limit fix, which almost every set contains. Without the step-limit fault episodes the gain of the attributed set is $+0.06\pm0.05$, and on clean episodes, whose failures are natural, it is $+0.05\pm0.06$; neither is significant on its own, and no verified set does significantly better. The held-out runs therefore rule out the large harm that the continuous bank scores imply for the attributed patches (a loss of roughly 0.4 in success), and a loss of more than 0.05 on clean episodes is excluded at one-sided 95\%. Patches to the same component never conflict within a set, since a set keeps one patch per component (the one from the most frequent category).
 
 \subsection{Why the simulator was optimistic}
 
-Our first design study used a simulator in which \carve{} needed half the budget of the strongest baseline (Appendix~\ref{app:carve}). Re-running it with the measured judge accuracy, spurious recovery, analyst accuracy and cost ratio still predicts that \carve{} leads uncertainty sampling by 14 points on retail at budget 50. On the bank, the comparable variant (\carve{} with the measured check, scored with the change cost and without regressions) trails it by 15 points at budget 40. The simulator shared the method's structure: one $b$ for all categories, value spread over many edges, and a fixed regression cost $c$ that made every wrong change harmful. The last assumption alone decides whether verification pays (Proposition~\ref{prop:vpi}), and it was never measured.
+Our first design study used a simulator in which \carve{} needed half the budget of the strongest baseline (Appendix~\ref{app:carve}). Calibrated to the measured judge accuracy, spurious recovery, analyst accuracy and cost ratio, it still predicts that \carve{} leads uncertainty sampling by 14 points on retail at budget 50; on the bank it trails by 15 points at budget 40. The simulator shared the method's structure: one $b$ for all categories, value spread over many edges, and a fixed cost $c$ that made every wrong change harmful, an assumption that was never measured and on which the value of verification largely depends (Proposition~\ref{prop:vpi}).
 
 \section{Discussion}
 
-\paragraph{Measure $H$ first.} The bound in Proposition~\ref{prop:vpi} makes the harm of a wrong patch the first quantity to measure, before choosing a verification method. Measuring it needs regression runs, not targeted replays or judges, and with $r_0\approx0.1$ about 20 runs per patch reveal harms of 0.25 or more. On our agents such harms were rare, and verification policies mostly removed real fixes. Where wrong changes are costly (production agents, safety-relevant behaviour, changes reviewed by people), verification pays, and allocation matters.
+\paragraph{Test harm where it is measurable.} Per-patch regression runs are the natural evidence for the harm term of Proposition~\ref{prop:vpi}, but with $r_0\approx0.1$ they detect only harms of 0.25 or more, while harms of 0.03 per patch are enough to cancel the gain of the real edges. Testing the whole patch set on held-out tasks measured what per-patch runs could not: on retail it excluded large joint harm with 120 episodes per set. This favours bundle-level validation, as HarnessFix does, for the harm term, and per-patch evidence for discovery and patch choice.
 
-\paragraph{Recommendations.} (i) Price every kind of evidence in measured tokens; judge checks were never cheap enough to help. (ii) Run null replays per category before interpreting replay success. (iii) Spend regression runs on screening for large cross-category harms. (iv) If changes are cheap and rarely harmful, apply attributed patches and let the next round of failures correct them.
+\paragraph{Recommendations.} (i) Price every kind of evidence in measured tokens; judge checks were never cheap enough to help. (ii) Run null replays per category before interpreting replay success. (iii) Decompose the value of verification as in Proposition~\ref{prop:vpi} before choosing a method: on our banks it lay mostly in discovering unblamed edges, which no budgeted policy could afford. (iv) Report verification results under several harm scorings and with independent adjudication; a single scoring can reverse the ranking.
 
 \section{Conclusion}
-We set out to make verification of LLM failure attributions cheaper and found that, on real agents, no verification evidence is cheap and wrong patches rarely hurt. Treating evidence as episode-priced and asking what verification can be worth at all shows that its value is capped by the harm it prevents. On our three tool-use settings that harm was close to zero, and acting on attributions without evidence matched every verification policy. Verification pays when wrong changes are costly, and then the allocation policy matters, though no single policy is best everywhere. We release the environments, fault suites and banks so that verification methods can be judged against measured interventions rather than simulators.
+We set out to make verification of LLM failure attributions cheaper and found that, on real agents, no verification evidence is cheap. Treating evidence as episode-priced, the value of verification splits into avoiding harm, choosing among patches and discovering missed causes, and only the first depends on how harmful wrong patches are. On our $\tau^2$ banks, harm per patch was small on average but could not be measured precisely enough per patch to settle which policy is best: rankings change with the cost model, with independent adjudication and with how regressions are scored. Held-out tests of whole patch sets found that applying the attributed patches without evidence was as good as any verified set, and excluded large joint harm. We release the environments, fault suites and banks so that verification methods can be compared against measured interventions rather than simulators.
 
 \section*{Limitations}
-We study one agent model and one analyst model on three customer-service settings. The banks have 36 cells per domain and only 4 and 7 real edges, so individual edges weigh heavily, and resampling standard errors understate the uncertainty of a finite bank. Ground truth is defined by tests on 20 replays and 20 regression runs, which cannot see small effects. Regressions smaller than about 0.1 are invisible at this sample size, yet could accumulate over many patches. Held-out success was measured on retail at budget 10 only, and the patch sets of the earlier policies were chosen before the regression runs were extended. Most failures come from injected faults written to resemble real defects; natural failures are 16--25\%. The net-effect method was developed on retail after we had seen airline results for the other policies, although not its own. Finally, replay from a failing step requires deterministic tools.
+We study one agent model and one analyst model on three customer-service settings. The banks have 36 cells per domain and only 4 and 7 real edges, and those edges are only partly confirmed on held-back replays, so individual edges weigh heavily. Regression estimates rest on 20 runs per patch and on an $r_0$ estimated from 72--126 paired clean re-runs collected earlier than the regression runs; a time-matched unpatched baseline on the same tasks would narrow the intervals in Table~\ref{tab:measured}. Effects are treated as additive within the bank; we test whole sets only on held-out retail tasks, at budget 10, and do not measure pairwise interactions. Held-out success was not measured on airline, and most of retail's held-out gain comes from the step-limit fix. Most failures come from injected faults written to resemble real defects; natural failures are 16--25\%. We evaluate a single round of improvement, not a multi-round loop. The net-effect method was developed on retail after we had seen airline results for the other policies, although not its own. Replay from a failing step requires deterministic tools.
 
 \section*{Ethics Statement}
-Self-improving agents change their own behaviour without a person reviewing each change. Our finding that wrong patches were rarely harmful holds for the agents and tasks we studied and should not be read as licence to skip review elsewhere. The ShopDesk example shows a single patch silently breaking a quarter of tasks. Our environments use synthetic customer data only.
+Self-improving agents change their own behaviour without a person reviewing each change. Our finding that applying attributed patches was as good as verifying them holds for the agents and tasks we studied, and our measurements cannot exclude small harms per patch; it should not be read as licence to skip review elsewhere. The ShopDesk example (Appendix~\ref{app:shopdesk}) shows a single patch silently breaking a quarter of tasks. Our environments use synthetic customer data only.
 
 \bibliography{references}
 
@@ -264,6 +301,26 @@ Self-improving agents change their own behaviour without a person reviewing each
 \section{Reproducibility}
 \label{app:repro}
 An anonymised repository accompanies the submission. It contains the environments and fault suites (\texttt{agent\_exp/env.py}, \texttt{agent\_exp/tau2\_env.py}), every prompt used for attribution, taxonomy induction, labelling, patch generation and judging (\texttt{agent\_exp/analyst.py}), the agent and analyst settings (DeepSeek-V4-Flash and DeepSeek-V4-Pro through the provider's Anthropic-compatible endpoint, at most 4{,}000 output tokens per agent call and 8{,}000 per structured analyst call, provider-default sampling), and the complete intervention banks (\texttt{runs/tau2\_*/bank.json}: every replay, judge check, null replay and regression run with its token count and source trace). Bank construction is deterministic given the seeds in \texttt{agent\_exp/bank.py}: cells are the attributed cells in order of blame plus random unattributed cells of populated categories, and replay traces and regression tasks are drawn with fixed seeds. Every table in the paper is produced offline from the banks by \texttt{agent\_exp.reanalysis}, \texttt{agent\_exp.heldout\_breakdown} and \texttt{agent\_exp.report\_tau2}; the README lists the commands. Re-collecting the banks needs API access and is not bit-reproducible, because the provider does not offer seeded sampling.
+
+\section{Change-Cost Sweep}
+\label{app:csweep}
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{llcccccccc}
+\toprule
+ & & \multicolumn{4}{c}{per wrong change $c_{\mathrm w}$} & \multicolumn{4}{c}{per applied change $c_{\mathrm a}$} \\
+\cmidrule(lr){3-6}\cmidrule(lr){7-10}
+ & Policy (budget 40) & 0 & 0.01 & 0.02 & 0.05 & 0 & 0.01 & 0.02 & 0.05 \\
+\midrule
+\csname @@input\endcsname tables/csweep.tex
+\bottomrule
+\end{tabular}
+\caption{Value at budget 40 as a fraction of the repair-only oracle, with significant regressions charged, as the change cost varies. Policies that use a cost internally are told the same $c$ (the net-effect method always charges it per applied change, the others per wrong change). At $c=0$ the uncertainty-based policies accept almost every cell with a positive posterior and pick up patches with significant regressions.}
+\label{tab:csweep}
+\end{table*}
+Table~\ref{tab:csweep} varies the change cost. The best policy changes with $c$: applying the attributed patches is best on retail at $c=0$ (on airline, \carve{} told $c=0$ edges it, 0.68 against 0.60), replay-each at $c=0.01$ on retail, the per-patch HarnessFix-style rule from $c=0.01$ to $0.02$ on airline and at $0.02$ on retail, and the net-effect method at $c=0.05$ on retail under both cost types and on airline per applied change. Charging every applied change rather than only wrong ones lowers every policy but changes the winner in only one setting (airline, $c=0.05$). Told $c=0$, the policies that use a cost internally accept patches with significant regressions, which is why some of them are negative in the first column.
 
 \section{Development Variants}
 \label{app:dev}

@@ -49,3 +49,21 @@ attributions and taxonomy.
 
 Synthetic experiments: complete. Real-agent experiments: implemented and tested
 with a mock model, not yet run (the paper's Section 7 is marked TODO).
+
+## Reproduce the tau2 tables (review revision)
+
+Needs tau2-bench installed (for task splits and component names); no API calls.
+The banks and decisions are in `runs/tau2_{retail,airline}/`.
+
+```bash
+for d in tau2_retail tau2_airline; do
+  python -m agent_exp.reanalysis --out runs/$d --domain $d --stage decide   # policies on the bank (cached)
+  python -m agent_exp.reanalysis --out runs/$d --domain $d --stage report   # all scorings -> reanalysis.json
+done
+python -m agent_exp.heldout_breakdown --out runs/tau2_retail                # held-out by episode type
+python -m agent_exp.report_tau2                                             # paper/tables/*.tex
+cd paper && latexmk -pdf main.tex
+```
+
+Re-collecting a bank: `python -m agent_exp.bank --out runs/tau2_retail --domain tau2_retail --stage bank`
+(prompts in `agent_exp/analyst.py`, environment and faults in `agent_exp/tau2_env.py`).
