@@ -21,7 +21,7 @@
 \DeclareMathOperator*{\argmax}{arg\,max}
 
 
-\title{When Is a Self-Improving Agent's Diagnosis Worth Verifying?\\Evidence Allocation When Every Check Costs an Episode}
+\title{When Is a Self-Improving Agent's Diagnosis Worth Verifying?\\Allocating Evidence That Costs a Substantial Fraction of an Episode}
 
 \author{Anonymous ACL submission}
 
@@ -69,49 +69,59 @@ Our selection rule is the KG(*) variant of the knowledge gradient \citep{frazier
 
 \paragraph{Net effect.} Applying patch $k$ of cell $(i,j)$ changes the success rate by
 \begin{equation}
-\Delta_k \;=\; F f_i\, e_{ij}\, q_k \;-\; (1-F)\,\rho_k \;-\; c,
+\Delta_k \;=\; F f_i\, e_{ij}\, q_k \;-\; (1-F)\,\rho_k \;-\; c_{\mathrm{a}} \;-\; c_{\mathrm{w}}\,(1-e_{ij}),
 \label{eq:delta}
 \end{equation}
-where $\rho_k$ is the increase in failure rate on tasks that used to succeed (regressions, which may hit any category) and $c\ge0$ is a fixed cost of making a change (review, maintenance, risk), which we vary. The goal is to choose a set of patches that maximises $\sum_k\Delta_k$ on held-out tasks.\footnote{Effects of patches to different components are treated as additive; we check this assumption on held-out tasks in \S\ref{sec:results}.}
+where $\rho_k$ is the patch's excess failure probability on tasks that used to succeed (regressions, which may hit any category), $c_{\mathrm a}\ge0$ is a cost charged for every applied change (review, maintenance) and $c_{\mathrm w}\ge0$ a penalty charged only for a change aimed at a wrong component (risk not captured by $\rho_k$). We report costs as fractions of the failure mass $F$ and vary both. The goal is to choose a set of patches, at most one per cell, that maximises $\sum_k\Delta_k$ on held-out tasks.\footnote{Effects of patches to different components are treated as additive. We do not test interactions directly; held-out success of whole patch sets (\S\ref{sec:results}) is the only check.}
 
 \paragraph{Evidence.} Three kinds of experiment, each costing a fraction of an episode, inform Eq.~\ref{eq:delta}:
 \begin{itemize}
 \setlength\itemsep{0pt}
 \item A \emph{targeted replay} resumes a category-$i$ failure from the attributed step with the patch applied; it succeeds with probability $b_i+(1-b_i)e_{ij}q_k$.
 \item A \emph{null replay} does the same without a patch and succeeds with probability $b_i$, the category's \emph{spurious recovery} rate. Without it, replay success cannot be interpreted.
-\item A \emph{regression run} executes a previously successful task from scratch with the patch and fails with probability $r_0+\rho_k$, where $r_0$ is the natural re-run failure rate.
+\item A \emph{regression run} executes a previously successful task from scratch with the patch and fails with probability $r_0+(1-r_0)\rho_k$, where $r_0$ is the natural re-run failure rate.
 \end{itemize}
-A fourth, a \emph{single-step check} that regenerates only the failing step and asks an LLM judge whether the error is gone, is often proposed as the cheap option. We measure its cost and accuracy in \S\ref{sec:results}. Unlike classic multi-fidelity settings, all four have costs within a factor of four of each other.
+A fourth, a \emph{single-step check} that regenerates only the failing step and asks an LLM judge whether the error is gone, is often proposed as the cheap option. We measure its cost and accuracy in \S\ref{sec:results}. Unlike classic multi-fidelity settings, all four cost a substantial fraction of an episode, within a factor of four of each other.
 
 \section{When Can Verification Pay?}
 \label{sec:when}
 
-Consider one candidate patch. Before any evidence, let $\pi=P(e_{ij}{=}1)$ be the probability that it targets a real cause (for example, the analyst's audited accuracy), $G>0$ its expected net effect if it does, and $H\ge0$ its expected harm if it does not, so $H=(1-F)\bar\rho_{\mathrm{wrong}}+c$.
+Before any evidence, the net effects $\Delta=(\Delta_k)$ of the candidate patches are uncertain, with a prior that reflects the analyst's accuracy and what is known about patch quality and regressions. The \emph{default} applies, in each cell, the patch with the largest $\mathbb E[\Delta_k]$ if that is positive. Verification observes outcomes $Y$ and then chooses; its value is $V(Y)=\mathbb E\big[\max_S\mathbb E[\sum_{k\in S}\Delta_k\mid Y]\big]-\max_S\mathbb E[\sum_{k\in S}\Delta_k]$, before the cost of the experiments. Write $x^+=\max(x,0)$ and $x^-=\max(-x,0)$.
 
 \begin{proposition}[Value of verification]
 \label{prop:vpi}
-With no evidence, the best action is to apply the patch iff $\pi G\ge(1-\pi)H$. The expected value of learning $e_{ij}$ exactly is
+For any experiments $Y$, $V(Y)$ is at most the value of learning $\Delta$ exactly, which is the sum over cells of
 \begin{equation}
-\mathrm{VPI}=\min\big(\pi G,\;(1-\pi)H\big),
+V_{ij}=\mathbb E\big[\max_k\Delta_k^+\big]-\max_k\big(\mathbb E\Delta_k\big)^+ .
 \end{equation}
-and any verification policy, which observes noisy outcomes instead of $e_{ij}$, gains at most this much.
+With $k^\star$ the default patch of the cell,
+\begin{equation}
+V_{ij}\;\le\;\underbrace{\mathbb E\big[\max_k\Delta_k^+-\Delta_{k^\star}^+\big]}_{\text{choosing among patches}}\;+\;\underbrace{\mathbb E\big[\Delta_{k^\star}^-\big]}_{\text{avoiding harm}},
+\label{eq:vpi}
+\end{equation}
+with equality when the default applies $k^\star$, and $\mathbb E[\Delta_{k^\star}^-]\le(1-F)\,\mathbb E[\rho_{k^\star}^+]+c_{\mathrm a}+c_{\mathrm w}P(e_{ij}{=}0)$.
 \end{proposition}
 
-The proof is two lines (Appendix~\ref{app:proofs}). The bound has a direct reading. When wrong patches are harmless ($H\approx0$), the default is to apply and verification has nothing to prevent; when the analyst is almost always right or almost always wrong, it has nothing to change. Verification is worth considering only when a patch is uncertain \emph{and} a wrong one does damage. The second ingredient is what the evidence costs.
+\begin{corollary}[Edge-only verification]
+\label{cor:edge}
+Suppose a cell has a single candidate patch whose net effect depends only on $e_{ij}$: $\Delta=G$ if $e_{ij}=1$ and $\Delta=-H$ if $e_{ij}=0$, with $G,H\ge0$ known (so $q_k$ and $\rho_k$ are known given the edge). With $\pi=P(e_{ij}{=}1)$, $V_{ij}=\min\big(\pi G,(1-\pi)H\big)$.
+\end{corollary}
+
+Proofs are in Appendix~\ref{app:proofs}. The proposition separates three sources of value. \emph{Avoiding harm}: in a cell the default would patch, verification can save at most the patch's expected downside, which needs regressions or change costs; replay success alone cannot create it. \emph{Choosing among patches}: if candidate patches differ in quality, finding the best one has value even when nothing is harmful. \emph{Discovery}: in a cell the default leaves alone, the whole term $\mathbb E[\max_k\Delta_k^+]$ is value from finding an edge the analyst missed. The corollary is the special case in which only the edge is uncertain; it does not hold when quality or regressions are uncertain given the edge (for example, $\pi=1$ with $\Delta=+0.10$ or $-0.05$ equally likely gives $V=0.025$). We measure all three terms on our banks in \S\ref{sec:results}, using the measured net effects in place of the unknown $\Delta$.
 
 \begin{proposition}[Cost of evidence]
 \label{prop:cost}
 Under Wald's approximations, a sequential test that decides $e_{ij}$ from targeted replays with error $\delta$ needs on average about $\log\frac{1-\delta}{\delta}\,/\,\mathrm{KL}\big(b+(1-b)q\,\Vert\, b\big)$ replays when the edge is real. Detecting a regression of size $\rho$ against a base rate $r_0$ with a one-sided level-$\alpha$ test and power $1-\beta$ needs about $(z_\alpha+z_\beta)^2 r_0(1-r_0)/\rho^2$ regression runs.
 \end{proposition}
 
-Two consequences follow. First, targeted replays are uninformative about $H$, because they only see the target category. A patch can pass every replay and still break other tasks, so verification that consists only of replays cannot capture the value in Proposition~\ref{prop:vpi} when $H$ comes from regressions. Second, small regressions are expensive to see. With $r_0=0.1$, a regression of $\rho=0.25$ is detected with 90\% power by 20 runs, whereas $\rho=0.03$ needs about 850. Verification is therefore most useful against rare, large harms, and it is the rate of such harms that decides whether it pays.
+Two consequences follow. First, targeted replays are uninformative about the harm term, because they only see the target category: a patch can pass every replay and still break other tasks. Second, small regressions are expensive to see. With $r_0=0.1$, a regression of $\rho=0.25$ is detected with 90\% power by 20 runs, whereas $\rho=0.03$ needs about 850. Since many small regressions add up, failing to detect them is not evidence that they are absent; \S\ref{sec:results} therefore reports interval estimates rather than significance counts.
 
 \section{Allocation Policies}
 \label{sec:method}
 
 When verification is warranted, the budget must still be allocated across cells, patches and experiment types. We compare eleven policies.
 
-\paragraph{Net-effect allocation (ours).} We place a spike-and-slab model on each cell. The edge prior $P(e_{ij}{=}1)=\pi_{ij}$ comes from the analyst's attribution counts, shrunk towards a base rate by its audited accuracy (Eq.~\ref{eq:prior} in Appendix~\ref{app:carve}). Each $q_k$ has a grid posterior from a $\mathrm{Beta}(2,2)$ prior, each $b_i$ a Beta posterior updated by null replays, and each $\rho_k$ a Beta posterior updated by regression runs. Its estimate of Eq.~\ref{eq:delta} is $P(e_{ij}{=}1\mid\mathcal D)\,Ff_i\,\mathbb E[q_k\mid\mathcal D]-(1-F)\max(0,\mathbb E[r_k\mid\mathcal D]-r_0)-c$, where $r_k$ is the patch's failure rate in regression runs. The policy repeatedly runs the experiment (targeted replay of a patch, null replay of a category, or regression run of a patch) that maximises the $n$-step knowledge gradient of the decision value divided by its measured cost, with $n\in\{1,2,4,8\}$ \citep{frazier2008kg}, and finally applies every patch whose posterior net effect is positive. Unlike \carve{}, it has no single-step checks, a separate $b_i$ per category, and a regression term.
+\paragraph{Net-effect allocation (ours).} We place a spike-and-slab model on each cell. The edge prior $P(e_{ij}{=}1)=\pi_{ij}$ comes from the analyst's attribution counts, shrunk towards a base rate by its audited accuracy (Eq.~\ref{eq:prior} in Appendix~\ref{app:carve}). Each $q_k$ has a grid posterior from a $\mathrm{Beta}(2,2)$ prior, each $b_i$ a Beta posterior updated by null replays, and each $\rho_k$ a Beta posterior updated by regression runs. Its estimate of Eq.~\ref{eq:delta} is $P(e_{ij}{=}1\mid\mathcal D)\,Ff_i\,\mathbb E[q_k\mid\mathcal D]-(1-F)\max(0,\mathbb E[r_k\mid\mathcal D]-r_0)-c$, where $r_k$ is the patch's failure rate in regression runs; it charges $c$ on every change it applies, which is conservative when only wrong changes are penalised. The policy repeatedly runs the experiment (targeted replay of a patch, null replay of a category, or regression run of a patch) that maximises the $n$-step knowledge gradient of the decision value divided by its measured cost, with $n\in\{1,2,4,8\}$ \citep{frazier2008kg}, and finally applies every patch whose posterior net effect is positive. Unlike \carve{}, it has no single-step checks, a separate $b_i$ per category, and a regression term.
 
 \paragraph{Baselines.} \emph{Apply attributed} uses no evidence: for each category it applies the first patch of the most-blamed component and of any component with at least 40\% of the blame. \emph{Replay-each} tests hypotheses in order of blame with three replays and accepts on two successes, as in do-then-verify methods \citep{ma2025dover}. \emph{HarnessFix-style, per patch} adds two regression runs that must break nothing; these counts are ours. \emph{HarnessFix-style, bundle gate} is closer to the original, which validates a whole bundle of repairs on held-out tasks and promotes it if it solves at least one more task and breaks at most two \citep{chen2026harnessfix}. We apply the \emph{Apply attributed} bundle, draw validation episodes from the bank, and allow three attempts. \emph{Uncertainty sampling} replays the cell with the largest frequency-weighted posterior uncertainty, with or without three cheap checks per patch first. \carve{} is our multi-fidelity design method (Appendix~\ref{app:carve}); we also run it with only full replays, with the judge's measured accuracy, and with a quality-dependent false-positive rate.
 
@@ -245,9 +255,15 @@ Self-improving agents change their own behaviour without a person reviewing each
 \section{Proofs}
 \label{app:proofs}
 
-\paragraph{Proposition~\ref{prop:vpi}.} Without evidence the expected value of applying is $\pi G-(1-\pi)H$ and of not applying is $0$, so the default value is $\max(\pi G-(1-\pi)H,0)$. Knowing $e_{ij}$, one applies iff $e_{ij}=1$, for expected value $\pi G$. The difference is $\pi G-\max(\pi G-(1-\pi)H,0)=\min(\pi G,(1-\pi)H)$. A verification policy observes outcomes that are a garbling of $e_{ij}$; by the data-processing property of decision value (Blackwell), its value is at most that of observing $e_{ij}$, before subtracting the cost of its experiments.
+\paragraph{Proposition~\ref{prop:vpi}.} For any signal $Y$ and any action set, $\max_S\mathbb E[U(S)\mid Y]\le\mathbb E[\max_S U(S)\mid Y]$, so taking expectations gives $V(Y)\le\mathbb E[\max_S U(S)]-\max_S\mathbb E[U(S)]$, the value of perfect information; this is the standard argument and needs no assumption on how $Y$ relates to $\Delta$. With $U(S)=\sum_{k\in S}\Delta_k$ and at most one patch per cell, both maxima separate over cells: $\max_S U(S)=\sum_{ij}\max_k\Delta_k^+$ and $\max_S\mathbb E[U(S)]=\sum_{ij}\max_k(\mathbb E\Delta_k)^+$, which gives $V_{ij}$; no independence between cells is needed. For Eq.~\ref{eq:vpi}, let $k^\star$ maximise $\mathbb E\Delta_k$. If $\mathbb E\Delta_{k^\star}\ge0$, then $V_{ij}=\mathbb E[\max_k\Delta_k^+]-\mathbb E[\Delta_{k^\star}^+]+\mathbb E[\Delta_{k^\star}^-]$, which is Eq.~\ref{eq:vpi} with equality. Otherwise $V_{ij}=\mathbb E[\max_k\Delta_k^+]=\mathbb E[\max_k\Delta_k^+-\Delta_{k^\star}^+]+\mathbb E[\Delta_{k^\star}^+]$, and $\mathbb E[\Delta_{k^\star}^+]<\mathbb E[\Delta_{k^\star}^-]$ because $\mathbb E\Delta_{k^\star}<0$. Finally, the repair term $Ff_ie_{ij}q_k$ is non-negative, so $\Delta_k^-\le(1-F)\rho_k^++c_{\mathrm a}+c_{\mathrm w}(1-e_{ij})$; take expectations.
+
+\paragraph{Corollary~\ref{cor:edge}.} With one patch, $V=\mathbb E[\Delta^+]-(\mathbb E\Delta)^+=\pi G-(\pi G-(1-\pi)H)^+=\min(\pi G,(1-\pi)H)$. The assumption that $\Delta$ is a function of $e_{ij}$ is what makes the edge state sufficient: if $q_k$ or $\rho_k$ is uncertain given $e_{ij}$, learning only $e_{ij}$ leaves value on the table and the general expression applies.
 
 \paragraph{Proposition~\ref{prop:cost}.} The first part is Wald's approximation for a sequential probability ratio test between $p_1=b+(1-b)q$ and $p_0=b$: with thresholds $\pm\log\frac{1-\delta}{\delta}$, neglecting overshoot, the expected sample size under $p_1$ is the threshold divided by the per-observation drift $\mathrm{KL}(p_1\Vert p_0)$. The second is the normal-approximation sample size of a one-sided test of a binomial proportion, evaluated with the variance at $r_0$.
+
+\section{Reproducibility}
+\label{app:repro}
+An anonymised repository accompanies the submission. It contains the environments and fault suites (\texttt{agent\_exp/env.py}, \texttt{agent\_exp/tau2\_env.py}), every prompt used for attribution, taxonomy induction, labelling, patch generation and judging (\texttt{agent\_exp/analyst.py}), the agent and analyst settings (DeepSeek-V4-Flash and DeepSeek-V4-Pro through the provider's Anthropic-compatible endpoint, at most 4{,}000 output tokens per agent call and 8{,}000 per structured analyst call, provider-default sampling), and the complete intervention banks (\texttt{runs/tau2\_*/bank.json}: every replay, judge check, null replay and regression run with its token count and source trace). Bank construction is deterministic given the seeds in \texttt{agent\_exp/bank.py}: cells are the attributed cells in order of blame plus random unattributed cells of populated categories, and replay traces and regression tasks are drawn with fixed seeds. Every table in the paper is produced offline from the banks by \texttt{agent\_exp.reanalysis}, \texttt{agent\_exp.heldout\_breakdown} and \texttt{agent\_exp.report\_tau2}; the README lists the commands. Re-collecting the banks needs API access and is not bit-reproducible, because the provider does not offer seeded sampling.
 
 \section{Development Variants}
 \label{app:dev}
