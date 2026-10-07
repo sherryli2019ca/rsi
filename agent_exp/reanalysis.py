@@ -282,6 +282,7 @@ def stage_report(args):
         Tb = truth(Bh, I, J, r0, w)
         split.setdefault("n_edges", []).append(int(Tb["E"].sum()))
         split.setdefault("agree_edges", []).append(int((Tb["E"] & T["E"]).sum()))
+        split.setdefault("yard_B", []).append(yardstick(Tb, f) / yardstick(T, f))
         for nm, kw in (("edge", {}), ("edgefree", {"edge_free": True})):
             for c in (0.0, 0.02):
                 o, s = summarise(dec, f"split{t}", ALL, B3, Tb, f, Tb["R_cont" if kw else "R_sig"],

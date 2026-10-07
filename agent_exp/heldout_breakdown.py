@@ -50,13 +50,29 @@ def main():
         r["n_patches"] = float(np.mean([len(p) for p in ps]))
         return r
 
+    tasks = np.array([t for t, _, _ in test])
+    none = np.array(res["runs"]["none"], float)
+
+    def paired(keys):
+        """Mean over seeds of (patched - unpatched) on the same episodes, with a
+        standard error clustered by task."""
+        y = np.mean([np.array(res["runs"][k], float) for k in keys], 0)
+        r = {}
+        for g, sel in groups.items():
+            d, t = y[sel] - none[sel], tasks[sel]
+            sums = np.array([d[t == u].sum() for u in np.unique(t)])
+            cnt = np.array([(t == u).sum() for u in np.unique(t)])
+            r[g] = [float(d.mean()), float(np.sqrt(((sums - d.mean() * cnt) ** 2).sum()) / len(d))]
+        return r
+
     out["unpatched"] = stats(["none"])
     for g, keys in sets.items():
         out[g] = stats(keys)
+        out[g]["diff"] = paired(keys)
     _save(os.path.join(args.out, "heldout_breakdown.json"), out)
     for g, r in out.items():
         if g != "n_episodes":
-            print(g, {k: (round(v[0], 3) if isinstance(v, list) else round(v, 2)) for k, v in r.items()})
+            print(g, {k: (round(v[0], 3) if isinstance(v, list) else v if isinstance(v, dict) else round(v, 2)) for k, v in r.items()})
     print(out["n_episodes"])
 
 
