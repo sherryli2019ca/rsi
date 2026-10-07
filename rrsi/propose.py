@@ -325,6 +325,15 @@ def propose(domain, harness_dir: Path, report: dict, history_rows: list,
         log.append(act if a in ("done", "abort") else
                    {k: (v if len(str(v)) < 200 else str(v)[:200] + "...")
                     for k, v in act.items()})
+        if a == "done" and n_edits == 0 and not (act.get("edits") or act.get("candidates")) \
+                and aborts_left > 0:
+            # an empty done() is an abort in disguise: bounce it like one
+            aborts_left -= 1
+            transcript += ("\n[you] done\n[result] ERROR: done() with no file changes and no "
+                           "edits ships nothing. There is no abort. Pick the most defensible "
+                           "mechanism you can build within the hard rules, implement it, and "
+                           "call done.")
+            continue
         if a == "done":
             edits = act.get("edits") or act.get("candidates") or []
             problems = []

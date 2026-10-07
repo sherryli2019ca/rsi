@@ -32,6 +32,7 @@ from domains.tau2 import briefs as B    # noqa: E402
 
 TAU2_PY = os.environ.get("TAU2_PYTHON", "/home/user/venv-tau2/bin/python")
 MAX_OBS = 600        # chars of a tool result shown in a compact trace
+READ_PREFIXES = ("get_", "find_", "list_", "search_", "calculate", "think")
 
 
 def _added(pat: str) -> str:
@@ -112,6 +113,12 @@ def render(rec: dict, detail: bool = False) -> str:
         mark = "MADE" if key in made else ("same tool, different arguments" if g["name"] in names
                                            else "NOT MADE")
         out.append(f"  - {g['name']}({_fmt_args(g.get('arguments'))})  -> {mark}")
+    golds = {(g["name"], _fmt_args(g.get("arguments"))) for g in rec.get("gold_actions") or []}
+    extra = [(n, a) for n, a in calls if (n, _fmt_args(a)) not in golds
+             and not n.startswith(READ_PREFIXES)]
+    if extra:
+        out.append("agent calls that change state and are NOT gold actions:")
+        out += [f"  - {n}({_fmt_args(a)})" for n, a in extra]
     if rec.get("communicate_info"):
         out.append(f"required info to tell the customer: {rec['communicate_info']}")
     return "\n".join(out)

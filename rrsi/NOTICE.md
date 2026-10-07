@@ -16,6 +16,8 @@ Modifications made in this repository:
   optional JSONL log at `RRSI_USAGE_LOG`).
 - `rrsi/analyst.py`, `rrsi/digester.py`, `rrsi/propose.py`, `rrsi/critic.py`:
   every `generate(...)` call is tagged with its role for the cost accounting.
+- `rrsi/propose.py`: a `done()` with no file changes and no edits is bounced like
+  an `abort` (at most 3 times) instead of ending the draft with no candidate.
 - `rrsi.py`: the default `--runs` directory is `runs/rrsi`.
 - Upstream domains (coding, eng, workspace) are not included. This repository
   adds `domains/tau2/` (shared tau2-bench adapter, frozen episode driver with
