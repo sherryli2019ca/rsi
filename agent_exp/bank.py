@@ -440,7 +440,8 @@ def run_method(method, bank, counts, f, inb, costs, b_hat, seed, budget, c_fp=0.
         return run_netsel(bank, counts, f, inb, costs, b_hat, seed, budget, r0, w,
                           use_reg=method != "Net-noreg", use_null=method != "Net-nonull",
                           use_prior=method != "Net-flat",
-                          n_ctrl=2 if method == "Net+ctrl" else 0)
+                          n_ctrl=2 if method == "Net+ctrl" else 0,
+                          c_fp=0.0 if method == "Net-c0" else c_fp)
     params = ObsParams(b=b_hat, lam=0.8, sens=0.85, fpr=0.15)
     if method == "CARVE-calibrated":
         params.sens, params.fpr = cal["sens"], cal["fpr"]
@@ -631,13 +632,18 @@ def stage_evaluate(D, args, attrs, tax, bank, data=None):
                 tp = int((acc & E).sum())
                 rows.append([g / oracle if oracle > 0 else 0.0,
                              tp / max(int(acc.sum()), 1), tp / max(int(E.sum()), 1), spent,
-                             gr / oracle_r if oracle_r > 0 else 0.0])
+                             gr / oracle_r if oracle_r > 0 else 0.0,
+                             (gr - args.c_fp * int((acc & ~E).sum())) / oracle_r
+                             if oracle_r > 0 else 0.0])
             r = np.array(rows)
             out["results"][f"{m}|{B}"] = {"gain": r[:, 0].mean(), "gain_se": r[:, 0].std() /
                                           np.sqrt(len(r)), "precision": r[:, 1].mean(),
                                           "recall": r[:, 2].mean(), "spent": r[:, 3].mean(),
                                           "gain_reg": r[:, 4].mean(),
-                                          "gain_reg_se": r[:, 4].std() / np.sqrt(len(r))}
+                                          "gain_reg_se": r[:, 4].std() / np.sqrt(len(r)),
+                                          # measured regressions plus a fixed cost per wrong change
+                                          "gain_both": r[:, 5].mean(),
+                                          "gain_both_se": r[:, 5].std() / np.sqrt(len(r))}
             print(m, B, {k: round(v, 3) for k, v in out["results"][f"{m}|{B}"].items()})
     _save(os.path.join(args.out, f"evaluation{args.eval_tag}.json"), out)
     return out

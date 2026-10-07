@@ -137,11 +137,11 @@ def _kg(post, i, j, k, kind, n):
 
 
 def run_netsel(bank, counts, f, inb, costs, b0, seed, budget, r0, w, use_reg=True,
-               use_null=True, use_prior=True, n_ctrl=0):
+               use_null=True, use_prior=True, n_ctrl=0, c_fp=0.02):
     from agent_exp.bank import FULL, BankWorld
     rng = np.random.default_rng(seed)
     world = BankWorld(bank, rng)
-    post = NetPosterior(counts, inb, f, b0, r0, w, use_prior=use_prior)
+    post = NetPosterior(counts, inb, f, b0, r0, w, use_prior=use_prior, c_fp=c_fp)
     tn = np.mean([v["tok"] for v in bank["null"].values()])
     tf = np.mean([t for c in bank["cells"].values() for t in c["tok_full"]])
     cost = {"rep": 1.0, "null": float(tn / tf), "reg": float(costs[2])}

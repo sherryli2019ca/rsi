@@ -50,8 +50,8 @@ def main():
     tax = _load(os.path.join(args.out, "taxonomy.json"))
     bank = _load(os.path.join(args.out, "bank.json"))
     patches = _load(os.path.join(args.out, "patches.json"))
-    ev = _load(os.path.join(args.out, "evaluation_rep20.json")) or \
-        _load(os.path.join(args.out, "evaluation.json"))
+    ev = _load(os.path.join(args.out, "evaluation_v4.json")) or \
+        _load(os.path.join(args.out, "evaluation_rep20.json"))
     cats, counts, members, f = problem(D, attrs, tax)
     inb, E, Q, b = ground_truth(bank, *counts.shape)
     costs, cal, b_hat = ev["costs"], ev["calibration"], ev["b_hat"]
@@ -81,7 +81,7 @@ def main():
         for B in args.budgets:
             for s in range(args.n_seeds):
                 acc, patch, spent = run_method(m, bank, counts, f, inb, costs, b_hat, s, B,
-                                               cal=cal)
+                                               cal=cal, r0=ev.get("r0", 0.1), w=ev.get("w", 2.8))
                 ps = patch_set(D, acc, patch, patches, f[:, None] * np.ones_like(acc, float))
                 key = json.dumps(ps, sort_keys=True)
                 res["sets"][f"{m}|{int(B)}|{s}"] = key

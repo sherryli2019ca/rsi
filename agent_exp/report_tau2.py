@@ -10,37 +10,44 @@ import json
 
 import numpy as np
 
-NAMES = [("LLM-only", "LLM attribution only"), ("Replay-each", "Replay-each"),
-         ("HarnessFix", "HarnessFix-style"), ("Uncertainty", "Uncertainty sampling"),
+NAMES = [("LLM-only", "Apply attributed (no evidence)"), ("Replay-each", "Replay-each"),
+         ("HarnessFix", "HarnessFix-style, per patch"),
+         ("HarnessFix-gate", "HarnessFix-style, bundle gate"),
+         ("Uncertainty", "Uncertainty sampling"),
          ("Uncertainty-MF", "Uncertainty + cheap checks"),
          ("CARVE-full-only", "\\carve{}, full replay only"), ("CARVE", "\\carve{}"),
          ("CARVE-calibrated", "\\carve{}, measured check"),
-         ("CARVE-robust-check", "\\carve{}, robust check")]
-BUDGETS = (10, 20, 40, 80)
-FILES = {"retail": "runs/tau2_retail/evaluation_rep20.json",
-         "airline": "runs/tau2_airline/evaluation_heldout.json"}
+         ("CARVE-robust-check", "\\carve{}, robust check"),
+         ("Net", "Net-effect allocation (ours)")]
+BUDGETS = (10, 40, 80)
+FILES = {"retail": "runs/tau2_retail/evaluation_v4.json",
+         "airline": "runs/tau2_airline/evaluation_v4.json"}
+# column groups: (domain, metric); gain_reg charges only measured regressions,
+# gain_both adds a fixed cost per wrong change
+GROUPS = [("retail", "gain_reg"), ("retail", "gain_both"),
+          ("airline", "gain_reg"), ("airline", "gain_both")]
 
 
-def cell(r, best):
-    s = f"{r['gain']:.2f}"
+def cell(r, key, best):
+    s = f"{r[key]:.2f}"
     if best:
         s = f"\\textbf{{{s}}}"
-    return s + (f"\\,{{\\scriptsize$\\pm${r['gain_se']:.2f}}}" if r["gain_se"] > 0 else "")
+    return s
 
 
 def main():
     ev = {d: json.load(open(f)) for d, f in FILES.items()}
-    best = {(d, B): max(ev[d]["results"][f"{m}|{B}"]["gain"] for m, _ in NAMES)
-            for d in ev for B in BUDGETS}
+    best = {(d, k, B): max(ev[d]["results"][f"{m}|{B}"][k] for m, _ in NAMES)
+            for d, k in GROUPS for B in BUDGETS}
     rows = []
     for m, name in NAMES:
         cells = []
-        for d in ("retail", "airline"):
+        for d, k in GROUPS:
             for B in BUDGETS:
                 r = ev[d]["results"][f"{m}|{B}"]
-                cells.append(cell(r, r["gain"] >= best[(d, B)] - 1e-9))
+                cells.append(cell(r, k, r[k] >= best[(d, k, B)] - 1e-9))
         rows.append(f"{name} & " + " & ".join(cells) + " \\\\")
-        if m in ("LLM-only", "Uncertainty-MF"):
+        if m == "LLM-only":
             rows.append("\\midrule")
     with open("paper/tables/tau2.tex", "w") as fh:
         fh.write("\n".join(rows) + "\n")
