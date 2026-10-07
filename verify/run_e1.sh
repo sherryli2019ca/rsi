@@ -1,11 +1,14 @@
 #!/bin/bash
 # Experiment E1 for one tau2 domain: RRSI reference trajectory + verification evidence follower.
-# Usage: verify/run_e1.sh tau2_retail|tau2_airline   (needs Dr Cao's approval of the E1 quote)
+# Usage: verify/run_e1.sh tau2_retail|tau2_airline   (approved by Dr Cao 2026-10-07)
+# Runs from the checkout that contains this script, so E1 can run from a
+# dedicated worktree pinned to one commit while development continues elsewhere.
 set -u
 D=$1
-cd /home/user/rsi
+HERE=$(cd "$(dirname "$0")/.." && pwd)
+cd "$HERE"
 PY=/home/user/venv-tau2/bin/python
-export PYTHONPATH=/home/user/rsi RRSI_USAGE_LOG=runs/rrsi/$D.usage.jsonl
+export PYTHONPATH="$HERE" RRSI_USAGE_LOG=runs/rrsi/$D.usage.jsonl
 mkdir -p runs/rrsi/$D/logs runs/verify/$D
 A="--domain $D --runs runs/rrsi"
 if [ ! -f runs/rrsi/$D/frontier.json ]; then
