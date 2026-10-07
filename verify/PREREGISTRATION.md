@@ -110,3 +110,10 @@ pre-specified increase above), the margin and the endpoints.
   processed were topped up (resume-safe, only missing trials run). The final
   disagreement rate over all rounds will be checked against the same formula
   before the analysis is run.
+- 20:25Z, after all 40 rounds: the final disagreement rate between net@40 and
+  full is 0.265, below the 0.40 threshold (about 100 held-out episodes per
+  harness would have sufficed). The increase had been made on the interim
+  estimate from six rounds. The primary analysis uses all collected trials
+  (240 per harness); the same analysis with the registered counts (first 4
+  trials per task on retail, 8 on airline) is reported as a sensitivity
+  analysis.
