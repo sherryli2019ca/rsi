@@ -18,6 +18,8 @@ replay, by maximising expected decision value per unit cost.
 | `results/` | JSON results behind every number in the paper |
 | `agent_exp/` | Real-LLM study: ShopDesk environment, componentised agent, fault injection, analyst prompts, pipeline |
 | `paper/` | LaTeX source (ACL style), figures, tables, compiled `main.pdf` |
+| `rrsi/`, `rrsi.py` | RRSI self-improvement loop, vendored from google-research/rrsi (Apache 2.0, see `rrsi/NOTICE.md`), ported to DeepSeek |
+| `domains/` | RRSI domains for tau2-bench retail and airline: frozen episode driver with mid-step replay, adapter, starting harness |
 | `tests/` | Unit tests for the model and a mock-LLM end-to-end test of the real pipeline |
 
 ## Reproduce the synthetic results

@@ -9,3 +9,4 @@ paper/*.blg
 paper/*.out
 paper/*.fls
 paper/*.fdb_latexmk
+domains/*/scenarios.json
