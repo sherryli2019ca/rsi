@@ -8,6 +8,7 @@
   paper/tables/vpi.tex      where perfect verification could add value (Prop. 1)
   paper/tables/robust.tex   budget-40 values under alternative scorings
   paper/tables/csweep.tex   change-cost sweep, per wrong vs per applied change
+  paper/tables/judges.tex   second judge configurations (judge_configs_report.json)
 
   python -m agent_exp.report_tau2
 """
@@ -242,10 +243,39 @@ def csweep_table(R, B=40):
     return rows
 
 
+def judges_table():
+    import os
+    labs = (("bank", "Bank judge (analyst, full trajectory)"),
+            ("short_pro", "Analyst, failing step only"),
+            ("full_flash", "Agent model, full trajectory"),
+            ("short_flash", "Agent model, failing step only"))
+    J = {d: json.load(open(f"runs/tau2_{d}/judge_configs_report.json"))
+         for d in DOMS if os.path.exists(f"runs/tau2_{d}/judge_configs_report.json")}
+    rows = []
+    for c, lab in labs:
+        cells = []
+        for d in DOMS:
+            r = J.get(d, {}).get("configs", {}).get(c)
+            if r is None:
+                cells += ["--"] * 5
+                continue
+            cells += [f"{r['cost']:.2f}", f"{r['sens']:.2f}", f"{r['fpr']:.2f}",
+                      f"{r['break_even']:.2f}", f"{r['efficiency']:.2f}"]
+        rows.append(f"{lab} & " + " & ".join(cells) + " \\\\")
+    for d in DOMS:
+        if d in J:
+            rows.append(f"% {d}: n={J[d]['n']} regen cost={J[d]['regen_cost']:.3f} "
+                        f"b={J[d]['b']:.2f} q={J[d]['q']:.2f} "
+                        + " ".join(f"{c}:n={v['n']},s{v['sens_ci']},e{v['fpr_ci']}"
+                                   for c, v in J[d]["configs"].items()))
+    open("paper/tables/judges.tex", "w").write("\n".join(rows) + "\n")
+    return rows
+
+
 def main():
     R, R3 = load(), load3()
     for rows in (main_table(R3), sig_table(R), vpi_table(R3), robust_table(R, R3), csweep_table(R),
-                 harm_models_table(R3), netabl_table(R3)):
+                 harm_models_table(R3), netabl_table(R3), judges_table()):
         print("\n".join(rows), "\n")
     print("\n".join(ablate_table()), "\n")
     rows, se, n = heldout_table()

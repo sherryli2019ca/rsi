@@ -104,33 +104,35 @@ class LLM:
         self._count(purpose, model, resp)
         return "".join(b.text for b in resp.content if b.type == "text")
 
-    def ask_json(self, prompt, schema, purpose, max_tokens=8000):
-        """One analyst call constrained to a JSON schema."""
+    def ask_json(self, prompt, schema, purpose, max_tokens=8000, model=None):
+        """One analyst call constrained to a JSON schema (`model` overrides the
+        analyst model, e.g. to use the agent model as judge)."""
+        model = model or ANALYST_MODEL
         if BACKEND == "deepseek":
-            return self._ask_json_tool(prompt, schema, purpose, max_tokens)
+            return self._ask_json_tool(prompt, schema, purpose, max_tokens, model)
         resp = self._create(
-            model=ANALYST_MODEL, max_tokens=max_tokens,
+            model=model, max_tokens=max_tokens,
             messages=[{"role": "user", "content": prompt}],
             output_config={"effort": self.analyst_effort,
                            "format": {"type": "json_schema", "schema": schema}})
-        self._count(purpose, ANALYST_MODEL, resp)
+        self._count(purpose, model, resp)
         if resp.stop_reason == "refusal":
             raise RuntimeError("analyst call refused")
         text = next(b.text for b in resp.content if b.type == "text")
         return json.loads(text)
 
-    def _ask_json_tool(self, prompt, schema, purpose, max_tokens):
+    def _ask_json_tool(self, prompt, schema, purpose, max_tokens, model=ANALYST_MODEL):
         tool = {"name": "submit", "description": "Submit your answer.", "input_schema": schema}
         for attempt in range(5):
             # after repeated empty tool calls, restate the required fields
             extra = "" if attempt < 2 else (
                 "\n\nCall the submit tool with every required field filled in: "
                 + ", ".join(schema.get("required", [])) + ".")
-            resp = self._create(model=ANALYST_MODEL, max_tokens=max_tokens, tools=[tool],
+            resp = self._create(model=model, max_tokens=max_tokens, tools=[tool],
                                 tool_choice={"type": "tool", "name": "submit"},
                                 thinking={"type": "disabled"},
                                 messages=[{"role": "user", "content": prompt + extra}])
-            self._count(purpose, ANALYST_MODEL, resp)
+            self._count(purpose, model, resp)
             out = next((b.input for b in resp.content if b.type == "tool_use"), None)
             if isinstance(out, str):
                 try:
