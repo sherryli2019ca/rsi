@@ -117,3 +117,16 @@ pre-specified increase above), the margin and the endpoints.
   (240 per harness); the same analysis with the registered counts (first 4
   trials per task on retail, 8 on airline) is reported as a sensitivity
   analysis.
+- 2026-10-07, after the registered analysis: post-hoc analyses, not
+  registered, are in `verify/posthoc_e1.py` and are labelled post hoc in the
+  paper. (1) One candidate (retail round 6, A) raised harness errors in about
+  half of its episodes and lost 51.7 points held out; the decision values are
+  also reported without that round. (2) The registered analysis applies RRSI's
+  domain guard (reject a harness with more than 2% harness errors) only through
+  RRSI's own decision (`full`), not to the other rules' evidence episodes, as
+  `verify/live.py` does online; the analysis is repeated with the guard applied
+  to every rule's evidence episodes. (3) Candidates are classed as code or text
+  changes by the harness files their diff touches, because RRSI's component
+  labels, which rely on file-name patterns, call most code changes in this
+  harness prompt edits. Those labels also steered the run itself (RRSI's
+  tried/untried components and novelty term); this is reported, not corrected.
