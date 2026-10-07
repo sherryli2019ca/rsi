@@ -48,9 +48,16 @@ act from the replayed step on. observe_prefix lets the harness rebuild
 per-episode state from the recorded steps.
 
 Failures: an exception raised by harness code (including a harness that cannot
-be imported) is recorded as reward 0 with "harness_error"; a policy-endpoint
-or AppWorld failure is infrastructure: the episode is retried (3 attempts) and
-otherwise left missing (the adapter scores a missing trial as 0).
+be imported, a request the endpoint rejects with HTTP 400, e.g. malformed
+messages or a context that no longer fits, and more than MAX_POLICY_CALLS
+policy calls) is recorded as reward 0 with "harness_error"; a policy-endpoint
+(network, rate limit, server) or AppWorld failure is infrastructure: the
+episode is retried (3 attempts) and otherwise left missing (the adapter scores
+a missing trial as 0).
+
+Policy tokens: agent_in (uncached input), agent_cache_read (cached input; the
+endpoint caches repeated prefixes automatically), agent_out, and agent_total =
+their sum, over every policy call of the episode (live steps only in a replay).
 
   /home/user/venv-aw/bin/python -m domains.appworld.driver --harness <dir> \
       --out <dir> --ids 82e2fac_1,692c77d_1 --k 2 [--replay refs.json] \

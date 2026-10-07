@@ -100,12 +100,15 @@ def digest_step(path: Path) -> int | None:
 
 
 def first_bad_write(rec: dict) -> int | None:
-    """Step of the first state-changing call that is not a gold action."""
+    """Step of the first state-changing call that is not a gold action (tau2
+    records; records of other domains, whose steps hold no tool-use blocks,
+    give None)."""
     gold = {(g["name"], json.dumps(g.get("arguments"), sort_keys=True))
             for g in rec.get("gold_actions") or []}
     for st in rec.get("steps") or []:
-        for b in st.get("assistant") or []:
-            if b.get("type") == "tool_use" and not b["name"].startswith(READ_PREFIXES) and \
+        blocks = st.get("assistant")
+        for b in blocks if isinstance(blocks, list) else []:
+            if isinstance(b, dict) and b.get("type") == "tool_use" and not b["name"].startswith(READ_PREFIXES) and \
                     (b["name"], json.dumps(b.get("input"), sort_keys=True)) not in gold:
                 return int(st["index"])
     return None
