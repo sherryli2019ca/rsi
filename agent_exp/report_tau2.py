@@ -38,17 +38,24 @@ def fmt(v, bold=False):
     return f"\\textbf{{{s}}}" if bold else s
 
 
-def main_table(R):
-    groups = [(d, c) for d in DOMS for c in (0.0, 0.02)]
-    res = {g: {k: [v["mean"]] for k, v in R[g[0]]["post|main"][f"{g[1]}"].items()
-               if not k.startswith("p_best")} for g in groups}
-    best = {(g, B): max(res[g][f"{m}|{B}"][0] for m, _ in NAMES) for g in groups for B in BUDGETS}
+def load3():
+    return {d: json.load(open(f"runs/tau2_{d}/reanalysis3.json")) for d in DOMS}
+
+
+def main_table(R3):
+    """Posterior value of deployable sets (one patch per component, support-capped
+    harm), c = 0 and c_w = 0.02, budgets 10/40/80, with the Bayes default."""
+    groups = [(d, c) for d in DOMS for c in ("0.0", "0.02")]
+    res = {g: R3[g[0]]["primary"][g[1]] for g in groups}
+    best = {(g, B): max(res[g][f"{m}|{B}"]["mean"] for m, _ in NAMES) for g in groups for B in BUDGETS}
     rows = []
     for m, name in NAMES:
-        cells = [fmt(res[g][f"{m}|{B}"][0], res[g][f"{m}|{B}"][0] >= best[g, B] - 1e-9)
+        cells = [fmt(res[g][f"{m}|{B}"]["mean"], res[g][f"{m}|{B}"]["mean"] >= best[g, B] - 1e-9)
                  for g in groups for B in BUDGETS]
         rows.append(f"{name} & " + " & ".join(cells) + " \\\\")
         if m == "LLM-only":
+            bd = [fmt(res[g][f"Bayes-default-{g[1]}|0"]["mean"]) for g in groups for B in BUDGETS]
+            rows.append("Bayes default (Prop.~\\ref{prop:vpi}) & " + " & ".join(bd) + " \\\\")
             rows.append("\\midrule")
     open("paper/tables/tau2.tex", "w").write("\n".join(rows) + "\n")
     return rows
@@ -73,20 +80,22 @@ def sig_table(R):
 def heldout_table():
     H = json.load(open("runs/tau2_retail/heldout_breakdown.json"))
     A = json.load(open("runs/tau2_airline/heldout_breakdown.json"))
-    cols = ("all", "clean")
+    cols, acols = ("all", "clean", "no_step_fault"), ("all", "clean")
 
     def vs(r):
         va = r["vs_apply"]["all"]
-        return f"{fmt(va[0])} {{\\scriptsize[{fmt(va[2])}, {fmt(va[3])}]}}"
-    rows = ["Unpatched & " + " & ".join(f"{H['unpatched'][c][0]:.2f}" for c in cols) +
-            f" & & {A['unpatched']['all'][0]:.2f} & \\\\", "\\midrule"]
+        return f"{fmt(va[0])} {{\\footnotesize[{fmt(va[2])}, {fmt(va[3])}]}}"
+    rows = ["Unpatched & " + " & ".join(f"{H['unpatched'][c][0]:.2f}" for c in cols) + " & & 0 & " +
+            " & ".join(f"{A['unpatched'][c][0]:.2f}" for c in acols) + " & & 0 \\\\", "\\midrule"]
     for m, name in NAMES:
         r, a = H.get(f"{m}|10"), A.get(f"{m}|10")
         if r:
             dv = "--" if m == "LLM-only" else vs(r)
-            air = " & " if not a else (f"{a['all'][0]:.2f} & " + ("--" if m == "LLM-only" else vs(a)))
+            air = " & & & " if not a else (" & ".join(f"{a[c][0]:.2f}" for c in acols) + " & " +
+                                           ("--" if m == "LLM-only" else vs(a)) +
+                                           f" & {a['n_patches']:.1f}")
             rows.append(f"{name} & " + " & ".join(f"{r[c][0]:.2f}" for c in cols) +
-                        f" & {dv} & {air} \\\\")
+                        f" & {dv} & {r['n_patches']:.1f} & {air} \\\\")
     open("paper/tables/heldout.tex", "w").write("\n".join(rows) + "\n")
     ses = [H[k][c][1] for k in H if k != "n_episodes" and isinstance(H[k], dict) for c in cols]
     return rows, (min(ses), max(ses)), H["n_episodes"]
@@ -126,32 +135,75 @@ def ablate_table():
     return rows + rows2 + rows3
 
 
-def vpi_table(R):
+def vpi_table(R3):
+    """Value of perfect information over two deployable defaults (posterior means),
+    with the decision-rule gap; last row per domain: per-cell additive and uncapped,
+    as in the previous version of the paper."""
     rows = []
     for d in DOMS:
-        pv = R[d]["post|main"]["vpi"]
-        for n, (v, lab) in enumerate(((pv["0.0"], "posterior, $c=0$"),
-                                      (pv["0.02"], "posterior, $c_{\\mathrm w}=0.02$"))):
+        P = R3[d]["primary"]
+        for n, c in enumerate(("0.0", "0.02")):
+            lab_c = "$c=0$" if c == "0.0" else "$c_{\\mathrm w}=0.02$"
+            va, vb = P["vpi"][f"{c}|apply"], P["vpi"][f"{c}|bayes"]
+            gap = vb["default"][0] - va["default"][0]
             first = d.capitalize() if n == 0 else ""
-            rows.append(f"{first} & {lab} & " + " & ".join(
-                fmt(v[k][0]) for k in ("default", "harm", "select", "discover")) + " \\\\")
-        v = R[d]["vpi|sig|wrong|0.0"]
-        rows.append(f" & significant only, $c=0$ & {fmt(v['default'])} & {fmt(v['harm'])} & "
-                    f"{fmt(v['select'])} & {fmt(v['discover'])} \\\\")
+            rows.append(f"{first} & Apply, {lab_c} & {fmt(va['default'][0])} & {fmt(gap)} & " +
+                        " & ".join(fmt(va[k][0]) for k in ("harm", "select", "discover", "total")) + " \\\\")
+            rows.append(f" & Bayes, {lab_c} & {fmt(vb['default'][0])} & -- & " +
+                        " & ".join(fmt(vb[k][0]) for k in ("harm", "select", "discover", "total")) + " \\\\")
+        u = R3[d]["undeployed"]["vpi"]["0.0|apply"]
+        rows.append(f" & \\quad per cell, $c=0$ & {fmt(u['default'][0])} & & " +
+                    " & ".join(fmt(u[k][0]) for k in ("harm", "select", "discover", "total")) + " \\\\")
         if d == "retail":
             rows.append("\\midrule")
     open("paper/tables/vpi.tex", "w").write("\n".join(rows) + "\n")
     return rows
 
 
-def robust_table(R, B=40):
+def harm_models_table(R3, B=40):
+    """Appendix: sensitivity of the posterior to the harm model (c = 0)."""
+    labels = [("primary", "Hierarchical normal (primary)"), ("model|pool", "Complete pooling ($\\tau=0$)"),
+              ("model|tau2x", "Spread doubled ($2\\tau$)"), ("model|nopool", "No pooling"),
+              ("model|task", "Tasks resampled"), ("uncapped", "No support cap"),
+              ("undeployed", "Not deployable")]
+    rows = []
+    for key, lab in labels:
+        cells = []
+        for d in DOMS:
+            P = R3[d][key]
+            r = P["0.0"]
+            ver = [(r[f"{m}|{B}"]["mean"], m) for m in SHORT if m != "LLM-only"]
+            bv, bm = max(ver)
+            mu = P["mu"][0]
+            tot = P["vpi"]["0.0|apply"]["total"][0] if P.get("vpi") else float("nan")
+            cells += [fmt(mu), fmt(r[f"LLM-only|{B}"]["mean"]), fmt(bv),
+                      f"{r[f'{bm}|{B}']['p_better']:.2f}", fmt(tot)]
+        rows.append(f"{lab} & " + " & ".join(cells) + " \\\\")
+    open("paper/tables/harm_models.tex", "w").write("\n".join(rows) + "\n")
+    return rows
+
+
+def netabl_table(R3):
+    rows = []
+    for m, lab in (("Net", "As used (clip, rescale)"), ("Net-noclip", "No clip"),
+                   ("Net-norescale", "No rescale"), ("Net-raw", "Neither (Eq.~\\ref{eq:delta})")):
+        cells = []
+        for d in DOMS:
+            r = R3[d].get("netabl", {}).get("0.0", {})
+            cells += [fmt(r[f"{m}|{B}"]["mean"]) if f"{m}|{B}" in r else "--" for B in BUDGETS]
+        rows.append(f"{lab} & " + " & ".join(cells) + " \\\\")
+    open("paper/tables/netabl.tex", "w").write("\n".join(rows) + "\n")
+    return rows
+
+
+def robust_table(R, R3, B=40):
     """One block per domain: posterior value with interval and probability of
     beating Apply attributed, then sensitivity scorings (significant harm,
     c_w = 0.02 unless stated) at budget B."""
     rows = []
     for d in DOMS:
         r = R[d]
-        po = r["post|main"]["0.02"]
+        po = R3[d]["primary"]["0.02"]
         sp = r["split"]
         for m in SHORT:
             name = dict(NAMES)[m]
@@ -191,8 +243,9 @@ def csweep_table(R, B=40):
 
 
 def main():
-    R = load()
-    for rows in (main_table(R), sig_table(R), vpi_table(R), robust_table(R), csweep_table(R)):
+    R, R3 = load(), load3()
+    for rows in (main_table(R3), sig_table(R), vpi_table(R3), robust_table(R, R3), csweep_table(R),
+                 harm_models_table(R3), netabl_table(R3)):
         print("\n".join(rows), "\n")
     print("\n".join(ablate_table()), "\n")
     rows, se, n = heldout_table()

@@ -63,6 +63,10 @@ done
 python -m agent_exp.heldout_breakdown --out runs/tau2_retail                # held-out by episode type
 python -m agent_exp.heldout_breakdown --out runs/tau2_airline --domain tau2_airline
 python -m agent_exp.review2_report --out runs/tau2_retail                  # step-patch removal, leave-one-out, clean episodes
+for d in tau2_retail tau2_airline; do   # third review: deployable sets, Bayes default, harm models
+  python -m agent_exp.reanalysis --out runs/$d --domain $d --stage decide --settings netabl
+  python -m agent_exp.reanalysis3 --out runs/$d --domain $d                 # -> reanalysis3.json
+done
 python -m agent_exp.report_tau2                                             # paper/tables/*.tex
 cd paper && latexmk -pdf main.tex
 ```

@@ -48,9 +48,13 @@ class NetPosterior:
     exists and b_i otherwise."""
 
     def __init__(self, counts, inb, f, b0, r0, w, K=3, r_hat=0.7, use_prior=True,
-                 c_fp=0.02, q_prior=(2.0, 2.0), b_strength=4.0, r_strength=4.0):
+                 c_fp=0.02, q_prior=(2.0, 2.0), b_strength=4.0, r_strength=4.0,
+                 clip=True, rescale=True):
         from sim.testbed import edge_prior
         self.f, self.r0, self.w, self.K, self.c_fp = f, r0, w, K, c_fp
+        # regression term w * max(0, r_k - r0) / (1 - r0); the ablation drops the
+        # clip at zero and / or the 1 / (1 - r0) rescaling (Eq. 1 uses neither)
+        self.clip, self.rescale = clip, rescale
         self.cells = [(i, j) for i, j in zip(*np.nonzero(inb))]
         I, J = counts.shape
         pi = edge_prior(counts, r_hat) if use_prior else np.full((I, J), 1.5 / J)
@@ -84,7 +88,8 @@ class NetPosterior:
         for k in range(self.K):
             ra, rb = (r or {}).get(k, self.r[i, j, k])
             rm = ra / (ra + rb)
-            regs.append(self.w * max(0.0, rm - self.r0) / max(1e-6, 1 - self.r0))
+            ex = max(0.0, rm - self.r0) if self.clip else rm - self.r0
+            regs.append(self.w * ex / (max(1e-6, 1 - self.r0) if self.rescale else 1.0))
         return pe, qs, regs
 
     def deltas(self, i, j, **over):
@@ -137,11 +142,12 @@ def _kg(post, i, j, k, kind, n):
 
 
 def run_netsel(bank, counts, f, inb, costs, b0, seed, budget, r0, w, use_reg=True,
-               use_null=True, use_prior=True, n_ctrl=0, c_fp=0.02):
+               use_null=True, use_prior=True, n_ctrl=0, c_fp=0.02, clip=True, rescale=True):
     from agent_exp.bank import FULL, BankWorld
     rng = np.random.default_rng(seed)
     world = BankWorld(bank, rng)
-    post = NetPosterior(counts, inb, f, b0, r0, w, use_prior=use_prior, c_fp=c_fp)
+    post = NetPosterior(counts, inb, f, b0, r0, w, use_prior=use_prior, c_fp=c_fp,
+                       clip=clip, rescale=rescale)
     tn = np.mean([v["tok"] for v in bank["null"].values()])
     tf = np.mean([t for c in bank["cells"].values() for t in c["tok_full"]])
     cost = {"rep": 1.0, "null": float(tn / tf), "reg": float(costs[2])}

@@ -130,6 +130,9 @@ def setting(name):
         # run with BANK_NOREPLACE=1: outcomes drawn without replacement
         assert os.environ.get("BANK_NOREPLACE") == "1"
         return bank, inb, 0.02, ALL, (10, 40, 80), 100
+    if name == "netabl":
+        # net-effect regression term without clipping / rescaling (third review)
+        return bank, inb, 0.02, ["Net-noclip", "Net-norescale", "Net-raw"], (10, 40, 80), 40
     if name.startswith("split"):
         A, _ = split_bank(bank, int(name[5:]))
         return A, inb, 0.02, ALL, (10, 40, 80), 40
