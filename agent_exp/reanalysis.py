@@ -116,6 +116,76 @@ def split_bank(bank, t):
     return A, B
 
 
+def split_bank_grouped(bank, t):
+    """Two halves that share no source trajectory and no regression task: within
+    each category the failed trajectories that replays and null replays start
+    from are split in half, and so are the regression tasks; every recorded
+    outcome goes to the half of its source. Categories with a single source
+    trajectory fall back to splitting outcomes (counted in `fallback`)."""
+    rng = np.random.default_rng(2000 + t)
+    A = {"cells": {}, "null": {}, "reg": {}}
+    B = {"cells": {}, "null": {}, "reg": {}}
+    src = {}
+    for key, c in bank["cells"].items():
+        src.setdefault(int(key.split(",")[0]), set()).update(c["trace"])
+    for v in bank["null"].values():
+        src.setdefault(v["cat"], set()).add(v["trace"])
+    inA, fallback = {}, []
+    for cat, us in src.items():
+        us = sorted(us)
+        if len(us) < 2:
+            fallback.append(cat)
+            continue
+        p = rng.permutation(len(us))
+        half = len(us) // 2 + (len(us) % 2) * int(rng.integers(2))
+        for n, x in enumerate(p):
+            inA[us[x]] = n < half
+    for key, c in bank["cells"].items():
+        cat = int(key.split(",")[0])
+        n = len(c["y"])
+        if cat in fallback:
+            p = rng.permutation(n)
+            sides = (p[:n // 2], p[n // 2:])
+        else:
+            sides = ([x for x in range(n) if inA[c["trace"][x]]],
+                     [x for x in range(n) if not inA[c["trace"][x]]])
+        for H, idx in zip((A, B), sides):
+            H["cells"][key] = {k: [v[x] for x in idx] for k, v in c.items()}
+    for key, v in bank["null"].items():
+        if v["cat"] in fallback:
+            (A if rng.random() < 0.5 else B)["null"][key] = v
+        else:
+            (A if inA[v["trace"]] else B)["null"][key] = v
+    tasks = sorted({r["task"] for runs in bank["reg"].values() for r in runs})
+    p = rng.permutation(len(tasks))
+    tA = {tasks[x] for x in p[:len(tasks) // 2]}
+    for key, runs in bank["reg"].items():
+        A["reg"][key] = [r for r in runs if r["task"] in tA]
+        B["reg"][key] = [r for r in runs if r["task"] not in tA]
+    A["fallback"] = B["fallback"] = fallback
+    return A, B
+
+
+def inputs_from(bank):
+    """Experiment costs and judge calibration estimated from one bank half (as
+    stage_evaluate does on the full bank)."""
+    cells = [c for c in bank["cells"].values() if c["y"]]
+    tf = np.mean([t for c in cells for t in c["tok_full"]])
+    ts = np.mean([t for c in cells for t in c["tok_single"]])
+    regs = [r["tok"] for v in bank["reg"].values() for r in v]
+    costs = (1.0, ts / tf, (np.mean(regs) if regs else tf) / tf)
+    ys = np.array([y for c in cells for y in c["y"]])
+    zs = np.array([z for c in cells for z in c["z"]])
+    bad = np.array([np.mean(c["y"]) < 0.3 for c in cells for _ in c["y"]])
+    cal = {"sens": float(zs[ys == 1].mean()), "fpr": float(zs[ys == 0].mean())}
+    cal["fpr_bad"] = float(zs[(ys == 0) & bad].mean()) if ((ys == 0) & bad).any() else cal["fpr"]
+    cal["fpr_good"] = float(zs[(ys == 0) & ~bad].mean()) if ((ys == 0) & ~bad).any() else cal["fpr"]
+    return costs, cal
+
+
+OVR = {}
+
+
 def setting(name):
     """(bank seen by policies, in-bank mask, internal c, methods, budgets, seeds)."""
     bank, inb = CTX["bank"], CTX["inb"].copy()
@@ -136,6 +206,18 @@ def setting(name):
     if name.startswith("split"):
         A, _ = split_bank(bank, int(name[5:]))
         return A, inb, 0.02, ALL, (10, 40, 80), 40
+    r_aud = float(CTX["ev"]["attr_acc_injected"])
+    if name == "audit":
+        # fifth review: edge priors at the audited analyst accuracy
+        OVR[name] = {"r_hat": r_aud}
+        return bank, inb, 0.02, ALL, (10, 40, 80), 40
+    if name.startswith("clean"):
+        # fifth review: halves share no source trajectory or regression task, and
+        # the policy's prior, costs and judge calibration come from its own half
+        A, _ = split_bank_grouped(bank, int(name[5:]))
+        costs, cal = inputs_from(A)
+        OVR[name] = {"r_hat": r_aud, "costs": costs, "cal": cal}
+        return A, inb, 0.02, ALL, (10, 40, 80), 20
     raise ValueError(name)
 
 
@@ -143,9 +225,11 @@ def _job(args):
     name, m, B, s = args
     bank, inb, c, _, _, _ = SET[name]
     ev = CTX["ev"]
+    o = OVR.get(name, {})
     b_hat = float(np.mean([v["y"] for v in bank["null"].values()]))
-    acc, patch, spent = run_method(m, bank, CTX["counts"], CTX["f"], inb, ev["costs"], b_hat, s,
-                                   B, c_fp=c, cal=ev["calibration"], r0=ev["r0"], w=ev["w"])
+    acc, patch, spent = run_method(m, bank, CTX["counts"], CTX["f"], inb, o.get("costs", ev["costs"]),
+                                   b_hat, s, B, c_fp=c, cal=o.get("cal", ev["calibration"]),
+                                   r0=ev["r0"], w=ev["w"], r_hat=o.get("r_hat", 0.7))
     cells = [[int(i), int(j), int(patch[i, j])] for i, j in zip(*np.nonzero(acc))]
     return f"{name}|{m}|{int(B)}|{s}", [cells, float(spent)]
 

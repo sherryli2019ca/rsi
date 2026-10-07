@@ -47,28 +47,55 @@ def load4():
     return {d: json.load(open(f"runs/tau2_{d}/reanalysis4.json")) for d in DOMS}
 
 
-def main_table(R3, R4):
-    """Posterior value of deployable sets (one patch per component, support-capped
-    harm), budgets 10/40/80, with the Bayes default: on the full bank, and with
-    policy evidence (half A) separated from outcome assessment (half B)."""
-    for c, path in (("0.0", "paper/tables/tau2.tex"), ("0.02", "paper/tables/tau2_cw.tex")):
-        groups = [(d, k) for d in DOMS for k in ("full", "split")]
-        res = {g: (R3[g[0]]["primary"][c] if g[1] == "full" else R4[g[0]]["split"][c])
-               for g in groups}
+def main_table(R5):
+    """Posterior value of deployable sets under the task-level binomial harm model,
+    budgets 10/40/80, with the Bayes default: on the full bank, and with policy
+    evidence and outcome assessment taken from halves that share no source
+    trajectory or regression task (policy inputs from the policy's half,
+    audited analyst accuracy). Also writes the absolute-success version and the
+    appendix variants (outcome-split halves, audited accuracy on the full bank)."""
+    def write(groups, res, c, path, scale=None):
         best = {(g, B): max(res[g][f"{m}|{B}"]["mean"] for m, _ in NAMES) for g in groups
                 for B in BUDGETS}
         rows = []
         for m, name in NAMES:
-            cells = [fmt(res[g][f"{m}|{B}"]["mean"], res[g][f"{m}|{B}"]["mean"] >= best[g, B] - 1e-9)
-                     for g in groups for B in BUDGETS]
+            cells = []
+            for g in groups:
+                for B in BUDGETS:
+                    v = res[g][f"{m}|{B}"]["mean"]
+                    if scale:
+                        cells.append(f"{100 * v * scale[g[0]]:.1f}".replace("-", "$-$"))
+                    else:
+                        cells.append(fmt(v, v >= best[g, B] - 1e-9))
             rows.append(f"{name} & " + " & ".join(cells) + " \\\\")
             if m == "LLM-only":
-                bd = [fmt(res[g][f"Bayes-default-{c}|0"]["mean"]) if g[1] == "full" else "--"
-                      for g in groups for B in BUDGETS]
+                bd = []
+                for g in groups:
+                    k = f"Bayes-default-{c}|0"
+                    for B in BUDGETS:
+                        if k in res[g]:
+                            v = res[g][k]["mean"]
+                            bd.append(f"{100 * v * scale[g[0]]:.1f}".replace("-", "$-$") if scale else fmt(v))
+                        else:
+                            bd.append("--")
                 rows.append("Bayes default (Prop.~\\ref{prop:vpi}) & " + " & ".join(bd) + " \\\\")
                 rows.append("\\midrule")
         open(path, "w").write("\n".join(rows) + "\n")
-    return rows
+        return rows
+
+    scale = {d: R5[d]["yardstick_abs"] for d in DOMS}
+    out = None
+    for c, path in (("0.0", "paper/tables/tau2.tex"), ("0.02", "paper/tables/tau2_cw.tex")):
+        groups = [(d, k) for d in DOMS for k in ("primary", "clean")]
+        res = {g: R5[g[0]][g[1]][c] for g in groups}
+        r = write(groups, res, c, path)
+        out = out or r
+        if c == "0.0":
+            write(groups, res, c, "paper/tables/tau2_abs.tex", scale)
+    groups = [(d, k) for d in DOMS for k in ("audit", "split")]
+    res = {g: R5[g[0]][g[1]]["0.0"] for g in groups}
+    write(groups, res, "0.0", "paper/tables/tau2_more.tex")
+    return out
 
 
 def sig_table(R):
@@ -145,13 +172,14 @@ def ablate_table():
     return rows + rows2 + rows3
 
 
-def vpi_table(R3):
-    """Value of perfect information over two deployable defaults (posterior means),
-    with the decision-rule gap; indented rows: over Apply at c = 0 under other harm
-    models, and per cell (additive, not deployable)."""
+def vpi_table(R3, R5):
+    """Value of perfect information over two deployable defaults under the
+    binomial harm model (posterior means), with the decision-rule gap; indented
+    rows: over Apply at c = 0 under the normal-approximation models of the
+    previous analysis, and per cell (additive, not deployable)."""
     rows = []
     for d in DOMS:
-        P = R3[d]["primary"]
+        P = R5[d]["primary"]
         for n, c in enumerate(("0.0", "0.02")):
             lab_c = "$c=0$" if c == "0.0" else "$c_{\\mathrm w}=0.02$"
             va, vb = P["vpi"][f"{c}|apply"], P["vpi"][f"{c}|bayes"]
@@ -162,8 +190,9 @@ def vpi_table(R3):
             if c == "0.0":
                 rows.append(f" & Bayes, {lab_c} & {fmt(vb['default'][0])} & -- & " +
                             " & ".join(fmt(vb[k][0]) for k in ("harm", "select", "discover", "total")) + " \\\\")
-        for key, lab in (("model|pool", "pooled ($\\tau{=}0$)"), ("model|nopool", "no pooling"),
-                         ("model|task", "tasks resampled"), ("undeployed", "per cell")):
+        for key, lab in (("primary", "normal, partial pooling"), ("model|pool", "normal, $\\tau{=}0$"),
+                         ("model|nopool", "no pooling"), ("model|task", "tasks resampled"),
+                         ("undeployed", "per cell")):
             u = R3[d][key]["vpi"]["0.0|apply"]
             rows.append(f" & \\quad {lab} & {fmt(u['default'][0])} & & " +
                         " & ".join(fmt(u[k][0]) for k in ("harm", "select", "discover", "total")) + " \\\\")
@@ -173,9 +202,9 @@ def vpi_table(R3):
     return rows
 
 
-def harm_models_table(R3, B=40):
+def harm_models_table(R3, R5=None, B=40):
     """Appendix: sensitivity of the posterior to the harm model (c = 0)."""
-    labels = [("primary", "Hierarchical normal (primary)"), ("model|pool", "Complete pooling ($\\tau=0$)"),
+    labels = [("binom", "Task-level binomial (primary)"), ("primary", "Hierarchical normal"), ("model|pool", "Complete pooling ($\\tau=0$)"),
               ("model|tau2x", "Spread doubled ($2\\tau$)"), ("model|nopool", "No pooling"),
               ("model|task", "Tasks resampled"), ("uncapped", "No support cap"),
               ("undeployed", "Not deployable")]
@@ -183,7 +212,10 @@ def harm_models_table(R3, B=40):
     for key, lab in labels:
         cells = []
         for d in DOMS:
-            P = R3[d][key]
+            if key == "binom":
+                P = dict(R5[d]["primary"], mu=R5[d]["binom"]["pooled_rho"])
+            else:
+                P = R3[d][key]
             r = P["0.0"]
             ver = [(r[f"{m}|{B}"]["mean"], m) for m in SHORT if m != "LLM-only"]
             bv, bm = max(ver)
@@ -255,54 +287,57 @@ def csweep_table(R, B=40):
     return rows
 
 
-def payback_table(R4):
+def load5():
+    import os
+    return {d: json.load(open(f"runs/tau2_{d}/reanalysis5.json")) for d in DOMS
+            if os.path.exists(f"runs/tau2_{d}/reanalysis5.json")}
+
+
+def payback_table(R5):
+    """Probability that verification ever pays back (and after 1,000 episodes)
+    under gain models and change-cost distributions."""
     lab = dict(NAMES)
+    cols = [("normal|none", "ever"), ("t|none", "ever"), ("bootstrap|none", "ever"),
+            ("sceptic03|none", "ever"), ("normal|U02", "N1000"), ("normal|U02", "ever"),
+            ("normal|U05", "ever"), ("normal|fixed05", "ever")]
     rows = []
     for d in DOMS:
-        rows.append(f"\\multicolumn{{6}}{{l}}{{\\emph{{{d.capitalize()}}}}} \\\\")
-        for m, r in R4[d]["payback"].items():
+        rows.append(f"\\multicolumn{{10}}{{l}}{{\\emph{{{d.capitalize()}}}}} \\\\")
+        for m, r in R5[d]["payback"].items():
             if m not in lab:
                 continue
-            p = r["ca"]
-            rows.append(f"{lab[m]} & {fmt(r['mean'])} [{r['se']:.2f}] & {p['N300']:.2f} & "
-                        f"{p['N1000']:.2f} & {p['N10000']:.2f} & {p['p_pos']:.2f} \\\\")
+            cells = [f"{r[k][v]:.2f}" for k, v in cols]
+            rows.append(f"{lab[m]} & {fmt(r['mean'])} [{r['se']:.2f}] & {r['dn']:.1f} & "
+                        + " & ".join(cells) + " \\\\")
     open("paper/tables/payback.tex", "w").write("\n".join(rows) + "\n")
     return rows
 
 
-def judges_table():
-    import os
+def judges_table(R5):
     labs = (("bank", "Bank judge (analyst, full trajectory)"),
             ("short_pro", "Analyst, failing step only"),
-            ("full_flash", "Agent model, full trajectory"),
+            ("full_flash", "Agent model, full trajectory$^\\dagger$"),
             ("short_flash", "Agent model, failing step only"))
-    J = {d: json.load(open(f"runs/tau2_{d}/judge_configs_report.json"))
-         for d in DOMS if os.path.exists(f"runs/tau2_{d}/judge_configs_report.json")}
     rows = []
-    for c, lab in labs:
-        cells = []
-        for d in DOMS:
-            r = J.get(d, {}).get("configs", {}).get(c)
-            if r is None:
-                cells += ["--"] * 5
-                continue
-            cells += [f"{r['cost']:.2f}", f"{r['sens']:.2f}", f"{r['fpr']:.2f}",
-                      f"{r['break_even']:.2f}", f"{r['efficiency']:.2f}"]
-        rows.append(f"{lab} & " + " & ".join(cells) + " \\\\")
     for d in DOMS:
-        if d in J:
-            rows.append(f"% {d}: n={J[d]['n']} regen cost={J[d]['regen_cost']:.3f} "
-                        f"b={J[d]['b']:.2f} q={J[d]['q']:.2f} "
-                        + " ".join(f"{c}:n={v['n']},s{v['sens_ci']},e{v['fpr_ci']}"
-                                   for c, v in J[d]["configs"].items()))
+        J = R5[d]["judges"]
+        rows.append(f"\\multicolumn{{10}}{{l}}{{\\emph{{{d.capitalize()}}}}} \\\\")
+        for c, lab in labs:
+            r = J[c]
+            pl = J["patch_level"] if c == "bank" else r["patch_level"]
+            cp = r["cost_by_price"]
+            rows.append(f"{lab} & {r['cost']:.2f} & {cp['2']:.2f} / {cp['4']:.2f} & "
+                        f"{r['break_even']:.2f} & {r['ratio']:.2f} {{\\footnotesize[{r['ratio_90'][0]:.2f}, {r['ratio_90'][1]:.2f}]}} & "
+                        f"{pl['sens']:.2f} & {pl['fpr']:.2f} & {pl['break_even']:.2f} & "
+                        f"{pl['ratio']:.2f} {{\\footnotesize[{pl['ratio_90'][0]:.2f}, {pl['ratio_90'][1]:.2f}]}} \\\\")
     open("paper/tables/judges.tex", "w").write("\n".join(rows) + "\n")
     return rows
 
 
 def main():
-    R, R3, R4 = load(), load3(), load4()
-    for rows in (main_table(R3, R4), sig_table(R), vpi_table(R3), robust_table(R, R3), csweep_table(R),
-                 harm_models_table(R3), netabl_table(R3), judges_table(), payback_table(R4)):
+    R, R3, R4, R5 = load(), load3(), load4(), load5()
+    for rows in (main_table(R5), sig_table(R), vpi_table(R3, R5), robust_table(R, R3), csweep_table(R),
+                 harm_models_table(R3, R5), netabl_table(R3), judges_table(R5), payback_table(R5)):
         print("\n".join(rows), "\n")
     print("\n".join(ablate_table()), "\n")
     rows, se, n = heldout_table()

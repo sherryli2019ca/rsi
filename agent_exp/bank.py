@@ -458,7 +458,7 @@ def run_method(method, bank, counts, f, inb, costs, b_hat, seed, budget, c_fp=0.
                           n_ctrl=2 if method == "Net+ctrl" else 0,
                           c_fp=0.0 if method == "Net-c0" else c_fp,
                           clip=method not in ("Net-noclip", "Net-raw"),
-                          rescale=method not in ("Net-norescale", "Net-raw"))
+                          rescale=method not in ("Net-norescale", "Net-raw"), r_hat=r_hat)
     params = ObsParams(b=b_hat, lam=0.8, sens=0.85, fpr=0.15)
     if method == "CARVE-calibrated":
         params.sens, params.fpr = cal["sens"], cal["fpr"]
