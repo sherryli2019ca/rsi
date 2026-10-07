@@ -15,10 +15,20 @@ its average excess failure probability over the regression tasks,
 
     rho_k = mean_t [logistic(alpha_t + delta_k) - logistic(alpha_t)],
 
-which always respects the support rho_k >= -r0. Sampling is Metropolis within
-Gibbs, interweaving centred and non-centred updates of the patch population: vectorised random-walk updates of every delta_k and alpha_t (each is
-conditionally independent of the others of its kind), conjugate normal updates
-of a and mu, and random-walk updates of log s_a and log s_d.
+which always respects the support rho_k >= -r0.
+
+With slope=True, patched runs instead follow logistic(alpha_t + beta (alpha_t - c)
++ delta_k), c the logit of the mean unpatched failure rate, beta ~ N(0, 1). A
+common beta < 0 lets patches move every task's failure rate towards the middle
+(raise it on tasks that rarely fail, lower it on tasks that often fail), which
+the logit-additive model cannot represent and would otherwise absorb into the
+task effects.
+
+Sampling is Metropolis within Gibbs, interweaving centred and non-centred
+updates of the patch population: vectorised random-walk updates of every
+delta_k and alpha_t (each is conditionally independent of the others of its
+kind), conjugate normal updates of a and mu, and random-walk updates of log s_a,
+log s_d and beta.
 """
 from __future__ import annotations
 
@@ -31,7 +41,17 @@ def _ll(f, n, eta):
     return f * log_expit(eta) + (n - f) * log_expit(-eta)
 
 
-def sample(N, NF, n0, f0, iters=20000, burn=5000, thin=25, seed=0):
+def center(n0, f0):
+    m = f0.sum() / n0.sum()
+    return float(np.log(m / (1 - m)))
+
+
+def patched(al, d, beta, c):
+    """(P, T) patched logits; al (T,) or (S, T) with matching d, beta."""
+    return (al * (1 + beta) - beta * c)[..., None, :] + d[..., :, None]
+
+
+def sample(N, NF, n0, f0, iters=20000, burn=5000, thin=25, seed=0, slope=False):
     """N, NF: (P, T) runs and failures of P patches on T tasks; n0, f0: (T,)
     unpatched runs and failures. Returns dict of draws."""
     rng = np.random.default_rng(seed)
@@ -39,16 +59,17 @@ def sample(N, NF, n0, f0, iters=20000, burn=5000, thin=25, seed=0):
     p0 = (f0 + 0.5) / (n0 + 1)
     alpha = np.log(p0 / (1 - p0))
     delta = np.zeros(P)
-    a, mu, sa, sd = alpha.mean(), 0.0, 1.0, 0.3
+    a, mu, sa, sd, beta = alpha.mean(), 0.0, 1.0, 0.3, 0.0
+    c = center(n0, f0)
     step_a, step_d = np.full(T, 0.5), np.full(P, 0.5)
     acc_a, acc_d = np.zeros(T), np.zeros(P)
-    out = {k: [] for k in ("delta", "alpha", "mu", "sd", "sa", "a")}
+    out = {k: [] for k in ("delta", "alpha", "mu", "sd", "sa", "a", "beta")}
 
     def lik_delta(d):
-        return _ll(NF, N, alpha[None, :] + d[:, None]).sum(1)
+        return _ll(NF, N, patched(alpha, d, beta, c)).sum(1)
 
     def lik_alpha(al):
-        return _ll(f0, n0, al) + _ll(NF, N, al[None, :] + delta[:, None]).sum(0)
+        return _ll(f0, n0, al) + _ll(NF, N, patched(al, delta, beta, c)).sum(0)
 
     for it in range(iters):
         # patch effects
@@ -87,6 +108,13 @@ def sample(N, NF, n0, f0, iters=20000, burn=5000, thin=25, seed=0):
                     sd = new
                 else:
                     sa = new
+        # common slope (random walk, N(0, 1) prior)
+        if slope:
+            b_n = beta + 0.05 * rng.standard_normal()
+            lr = (_ll(NF, N, patched(alpha, delta, b_n, c)).sum()
+                  - _ll(NF, N, patched(alpha, delta, beta, c)).sum() - 0.5 * (b_n ** 2 - beta ** 2))
+            if np.log(rng.random()) < lr:
+                beta = b_n
         # interweaving step (non-centred): move mu and s_d with the standardised
         # patch effects z = (delta - mu) / s_d held fixed, which mixes s_d where
         # the centred updates above stall (small s_d)
@@ -106,37 +134,68 @@ def sample(N, NF, n0, f0, iters=20000, burn=5000, thin=25, seed=0):
             acc_d[:], acc_a[:] = 0, 0
         if it >= burn and (it - burn) % thin == 0:
             for k, v in (("delta", delta), ("alpha", alpha), ("mu", mu), ("sd", sd),
-                         ("sa", sa), ("a", a)):
+                         ("sa", sa), ("a", a), ("beta", beta)):
                 out[k].append(np.copy(v) if np.ndim(v) else float(v))
-    return {k: np.array(v) for k, v in out.items()}
+    res = {k: np.array(v) for k, v in out.items()}
+    res["c"] = np.full(len(res["mu"]), c)
+    return res
 
 
 def rho_draws(draws):
     """(S, P) average excess failure probability of each patch over the tasks,
     and (S,) mean unpatched failure probability."""
     al, de = draws["alpha"], draws["delta"]
+    be, c = draws["beta"][:, None], draws["c"][:, None]
     base = expit(al)
-    rho = (expit(al[:, None, :] + de[:, :, None]) - base[:, None, :]).mean(-1)
+    rho = (expit(patched(al, de, be, c)) - base[:, None, :]).mean(-1)
     return rho, base.mean(-1)
 
 
 def new_patch_rho(draws, rng):
     """rho of a patch with no regression runs: delta from the fitted population."""
     d = draws["mu"] + draws["sd"] * rng.standard_normal(len(draws["mu"]))
-    al = draws["alpha"]
-    return (expit(al + d[:, None]) - expit(al)).mean(-1)
+    al, be, c = draws["alpha"], draws["beta"][:, None], draws["c"][:, None]
+    return (expit(al * (1 + be) - be * c + d[:, None]) - expit(al)).mean(-1)
 
 
-def ppc(draws, N, NF, n0, rng, sel):
-    """Posterior predictive check on patches `sel`: spread of failure rates,
-    number with no failure, maximum failure rate (as in reanalysis3.ppc)."""
+def _task_stats(f0, n0, NF, N):
+    """Patched minus unpatched failure rate on tasks whose unpatched runs never
+    failed, and on tasks whose unpatched runs failed at least half the time:
+    the task-level pattern a logit-additive model may miss."""
+    out = []
+    for m in (f0 == 0, f0 >= 0.5 * n0):
+        if not m.any() or N[:, m].sum() == 0:
+            out.append(np.nan)
+            continue
+        out.append(NF[:, m].sum() / N[:, m].sum() - f0[m].sum() / n0[m].sum())
+    return out
+
+
+def ppc(draws, N, NF, n0, rng, sel, f0=None):
+    """Posterior predictive check: spread of failure rates of patches `sel`,
+    number with no failure, maximum failure rate (as in reanalysis3.ppc), and,
+    with f0, the task-level excess on rarely and often failing tasks
+    (unpatched and patched runs both replicated)."""
     obs_rate = NF[sel].sum(1) / N[sel].sum(1)
-    obs = np.array([obs_rate.std(), (NF[sel].sum(1) == 0).sum(), obs_rate.max()])
+    obs = [obs_rate.std(), (NF[sel].sum(1) == 0).sum(), obs_rate.max()]
+    names = ["sd", "n_zero", "max"]
+    if f0 is not None:
+        obs += _task_stats(f0, n0, NF, N)
+        names += ["excess_easy", "excess_hard"]
+    obs = np.array(obs)
+    n0i, Ni = n0.astype(int), N.astype(int)
     sims = []
     for s in range(len(draws["mu"])):
-        p = expit(draws["alpha"][s][None, :] + draws["delta"][s][sel][:, None])
-        y = rng.binomial(N[sel].astype(int), p).sum(1) / N[sel].sum(1)
-        sims.append([y.std(), (y == 0).sum(), y.max()])
+        al = draws["alpha"][s]
+        p = expit(patched(al, draws["delta"][s], draws["beta"][s], draws["c"][s]))
+        Y = rng.binomial(Ni, p)
+        y = Y[sel].sum(1) / N[sel].sum(1)
+        row = [y.std(), (y == 0).sum(), y.max()]
+        if f0 is not None:
+            row += _task_stats(rng.binomial(n0i, expit(al)), n0, Y, N)
+        sims.append(row)
     sims = np.array(sims)
-    return {"obs": obs.tolist(), "sim_mean": sims.mean(0).tolist(),
-            "p_upper": (sims >= obs).mean(0).tolist(), "stats": ["sd", "n_zero", "max"]}
+    ok = ~np.isnan(sims)
+    return {"obs": obs.tolist(), "sim_mean": np.nanmean(sims, 0).tolist(),
+            "p_upper": [float((sims[ok[:, i], i] >= obs[i]).mean()) for i in range(len(obs))],
+            "stats": names}
