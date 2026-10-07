@@ -1,5 +1,5 @@
 {
- "_doc": "tau2-bench retail instance. Evolve set = tau2's train split (74 tasks), held-out = its test split; S = fraction of trials with reward 1 (database equals gold AND all required info said) over 74 x k = 148 trials; C = policy tokens per trial. Policy and user simulator: deepseek-v4-flash, thinking off; proposer / analyst / critic: deepseek-v4-pro, thinking off (rrsi/llm.py maps the upstream model names). Selection constants follow the upstream coding instance rescaled to this trial count: beta1 = 0.25 / (1/148) (25% more tokens per additional solved trial), w_s = 0 (inside the noise band only a token saving or a new structural component admits). delta = null: estimate it with `calibrate` from repeated base evaluations. policy_temperature is passed to the frozen driver (null = endpoint default).",
+ "_doc": "tau2-bench retail instance. Evolve set = tau2's train split (74 tasks), held-out = its test split; S = fraction of trials with reward 1 (database equals gold AND all required info said) over 74 x k = 148 trials; C = policy tokens per trial. Policy and user simulator: deepseek-v4-flash, thinking off; proposer / analyst / critic: deepseek-v4-pro, thinking off (rrsi/llm.py maps the upstream model names). Selection constants follow the upstream coding instance rescaled to this trial count: beta1 = 0.25 / (1/148) (25% more tokens per additional solved trial), w_s = 0 (inside the noise band only a token saving or a new structural component admits). delta = null: estimate it with `calibrate` from repeated base evaluations. policy_temperature is passed to the frozen driver (null = endpoint default). heldout_k / heldout_k_endpoints: trials per held-out task for every candidate and incumbent / for the base and final incumbent (verify/, experiment E1).",
  "T": 20,
  "k": 2,
  "m": 2,
@@ -27,5 +27,8 @@
  "policy_label": "DeepSeek-V4-Flash (thinking off)",
  "policy_temperature": 0.0,
  "concurrency": 8,
- "max_harness_error_rate": 0.02
+ "max_harness_error_rate": 0.02,
+ "heldout_k": 4,
+ "heldout_k_endpoints": 10,
+ "judge_model": "deepseek-v4-pro"
 }

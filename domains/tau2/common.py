@@ -150,7 +150,9 @@ class Tau2Domain(Domain):
         return ids[:n] if n else ids
 
     def heldout_ids(self):
-        return list(self.split["heldout"])
+        n = int(os.environ.get("RRSI_TAU2_HELDOUT_LIMIT") or 0)      # smoke runs only
+        ids = list(self.split["heldout"])
+        return ids[:n] if n else ids
 
     def smoke_ids(self, incumbent_per_task=None):
         return list(self.split["smoke"])
