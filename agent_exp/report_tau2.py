@@ -9,6 +9,9 @@
   paper/tables/robust.tex   budget-40 values under alternative scorings
   paper/tables/csweep.tex   change-cost sweep, per wrong vs per applied change
   paper/tables/judges.tex   second judge configurations (judge_configs_report.json)
+  paper/tables/deploy.tex   held-out success of every policy's patch set (deployment.json)
+  paper/tables/netn.tex     Net(N) of each verified set against Apply attributed
+  paper/tables/priors.tex   prior-using policies under the 0.7, audited and weaker priors
 
   python -m agent_exp.report_tau2
 """
@@ -389,12 +392,69 @@ def transfer_data():
     return out
 
 
+def netn_table(N=1000, values=(1, 10)):
+    """Net(N) = N (v dp - dc_run) - C_verify - kappa dn of each verified set
+    against Apply attributed (budget 10), in episodes of running cost, at
+    kappa = 0, with the 90% interval of dp; dc_run is the model-based change in
+    running cost per deployed episode (deployment.json, payback)."""
+    lab = dict(NAMES)
+
+    def pts(v):
+        return f"{100 * v:.1f}".replace("-", "$-$")
+
+    def ep(x):
+        return f"{x:.0f}".replace("-", "$-$")
+
+    rows = []
+    for d in DOMS:
+        P = json.load(open(f"runs/tau2_{d}/deployment.json"))["payback"]
+        rows.append(f"\\multicolumn{{{4 + len(values)}}}{{l}}{{\\emph{{{d.capitalize()}}}}} \\\\")
+        for m, name in NAMES:
+            if m not in P:
+                continue
+            r = P[m]
+
+            def net(v, g):
+                return N * (v * g - r["dc_run"]) - r["C"]
+            cells = [f"{pts(r['dp'])} {{\\footnotesize[{pts(r['lo'])}, {pts(r['hi'])}]}}",
+                     f"{r['dc_run']:.2f}".replace("-", "$-$"), f"{r['C']:.0f}"]
+            for v in values:
+                cells.append(f"{ep(net(v, r['dp']))} {{\\footnotesize[{ep(net(v, r['lo']))}, "
+                             f"{ep(net(v, r['hi']))}]}}")
+            rows.append(f"{name.replace(' (ours)', '')} & " + " & ".join(cells) + " \\\\")
+    open("paper/tables/netn.tex", "w").write("\n".join(rows) + "\n")
+    return rows
+
+
+def priors_table(R5, B=40):
+    """Posterior value (binomial harm model, c = 0, full bank) of the policies
+    whose decisions use the edge prior, with analyst accuracy 0.7 (main
+    analysis), the audited accuracy (0.41 retail, 0.29 airline) and half of it;
+    Apply attributed uses no prior and is the reference."""
+    lab = dict(NAMES)
+    rows = []
+    for m in ("LLM-only", "Uncertainty", "Uncertainty-MF", "CARVE-full-only",
+              "CARVE", "CARVE-calibrated", "CARVE-robust-check", "Net"):
+        cells = []
+        for d in DOMS:
+            for s in ("primary", "audit", "weak"):
+                r = R5[d][s]["0.0"]
+                k = f"{m}|0" if m.startswith("Bayes") else f"{m}|{B}"
+                cells.append(fmt(r[k]["mean"]) if k in r else "--")
+        rows.append(f"{lab[m].replace(' (ours)', '')} & " + " & ".join(cells) + " \\\\")
+        if m == "LLM-only":
+            rows.append("\\midrule")
+    open("paper/tables/priors.tex", "w").write("\n".join(rows) + "\n")
+    return rows
+
+
 def main():
     R, R3, R4, R5 = load(), load3(), load4(), load5()
     print("\n".join(deploy_table()), "\n")
     print(transfer_data())
     for rows in (main_table(R5), sig_table(R), vpi_table(R3, R5), robust_table(R, R3), csweep_table(R),
-                 harm_models_table(R3, R5), netabl_table(R3), judges_table(R5), payback_table(R5)):
+                 harm_models_table(R3, R5), netabl_table(R3), judges_table(R5), netn_table(),
+                 priors_table(R5)):
         print("\n".join(rows), "\n")
     print("\n".join(ablate_table()), "\n")
     rows, se, n = heldout_table()
