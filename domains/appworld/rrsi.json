@@ -19,7 +19,7 @@
  "invalid_missing_frac": 0.15,
  "n_fail_traces": 18,
  "n_success_traces": 5,
- "eval_parallel": 2,
+ "eval_parallel": 1,
  "proposer_model": "deepseek-v4-pro",
  "analyst_model": "deepseek-v4-pro",
  "critic_model": "deepseek-v4-pro",
