@@ -63,3 +63,8 @@ examined before the run ends, apart from completion and error checks.
 - 2026-10-08 10:31Z: follower concurrency raised from 8 to 12 parallel
   AppWorld episodes (the loop keeps 4); in-flight episodes were restarted.
   No held-out success rate was examined.
+- 2026-10-08 16:32Z: the loop finished its 20 rounds; the follower is
+  deploying the last rounds and the endpoints. Before any E3 analysis ran,
+  verify/e1r.py and verify/posthoc_e1.py (guard) gained a --domains option so
+  that the registered E1R analysis runs on appworld; computations are
+  unchanged (checked on r1: identical decision values and descriptive output).

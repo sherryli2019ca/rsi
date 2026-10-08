@@ -144,7 +144,7 @@ class _Err(float):
     """A reward of an episode that ended in a harness error."""
 
 
-def _guard(runs: Path, out: Path, dollars: bool = False):
+def _guard(runs: Path, out: Path, dollars: bool = False, domains: str = "tau2_retail,tau2_airline"):
     """dollars: costs in price-weighted episode equivalents instead of token
     counts (a replay costs its price over the mean price of a base-harness
     evolve episode, a judge call likewise, and the running cost of a harness is
@@ -375,7 +375,7 @@ def _guard(runs: Path, out: Path, dollars: bool = False):
     primary, backup = out / "e1_analysis.json", out / "e1_analysis.primary.bak"
     shutil.copy2(primary, backup)
     try:
-        sys.argv = ["analyze", "--runs", str(runs), "--out", str(out)]
+        sys.argv = ["analyze", "--runs", str(runs), "--out", str(out), "--domains", domains]
         A.main()
         shutil.move(primary, out / ("e1_analysis_guard_dollars_posthoc.json" if dollars
                                     else "e1_analysis_guard_posthoc.json"))
@@ -578,11 +578,12 @@ def main():
                     help="guard: price-weighted episode equivalents instead of token counts")
     ap.add_argument("--runs", default=str(ROOT / "runs" / "rrsi"))
     ap.add_argument("--out", default=str(ROOT / "runs" / "verify"))
+    ap.add_argument("--domains", default="tau2_retail,tau2_airline", help="guard: domains to analyse")
     args = ap.parse_args()
     if args.cmd == "robust":
         _robust(Path(args.runs), Path(args.out), args.src)
     elif args.cmd == "guard":
-        _guard(Path(args.runs), Path(args.out), args.dollars)
+        _guard(Path(args.runs), Path(args.out), args.dollars, args.domains)
     else:
         _summary(Path(args.runs), Path(args.out))
 

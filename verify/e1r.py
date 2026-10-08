@@ -26,6 +26,9 @@ report: from those outputs,
     rate, the share of measured candidates failing the error check, transfer
     of the final harness, and the mix of measured candidates by corrected
     component label and by files touched.
+
+--domains (default the two tau2 domains) runs the same analyses on other
+domains, e.g. --domains appworld for experiment E3 (verify/PREREGISTRATION_E3.md).
 """
 from __future__ import annotations
 
@@ -53,12 +56,12 @@ def _trajs(pairs: list[str]) -> dict:
     return {p.split("=", 1)[0]: Path(p.split("=", 1)[1]) for p in pairs}
 
 
-def prepare(trajs: dict) -> None:
+def prepare(trajs: dict, domains=DOMAINS) -> None:
     py = sys.executable
     for name, P in trajs.items():
         rr, vv = P / "rrsi", P / "verify"
-        steps = [("e1_analysis.json", ["-m", "verify.analyze", "--domains", ",".join(DOMAINS)]),
-                 (GUARD, ["-m", "verify.posthoc_e1", "guard"]),
+        steps = [("e1_analysis.json", ["-m", "verify.analyze", "--domains", ",".join(domains)]),
+                 (GUARD, ["-m", "verify.posthoc_e1", "guard", "--domains", ",".join(domains)]),
                  ("e1_robust_posthoc.json", ["-m", "verify.posthoc_e1", "robust"])]
         for out, cmd in steps:
             if (vv / out).exists():
@@ -133,8 +136,15 @@ def analyse(tables, block_of, seed: int = 2) -> dict:
 
 
 # ------------------------------------------------------------- descriptive --
-def describe(name: str, P: Path) -> dict:
-    from domains.tau2.common import COMPONENT_SIGNALS
+def _signals(D: str):
+    if D == "appworld":
+        from domains.appworld.adapter import COMPONENT_SIGNALS
+    else:
+        from domains.tau2.common import COMPONENT_SIGNALS
+    return COMPONENT_SIGNALS
+
+
+def describe(name: str, P: Path, domains=DOMAINS) -> dict:
     from rrsi.components import normalize
     from .state import evaluation
     tabs = {T["name"]: T for T in json.loads((P / "verify" / GUARD).read_text())["tables"]}
@@ -143,7 +153,7 @@ def describe(name: str, P: Path) -> dict:
     mde = json.loads(rob.read_text())["candidate_mde80_median"] if rob.exists() else None
     comps, files, cands = {}, {"code": 0, "text": 0}, []
     drafts = rejects = 0
-    for D in DOMAINS:
+    for D in domains:
         k = int(A.load_domain(D).cfg.get("heldout_k", 4))
         held = lambda c: {t: x["rewards"] for t, x in json.loads(
             (P / "verify" / D / "jobs" / "heldout" / c[:12] / "eval.json").read_text())["per_task"].items()}
@@ -161,7 +171,7 @@ def describe(name: str, P: Path) -> dict:
                 pp = P / "rrsi" / D / f"r{rnd.t}" / c.variant / "proposal.json"
                 decl = [e.get("component") for e in
                         (json.loads(pp.read_text()).get("edits", []) if pp.exists() else c.edits)]
-                for lab in sorted({normalize(d, diff, COMPONENT_SIGNALS) for d in decl or [None]}):
+                for lab in sorted({normalize(d, diff, _signals(D)) for d in decl or [None]}):
                     comps[lab] = comps.get(lab, 0) + 1
                 touched = {ln.split(" b/")[-1].rsplit("/", 1)[-1] for ln in diff.splitlines()
                            if ln.startswith("diff --git")}
@@ -196,7 +206,7 @@ def describe(name: str, P: Path) -> dict:
             "transfer": p1, "labels": comps, "files": files}
 
 
-def report(trajs: dict, primary: list[str], pooled: list[str], out: Path | None) -> dict:
+def report(trajs: dict, primary: list[str], pooled: list[str], out: Path | None, domains=DOMAINS) -> dict:
     res = {"trajectories": {n: str(p) for n, p in trajs.items()}}
     have = [n for n in trajs if (trajs[n] / "verify" / GUARD).exists()]
     if all(n in have for n in primary):
@@ -204,7 +214,7 @@ def report(trajs: dict, primary: list[str], pooled: list[str], out: Path | None)
     if all(n in have for n in pooled):
         res["pooled"] = analyse(*_tables(trajs, pooled))
     res["per_trajectory"] = {n: _dv(_per_round(_tables(trajs, [n])[0])) for n in have}
-    res["descriptive"] = {n: describe(n, trajs[n]) for n in have}
+    res["descriptive"] = {n: describe(n, trajs[n], domains) for n in have}
     if out:
         out.write_text(json.dumps(res, indent=1))
     pp = lambda x: f"{100 * x:+.2f}"
@@ -233,13 +243,15 @@ def main():
     ap.add_argument("--primary", default="r2,r3")
     ap.add_argument("--pooled", default="r1,r2,r3")
     ap.add_argument("--out", default=None)
+    ap.add_argument("--domains", default=",".join(DOMAINS))
     args = ap.parse_args()
     trajs = _trajs(args.traj)
+    domains = tuple(d for d in args.domains.split(",") if d)
     if args.cmd == "prepare":
-        prepare(trajs)
+        prepare(trajs, domains)
     else:
         report(trajs, [x for x in args.primary.split(",") if x], [x for x in args.pooled.split(",") if x],
-               Path(args.out) if args.out else None)
+               Path(args.out) if args.out else None, domains)
 
 
 if __name__ == "__main__":
