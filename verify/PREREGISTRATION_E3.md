@@ -47,3 +47,8 @@ examined before the run ends, apart from completion and error checks.
 - 2026-10-08, before any E3 decision value was computed: the sequential rules
   and hypotheses of addendum 2 of PREREGISTRATION_E1R.md are added to the E3
   analysis.
+- 2026-10-08 02:20Z: with six tau2 trajectories running next to E3, the
+  container had under 2 GB of memory left, so AppWorld evaluations now run 4
+  episodes in parallel (was 6) and one candidate at a time (commits 121083b and
+  the next); the E3 follower was stopped and resumed for this. Scheduling only;
+  no episode changes.
