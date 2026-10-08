@@ -77,3 +77,16 @@ share with a positive gain, the critic's rejection rate, the share of measured
 candidates that fail the error check, transfer of the final harness, and the
 decision values of the rules. Quote about 45-50 US dollars; stop and report
 past 75.
+
+## Operations log
+
+- 2026-10-08 01:20-01:24Z: round 2 of r2 (retail) ended with an exception in
+  RRSI's digester, which received a digest that was a string, and the driver
+  stopped after three rounds that could not settle. Commit 47ef920 sends such a
+  reply back to the digester as an error and drops report entries that are not
+  objects; it changes nothing else and was applied to every run worktree.
+- 2026-10-08 about 01:26Z: the container restarted and stopped every run. All
+  runs resumed at 01:31Z from their last settled round. A resumed round reuses
+  the analysis report, drafted candidates and finished evaluations it had
+  already written, so no completed step was sampled again. No held-out success
+  rate was examined.

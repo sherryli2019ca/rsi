@@ -37,3 +37,10 @@ analyst accuracy is omitted (no audit on AppWorld). Secondary as in E1R.
 
 Quote 50-60 US dollars; stop and report past 90. Held-out success rates are not
 examined before the run ends, apart from completion and error checks.
+
+## Operations log
+
+- 2026-10-08 about 01:26Z: the container restarted during round 0 and stopped
+  the run; it resumed at 01:31Z from the last settled step, with commit 47ef920
+  (the digester fix logged in PREREGISTRATION_E1R.md) applied. No held-out
+  success rate of a candidate was examined.
