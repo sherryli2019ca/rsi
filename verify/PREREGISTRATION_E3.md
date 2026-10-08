@@ -52,3 +52,11 @@ examined before the run ends, apart from completion and error checks.
   episodes in parallel (was 6) and one candidate at a time (commits 121083b and
   the next); the E3 follower was stopped and resumed for this. Scheduling only;
   no episode changes.
+- 2026-10-08 between about 06:31Z and 07:10Z: the container stopped again; the
+  run and its follower resumed at 07:12Z from the last settled step. At 07:15Z
+  the follower was restarted with 8 AppWorld episodes in parallel (the loop
+  keeps 4). Scheduling only; no episode changes.
+- 2026-10-08 07:14Z and 08:44Z, progress checks displayed the follower's
+  round-0 and round-1 lines, which include the held-out success rates of the
+  base, incumbent and candidates. Nothing was decided from them; later checks
+  filter these values out.

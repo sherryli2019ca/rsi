@@ -129,3 +129,17 @@ per round [-0.05, +0.42] at 65 episodes per round, seqsample@80 +0.12
 [-0.19, +0.51] at 43, against full evaluation's +0.22 at 123; full minus
 seqfull +0.07 [-0.03, +0.24]. With gamma = 0 seqfull reproduces every decision
 of full evaluation.
+
+## Operations log, continued
+
+- 2026-10-08 between about 06:31Z and 07:10Z: the container stopped again
+  (likely reclaimed while the session was idle). Every run resumed at 07:12Z
+  from its last settled step, as at 01:26Z; follower logs were kept
+  (follow.before_0712Z.log).
+- 2026-10-08 07:12-07:25Z, progress checks: the last lines of the r2, r3 and
+  r4 follower logs were displayed while checking the restart, and they include
+  the held-out success rates of a few rounds' candidates and incumbents
+  (r2 retail r10, r2 airline r12, r3 retail r9, r3 airline r15, r4 r1).
+  Nothing was decided from them; the analysis was fixed before (this file,
+  verify/e1r.py at commit 42731dd, tested on E1 only). Later checks filter
+  these values out.
