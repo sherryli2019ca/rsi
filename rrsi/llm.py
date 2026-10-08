@@ -62,6 +62,12 @@ MODEL = os.environ.get("RRSI_SEARCH_MODEL",
                        "claude-opus-4-8" if BACKEND == "vertex" else "deepseek-v4-pro")
 DEEPSEEK_URL = os.environ.get("RRSI_DEEPSEEK_URL", "https://api.deepseek.com/anthropic")
 MAX_TOKENS = 20_000
+# Thinking for some roles (an addition of this repository, deepseek backend):
+# RRSI_THINKING_ROLES=proposer,analyst,digester,critic and RRSI_THINKING_BUDGET
+# (tokens, default 8000) enable thinking for calls tagged with those roles;
+# every other call keeps thinking disabled.
+THINKING_ROLES = {r.strip() for r in os.environ.get("RRSI_THINKING_ROLES", "").split(",") if r.strip()}
+THINKING_BUDGET = int(os.environ.get("RRSI_THINKING_BUDGET") or 8000)
 
 _clients: dict = {}
 _clients_lock = threading.Lock()
@@ -161,7 +167,11 @@ def generate(prompt: str, system: str | None = None, max_retries: int = 6,
             if sys_prompt:
                 kwargs["system"] = sys_prompt
             if BACKEND == "deepseek":
-                kwargs["thinking"] = {"type": "disabled"}
+                if role in THINKING_ROLES:
+                    kwargs["thinking"] = {"type": "enabled", "budget_tokens": THINKING_BUDGET}
+                    kwargs["max_tokens"] = max_tokens + THINKING_BUDGET
+                else:
+                    kwargs["thinking"] = {"type": "disabled"}
             resp = client.messages.create(**kwargs)
             _record(mdl, resp, role)
             text = "".join(b.text for b in resp.content

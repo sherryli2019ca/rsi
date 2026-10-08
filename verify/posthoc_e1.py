@@ -10,8 +10,10 @@ guard: the registered analysis (verify/analyze.py, unchanged) with RRSI's
   trials; the registered analysis applies that guard only through RRSI's own
   decision (rule `full`). Here a sample/replay/net draw also drops a candidate
   when more than 2% of that candidate's episodes in the draw ended in a harness
-  error. Writes <out>/e1_analysis_guard_posthoc.json and leaves the primary
-  <out>/e1_analysis.json as it was.
+  error. Also adds the check-only baselines (nonecheck@10, judgecheck@10) and
+  rules that verify only one candidate per round, picked by the judge (jtop-*)
+  or at random (rtop-*). Writes <out>/e1_analysis_guard_posthoc.json and leaves
+  the primary <out>/e1_analysis.json as it was.
 
 summary: from <out>/e1_analysis.json, prints the decision values without the
   rounds that contain a candidate whose deployment gain is below -10 points,
@@ -49,6 +51,10 @@ from .state import ROOT, rounds
 OUTLIER = -0.10
 CHECK_RULES = ("nonecheck", "judgecheck")   # no verification / judge after a cheap execution check
 CHECK_B = (10,)
+# verify only the top candidate: the judge (jtop) or chance (rtop) picks one of
+# the round's candidates and only that one is verified with the base rule
+TOP_RULES = (("jtop-full", 0), ("jtop-sample", 40), ("jtop-net", 40), ("jtop-replaynull", 40),
+             ("rtop-full", 0), ("rtop-sample", 40))
 CODE_FILES = {"agent.py", "tools.py", "checks.py"}
 
 
@@ -110,16 +116,59 @@ def _guard(runs: Path, out: Path):
             return (None,) + tuple(e[1:])
         return e
 
-    orig_rules, orig_probs = A.rules, A.choice_probs
+    orig_rules, orig_probs, orig_label = A.rules, A.choice_probs, A.label
 
     def rules_():
-        return orig_rules() + [(r, b, None) for r in CHECK_RULES for b in CHECK_B]
+        return orig_rules() + [(r, b, None) for r in CHECK_RULES for b in CHECK_B] + \
+            [(r, b, None) for r, b in TOP_RULES]
+
+    def label(rule, b, p):
+        return rule if rule.endswith("-full") else orig_label(rule, b, p)
+
+    def top_probs(rule, b, R, cfg, seed, ep_tok):
+        """jtop-<base>@b / rtop-<base>@b: pick one candidate (largest judge
+        estimate, ties at random; or uniformly at random), verify only it with
+        the base rule (RRSI's own admissibility on its full evaluation for
+        base full), keep the incumbent if it fails."""
+        pick, base = rule.split("-")
+        vs = list(R["cands"])
+        if not vs:
+            return {None: 1.0}, 0.0, 0.0
+        z = float(cfg.get("delta_z", 2.0))
+        rng, counts, eps, eqs = Rng(seed), {}, 0.0, 0.0
+        js = {v: R["cands"][v]["judge"] for v in vs if R["cands"][v]["judge"] is not None}
+        for _ in range(A.M):
+            if pick == "jtop" and js:
+                top = max(js.values())
+                v = rng.choice(sorted(u for u in js if js[u] == top))
+            else:
+                v = rng.choice(vs)
+            if base == "full":
+                n = len(A._pairs(R["inc"], R["cands"][v]["full"]))
+                eps, eqs = eps + n, eqs + n
+                w = v if R["cands"][v]["decision"].get("admissible") else None
+            else:
+                null_vals = None
+                if base in ("replaynull", "net"):
+                    nn = b // 2 if base == "replaynull" else b // 4
+                    null_vals = A._fix(R["null"], A._spread(R["refs"], nn, rng), rng, {})
+                    eps += len(null_vals)
+                    eqs += sum(x[1] for x in null_vals) / ep_tok
+                e = A.estimate(base, b, R, v, rng, None, null_vals, ep_tok)
+                w = None
+                if e is not None:
+                    eps, eqs = eps + e[3], eqs + e[4]
+                    w = A.decide({v: (e[0], e[1], e[2], R["cands"][v]["novelty"])}, cfg, z)
+            counts[w] = counts.get(w, 0) + 1
+        return {k: n / A.M for k, n in counts.items()}, eps / A.M, eqs / A.M
 
     def choice_probs(rule, b, R, cfg, seed, mu0=None, ep_tok=1.0):
         """nonecheck@b / judgecheck@b: run b episodes of each candidate (drawn from
         its full evaluation, as sample@b does), drop it if more than 2% of them
         ended in a harness error, then accept a passing candidate at random
         (nonecheck) or decide with the judge's estimate (judgecheck)."""
+        if "-" in rule:
+            return top_probs(rule, b, R, cfg, seed, ep_tok)
         if rule not in CHECK_RULES:
             return orig_probs(rule, b, R, cfg, seed, mu0, ep_tok)
         vs = list(R["cands"])
@@ -146,7 +195,7 @@ def _guard(runs: Path, out: Path):
         return {k: n / A.M for k, n in counts.items()}, eps / A.M, eps / A.M
 
     A._replays, A._ev, A._fix, A.estimate, A.random = replays, ev, fix, estimate, RandomNS
-    A.rules, A.choice_probs = rules_, choice_probs
+    A.rules, A.choice_probs, A.label = rules_, choice_probs, label
     primary, backup = out / "e1_analysis.json", out / "e1_analysis.primary.bak"
     shutil.copy2(primary, backup)
     try:
@@ -223,7 +272,8 @@ def _summary(runs: Path, out: Path):
 
 
 # ----------------------------------------------------------------- robust --
-ROBUST_RULES = ("full", "sample@40", "net@40", "replaynull@40", "nonecheck@10")
+ROBUST_RULES = ("full", "sample@40", "net@40", "replaynull@40", "nonecheck@10",
+                "jtop-full", "rtop-full", "jtop-sample@40")
 Z80 = 1.645 + 0.8416          # one-sided alpha 0.05, power 0.80
 
 

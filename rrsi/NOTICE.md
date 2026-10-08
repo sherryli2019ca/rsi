@@ -12,7 +12,8 @@ Modifications made in this repository:
   endpoint by default (`RRSI_LLM_BACKEND=deepseek`; the Vertex backend is kept
   for `RRSI_LLM_BACKEND=vertex`); upstream Claude model names in configs are
   mapped to `RRSI_MODEL` (default `deepseek-v4-pro`); thinking is disabled
-  explicitly; per-model and per-role token usage is accounted (`usage()`,
+  explicitly, except for the roles listed in `RRSI_THINKING_ROLES` (budget
+  `RRSI_THINKING_BUDGET`, default 8000 tokens); per-model and per-role token usage is accounted (`usage()`,
   optional JSONL log at `RRSI_USAGE_LOG`).
 - `rrsi/analyst.py`, `rrsi/digester.py`, `rrsi/propose.py`, `rrsi/critic.py`:
   every `generate(...)` call is tagged with its role for the cost accounting.

@@ -62,3 +62,18 @@ subsamples, as in E1).
   reported.
 - Quote about 42,000 episodes and 75 US dollars at third-party prices. If
   spending passes 110 dollars we stop and report.
+
+## Addendum (2026-10-08, before any r4 episode): a stronger proposer
+
+Approved by Dr Cao on 2026-10-08 to test whether most candidates hurt because
+the search model is weak. One more trajectory per domain, r4, identical to r2
+and r3 except that the proposer, analyst, digester and critic run deepseek-v4-pro
+with thinking enabled (`RRSI_THINKING_ROLES=proposer,analyst,digester,critic`,
+budget 8000 tokens); the judge, which is evidence rather than part of the loop,
+keeps thinking disabled. r4 is excluded from the primary analysis above, which
+stays on r2 and r3. Comparison (descriptive, r4 against r1-r3, whose spread
+gives the variation between trajectories): candidates' mean deployment gain and
+share with a positive gain, the critic's rejection rate, the share of measured
+candidates that fail the error check, transfer of the final harness, and the
+decision values of the rules. Quote about 45-50 US dollars; stop and report
+past 75.
