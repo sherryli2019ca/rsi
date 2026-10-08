@@ -207,3 +207,8 @@ truth was then rerun from scratch.
   17 of 20 agree). Every method moved by at most 0.02; the primary comparison
   is -0.061 [-0.146, +0.032], p = .20. The 186-failure analysis is kept as
   results/attrib/phaseA_tau2_analysis_186.json.
+- 18:02Z: E3's follower finished; the AppWorld main set was drawn as in
+  Addendum 2 (pool 255, 100 failures over 47 tasks, 78 held-out; the two smoke
+  failures excluded) with a seeded 10% retest (Random("retest:0"), 10). Methods,
+  search (12 replay workers) and the protocol-3 ground truth started; a memory
+  watchdog stops AppWorld replays (resume-safe) below 1.7 GB.
