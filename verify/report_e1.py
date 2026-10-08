@@ -6,7 +6,7 @@
 Writes e1_rules.tex: per rule, the decision value per round pooled over both
 domains with its 90% bootstrap interval, as registered and (with --guard) with
 RRSI's harness-error check applied to every rule's evidence episodes (post hoc,
-verify/posthoc_e1.py guard); then, from the guarded analysis when given, how
+verify/posthoc_e1.py guard), with the post-hoc sequential rules; then, from the guarded analysis when given, how
 often the rule accepts a candidate, its evidence cost per round (episodes and
 episode equivalents) and Net(N) at N = 10^4, v = 10.
 """
@@ -20,11 +20,12 @@ import numpy as np
 
 ROWS = [("none", "None", "0"), ("judge", "LLM judge", "0"),
         ("nonecheck@10", "None + check", "10"), ("judgecheck@10", "Judge + check", "10"),
-        ("full", "Full (RRSI)", "all")] + [
+        ("full", "Full (RRSI)", "all"),
+        ("seqfull", "Sequential full", "$\\le$all"), ("seqsample@80", "Sequential sample", "$\\le$80")] + [
     (f"{r}@{b}", name, str(b)) for b in (10, 40, 80)
     for r, name in (("sample", "Sample"), ("replay", "Replay"), ("replaynull", "Replay$-$null"),
                     ("net", "Net"))]
-MIDRULES = (2, 4, 5, 9, 13)
+MIDRULES = (2, 4, 5, 7, 11, 15)
 
 
 def accept_rate(rows, rule):
