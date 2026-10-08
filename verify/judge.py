@@ -42,6 +42,16 @@ Return STRICT JSON:
  "rationale": "two or three sentences"}"""
 
 
+# the kind of agent named in SYSTEM, for domains that are not customer service
+AGENT_KIND = {"appworld": "code agent that does day-to-day tasks for a person by writing "
+                          "Python against the APIs of their apps"}
+
+
+def _system(domain) -> str:
+    kind = AGENT_KIND.get(getattr(domain, "name", ""))
+    return SYSTEM.replace("customer-service agent", kind) if kind else SYSTEM
+
+
 def run(domain, run_dir: Path, out_root: Path, rnd: Round, model: str | None = None) -> dict:
     ev = evaluation(run_dir, rnd.inc_job)
     n_trials = sum(len(tr.rewards) for tr in ev.per_task.values())
@@ -81,7 +91,7 @@ def run(domain, run_dir: Path, out_root: Path, rnd: Round, model: str | None = N
         res = {}
         for _ in range(3):
             try:
-                res = json.loads(generate(prompt, system=SYSTEM, json_only=True, model=model,
+                res = json.loads(generate(prompt, system=_system(domain), json_only=True, model=model,
                                           role="judge"))
                 break
             except Exception as e:  # noqa: BLE001 - malformed JSON or API error: retry

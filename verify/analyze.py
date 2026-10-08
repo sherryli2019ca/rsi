@@ -339,7 +339,9 @@ def domain_tables(D: dict) -> dict:
         for rule, b, p in rules():
             mu0 = None
             if p:
-                mu0 = PRIORS[p][D["name"]] if isinstance(PRIORS[p], dict) else PRIORS[p]
+                mu0 = PRIORS[p].get(D["name"]) if isinstance(PRIORS[p], dict) else PRIORS[p]
+                if mu0 is None:
+                    continue      # no audited analyst accuracy for this domain (AppWorld)
             lab = label(rule, b, p)
             probs[lab], ep, eq = choice_probs(rule, b, R, cfg, seed=1000 * R["t"] + b, mu0=mu0,
                                               ep_tok=D["ep_tokens"])
