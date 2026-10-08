@@ -13,7 +13,10 @@ Two modes, both resume-safe (an existing output file is never re-run):
   replay  every reference in --replay (a JSON list of {"key", "task_id",
           "trace", "start"}): the recorded episode `trace` (a trial file of this
           driver or a trace of agent_exp) is re-executed up to step `start` and
-          continued live with the harness, written to <out>/<key>.json
+          continued live with the harness, written to <out>/<key>.json; with
+          "force" (a list of assistant content blocks) the first live step
+          takes that action instead of the harness's (counterfactual replays
+          of the attribution study, attrib/)
 
 Replay with code-level harness changes. Recorded agent actions in the prefix
 are kept and their tool calls re-executed on a fresh database, but every call
@@ -133,7 +136,8 @@ def _h(fn, *a):
         raise HarnessError(f"{getattr(fn, '__name__', fn)}: {e!r}\n{traceback.format_exc()[-1500:]}")
 
 
-def episode(m, Agent, pm: PolicyModel, task, prefix: dict | None = None, start: int = 0) -> dict:
+def episode(m, Agent, pm: PolicyModel, task, prefix: dict | None = None, start: int = 0,
+            force: list | None = None) -> dict:
     t0 = time.time()
     env = m.get_environment()
     call, acc = pm.make()
@@ -151,6 +155,7 @@ def episode(m, Agent, pm: PolicyModel, task, prefix: dict | None = None, start: 
             {"role": "assistant", "content": m.GREETING},
             {"role": "user", "content": opening}]
     steps, texts, stopped = [], [], ""
+    forced = force is not None
     live_from = start if prefix else 0
     diverged = []
 
@@ -195,7 +200,12 @@ def episode(m, Agent, pm: PolicyModel, task, prefix: dict | None = None, start: 
 
     # ---- live ------------------------------------------------------------------
     while not stopped and len(steps) < MAX_STEPS:
-        blocks = _normalize(_h(agent.next_action, copy.deepcopy(msgs)))
+        if force is not None and len(steps) == start == live_from:
+            blocks = _normalize(copy.deepcopy(force))
+            _h(agent.observe_prefix, copy.deepcopy(msgs), copy.deepcopy(blocks))
+            force = None
+        else:
+            blocks = _normalize(_h(agent.next_action, copy.deepcopy(msgs)))
         msgs.append({"role": "assistant", "content": blocks})
         rec = {"index": len(steps), "assistant": blocks, "tool_results": [], "raw": [],
                "user": None}
@@ -239,19 +249,20 @@ def episode(m, Agent, pm: PolicyModel, task, prefix: dict | None = None, start: 
                        "user": user_tok},
             "calls": {"agent": acc["calls"]}, "seconds": round(time.time() - t0, 2),
             "replay": ({"start_requested": start, "start_effective": live_from,
-                        "diverged": diverged} if prefix else None)}
+                        "diverged": diverged, "forced": force is None and forced} if prefix else None)}
 
 
 def run_jobs(m, Agent, pm, jobs, workers):
-    """jobs: [(out_path, task, prefix, start)]; resume-safe; infra errors retried."""
+    """jobs: [(out_path, task, prefix, start[, force])]; resume-safe; infra errors retried."""
     def one(job):
-        out, task, prefix, start = job
+        out, task, prefix, start = job[:4]
+        force = job[4] if len(job) > 4 else None
         if out.exists():
             return "skip"
         err = ""
         for attempt in range(3):
             try:
-                rec = episode(m, Agent, pm, task, prefix, start)
+                rec = episode(m, Agent, pm, task, prefix, start, force)
             except HarnessError as e:
                 rec = {"task_id": task.id, "reward": 0, "harness_error": str(e)[:3000],
                        "steps": [], "n_steps": 0, "tokens": {}, "stopped": "harness_error"}
@@ -294,7 +305,8 @@ def main():
         jobs = []
         for r in refs:
             tr = r["trace"] if isinstance(r["trace"], dict) else json.loads(Path(r["trace"]).read_text())
-            jobs.append((out / f"{r['key']}.json", tasks[str(r["task_id"])], tr, int(r["start"])))
+            jobs.append((out / f"{r['key']}.json", tasks[str(r["task_id"])], tr, int(r["start"]),
+                         r.get("force")))
     else:
         ids = [x for x in args.ids.split(",") if x] if not os.path.exists(args.ids) else \
             json.loads(Path(args.ids).read_text())
