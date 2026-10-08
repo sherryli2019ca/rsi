@@ -153,3 +153,10 @@ of full evaluation.
   airline runs rounds 0-9; after round 9 settles its loop is stopped and the
   follower deploys the base and final harnesses (T = 10 in that worktree's
   rrsi.json, endpoints as registered). The r4 comparison stays descriptive.
+- 2026-10-08 09:55Z: every round of r2 and r3 deployed (base and final
+  harnesses included). 10:00-10:15Z: the registered analyses run as committed
+  (`python -m verify.e1r prepare` on each trajectory, then `report --primary
+  r2,r3 --pooled r1,r2,r3`); output in runs/verify/e1r_report.json of the r2
+  worktree. The paper table is written by verify/report_e1r.py from the same
+  inputs and bootstrap. r4 airline is still running and is not part of this
+  analysis.
