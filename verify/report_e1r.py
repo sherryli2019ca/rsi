@@ -9,6 +9,12 @@ held-out tasks, within domain and trajectory), on the first trajectory (r1),
 on the registered primary set (r2 and r3) and on all three pooled; then, on the
 primary set, how often the rule accepts a candidate, its evidence cost per
 round (episodes and episode equivalents) and Net(N) at N = 10^4, v = 10.
+
+  python -m verify.report_e1r --e3-report /home/user/e3/runs/verify/e1r_report.json
+
+writes e3_rules.tex instead, from the E3 report of verify/e1r.py: per rule, the
+decision value with its block-bootstrap interval, episodes per round, and the
+non-inferiority contrast with full evaluation (difference, one-sided p, Holm).
 """
 from __future__ import annotations
 
@@ -33,11 +39,45 @@ def block_dv(tables, block_of, seed: int = 2):
                 float(np.percentile([b[k] for b in boots], 95))) for k in point}
 
 
+E3_ROWS = [("full", "Full (RRSI)"), ("seqfull", "Sequential full"), ("seqsample@80", "Sequential sample@80"),
+           ("sample@40", "Sample@40"), ("net@40", "Net@40"), ("replaynull@40", "Replay$-$null@40"),
+           ("sample@80", "Sample@80"), ("nonecheck@10", "None + check"), ("judgecheck@10", "Judge + check")]
+
+
+def e3_table(report: Path, out: Path):
+    import json
+    R = json.loads(report.read_text())["primary"]
+    pp = lambda x: f"{100 * x:+.2f}".replace("-", "$-$")
+    ni = {**R["ni_primary"], **R["ni_sequential"]}
+    lines = []
+    for k, name in E3_ROWS:
+        d = R["decision_value"][k]
+        cells = [name, f"{pp(d['est'])} {{\\scriptsize [{pp(d['ci90_block'][0])}, {pp(d['ci90_block'][1])}]}}",
+                 f"{d['episodes_per_round']:.0f}"]
+        if k in ni:
+            c = ni[k]
+            p = lambda x: "$<$0.001" if x < 0.001 else f"{x:.3f}"
+            cells += [f"{pp(c['est'])} {{\\scriptsize [{pp(c['ci90_block'][0])}, {pp(c['ci90_block'][1])}]}}",
+                      f"{p(c['p_ni'])} ({p(c['p_holm'])})"]
+        else:
+            cells += ["--", "--"]
+        lines.append(" & ".join(cells) + " \\\\")
+        if k in ("full", "seqsample@80", "replaynull@40", "sample@80"):
+            lines.append("\\midrule")
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "e3_rules.tex").write_text("\n".join(lines) + "\n")
+    print("\n".join(lines))
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--traj", nargs="+", required=True, help="name=runs directory")
+    ap.add_argument("--traj", nargs="+", help="name=runs directory")
+    ap.add_argument("--e3-report", default=None)
     ap.add_argument("--out", default=str(Path(__file__).resolve().parents[1] / "paper" / "tables"))
     args = ap.parse_args()
+    if args.e3_report:
+        e3_table(Path(args.e3_report), Path(args.out))
+        return
     trajs = _trajs(args.traj)
     res = {name: block_dv(*_tables(trajs, names)) for name, names in SETS}
     prim, _ = _tables(trajs, ["r2", "r3"])
