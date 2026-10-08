@@ -68,3 +68,8 @@ examined before the run ends, apart from completion and error checks.
   verify/e1r.py and verify/posthoc_e1.py (guard) gained a --domains option so
   that the registered E1R analysis runs on appworld; computations are
   unchanged (checked on r1: identical decision values and descriptive output).
+- 2026-10-08 18:02Z: the follower finished (20 rounds and both endpoints).
+  18:03-18:08Z: the registered analyses run as committed (`python -m
+  verify.e1r prepare --traj e3=... --domains appworld`, then `report --primary
+  e3 --domains appworld`); output runs/verify/e1r_report.json of the E3
+  worktree. Spend about 48 US dollars (15,472 episodes).
