@@ -138,3 +138,7 @@ Budget: the tau2 ground truth is now about 11 dollars (205 runs of 0.054).
 - 03:52Z: a memory watchdog (stops attribution replays when available memory
   falls below 1.7 GB; they are resume-safe) stopped the pilot's protocol-3
   replays once; the gaps were filled by resuming before the pilot analysis.
+- 06:10Z: tau2 main set done (retail 86, airline 100; retest 19). Analysis
+  (attrib/analyze.py) run; results in /mnt/project-files/notes/attrib-phaseA-tau2.md.
+  The 14 retail failures from E1R are still to come; the analysis will be
+  rerun on 100 + 100 when they are in.
