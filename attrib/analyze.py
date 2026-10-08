@@ -1,11 +1,11 @@
 """Phase A analysis (attrib/PREREGISTRATION.md, Addendum 1): every method's
 named step scored against the protocol-3 rescue profile.
 
-  python -m attrib.analyze <main dir> [--domains tau2_retail tau2_airline]
+  python -m attrib.analyze <main dir> [--domains tau2_retail tau2_airline] [--out analysis.json]
 
 <main dir>/<domain>/ holds failures.json, methods/<method>_<model>/<fid>.json,
 search/result.json, gt/a/result.json (and gt/b for the retest). Writes
-<main dir>/analysis.json and prints a table.
+<main dir>/<out> (default analysis.json) and prints a table.
 """
 from __future__ import annotations
 
@@ -194,9 +194,10 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("main")
     ap.add_argument("--domains", nargs="+", default=["tau2_retail", "tau2_airline"])
+    ap.add_argument("--out", default="analysis.json")
     args = ap.parse_args()
     res = analyze(Path(args.main), args.domains)
-    (Path(args.main) / "analysis.json").write_text(json.dumps(res, indent=1))
+    (Path(args.main) / args.out).write_text(json.dumps(res, indent=1))
     print(json.dumps(res["n"]), json.dumps(res.get("primary")), json.dumps(res.get("retest")))
     print(f"{'method':28s} {'R resc [95%]':24s} {'exact':18s} {'share':6s} {'$/fail':8s}")
     for m, v in sorted(res["methods"].items(), key=lambda kv: -kv[1]["R_rescuable"][0]):
