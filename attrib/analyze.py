@@ -35,14 +35,15 @@ def _usage_dollars(path: Path) -> dict:
 def load(dom_dir: Path) -> dict:
     fails = {f["fid"]: f for f in json.loads((dom_dir / "failures.json").read_text())}
     gt = {f["fid"]: f for f in json.loads((dom_dir / "gt" / "a" / "result.json").read_text())["failures"]}
-    picks, cost = {}, {}
+    picks, comps, cost = {}, {}, {}
     usage = _usage_dollars(dom_dir / "methods" / "usage.jsonl")
     for mdir in sorted(p for p in (dom_dir / "methods").iterdir() if p.is_dir()):
-        rows = {}
+        rows, cs = {}, {}
         for p in mdir.glob("*.json"):
             r = json.loads(p.read_text())
             rows[r["fid"]] = r.get("step")
-        picks[mdir.name] = rows
+            cs[r["fid"]] = r.get("component")
+        picks[mdir.name], comps[mdir.name] = rows, cs
         role = next((mdir.name[:-len(sf)] + ":" + sf[1:] for sf in ("_pro_think", "_pro", "_flash")
                      if mdir.name.endswith(sf)), None)
         if mdir.name.startswith("rrsi_digest"):
@@ -58,6 +59,7 @@ def load(dom_dir: Path) -> dict:
             if not all(key in x for x in sr):
                 continue
             picks[f"search@{b}"] = {x["fid"]: x[key]["step"] for x in sr}
+            comps[f"search@{b}"] = {x["fid"]: x[key].get("component") for x in sr}
             rep_d = 0.0
             for x in sr:
                 spent = x[key]["replays"]
@@ -70,7 +72,14 @@ def load(dom_dir: Path) -> dict:
                             if p.exists():
                                 rep_d += replay_dollars(json.loads(p.read_text()))
             cost[f"search@{b}"] = sus_cost + rep_d / len(sr)
-    return {"fails": fails, "gt": gt, "picks": picks, "cost": cost}
+    ct = {}
+    if (dom_dir / "component_truth.json").exists():
+        byt = json.loads((dom_dir / "component_truth.json").read_text())
+        for fid, f in fails.items():
+            v = byt.get(str(Path(f["trace"]).resolve()))
+            if v and v["components"]:
+                ct[fid] = v["components"]
+    return {"fails": fails, "gt": gt, "picks": picks, "comps": comps, "cost": cost, "ct": ct}
 
 
 def score(gt: dict, step) -> dict:
@@ -107,6 +116,19 @@ def _mean(xs):
     return sum(xs) / len(xs) if xs else None
 
 
+def _comp_acc(data: dict, m: str):
+    """(hits, n) of the method's component on failures with a component truth."""
+    hits = n = 0
+    for v in data.values():
+        cs = v["comps"].get(m)
+        if not cs or all(c is None for c in cs.values()):
+            return None
+        for fid, truth in v["ct"].items():
+            n += 1
+            hits += cs.get(fid) in truth
+    return [hits, n]
+
+
 def analyze(main: Path, domains: list[str]) -> dict:
     rng = random.Random(0)
     data = {d: load(main / d) for d in domains if (main / d / "gt" / "a" / "result.json").exists()}
@@ -132,6 +154,7 @@ def analyze(main: Path, domains: list[str]) -> dict:
             "within1": round(_mean([float(r["within1"]) for r in resc]) or 0, 4),
             "earliest": round(_mean([float(r["earliest"]) for r in resc]) or 0, 4),
             "dollars_per_failure": round(_mean([v["cost"].get(m, 0.0) for v in data.values()]) or 0, 5),
+            "component": _comp_acc(data, m),
             "by_domain": {d: round(_mean([r["R"] for r in resc if r["domain"] == d]) or 0, 4) for d in data}}
         out["methods"][m]["_rows"] = rows
     # primary comparison: search@40 vs all-at-once (pro), paired R on rescuable failures
