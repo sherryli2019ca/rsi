@@ -1,0 +1,3 @@
+# Hunk headers name the enclosing def/class (git's python diff driver), which the
+# domains' component signals (COMPONENT_SIGNALS) match on.
+*.py diff=python

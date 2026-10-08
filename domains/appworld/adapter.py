@@ -155,6 +155,9 @@ COMPONENT_SIGNALS = [
                          r"[+-].*\b(next_action|before_execute|observe_prefix)\b)"]),
     ("config",          [r"(?m)^\+\s*[A-Z][A-Z0-9_]{2,}\s*=\s*[\d.]+",
                          r"(?m)^\+.*max_tokens\s*=\s*\d+"]),
+    # Code in agent.py or another module except prompts.py that no signal
+    # above names is control flow (same correction as domains/tau2/common.py).
+    ("control_flow",    [r"(?m)^\+\+\+ b/\S*harness/(?!prompts\.py$)\S+\.py$"]),
     ("prompt",          [r"(?m)^(\+\+\+|---) .*prompts\.py", r"REACT_PROMPT", r"prompt_messages",
                          r"render_prompt"]),
 ]

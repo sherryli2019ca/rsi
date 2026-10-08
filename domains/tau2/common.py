@@ -63,6 +63,11 @@ COMPONENT_SIGNALS = [
     ("control_flow",    [r"(?m)^(@@.*def (next_action|before_tool|observe_prefix)|"
                          r"[+-].*\b(next_action|before_tool|observe_prefix)\b)"]),
     ("config",          [r"(?m)^\+\s*[A-Z][A-Z0-9_]{2,}\s*=\s*[\d.]+", r"(?m)^\+.*max_tokens\s*=\s*\d+"]),
+    # Code in agent.py or in a module other than prompts.py / tools.py that no
+    # signal above names is control flow. Without this entry such edits fell
+    # through to "prompt" (E1): the hunk-header patterns above need git's python
+    # diff driver (domains/.gitattributes, added after E1) and miss large hunks.
+    ("control_flow",    [r"(?m)^\+\+\+ b/\S*harness/(?!prompts\.py$|tools\.py$)\S+\.py$"]),
     ("prompt",          [r"(?m)^(\+\+\+|---) .*prompts\.py", r"AGENT_INSTRUCTION", r"system_prompt"]),
 ]
 
