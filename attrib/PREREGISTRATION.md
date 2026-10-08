@@ -78,6 +78,63 @@ their agreement is reported as the ceiling for every method's accuracy.
 Phase A stop line: 100 US dollars (all parts). Expected for tau2: methods about
 8, counterfactual search about 5, ground truth about 10.
 
+## Addendum 1 (2026-10-08 ~04:25Z, before any ground truth was computed on the main set): ground truth protocol 3 and the metrics that follow from it
+
+The methods had started on the main set (03:35Z); no ground truth had been run
+on it, and none of the methods sees ground truth.
+
+**Pilot evidence** (attrib_runs/pilot, the 20 pilot failures; attrib/pilot_report.py):
+
+- Protocol 1 (earliest step whose single oracle correction beats the null
+  replays by 2 of 4), four independent repetitions: two repetitions named the
+  same decisive step in 42% of failure pairs (50/120), and in 23% of the pairs
+  where either found one. Most disagreements came from the oracle (a step
+  judged ok in one repetition, or a correction that worked in one repetition
+  and not in the other), not from the null replays: a failure usually has
+  several steps whose correction rescues it, and which of them is found first
+  depends on the corrections the oracle happens to write.
+- Protocol 2 (three oracle samples per step plus a confirmation stage) was
+  stopped part-way to free memory and is not analysed.
+- Protocol 3 (below), two independent repetitions: step-level rescue gains
+  correlate .74 (retail) and .64 (airline) between repetitions, and .75/.67
+  with protocol 1's gains pooled over its four repetitions. The decisive step
+  agreed in 15 of 20 failures; where both repetitions found one, in 7 of 8
+  (the eighth differed by one step); the other disagreements were one
+  repetition finding no step with a gain of at least 0.5. Cost: 0.054 dollars
+  per failure.
+
+**Ground truth (replaces the protocol choice and the curtailed scan above):**
+protocol 3, attrib/groundtruth3.py at the commit adding this addendum. For
+every agent step k: K = 4 oracle samples (the oracle of protocol 1); 2
+corrected replays per sample that calls the step a mistake; 4 null replays if
+any sample does. Rescue gain R_k = mean over the 4 samples of (corrected
+success rate - null success rate), 0 for a sample judging the step ok or
+giving an action the replay cannot apply. Every step is scanned. Decisive step:
+the step with the largest R_k if it is at least 0.5 (ties: earliest), else
+none; a failure with a decisive step is "rescuable". The earliest step with
+R_k >= 0.5 is also recorded. Retest: a seeded 10% of the failures
+(Random("retest:0"); retail 9, airline 10) get a second, independent run;
+their agreement is reported.
+
+**Metrics (replace the metrics above where they differ):**
+
+- Primary metric: the rescue gain at the step a method names, R(k-hat),
+  averaged over rescuable failures. A method naming no valid step scores 0.
+- Secondary: R(k-hat) over all failures; the share of the largest gain it
+  achieves (R(k-hat) / max R) on rescuable failures; exact accuracy against the
+  decisive step and within one step; accuracy against the earliest step with
+  R >= 0.5; component accuracy and cost as above.
+- Primary comparison: counterfactual search (budget 40) vs the all-at-once
+  judge (pro), the paired difference in R(k-hat) over rescuable failures,
+  retail and airline pooled: 95% cluster-bootstrap interval (tasks, 10,000
+  draws) and a paired permutation test flipping signs by task cluster (10,000
+  draws), two-sided alpha .05. McNemar on exact accuracy is secondary.
+
+Budget: the tau2 ground truth is now about 11 dollars (205 runs of 0.054).
+
 ## Operations log
 
 - 2026-10-08 03:35Z: registered; methods start on the main tau2 set.
+- 03:52Z: a memory watchdog (stops attribution replays when available memory
+  falls below 1.7 GB; they are resume-safe) stopped the pilot's protocol-3
+  replays once; the gaps were filled by resuming before the pilot analysis.

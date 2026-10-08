@@ -122,13 +122,66 @@ def multi_rep(dom_dir: Path, reps: list[str]) -> dict:
     return {"pairs": pairs, "union": union}
 
 
+def _pearson(x: list, y: list) -> float | None:
+    n = len(x)
+    if n < 3:
+        return None
+    mx, my = sum(x) / n, sum(y) / n
+    sx = sum((a - mx) ** 2 for a in x) ** .5
+    sy = sum((b - my) ** 2 for b in y) ** .5
+    return round(sum((a - mx) * (b - my) for a, b in zip(x, y)) / (sx * sy), 3) if sx and sy else None
+
+
+def protocol3(p3: Path, p1: Path | None) -> dict:
+    """Test-retest of protocol 3 (reps a and b): step-level rescue gains and the
+    decisive-step label; with protocol-1 reps, the correlation of protocol 3's
+    gains with protocol 1's pooled gains (mean over reps of (corrected - null) / 4
+    at oracle-flagged steps, 0 elsewhere)."""
+    out = {}
+    for dom_dir in sorted(p for p in p3.iterdir() if (p / "a" / "result.json").exists()):
+        ra, rb = ({f["fid"]: f for f in json.loads((dom_dir / r / "result.json").read_text())["failures"]}
+                  for r in ("a", "b"))
+        fids = sorted(set(ra) & set(rb))
+        xa = [v for x in fids for v in ra[x]["R"]]
+        xb = [v for x in fids for v in rb[x]["R"]]
+        row = {"failures": len(fids), "steps": len(xa), "step_R_corr": _pearson(xa, xb),
+               "decisive": agree({x: ra[x]["decisive"] for x in fids}, {x: rb[x]["decisive"] for x in fids}),
+               "earliest": agree({x: ra[x]["earliest"] for x in fids}, {x: rb[x]["earliest"] for x in fids}),
+               "within_1_both_found": sum(ra[x]["decisive"] is not None and rb[x]["decisive"] is not None
+                                          and abs(ra[x]["decisive"] - rb[x]["decisive"]) <= 1 for x in fids),
+               "pairs": [(x, ra[x]["decisive"], rb[x]["decisive"], round(ra[x]["max_R"], 2),
+                          round(rb[x]["max_R"], 2)) for x in fids]}
+        if p1 is not None and (p1 / dom_dir.name).exists():
+            reps = [r for r in "abcd" if (p1 / dom_dir.name / r / "result.json").exists()]
+            pooled = {}
+            for r in reps:
+                for f in json.loads((p1 / dom_dir.name / r / "result.json").read_text())["failures"]:
+                    g = [((s["corrected"] - s["null"]) / 4 if s["verdict"] == "mistake"
+                          and s.get("n_corrected") == N_REPLAYS and s.get("n_null") == N_REPLAYS else 0.0)
+                         for s in f["steps"]]
+                    acc = pooled.setdefault(f["fid"], [0.0] * len(g))
+                    pooled[f["fid"]] = [a + b / len(reps) for a, b in zip(acc, g)]
+            x3 = [(a + b) / 2 for x in fids for a, b in zip(ra[x]["R"], rb[x]["R"])]
+            x1 = [v for x in fids for v in pooled[x]]
+            row["corr_with_protocol1_pooled"] = _pearson(x3, x1)
+        out[dom_dir.name] = row
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("out")
     ap.add_argument("--reps", nargs="+", default=["a", "b"])
     ap.add_argument("--multi", action="store_true", help="protocol-1 agreement over every pair of --reps")
     ap.add_argument("--protocol2", default=None, help="a protocol-2 output dir with reps a and b")
+    ap.add_argument("--protocol3", default=None, help="a protocol-3 output dir with reps a and b "
+                    "(`out` is then the protocol-1 pilot dir)")
     args = ap.parse_args()
+    if args.protocol3:
+        rep = protocol3(Path(args.protocol3), Path(args.out))
+        print(json.dumps(rep, indent=1))
+        (Path(args.protocol3) / "pilot_agreement.json").write_text(json.dumps(rep, indent=1))
+        return
     if args.multi or args.protocol2:
         rep = {}
         for dom_dir in sorted(p for p in Path(args.out).iterdir() if (p / "failures.json").exists()):
