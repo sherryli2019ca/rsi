@@ -44,3 +44,6 @@ examined before the run ends, apart from completion and error checks.
   the run; it resumed at 01:31Z from the last settled step, with commit 47ef920
   (the digester fix logged in PREREGISTRATION_E1R.md) applied. No held-out
   success rate of a candidate was examined.
+- 2026-10-08, before any E3 decision value was computed: the sequential rules
+  and hypotheses of addendum 2 of PREREGISTRATION_E1R.md are added to the E3
+  analysis.

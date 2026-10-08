@@ -90,3 +90,42 @@ past 75.
   the analysis report, drafted candidates and finished evaluations it had
   already written, so no completed step was sampled again. No held-out success
   rate was examined.
+
+## Addendum 2 (2026-10-08, before any E1R or E3 decision value was computed): sequential verification
+
+Proposed by Dr Cao on 2026-10-08: find a suitable candidate with as few
+episodes as possible instead of a fixed budget. Two rules are added to the
+analyses of r2 and r3 (r4 descriptively) and of E3. Both are defined in
+`verify/posthoc_e1.py` (`SEQ_RULES`, `p_admissible`) and run under the common
+error check.
+
+- seqfull: RRSI's full evaluation of each candidate, run in batches of 10
+  episodes in random order. After each batch a candidate is dropped when its
+  harness errors already exceed 2% of its planned episodes (the guard can no
+  longer pass) or when the predictive probability that RRSI's own rule admits
+  it after the full evaluation is below gamma = 0.05. A candidate that is not
+  dropped completes the evaluation and is decided by RRSI's rule; seqfull
+  admits only candidates that RRSI's rule admits.
+- seqsample@80: the same, planned at 80 paired episodes, decided at the end by
+  the sample rule.
+- Predictive probability: the final dS is normal with mean the running paired
+  difference m and variance ((N-n)/N)^2 s^2 (1/n + 1/(N-n)) after n of N
+  episodes, where s^2 is the larger of the running variance of the paired
+  differences and S_t(1-S_t); dC is held at its running estimate and the
+  novelty count is known; the floor on dS is RRSI's (S* - delta - S_t) for
+  seqfull and minus twice the final standard error for seqsample@80.
+- gamma = 0.01 and 0.10 are sensitivity analyses.
+
+Hypotheses (one family, Holm over two, one-sided alpha 0.05, the block
+bootstrap of the primary analysis, the 80 new rounds): seqfull and
+seqsample@80 are each non-inferior to full evaluation in decision value, with
+a margin of 0.75 points per round. Reported with them: episodes per round and
+their ratio to full evaluation's, the contrasts with sample@40 and sample@80,
+and Net(10^4). E3 uses the same hypotheses on its 20 rounds.
+
+These rules were developed on E1, whose results were known, so E1 is their
+exploratory set. On E1 (40 rounds, common error check): seqfull +0.15 points
+per round [-0.05, +0.42] at 65 episodes per round, seqsample@80 +0.12
+[-0.19, +0.51] at 43, against full evaluation's +0.22 at 123; full minus
+seqfull +0.07 [-0.03, +0.24]. With gamma = 0 seqfull reproduces every decision
+of full evaluation.

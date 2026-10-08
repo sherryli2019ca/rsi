@@ -12,7 +12,8 @@ guard: the registered analysis (verify/analyze.py, unchanged) with RRSI's
   when more than 2% of that candidate's episodes in the draw ended in a harness
   error. Also adds the check-only baselines (nonecheck@10, judgecheck@10) and
   rules that verify only one candidate per round, picked by the judge (jtop-*)
-  or at random (rtop-*). Writes <out>/e1_analysis_guard_posthoc.json and leaves
+  or at random (rtop-*), and sequential verification (seqfull, seqsample@80;
+  see SEQ_RULES). Writes <out>/e1_analysis_guard_posthoc.json and leaves
   the primary <out>/e1_analysis.json as it was.
 
 summary: from <out>/e1_analysis.json, prints the decision values without the
@@ -37,6 +38,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import random
 import re
 import shutil
@@ -56,6 +58,17 @@ CHECK_B = (10,)
 TOP_RULES = (("jtop-full", 0), ("jtop-sample", 40), ("jtop-net", 40), ("jtop-replaynull", 40),
              ("rtop-full", 0), ("rtop-sample", 40))
 CODE_FILES = {"agent.py", "tools.py", "checks.py"}
+# sequential verification (registered in verify/PREREGISTRATION_E1R.md, addendum 2,
+# before any E1R result was examined): episodes of each candidate in batches of
+# SEQ_BATCH in random order; after each batch a candidate is dropped when its
+# harness errors already exceed the guard's 2% of the planned episodes or when
+# the predictive probability that the fixed-budget rule will admit it falls
+# below gamma. seqfull plans RRSI's full evaluation and is decided by RRSI's own
+# rule; seqsample plans sample@SEQ_B.
+SEQ_RULES = (("seqfull", 0), ("seqfull_g01", 0), ("seqfull_g10", 0),
+             ("seqsample", 80), ("seqsample_g01", 80), ("seqsample_g10", 80))
+SEQ_GAMMA = {"": 0.05, "g01": 0.01, "g10": 0.10}
+SEQ_BATCH = 10
 
 
 # third-party list prices, US dollars per million tokens: uncached input,
@@ -80,6 +93,50 @@ def _judge_dollars(runs: Path) -> float:
     calls = [c for c in calls if c.get("role") == "judge"]
     return float(np.mean([(c.get("in", 0) * pi + c.get("cache_read", 0) * pc + c.get("out", 0) * po) / 1e6
                           for c in calls])) if calls else 0.0
+
+
+# ------------------------------------------------------------- sequential --
+def _phi(x: float) -> float:
+    return 0.5 * (1.0 + math.erf(x / math.sqrt(2.0)))
+
+
+def p_admissible(m: float, s2: float, n: int, N: int, delta: float, L: float,
+                 dC: float, nu: float, cfg: dict) -> float:
+    """Predictive probability that RRSI's Algorithm 2 admits a candidate after N
+    paired episodes, given n of them with mean difference m and per-pair
+    variance s2: the final dS is normal with mean m and variance
+    ((N-n)/N)^2 s2 (1/n + 1/(N-n)) (flat prior on the mean, the remaining pairs
+    drawn around it); dC is held at its running estimate and nu is known.
+    delta is the noise band, L the floor on dS. Region A: dS > delta and
+    dC <= beta0 + beta1 dS; region B: L <= dS <= delta and
+    w_s dS - w_c dC + w_n nu > 0."""
+    b0, b1 = cfg["beta0"], cfg["beta1"]
+    ws, wc, wn = cfg["w_s"], cfg["w_c"], cfg["w_n"]
+    if n >= N:
+        sd = 0.0
+    else:
+        sd = (N - n) / N * math.sqrt(s2 * (1.0 / n + 1.0 / (N - n)))
+
+    def gt(x):                      # P(final dS > x)
+        if x == -math.inf:
+            return 1.0
+        if x == math.inf:
+            return 0.0
+        if sd == 0.0:
+            return 1.0 if m > x else 0.0
+        return 1.0 - _phi((x - m) / sd)
+
+    if b1 > 0:
+        a_cost = (dC - b0) / b1
+    else:
+        a_cost = -math.inf if dC <= b0 else math.inf
+    pa = gt(max(delta, L, a_cost))
+    if ws > 0:
+        lo = max(L, (wc * dC - wn * nu) / ws)
+        pb = max(0.0, gt(lo) - gt(delta)) if lo < delta else 0.0
+    else:
+        pb = max(0.0, gt(L) - gt(delta)) if (-wc * dC + wn * nu > 0 and L < delta) else 0.0
+    return pa + pb
 
 
 # ------------------------------------------------------------------ guard --
@@ -113,6 +170,13 @@ def _guard(runs: Path, out: Path, dollars: bool = False):
 
     def load(name, runs_, out_):
         D = orig_load(name, runs_, out_)
+        run_dir = Path(runs_) / name
+        traj = {x["t"]: x for x in json.loads((run_dir / "frontier.json").read_text())["trajectory"]}
+        delta = float(json.loads((run_dir / "calibration.json").read_text())["delta"])
+        for R in D["rounds"]:
+            R["delta"] = delta
+            R["S_inc"] = traj[R["t"]]["S"]
+            R["S_star"] = max(traj[u]["S"] for u in traj if u <= R["t"])
         if dollars:
             usd = [_episode_dollars(json.loads(p.read_text()).get("tokens") or {})
                    for p in (Path(runs_) / name / "jobs" / D["base"]["job"]).glob("s*/*.json")]
@@ -164,10 +228,70 @@ def _guard(runs: Path, out: Path, dollars: bool = False):
 
     def rules_():
         return orig_rules() + [(r, b, None) for r in CHECK_RULES for b in CHECK_B] + \
-            [(r, b, None) for r, b in TOP_RULES]
+            [(r, b, None) for r, b in TOP_RULES] + [(r, b, None) for r, b in SEQ_RULES]
 
     def label(rule, b, p):
+        if rule.startswith("seq"):
+            base, _, g = rule.partition("_")
+            return (base if base == "seqfull" else f"{base}@{b}") + (f"[{g}]" if g else "")
         return rule if rule.endswith("-full") else orig_label(rule, b, p)
+
+    def seq_probs(rule, b, R, cfg, seed, ep_tok):
+        """seqfull / seqsample@b (see SEQ_RULES)."""
+        base, _, g = rule.partition("_")
+        gamma = SEQ_GAMMA[g]
+        vs = list(R["cands"])
+        if not vs:
+            return {None: 1.0}, 0.0, 0.0
+        z = float(cfg.get("delta_z", 2.0))
+        cap = cfg.get("max_harness_error_rate", 0.02)
+        s_inc = R["S_inc"]
+        floor_var = s_inc * (1 - s_inc)
+        pairs = {v: A._pairs(R["inc"], R["cands"][v]["full"]) for v in vs}
+        rng, counts, eps = Rng(seed), {}, 0.0
+        for _ in range(A.M):
+            alive, final = [], {}
+            for v in vs:
+                order = list(pairs[v])
+                rng.shuffle(order)
+                N = len(order) if base == "seqfull" else min(b, len(order))
+                nu = (R["cands"][v]["decision"].get("novelty") if base == "seqfull"
+                      else R["cands"][v]["novelty"]) or 0
+                n, dropped = 0, False
+                while n < N:
+                    n = min(N, n + SEQ_BATCH)
+                    pk = order[:n]
+                    if sum(isinstance(p[2], _Err) for p in pk) > cap * N:
+                        dropped = True      # the guard can no longer pass
+                        break
+                    diff = [p[2] - p[3] for p in pk]
+                    m = float(np.mean(diff))
+                    sv = float(np.var(diff, ddof=1)) if n > 1 else 0.0
+                    dC = A._rel_cost([p[5] for p in pk], [p[6] for p in pk])
+                    if n == N:
+                        final[v] = (m, math.sqrt(sv / n) if n > 1 else 1.0, dC)
+                        break
+                    s2 = max(sv, floor_var)
+                    if base == "seqfull":
+                        delta, L = R["delta"], R["S_star"] - R["delta"] - s_inc
+                    else:
+                        delta = z * math.sqrt(s2 / N)
+                        L = -delta
+                    if p_admissible(m, s2, n, N, delta, L, dC, nu, cfg) < gamma:
+                        dropped = True
+                        break
+                eps += n
+                if not dropped:
+                    alive.append(v)
+            if base == "seqfull":
+                adm = [v for v in alive if R["cands"][v]["decision"].get("admissible")]
+                w = max(adm, key=lambda v: R["cands"][v]["decision"].get("S") or 0.0) if adm else None
+            else:
+                ests = {v: (final[v][0], final[v][1], final[v][2], R["cands"][v]["novelty"])
+                        for v in alive}
+                w = A.decide(ests, cfg, z)
+            counts[w] = counts.get(w, 0) + 1
+        return {k: n / A.M for k, n in counts.items()}, eps / A.M, eps / A.M
 
     def top_probs(rule, b, R, cfg, seed, ep_tok):
         """jtop-<base>@b / rtop-<base>@b: pick one candidate (largest judge
@@ -217,6 +341,8 @@ def _guard(runs: Path, out: Path, dollars: bool = False):
         its full evaluation, as sample@b does), drop it if more than 2% of them
         ended in a harness error, then accept a passing candidate at random
         (nonecheck) or decide with the judge's estimate (judgecheck)."""
+        if rule.startswith("seq"):
+            return seq_probs(rule, b, R, cfg, seed, ep_tok)
         if "-" in rule:
             return top_probs(rule, b, R, cfg, seed, ep_tok)
         if rule not in CHECK_RULES:
@@ -324,7 +450,7 @@ def _summary(runs: Path, out: Path):
 
 # ----------------------------------------------------------------- robust --
 ROBUST_RULES = ("full", "sample@40", "net@40", "replaynull@40", "nonecheck@10",
-                "jtop-full", "rtop-full", "jtop-sample@40")
+                "jtop-full", "rtop-full", "jtop-sample@40", "seqfull", "seqsample@80")
 Z80 = 1.645 + 0.8416          # one-sided alpha 0.05, power 0.80
 
 
@@ -399,7 +525,9 @@ def _robust(runs: Path, out: Path, src: str = "e1_analysis_guard_posthoc.json"):
                 "loo_range": [float(min(d[a] - d[b] for d in loo)), float(max(d[a] - d[b] for d in loo))],
                 "lbo_range": [float(min(d[a] - d[b] for d in lbo)), float(max(d[a] - d[b] for d in lbo))]}
     # Net(N) of full evaluation, with uncertainty, and its break-even horizon
-    for k in ("full", "sample@40", "net@40"):
+    for k in ("full", "sample@40", "net@40", "seqfull", "seqsample@80"):
+        if k not in point:
+            continue
         for v in (1, 10):
             def net_and_be(pr, N=10 ** 4):
                 x = pr[k]
