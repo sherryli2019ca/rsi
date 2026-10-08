@@ -143,3 +143,13 @@ of full evaluation.
   Nothing was decided from them; the analysis was fixed before (this file,
   verify/e1r.py at commit 42731dd, tested on E1 only). Later checks filter
   these values out.
+- 2026-10-08 09:22-09:32Z, r4 shortened (Dr Cao's decision, 09:32Z): with
+  thinking on, a draft took 1-1.6 hours and 4 of the 5 drafts after round 0
+  ended without a proposal (the proposer's turn limit); and r4 retail's noise
+  band was calibrated at 0.1765 (base evaluations 0.892, 0.784, 0.892; no
+  harness error or missing trial), against 0.011-0.040 for r1-r3, so its
+  acceptance rule is not comparable. r4 retail was stopped at 09:24Z after
+  rounds 0-1 (round 2 discarded unfinished) and is reported only as such. r4
+  airline runs rounds 0-9; after round 9 settles its loop is stopped and the
+  follower deploys the base and final harnesses (T = 10 in that worktree's
+  rrsi.json, endpoints as registered). The r4 comparison stays descriptive.
