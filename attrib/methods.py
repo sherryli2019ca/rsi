@@ -28,6 +28,11 @@ to RRSI_USAGE_LOG, one line per call, tagged with the method as its role.
   python -m attrib.methods run --domain tau2_retail --failures <failures.json> \
       --out <dir> --methods all_at_once:pro,step_by_step:pro,... [--workers 8]
 
+With --domain appworld (Addendum 2 of attrib/PREREGISTRATION.md) the methods
+read the failure through attrib.aw.view, with AppWorld's wording of the task
+and of the components, first_write is attrib.aw.first_write and the digester
+gets AppWorld's brief; the prompts are otherwise the same.
+
 Model names: flash (deepseek-v4-flash), pro (deepseek-v4-pro, thinking off),
 pro_think (deepseek-v4-pro, thinking on). Results: <out>/<method>/<fid>.json,
 resume-safe.
@@ -230,8 +235,11 @@ def rrsi_digest(rec, model="pro"):
     import tempfile
     from rrsi import llm
     from rrsi.digester import digest_task
-    from domains.tau2.briefs import DIGESTER
-    brief = DIGESTER.replace("{domain}", os.environ["TAU2_DOMAIN"])
+    if DOMAIN == "appworld":
+        from domains.appworld.briefs import DIGESTER as brief
+    else:
+        from domains.tau2.briefs import DIGESTER
+        brief = DIGESTER.replace("{domain}", os.environ["TAU2_DOMAIN"])
     mdl, think = MODELS[model]
     with tempfile.TemporaryDirectory() as d:
         tid = f"t{rec['task_id']}"
@@ -248,6 +256,20 @@ def rrsi_digest(rec, model="pro"):
     if not steps:
         return {**last_step(rec), "calls": 1, "fallback": True, "digest": dg}
     return {"step": steps[0], "top3": steps[:3], "component": None, "calls": 1, "digest": dg}
+
+
+DOMAIN = "tau2"
+
+
+def use_appworld() -> None:
+    """Swap in the AppWorld view, wording and first-write rule (attrib.aw)."""
+    global DOMAIN, INTRO, COMPONENTS, COMP_TEXT, view
+    from attrib import aw
+    DOMAIN, view = "appworld", aw.view
+    COMPONENTS = aw.COMPONENTS
+    COMP_TEXT = "\n".join(f"- {k}: {v}" for k, v in COMPONENTS.items())
+    INTRO = aw.INTRO_HEAD + COMP_TEXT
+    METHODS["first_write"] = aw.first_write
 
 
 METHODS = {"last_step": last_step, "first_write": first_write, "all_at_once": all_at_once,
@@ -281,13 +303,16 @@ def run(fails: list, out: Path, specs: list[str], workers: int) -> None:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("cmd", choices=("run",))
-    ap.add_argument("--domain", required=True, choices=("tau2_retail", "tau2_airline"))
+    ap.add_argument("--domain", required=True, choices=("tau2_retail", "tau2_airline", "appworld"))
     ap.add_argument("--failures", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--methods", required=True)
     ap.add_argument("--workers", type=int, default=8)
     args = ap.parse_args()
-    os.environ["TAU2_DOMAIN"] = args.domain.split("_", 1)[1]
+    if args.domain == "appworld":
+        use_appworld()
+    else:
+        os.environ["TAU2_DOMAIN"] = args.domain.split("_", 1)[1]
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     os.environ.setdefault("RRSI_USAGE_LOG", str(out / "usage.jsonl"))

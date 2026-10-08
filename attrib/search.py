@@ -18,7 +18,12 @@ The record keeps the replays spent after each suspect, so the answer under a
 smaller budget is read off the same run (attrib.search.answer_at).
 
   python -m attrib.search run --domain tau2_retail --failures <failures.json> \
-      --out <dir> [--budget 40] [--workers 8]
+      --out <dir> [--budget 40] [--workers 8] [--replay-workers N]
+
+With --domain appworld (Addendum 2 of attrib/PREREGISTRATION.md): the suspect
+call sees attrib.aw's context and the failed episode without its grading, an
+action is one assistant turn with a python block, replays use the AppWorld
+driver; the search itself is unchanged.
 """
 from __future__ import annotations
 
@@ -66,16 +71,23 @@ def prompt(rec: dict) -> str:
 
 
 def suspects(fails: list, sdir: Path, m, workers: int) -> None:
+    """m: the tau2 environment module, or None for AppWorld (attrib.aw)."""
     from rrsi.llm import generate
-    ctx = _context(m)
-    names = {t["name"] for t in m.tool_defs(m.BASE_COMPONENTS)}
+    if m is None:
+        from attrib import aw
+        ctx, comps, make_prompt, force_of = aw.context(), aw.COMPONENTS, aw.search_prompt, aw.to_force
+        system = aw.search_system(SUSPECTS, "\n".join(f"- {k}: {v}" for k, v in comps.items()))
+    else:
+        ctx, comps, make_prompt, system = _context(m), COMPONENTS, prompt, SYSTEM
+        names = {t["name"] for t in m.tool_defs(m.BASE_COMPONENTS)}
+        force_of = lambda action: to_blocks(action, names)  # noqa: E731
 
     def one(f):
         p = sdir / f"{f['fid']}.json"
         if p.exists():
             return
         rec = json.loads(Path(f["trace"]).read_text())
-        raw = generate(prompt(rec), system=SYSTEM, json_only=True, model=MODEL, cache_prefix=ctx,
+        raw = generate(make_prompt(rec), system=system, json_only=True, model=MODEL, cache_prefix=ctx,
                        role="search", max_tokens=4000)
         try:
             v = json.loads(raw)
@@ -89,11 +101,11 @@ def suspects(fails: list, sdir: Path, m, workers: int) -> None:
                 k = int(s.get("step"))
             except (TypeError, ValueError):
                 continue
-            force = to_blocks(s.get("action"), names)
+            force = force_of(s.get("action"))
             if 0 <= k < rec["n_steps"] and k not in seen:
                 seen.add(k)
                 out.append({"step": k, "force": force, "why": s.get("why"),
-                            "component": s.get("component") if s.get("component") in COMPONENTS else None})
+                            "component": s.get("component") if s.get("component") in comps else None})
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(json.dumps({"suspects": out[:SUSPECTS]}, ensure_ascii=False, indent=1))
     with ThreadPoolExecutor(workers) as ex:
@@ -164,15 +176,20 @@ def answer_at(sus: list, log: list, budget: int) -> dict:
     return {"step": top["step"], "component": top["component"], "fallback": True, "replays": spent}
 
 
-def run(fails: list, out: Path, dom: str, m, budget: int, workers: int) -> None:
+def run(fails: list, out: Path, dom: str, m, budget: int, workers: int,
+        replay_workers: int | None = None) -> None:
     sdir, rdir = out / "suspects", out / "replays"
     suspects(fails, sdir, m, workers)
+    if dom == "appworld":
+        from attrib.aw import drive
+    else:
+        drive = _drive
     sus = {f["fid"]: json.loads((sdir / f"{f['fid']}.json").read_text())["suspects"] for f in fails}
     for _ in range(2 * (budget // N_REPLAYS) + 2):
         wave = [(f["harness"], r) for f in fails for r in state(f, sus[f["fid"]], rdir, budget)["need"]]
         if not wave:
             break
-        _drive(wave, rdir, dom, workers)
+        drive(wave, rdir, dom, replay_workers or workers)
     res = []
     for f in fails:
         log = state(f, sus[f["fid"]], rdir, budget)["log"]
@@ -184,19 +201,24 @@ def run(fails: list, out: Path, dom: str, m, budget: int, workers: int) -> None:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("cmd", choices=("run",))
-    ap.add_argument("--domain", required=True, choices=("tau2_retail", "tau2_airline"))
+    ap.add_argument("--domain", required=True, choices=("tau2_retail", "tau2_airline", "appworld"))
     ap.add_argument("--failures", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--budget", type=int, default=BUDGET)
     ap.add_argument("--workers", type=int, default=8)
+    ap.add_argument("--replay-workers", type=int, default=None)
     args = ap.parse_args()
-    dom = args.domain.split("_", 1)[1]
-    os.environ["TAU2_DOMAIN"] = dom
-    from agent_exp import tau2_env as m
+    if args.domain == "appworld":
+        dom, m = "appworld", None
+    else:
+        dom = args.domain.split("_", 1)[1]
+        os.environ["TAU2_DOMAIN"] = dom
+        from agent_exp import tau2_env as m
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     os.environ.setdefault("RRSI_USAGE_LOG", str(out / "usage.jsonl"))
-    run(json.loads(Path(args.failures).read_text()), out, dom, m, args.budget, args.workers)
+    run(json.loads(Path(args.failures).read_text()), out, dom, m, args.budget, args.workers,
+        args.replay_workers)
 
 
 if __name__ == "__main__":

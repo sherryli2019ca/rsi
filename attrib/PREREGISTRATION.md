@@ -132,6 +132,63 @@ their agreement is reported.
 
 Budget: the tau2 ground truth is now about 11 dollars (205 runs of 0.054).
 
+## Addendum 2 (2026-10-08 ~08:45Z, before any AppWorld failure of the main set was drawn): AppWorld and the retail top-up
+
+**Retail top-up.** The 14 retail failures still missing are drawn with
+attrib/pool.py from the incumbents of both E1R trajectories pooled (r2 and r3,
+`--runs /home/user/e1r2 /home/user/e1r3`), the same rule and seed 0, once both
+followers have finished. Methods, counterfactual search and the protocol-3
+ground truth (with the retest rule of Addendum 1 applied to the 14, seeded
+Random("retest:0"), one failure) run on them exactly as on the 86, and the
+analysis is rerun on 100 + 100.
+
+**AppWorld failures.** From E3 (verify/PREREGISTRATION_E3.md): failed trials of
+every incumbent in its evolve evaluation and its held-out deployment, with the
+same rule (attrib/pool.py; no harness error, at least one step, at most 2 per
+task and harness, tasks round-robin in a seeded order, seed 0), n = 100, drawn
+once E3's follower has finished; if fewer qualify, all of them. The two
+failures of the smoke test below are excluded.
+
+**AppWorld ground truth.** Protocol 3 unchanged (K = 4, R_C = 2, R_N = 4,
+threshold 0.5, decisive and earliest step, a seeded 10% retest), with the
+oracle of attrib/aw.py: it sees what the agent is and the key instructions of
+its prompt (the official AppWorld ReAct prompt of the base harness), every app
+API with its HTTP method, the grading block of the failed episode (the task's
+unit tests; the failed tests show expected values, the counterpart of tau2's
+gold actions), and the episode before the step. A correction is one assistant
+turn with one python block (a correction without one counts as an invalid
+action), forced at the step through the frozen AppWorld driver
+(domains/appworld/driver.py) with the incumbent's harness, temperature 0.
+
+**AppWorld methods.** As for tau2, each reading the failure as RRSI's AppWorld
+analyst does (attrib.aw.view, domains/appworld/adapter.render), with
+AppWorld's wording of the task and of the components (attrib.aw.INTRO_HEAD,
+attrib.aw.COMPONENTS) and otherwise the same prompts and models. first_write:
+the first executed step whose code calls an app API with an HTTP method other
+than GET (login and logout excepted; api_docs never counts), else the last
+step. rrsi_digest uses AppWorld's digester brief. Counterfactual search is
+unchanged (no grading block; up to 5 suspects; budget 40, answers at
+8/16/24/32/40), with AppWorld actions.
+
+**Analysis.** As in Addendum 1, on AppWorld alone and on all three domains
+pooled. The registered primary comparison (search@40 against all-at-once
+with pro) is reported for AppWorld separately with the same interval and
+permutation test; the tau2 test is not redone.
+
+**Budget.** Expected about 30 dollars for AppWorld (replays about 0.0015
+dollars each, failures about 20 steps long) and about 1.5 dollars for the
+retail top-up; the Phase A stop line of 100 dollars covers all parts.
+
+**Smoke test (before this addendum's commit).** Two E3 failures
+(attrib_runs/aw_smoke), plumbing only and not analysed: every method and the
+search's suspect call ran on both (about 0.07 dollars per failure); protocol 3
+ran on one (9 steps: 36 oracle calls, 34 replays, every forced correction
+applied, no harness error; 0.07 dollars). Its first run showed that a python
+block inside the oracle's JSON reply breaks rrsi.llm.extract_json (10 of 36
+replies unparseable), so the oracle and the search now return the thought and
+the code as separate fields (attrib.aw.to_force builds the turn); the ground
+truth was then rerun from scratch.
+
 ## Operations log
 
 - 2026-10-08 03:35Z: registered; methods start on the main tau2 set.

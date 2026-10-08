@@ -7,8 +7,10 @@ jobs/<job>) and its held-out deployment (runs/verify/<domain>/jobs/heldout/
 (task, harness); tasks in a seeded order, round-robin, one trial per task per
 pass, until n trials.
 
-  python -m attrib.pool --domain tau2_retail --runs <root with runs/> \
+  python -m attrib.pool --domain tau2_retail --runs <root with runs/> [<root> ...] \
       --exclude <pilot failures.json> --n 100 --out <failures.json>
+
+Several run roots (e.g. the two E1R trajectories) are pooled before sampling.
 """
 from __future__ import annotations
 
@@ -70,15 +72,16 @@ def sample(rows: list[dict], n: int, seed: int, exclude: set) -> list[dict]:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--domain", required=True, choices=("tau2_retail", "tau2_airline"))
-    ap.add_argument("--runs", required=True, help="the run root (holds runs/rrsi and runs/verify)")
+    ap.add_argument("--domain", required=True, choices=("tau2_retail", "tau2_airline", "appworld"))
+    ap.add_argument("--runs", required=True, nargs="+",
+                    help="run roots (each holds runs/rrsi and runs/verify)")
     ap.add_argument("--exclude", nargs="*", default=[])
     ap.add_argument("--n", type=int, default=100)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
     exclude = {f["trace"] for p in args.exclude for f in json.loads(Path(p).read_text())}
-    rows = pool(args.domain, Path(args.runs))
+    rows = [r for root in args.runs for r in pool(args.domain, Path(root))]
     out = sample(rows, args.n, args.seed, exclude)
     for r in out:
         if not Path(r["harness"]).is_dir():

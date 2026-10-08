@@ -26,8 +26,12 @@ Cost: the K samples of a step share one prompt, and a failure's steps share
 their prefix, so most oracle input is read from the endpoint's cache; samples
 run one after another per step for that reason.
 
-  python -m attrib.groundtruth3 run --domain tau2_retail --failures <failures.json> \
-      --out <dir> --rep a [--only <fids file>] [--workers 8]
+  python -m attrib.groundtruth3 run --domain tau2_retail|tau2_airline|appworld \
+      --failures <failures.json> --out <dir> --rep a [--only <fids file>] [--workers 8] \
+      [--replay-workers N]
+
+AppWorld (Addendum 2 of attrib/PREREGISTRATION.md): the same protocol with the
+oracle, its context and the replay driver of attrib.aw.
 
 Replay keys: <fid>_k<k>_o<i>_<j> (sample i corrected), <fid>_k<k>_n<j> (null).
 """
@@ -74,9 +78,16 @@ def oracle_prompt(rec: dict, k: int) -> str:
 
 
 def run_oracle(fails: list, odir: Path, m, workers: int) -> None:
+    """m: the tau2 environment module, or None for AppWorld (attrib.aw)."""
     from rrsi.llm import generate
-    ctx = _context(m)
-    names = {t["name"] for t in m.tool_defs(m.BASE_COMPONENTS)}
+    if m is None:
+        from attrib import aw
+        ctx, system, make_prompt = aw.context(), aw.ORACLE_SYSTEM, aw.oracle_prompt
+        force_of = aw.to_force
+    else:
+        ctx, system, make_prompt = _context(m), ORACLE_SYSTEM, oracle_prompt
+        names = {t["name"] for t in m.tool_defs(m.BASE_COMPONENTS)}
+        force_of = lambda action: to_blocks(action, names)  # noqa: E731
     jobs = []
     for f in fails:
         rec = json.loads(Path(f["trace"]).read_text())
@@ -87,12 +98,12 @@ def run_oracle(fails: list, odir: Path, m, workers: int) -> None:
 
     def one(job):
         f, rec, k = job
-        prompt = oracle_prompt(rec, k)
+        prompt = make_prompt(rec, k)
         for i in range(K):
             p = odir / f"{f['fid']}_k{k}_o{i}.json"
             if p.exists():
                 continue
-            raw = generate(prompt, system=ORACLE_SYSTEM, json_only=True, model=ORACLE_MODEL,
+            raw = generate(prompt, system=system, json_only=True, model=ORACLE_MODEL,
                            cache_prefix=ctx, role="oracle")
             try:
                 v = json.loads(raw)
@@ -101,7 +112,7 @@ def run_oracle(fails: list, odir: Path, m, workers: int) -> None:
             if not isinstance(v, dict):
                 v = {"verdict": "unparseable", "raw": str(v)[:2000]}
             if v.get("verdict") == "mistake":
-                v["force"] = to_blocks(v.get("action"), names)
+                v["force"] = force_of(v.get("action"))
                 if v["force"] is None:
                     v["verdict"] = "invalid_action"
             p.parent.mkdir(parents=True, exist_ok=True)
@@ -127,8 +138,12 @@ def run_replays(fails: list, odir: Path, rdir: Path, dom: str, workers: int) -> 
             if mistaken:
                 refs += [(f["harness"], {**base, "start": k, "key": f"{f['fid']}_k{k}_n{j}"})
                          for j in range(R_N)]
+    if dom == "appworld":
+        from attrib.aw import drive
+    else:
+        drive = _drive
     for _ in range(3):                    # a driver stopped part-way is resumed
-        _drive(refs, rdir, dom, workers)
+        drive(refs, rdir, dom, workers)
         if all((rdir / f"{r['key']}.json").exists() for _, r in refs):
             return
     missing = sum(not (rdir / f"{r['key']}.json").exists() for _, r in refs)
@@ -178,16 +193,21 @@ def profile(f: dict, odir: Path, rdir: Path) -> dict:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("cmd", choices=("run",))
-    ap.add_argument("--domain", required=True, choices=("tau2_retail", "tau2_airline"))
+    ap.add_argument("--domain", required=True, choices=("tau2_retail", "tau2_airline", "appworld"))
     ap.add_argument("--failures", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--rep", default="a")
     ap.add_argument("--only", default=None, help="a JSON list of fids to restrict to (the retest)")
     ap.add_argument("--workers", type=int, default=8)
+    ap.add_argument("--replay-workers", type=int, default=None,
+                    help="parallel replays (default --workers); AppWorld episodes need ~0.65 GB each")
     args = ap.parse_args()
-    dom = args.domain.split("_", 1)[1]
-    os.environ["TAU2_DOMAIN"] = dom
-    from agent_exp import tau2_env as m
+    if args.domain == "appworld":
+        dom, m = "appworld", None
+    else:
+        dom = args.domain.split("_", 1)[1]
+        os.environ["TAU2_DOMAIN"] = dom
+        from agent_exp import tau2_env as m
     fails = json.loads(Path(args.failures).read_text())
     if args.only:
         keep = set(json.loads(Path(args.only).read_text()))
@@ -197,7 +217,7 @@ def main():
     os.environ.setdefault("RRSI_USAGE_LOG", str(rep / "usage.jsonl"))
     odir, rdir = rep / "oracle", rep / "replays"
     run_oracle(fails, odir, m, args.workers)
-    run_replays(fails, odir, rdir, dom, args.workers)
+    run_replays(fails, odir, rdir, dom, args.replay_workers or args.workers)
     res = {"protocol": 3, "K": K, "R_C": R_C, "R_N": R_N, "threshold": THRESHOLD,
            "failures": [profile(f, odir, rdir) for f in fails]}
     (rep / "result.json").write_text(json.dumps(res, indent=1))
