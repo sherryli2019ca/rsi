@@ -127,7 +127,12 @@ def run_replays(fails: list, odir: Path, rdir: Path, dom: str, workers: int) -> 
             if mistaken:
                 refs += [(f["harness"], {**base, "start": k, "key": f"{f['fid']}_k{k}_n{j}"})
                          for j in range(R_N)]
-    _drive(refs, rdir, dom, workers)
+    for _ in range(3):                    # a driver stopped part-way is resumed
+        _drive(refs, rdir, dom, workers)
+        if all((rdir / f"{r['key']}.json").exists() for _, r in refs):
+            return
+    missing = sum(not (rdir / f"{r['key']}.json").exists() for _, r in refs)
+    raise SystemExit(f"{missing} replays still missing; rerun to resume")
 
 
 def _rate(rdir: Path, keys: list[str], forced: bool):
