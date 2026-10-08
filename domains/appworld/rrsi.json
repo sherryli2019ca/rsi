@@ -26,7 +26,7 @@
  "policy_model": "deepseek-v4-flash",
  "policy_label": "DeepSeek-V4-Flash (thinking off)",
  "policy_temperature": 0.0,
- "concurrency": 6,
+ "concurrency": 4,
  "max_harness_error_rate": 0.02,
  "heldout_k": 2,
  "heldout_k_endpoints": 4,
