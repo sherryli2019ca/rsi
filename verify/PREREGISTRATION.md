@@ -130,3 +130,14 @@ pre-specified increase above), the margin and the endpoints.
   labels, which rely on file-name patterns, call most code changes in this
   harness prompt edits. Those labels also steered the run itself (RRSI's
   tried/untried components and novelty term); this is reported, not corrected.
+- 2026-10-08, in response to a review: further post-hoc analyses in
+  `verify/posthoc_e1.py` (`guard` and `robust`), all labelled post hoc in the
+  paper. The paper's central comparison of evidence now uses the common error
+  check (RRSI's 2% harness-error rule applied to every rule's own episodes),
+  reported next to the registered analysis, which is unchanged. Added: two
+  baselines that run 10 episodes per candidate only for that check (accept a
+  passing candidate at random, or by the judge); pairwise contrasts among
+  full, sample@40, net@40, replaynull@40 and the check-only baseline; a
+  bootstrap over blocks of rounds that share an incumbent; leave-one-round-out
+  and leave-one-incumbent-out ranges; minimum detectable differences at 80%
+  power; Net(10^4) with its bootstrap interval and break-even horizon.

@@ -395,8 +395,10 @@ def transfer_data():
 def netn_table(N=1000, values=(1, 10)):
     """Net(N) = N (v dp - dc_run) - C_verify - kappa dn of each verified set
     against Apply attributed (budget 10), in episodes of running cost, at
-    kappa = 0, with the 90% interval of dp; dc_run is the model-based change in
-    running cost per deployed episode (deployment.json, payback)."""
+    kappa = 0; dc_run is the model-based change in running cost per deployed
+    episode (deployment.json, payback). The 90% interval combines the
+    uncertainty of dp (its task-clustered interval, read as normal) and of
+    dc_run (the two arms' standard errors, taken as independent)."""
     lab = dict(NAMES)
 
     def pts(v):
@@ -407,20 +409,22 @@ def netn_table(N=1000, values=(1, 10)):
 
     rows = []
     for d in DOMS:
-        P = json.load(open(f"runs/tau2_{d}/deployment.json"))["payback"]
+        D = json.load(open(f"runs/tau2_{d}/deployment.json"))
+        P, arms = D["payback"], D["arms"]
         rows.append(f"\\multicolumn{{{4 + len(values)}}}{{l}}{{\\emph{{{d.capitalize()}}}}} \\\\")
         for m, name in NAMES:
             if m not in P:
                 continue
             r = P[m]
 
-            def net(v, g):
-                return N * (v * g - r["dc_run"]) - r["C"]
+            se_dp = (r["hi"] - r["lo"]) / (2 * 1.645)
+            se_dc = (arms[m].get("run_cost_se", 0.0) ** 2 + arms["LLM-only"].get("run_cost_se", 0.0) ** 2) ** 0.5
             cells = [f"{pts(r['dp'])} {{\\footnotesize[{pts(r['lo'])}, {pts(r['hi'])}]}}",
                      f"{r['dc_run']:.2f}".replace("-", "$-$"), f"{r['C']:.0f}"]
             for v in values:
-                cells.append(f"{ep(net(v, r['dp']))} {{\\footnotesize[{ep(net(v, r['lo']))}, "
-                             f"{ep(net(v, r['hi']))}]}}")
+                pt = N * (v * r["dp"] - r["dc_run"]) - r["C"]
+                hw = 1.645 * N * ((v * se_dp) ** 2 + se_dc ** 2) ** 0.5
+                cells.append(f"{ep(pt)} {{\\footnotesize[{ep(pt - hw)}, {ep(pt + hw)}]}}")
             rows.append(f"{name.replace(' (ours)', '')} & " + " & ".join(cells) + " \\\\")
     open("paper/tables/netn.tex", "w").write("\n".join(rows) + "\n")
     return rows
