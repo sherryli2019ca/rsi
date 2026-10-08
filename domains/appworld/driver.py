@@ -33,7 +33,10 @@ Two modes, both resume-safe (an existing output file is never re-run):
   replay  every reference in --replay (a JSON list of {"key", "task_id",
           "trace", "start"}): the recorded episode `trace` (a trial file of this
           driver, path or record) is re-executed up to step `start` and
-          continued live with the harness, written to <out>/<key>.json
+          continued live with the harness, written to <out>/<key>.json; with
+          "force" (an assistant turn) the first live step takes that turn
+          instead of the harness's (counterfactual replays of the attribution
+          study, attrib/)
 
 Replay with code-level harness changes. Recorded assistant turns in the prefix
 are kept and their code re-executed in a fresh world (time and databases are
@@ -264,12 +267,13 @@ def _step(acc, agent, world, index: int, text: str, code: str) -> dict:
 
 
 def episode(Agent, pm: PolicyModel, task_id: str, experiment: str,
-            prefix: dict | None = None, start: int = 0) -> dict:
+            prefix: dict | None = None, start: int = 0, force: str | None = None) -> dict:
     from appworld import AppWorld
     t0 = _CLOCK[0]()
     llm, acc = pm.make()
     steps, diverged, msgs = [], [], []
     live_from = start if prefix else 0
+    forced = force is not None
     completed, err = False, None
     rec: dict = {"task_id": task_id, "experiment": experiment}
     with AppWorld(task_id=task_id, experiment_name=experiment, **APPWORLD_CONFIG) as world:
@@ -299,7 +303,12 @@ def episode(Agent, pm: PolicyModel, task_id: str, experiment: str,
                 live_from = min(live_from, len(steps))
             # ---- live -------------------------------------------------------------
             while not completed and len(steps) < MAX_STEPS:
-                text = _text(_h(acc, agent.next_action, copy.deepcopy(msgs)), "next_action")
+                if force is not None and len(steps) == start == live_from:
+                    text = str(force)
+                    _h(acc, agent.observe_prefix, copy.deepcopy(msgs), text)
+                    force = None
+                else:
+                    text = _text(_h(acc, agent.next_action, copy.deepcopy(msgs)), "next_action")
                 step = _step(acc, agent, world, len(steps), text, extract_code(text))
                 msgs += [{"role": "assistant", "content": text},
                          {"role": "user", "content": step["output"]}]
@@ -326,7 +335,8 @@ def episode(Agent, pm: PolicyModel, task_id: str, experiment: str,
                    "agent_total": acc["in"] + acc["out"] + acc["cache_read"]},
         "calls": {"agent": acc["calls"]}, "seconds": round(_CLOCK[0]() - t0, 2),
         "replay": ({"start_requested": start, "start_effective": live_from,
-                    "diverged": diverged} if prefix else None)})
+                    "diverged": diverged, "forced": force is None and forced}
+                   if prefix else None)})
     if err:
         rec["harness_error"] = err
     return rec
@@ -351,7 +361,7 @@ def child_main() -> None:
                    "harness_error": f"import: {e!r}\n{traceback.format_exc()[-1500:]}"}
         else:
             rec = episode(Agent, pm, spec["task_id"], spec["experiment"], prefix,
-                          int(spec.get("start") or 0))
+                          int(spec.get("start") or 0), spec.get("force"))
     except Exception as e:  # noqa: BLE001 - API or environment failure: the parent retries
         sys.stderr.write(traceback.format_exc()[-3000:] + f"\nINFRA: {e!r}"[:600] + "\n")
         sys.stderr.flush()
@@ -364,20 +374,22 @@ def child_main() -> None:
 # ---- job runner -------------------------------------------------------------------
 
 def run_jobs(jobs, harness: Path, temperature, aw_root: Path, workers: int):
-    """jobs: [(out_path, task_id, trace (path, record or None), start, experiment)].
+    """jobs: [(out_path, task_id, trace (path, record or None), start, experiment[, force])].
     Resume-safe; infrastructure failures retried 3x; writes are atomic."""
     env = {**os.environ, "APPWORLD_ROOT": str(aw_root),
            "PYTHONPATH": os.pathsep.join([str(REPO)] + [p for p in
                                          os.environ.get("PYTHONPATH", "").split(os.pathsep) if p])}
 
     def one(job):
-        out, task_id, trace, start, experiment = job
+        out, task_id, trace, start, experiment = job[:5]
+        force = job[5] if len(job) > 5 else None
         if out.exists():
             return "skip"
         out.parent.mkdir(parents=True, exist_ok=True)
         part = out.with_name(out.name + ".part")
         spec = {"harness": str(harness), "task_id": task_id, "experiment": experiment,
-                "part": str(part), "temperature": temperature, "trace": trace, "start": start}
+                "part": str(part), "temperature": temperature, "trace": trace, "start": start,
+                "force": force}
         err = ""
         for attempt in range(3):
             part.unlink(missing_ok=True)
@@ -444,7 +456,7 @@ def main():
     if args.replay:
         refs = json.loads(Path(args.replay).read_text())
         jobs = [(out / f"{r['key']}.json", str(r["task_id"]), r["trace"], int(r["start"]),
-                 f"replay_{_safe(r['key'])}") for r in refs]
+                 f"replay_{_safe(r['key'])}", r.get("force")) for r in refs]
     else:
         ids = [x for x in args.ids.split(",") if x] if not os.path.exists(args.ids) else \
             json.loads(Path(args.ids).read_text())
