@@ -60,3 +60,6 @@ examined before the run ends, apart from completion and error checks.
   round-0 and round-1 lines, which include the held-out success rates of the
   base, incumbent and candidates. Nothing was decided from them; later checks
   filter these values out.
+- 2026-10-08 10:31Z: follower concurrency raised from 8 to 12 parallel
+  AppWorld episodes (the loop keeps 4); in-flight episodes were restarted.
+  No held-out success rate was examined.
