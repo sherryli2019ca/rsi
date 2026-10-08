@@ -157,9 +157,12 @@ def analyze(domain, traces: dict, per_task: dict, round_dir: Path,
             continue
         a = act.get("action")
         if a == "report":
-            report = {k: act.get(k) or [] for k in
-                      ("failure_modes", "capability_gaps", "success_habits")}
-            report["failure_modes"].sort(key=lambda m: -(m.get("n_tasks") or 0))
+            report = {}
+            for k in ("failure_modes", "capability_gaps", "success_habits"):
+                v = act.get(k) or []
+                report[k] = [x for x in v if isinstance(x, dict)] if isinstance(v, list) else []
+            report["failure_modes"].sort(
+                key=lambda m: -(m["n_tasks"] if isinstance(m.get("n_tasks"), (int, float)) else 0))
             report["n_digests"] = n_digests
             return report
         if a == "digest_many":

@@ -181,6 +181,10 @@ def digest_task(traces_dir: Path, task_id: str, lens: str, domain_brief: str,
         a = act.get("action")
         if a == "return":
             digest = act.get("digest") or {}
+            if not isinstance(digest, dict):
+                transcript += ("\n[you] return (non-object digest)\n[result] ERROR: "
+                               "digest must be a JSON object following the schema")
+                continue
             blob = json.dumps(digest, ensure_ascii=False)
             if len(blob) > DIGEST_MAX_CHARS:
                 transcript += (f"\n[you] return ({len(blob)} chars)\n[result] "

@@ -17,6 +17,10 @@ Modifications made in this repository:
   optional JSONL log at `RRSI_USAGE_LOG`).
 - `rrsi/analyst.py`, `rrsi/digester.py`, `rrsi/propose.py`, `rrsi/critic.py`:
   every `generate(...)` call is tagged with its role for the cost accounting.
+- `rrsi/digester.py`, `rrsi/analyst.py`: a digest that is not a JSON object is
+  sent back to the digester like other malformed replies, and report entries
+  that are not objects are dropped, instead of ending the round with an
+  exception (added 2026-10-08 after one such reply stopped a run).
 - `rrsi/propose.py`: a `done()` with no file changes and no edits is bounced like
   an `abort` (at most 3 times) instead of ending the draft with no candidate.
 - `rrsi.py`: the default `--runs` directory is `runs/rrsi`; options
