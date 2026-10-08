@@ -96,11 +96,51 @@ def agreement(ra: dict, rb: dict) -> dict:
             "pairs": [(x, a[x]["decisive"], b[x]["decisive"], a[x]["flips"], b[x]["flips"]) for x in common]}
 
 
+def agree(da: dict, db: dict) -> dict:
+    """Agreement of two {fid: decisive step or None} maps."""
+    common = sorted(set(da) & set(db))
+    either = [x for x in common if da[x] is not None or db[x] is not None]
+    return {"n": len(common), "same": sum(da[x] == db[x] for x in common),
+            "found_either": len(either), "same_when_found": sum(da[x] == db[x] for x in either),
+            "found": [sum(d[x] is not None for x in common) for d in (da, db)]}
+
+
+def multi_rep(dom_dir: Path, reps: list[str]) -> dict:
+    """Protocol 1 with 4+ reps: every pair, and the union rule (earliest flip
+    of two reps pooled) on disjoint pairs of reps."""
+    res = {r: json.loads((dom_dir / r / "result.json").read_text())["failures"] for r in reps}
+    dec = {r: {f["fid"]: f["decisive"] for f in fs} for r, fs in res.items()}
+    flips = {r: {f["fid"]: set(f["flips"]) for f in fs} for r, fs in res.items()}
+    pairs = {f"{a}-{b}": agree(dec[a], dec[b]) for i, a in enumerate(reps) for b in reps[i + 1:]}
+    union = {}
+    if len(reps) >= 4:
+        a, b, c, d = reps[:4]
+        for (p, q), (u, v) in (((a, b), (c, d)), ((a, c), (b, d)), ((a, d), (b, c))):
+            du = {x: min(flips[p][x] | flips[q][x], default=None) for x in dec[p]}
+            dv = {x: min(flips[u][x] | flips[v][x], default=None) for x in dec[u]}
+            union[f"{p}{q}-{u}{v}"] = agree(du, dv)
+    return {"pairs": pairs, "union": union}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("out")
     ap.add_argument("--reps", nargs="+", default=["a", "b"])
+    ap.add_argument("--multi", action="store_true", help="protocol-1 agreement over every pair of --reps")
+    ap.add_argument("--protocol2", default=None, help="a protocol-2 output dir with reps a and b")
     args = ap.parse_args()
+    if args.multi or args.protocol2:
+        rep = {}
+        for dom_dir in sorted(p for p in Path(args.out).iterdir() if (p / "failures.json").exists()):
+            rep[dom_dir.name] = {"protocol1": multi_rep(dom_dir, args.reps)}
+            if args.protocol2:
+                p2 = Path(args.protocol2) / dom_dir.name
+                da, db = ({f["fid"]: f["decisive"] for f in
+                           json.loads((p2 / r / "result.json").read_text())["failures"]} for r in ("a", "b"))
+                rep[dom_dir.name]["protocol2"] = agree(da, db)
+        print(json.dumps(rep, indent=1))
+        (Path(args.out) / "pilot_agreement.json").write_text(json.dumps(rep, indent=1))
+        return
     report = {}
     for dom_dir in sorted(p for p in Path(args.out).iterdir() if (p / "failures.json").exists()):
         st = {r: rep_stats(dom_dir, r) for r in args.reps if (dom_dir / r / "result.json").exists()}
