@@ -58,14 +58,44 @@ TOP_RULES = (("jtop-full", 0), ("jtop-sample", 40), ("jtop-net", 40), ("jtop-rep
 CODE_FILES = {"agent.py", "tools.py", "checks.py"}
 
 
+# third-party list prices, US dollars per million tokens: uncached input,
+# cached input, output (as in the cost notes of the paper)
+PRICES = {"deepseek-v4-flash": (0.14, 0.0028, 0.28), "deepseek-v4-pro": (0.435, 0.0036, 0.87)}
+
+
+def _episode_dollars(tok: dict) -> float:
+    """Price of one episode from its token record: the policy's uncached input,
+    cached input and output, and the user simulator's tokens (recorded as one
+    sum of its input and output, priced as uncached input)."""
+    pi, pc, po = PRICES["deepseek-v4-flash"]
+    return ((tok.get("agent_in") or 0) * pi + (tok.get("agent_cache_read") or 0) * pc
+            + (tok.get("agent_out") or 0) * po + (tok.get("user") or 0) * pi) / 1e6
+
+
+def _judge_dollars(runs: Path) -> float:
+    """Mean price of one judge call (one call per candidate) in the runs' usage logs."""
+    pi, pc, po = PRICES["deepseek-v4-pro"]
+    calls = [json.loads(l) for f in Path(runs).glob("*.usage.jsonl") for l in f.read_text().splitlines()
+             if l.strip() and '"judge"' in l]
+    calls = [c for c in calls if c.get("role") == "judge"]
+    return float(np.mean([(c.get("in", 0) * pi + c.get("cache_read", 0) * pc + c.get("out", 0) * po) / 1e6
+                          for c in calls])) if calls else 0.0
+
+
 # ------------------------------------------------------------------ guard --
 class _Err(float):
     """A reward of an episode that ended in a harness error."""
 
 
-def _guard(runs: Path, out: Path):
+def _guard(runs: Path, out: Path, dollars: bool = False):
+    """dollars: costs in price-weighted episode equivalents instead of token
+    counts (a replay costs its price over the mean price of a base-harness
+    evolve episode, a judge call likewise, and the running cost of a harness is
+    its mean price per held-out episode); output e1_analysis_guard_dollars_posthoc.json."""
     log = []
     orig_replays, orig_ev, orig_fix, orig_est = A._replays, A._ev, A._fix, A.estimate
+    orig_load = A.load
+    judge_usd = _judge_dollars(runs) if dollars else 0.0
 
     def replays(d):
         res = orig_replays(d)
@@ -73,11 +103,21 @@ def _guard(runs: Path, out: Path):
             return res
         for p in sorted(Path(d).glob("*__*.json")):
             r = json.loads(p.read_text())
-            if "harness_error" in r:
-                t = str(r["task_id"])
+            t = str(r["task_id"])
+            if "harness_error" in r or dollars:
                 i = sorted(Path(d).glob(f"{t}__*.json")).index(p)
-                res[t][i] = (_Err(res[t][i][0]),) + tuple(res[t][i][1:])
+                x = res[t][i]
+                res[t][i] = ((_Err(x[0]) if "harness_error" in r else x[0]),
+                             _episode_dollars(r.get("tokens") or {}) if dollars else x[1]) + tuple(x[2:])
         return res
+
+    def load(name, runs_, out_):
+        D = orig_load(name, runs_, out_)
+        if dollars:
+            usd = [_episode_dollars(json.loads(p.read_text()).get("tokens") or {})
+                   for p in (Path(runs_) / name / "jobs" / D["base"]["job"]).glob("s*/*.json")]
+            D["ep_tokens"] = float(np.mean(usd))
+        return D
 
     def ev(path):
         e = orig_ev(path)
@@ -90,6 +130,10 @@ def _guard(runs: Path, out: Path):
                 tr = e.per_task.get(str(r.get("task_id")))
                 if "harness_error" in r and tr is not None and s < len(tr.rewards):
                     tr.rewards[s] = _Err(tr.rewards[s])
+        if dollars and "/heldout/" in str(path):
+            usd = [_episode_dollars(json.loads(p.read_text()).get("tokens") or {})
+                   for p in Path(path).parent.glob("s[0-9]*/*.json")]
+            e.C = float(np.mean(usd)) if usd else e.C
         return e
 
     def fix(rep, picks, rng, used):
@@ -163,6 +207,12 @@ def _guard(runs: Path, out: Path):
         return {k: n / A.M for k, n in counts.items()}, eps / A.M, eqs / A.M
 
     def choice_probs(rule, b, R, cfg, seed, mu0=None, ep_tok=1.0):
+        probs, eps, eqs = choice_probs_(rule, b, R, cfg, seed, mu0, ep_tok)
+        if dollars and (rule in ("judge", "judgecheck") or rule.startswith("jtop-")):
+            eqs += sum(1 for c in R["cands"].values() if c["judge"] is not None) * judge_usd / ep_tok
+        return probs, eps, eqs
+
+    def choice_probs_(rule, b, R, cfg, seed, mu0=None, ep_tok=1.0):
         """nonecheck@b / judgecheck@b: run b episodes of each candidate (drawn from
         its full evaluation, as sample@b does), drop it if more than 2% of them
         ended in a harness error, then accept a passing candidate at random
@@ -195,13 +245,14 @@ def _guard(runs: Path, out: Path):
         return {k: n / A.M for k, n in counts.items()}, eps / A.M, eps / A.M
 
     A._replays, A._ev, A._fix, A.estimate, A.random = replays, ev, fix, estimate, RandomNS
-    A.rules, A.choice_probs, A.label = rules_, choice_probs, label
+    A.rules, A.choice_probs, A.label, A.load = rules_, choice_probs, label, load
     primary, backup = out / "e1_analysis.json", out / "e1_analysis.primary.bak"
     shutil.copy2(primary, backup)
     try:
         sys.argv = ["analyze", "--runs", str(runs), "--out", str(out)]
         A.main()
-        shutil.move(primary, out / "e1_analysis_guard_posthoc.json")
+        shutil.move(primary, out / ("e1_analysis_guard_dollars_posthoc.json" if dollars
+                                    else "e1_analysis_guard_posthoc.json"))
     finally:
         shutil.copy2(backup, primary)
         backup.unlink()
@@ -369,7 +420,9 @@ def _robust(runs: Path, out: Path, src: str = "e1_analysis_guard_posthoc.json"):
     res["candidate_se_median"] = float(np.median(se))
     res["candidate_mde80_median"] = float(Z80 * np.median(se))
     res["n_blocks"] = {n: len(set(d.values())) for n, d in block_of.items()}
-    (out / "e1_robust_posthoc.json").write_text(json.dumps(res, indent=1))
+    name = ("e1_robust_posthoc.json" if src == "e1_analysis_guard_posthoc.json"
+            else f"e1_robust_{Path(src).stem}.json")
+    (out / name).write_text(json.dumps(res, indent=1))
     pp = lambda x: f"{100 * x:+.2f}"
     print("blocks (incumbents) per domain:", res["n_blocks"])
     for k, d in res["decision_value"].items():
@@ -393,13 +446,17 @@ def main():
     ap.add_argument("cmd", choices=("guard", "summary", "robust"))
     ap.add_argument("--src", default="e1_analysis_guard_posthoc.json",
                     help="robust: analysis file in --out to read (e.g. e1_analysis.json)")
+    ap.add_argument("--dollars", action="store_true",
+                    help="guard: price-weighted episode equivalents instead of token counts")
     ap.add_argument("--runs", default=str(ROOT / "runs" / "rrsi"))
     ap.add_argument("--out", default=str(ROOT / "runs" / "verify"))
     args = ap.parse_args()
     if args.cmd == "robust":
         _robust(Path(args.runs), Path(args.out), args.src)
+    elif args.cmd == "guard":
+        _guard(Path(args.runs), Path(args.out), args.dollars)
     else:
-        (_guard if args.cmd == "guard" else _summary)(Path(args.runs), Path(args.out))
+        _summary(Path(args.runs), Path(args.out))
 
 
 if __name__ == "__main__":
