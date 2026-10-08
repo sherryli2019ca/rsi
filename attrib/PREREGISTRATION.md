@@ -199,3 +199,11 @@ truth was then rerun from scratch.
   (attrib/analyze.py) run; results in /mnt/project-files/notes/attrib-phaseA-tau2.md.
   The 14 retail failures from E1R are still to come; the analysis will be
   rerun on 100 + 100 when they are in.
+- 2026-10-08 09:55Z: retail top-up drawn as in Addendum 2 (attrib/pool.py on
+  the E1R incumbents of r2 and r3, seed 0, excluding the 86): pool 455, 14
+  failures over 14 tasks (7 held-out); retest failure 4101495_e_20_s0. Methods,
+  counterfactual search and protocol-3 ground truth ran on the 14 (09:55-10:41Z).
+- 10:45Z: analysis rerun on 100 + 100 (retail rescuable 65, airline 37; retest
+  17 of 20 agree). Every method moved by at most 0.02; the primary comparison
+  is -0.061 [-0.146, +0.032], p = .20. The 186-failure analysis is kept as
+  results/attrib/phaseA_tau2_analysis_186.json.
