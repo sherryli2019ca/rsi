@@ -6,9 +6,8 @@ two independent repetitions (reps) of the ground truth.
 
 Curtailed scan (exact: it reaches the same decisive step as the full scan):
 steps are scanned in order and the scan stops at the first flip; at a step the
-corrected replays run first, one by one, and stop once FLIP successes are out
-of reach; the null replays run only if the corrected ones reached FLIP, and
-stop once the step's flip is settled either way.
+corrected replays run first and the null replays only if the corrected ones
+reached FLIP successes.
 """
 from __future__ import annotations
 
@@ -44,20 +43,11 @@ def oracle_dollars(usage: Path) -> tuple[float, int]:
 
 
 def _curtailed(c: list[int], nl: list[int]) -> tuple[int, bool]:
-    """Replays the curtailed rule runs at one step, and whether the step flips."""
-    used, s = 0, 0
-    for j, r in enumerate(c):
-        used, s = used + 1, s + r
-        if s + (N_REPLAYS - j - 1) < FLIP:
-            return used, False
-    allowed, z = s - FLIP, 0          # flip iff null successes <= allowed
-    for j, r in enumerate(nl):
-        used, z = used + 1, z + r
-        if z > allowed:
-            return used, False
-        if z + (N_REPLAYS - j - 1) <= allowed:
-            return used, True
-    return used, z <= allowed
+    """Replays the curtailed scan (attrib.groundtruth.run_curtailed) runs at one
+    step, and whether the step flips."""
+    if sum(c) < FLIP:
+        return len(c), False
+    return len(c) + len(nl), sum(c) - sum(nl) >= FLIP
 
 
 def rep_stats(base: Path, rep: str) -> dict:

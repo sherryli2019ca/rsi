@@ -198,24 +198,20 @@ def run_oracle(fails: list, odir: Path, m, workers: int = 8) -> None:
 
 
 # ----------------------------------------------------------------- replays --
-def run_replays(fails: list, odir: Path, rdir: Path, dom: str, workers: int) -> None:
+def _refs(f: dict, k: int, kind: str, force) -> list[dict]:
+    base = {"task_id": f["task_id"], "trace": f["trace"], "start": k}
+    return [{**base, "key": f"{f['fid']}_k{k}_{kind}{j}", **({"force": force} if kind == "c" else {})}
+            for j in range(N_REPLAYS)]
+
+
+def _drive(refs: list[tuple[str, dict]], rdir: Path, dom: str, workers: int) -> None:
+    """Run (harness, ref) replays whose output does not exist yet, by harness."""
     by_harness = {}
-    for f in fails:
-        rec_n = json.loads(Path(f["trace"]).read_text())["n_steps"]
-        for k in range(rec_n):
-            v = json.loads((odir / f"{f['fid']}_k{k}.json").read_text())
-            if v.get("verdict") != "mistake":
-                continue
-            for j in range(N_REPLAYS):
-                base = {"task_id": f["task_id"], "trace": f["trace"], "start": k}
-                by_harness.setdefault(f["harness"], []).extend([
-                    {**base, "key": f"{f['fid']}_k{k}_c{j}", "force": v["force"]},
-                    {**base, "key": f"{f['fid']}_k{k}_n{j}"}])
+    for harness, r in refs:
+        if not (rdir / f"{r['key']}.json").exists():
+            by_harness.setdefault(harness, []).append(r)
     env = {**os.environ, "PYTHONPATH": str(ROOT)}
-    for harness, refs in by_harness.items():
-        todo = [r for r in refs if not (rdir / f"{r['key']}.json").exists()]
-        if not todo:
-            continue
+    for harness, todo in by_harness.items():
         rdir.mkdir(parents=True, exist_ok=True)
         rf = rdir / f"refs_{abs(hash(harness)) % 10**8}.json"
         rf.write_text(json.dumps(todo))
@@ -225,30 +221,103 @@ def run_replays(fails: list, odir: Path, rdir: Path, dom: str, workers: int) -> 
                        cwd=ROOT, env=env, check=False)
 
 
+def _verdicts(f: dict, odir: Path) -> list[dict]:
+    n = json.loads(Path(f["trace"]).read_text())["n_steps"]
+    return [json.loads((odir / f"{f['fid']}_k{k}.json").read_text()) for k in range(n)]
+
+
+def _successes(rdir: Path, f: dict, k: int, kind: str) -> tuple[int, int]:
+    """(successes, valid replays) among a step's corrected or null replays; a
+    corrected replay is valid only if its forced action was applied."""
+    s = n = 0
+    for j in range(N_REPLAYS):
+        p = rdir / f"{f['fid']}_k{k}_{kind}{j}.json"
+        if not p.exists():
+            continue
+        x = json.loads(p.read_text())
+        if kind == "c" and not (x.get("replay") or {}).get("forced"):
+            continue
+        n += 1
+        s += int(x.get("reward", 0) >= 1)
+    return s, n
+
+
+def run_replays(fails: list, odir: Path, rdir: Path, dom: str, workers: int) -> None:
+    """Full scan: every step the oracle calls a mistake, corrected and null."""
+    refs = []
+    for f in fails:
+        for k, v in enumerate(_verdicts(f, odir)):
+            if v.get("verdict") == "mistake":
+                refs += [(f["harness"], r) for kind in "cn" for r in _refs(f, k, kind, v["force"])]
+    _drive(refs, rdir, dom, workers)
+
+
+def run_curtailed(fails: list, odir: Path, rdir: Path, dom: str, workers: int, full: set) -> None:
+    """Curtailed scan, in waves across failures: mistaken steps in order; the
+    corrected replays of a step first, its null replays only if the corrected
+    ones reach FLIP successes; a failure stops at its first flip. Failures in
+    `full` are scanned fully. Same decisive step as the full scan."""
+    run_replays([f for f in fails if f["fid"] in full], odir, rdir, dom, workers)
+    todo = {f["fid"]: (f, [k for k, v in enumerate(_verdicts(f, odir)) if v.get("verdict") == "mistake"])
+            for f in fails if f["fid"] not in full}
+    for _ in range(2 * max((len(ks) for _, ks in todo.values()), default=0) + 2):
+        wave = []
+        for fid, (f, ks) in todo.items():
+            nxt = _next_test(f, ks, rdir)
+            if nxt is not None:
+                k, kind = nxt
+                force = _verdicts(f, odir)[k].get("force") if kind == "c" else None
+                wave += [(f["harness"], r) for r in _refs(f, k, kind, force)]
+        if not wave:
+            return
+        before = sum(1 for _ in rdir.glob("*.json")) if rdir.exists() else 0
+        _drive(wave, rdir, dom, workers)
+        if sum(1 for _ in rdir.glob("*.json")) == before:
+            raise SystemExit("a replay wave wrote nothing; see the driver's output")
+
+
+def _missing(rdir: Path, f: dict, k: int, kind: str) -> bool:
+    return any(not (rdir / f"{f['fid']}_k{k}_{kind}{j}.json").exists() for j in range(N_REPLAYS))
+
+
+def _next_test(f: dict, ks: list[int], rdir: Path):
+    """(step, "c"|"n") still to run for a curtailed failure, or None when done."""
+    for k in ks:
+        if _missing(rdir, f, k, "c"):
+            return k, "c"
+        c, nc = _successes(rdir, f, k, "c")
+        if nc < N_REPLAYS or c < FLIP:
+            continue                       # untestable or cannot flip
+        if _missing(rdir, f, k, "n"):
+            return k, "n"
+        z, _ = _successes(rdir, f, k, "n")
+        if c - z >= FLIP:
+            return None                    # first flip found
+    return None
+
+
 # ----------------------------------------------------------------- summary --
-def summarize(fails: list, odir: Path, rdir: Path) -> dict:
+def summarize(fails: list, odir: Path, rdir: Path, full: set | None = None) -> dict:
     out = []
     for f in fails:
-        n = json.loads(Path(f["trace"]).read_text())["n_steps"]
         steps = []
-        for k in range(n):
-            v = json.loads((odir / f"{f['fid']}_k{k}.json").read_text())
+        for k, v in enumerate(_verdicts(f, odir)):
             row = {"k": k, "verdict": v.get("verdict")}
             if v.get("verdict") == "mistake":
-                c = [json.loads((rdir / f"{f['fid']}_k{k}_c{j}.json").read_text()) for j in range(N_REPLAYS)
-                     if (rdir / f"{f['fid']}_k{k}_c{j}.json").exists()]
-                nl = [json.loads((rdir / f"{f['fid']}_k{k}_n{j}.json").read_text()) for j in range(N_REPLAYS)
-                      if (rdir / f"{f['fid']}_k{k}_n{j}.json").exists()]
-                ok_c = [x for x in c if (x.get("replay") or {}).get("forced")]
-                row.update({"corrected": sum(x.get("reward", 0) for x in ok_c), "n_corrected": len(ok_c),
-                            "null": sum(x.get("reward", 0) for x in nl), "n_null": len(nl),
-                            "harness_errors": sum("harness_error" in x for x in c + nl)})
-                row["flip"] = (len(ok_c) == N_REPLAYS and len(nl) == N_REPLAYS
-                               and row["corrected"] - row["null"] >= FLIP)
+                c, nc = _successes(rdir, f, k, "c")
+                z, nn = _successes(rdir, f, k, "n")
+                row.update({"corrected": c, "n_corrected": nc, "null": z, "n_null": nn})
+                if nc == N_REPLAYS and c < FLIP:
+                    row["flip"] = False
+                elif nc == N_REPLAYS and nn == N_REPLAYS:
+                    row["flip"] = c - z >= FLIP
+                else:
+                    row["flip"] = None     # not tested (curtailed) or untestable
             steps.append(row)
         flips = [s["k"] for s in steps if s.get("flip")]
         mistakes = [s["k"] for s in steps if s["verdict"] == "mistake"]
         out.append({**{k: f[k] for k in ("fid", "commit", "task_id", "trial", "n_steps")},
+                    "scan": "full" if full is None or f["fid"] in full else "curtailed",
                     "decisive": flips[0] if flips else None, "flips": flips,
                     "first_mistake": mistakes[0] if mistakes else None, "mistakes": mistakes,
                     "steps": steps})
@@ -266,6 +335,9 @@ def main():
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--rep", default="a")
     ap.add_argument("--workers", type=int, default=8)
+    ap.add_argument("--scan", choices=("full", "curtailed"), default="full")
+    ap.add_argument("--full-frac", type=float, default=0.2,
+                    help="share of failures scanned fully under --scan curtailed")
     args = ap.parse_args()
     dom = args.domain.split("_", 1)[1]
     os.environ["TAU2_DOMAIN"] = dom
@@ -281,8 +353,14 @@ def main():
     (base / args.rep).mkdir(parents=True, exist_ok=True)
     os.environ.setdefault("RRSI_USAGE_LOG", str(base / args.rep / "usage.jsonl"))
     run_oracle(fails, odir, m, args.workers)
-    run_replays(fails, odir, rdir, dom, args.workers)
-    res = summarize(fails, odir, rdir)
+    if args.scan == "full":
+        full = None
+        run_replays(fails, odir, rdir, dom, args.workers)
+    else:
+        fids = sorted(f["fid"] for f in fails)
+        full = set(random.Random(f"full:{args.seed}").sample(fids, round(args.full_frac * len(fids))))
+        run_curtailed(fails, odir, rdir, dom, args.workers, full)
+    res = summarize(fails, odir, rdir, full)
     (base / args.rep / "result.json").write_text(json.dumps(res, indent=1))
     for x in res["failures"]:
         print(f"{x['fid']:28s} steps {x['n_steps']:2d} first mistake {x['first_mistake']} "
