@@ -100,3 +100,9 @@ committed before the deployments finish.
   job directories keep only what the loop ran, and applies the domain's guard
   as RRSI does. The worktrees cl1 and cl2 use this version for their
   deployment and shadow steps.
+- 2026-10-09: the container was restarted at about 11:05Z, while round 7 of
+  both trajectories was running (cl1 evaluating its candidates, cl2 preparing
+  its proposals); every process stopped. Both runs were resumed at 13:00Z
+  with the same command; every step is resume-safe, episodes already on disk
+  are reused and the sequential stopping order is replayed from the same
+  seed. Nothing had been deployed.
