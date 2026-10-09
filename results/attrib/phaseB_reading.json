@@ -7,7 +7,8 @@
   "share_narrow": 0.073,
   "share_covering_first_write": 0.9708,
   "share_covering_binary_search": 0.9672,
-  "share_covering_cf_search": 0.9562
+  "share_covering_cf_search": 0.9562,
+  "share_covering_oracle": 0.9522
  },
  "rrsi": {
   "drafts": 16,
@@ -17,7 +18,8 @@
   "share_narrow": 0.0784,
   "share_covering_first_write": 0.951,
   "share_covering_binary_search": 0.9657,
-  "share_covering_cf_search": 0.9412
+  "share_covering_cf_search": 0.9412,
+  "share_covering_oracle": 0.9539
  },
  "first_write": {
   "drafts": 16,
@@ -27,7 +29,8 @@
   "share_narrow": 0.2244,
   "share_covering_first_write": 0.9076,
   "share_covering_binary_search": 0.8812,
-  "share_covering_cf_search": 0.8779
+  "share_covering_cf_search": 0.8779,
+  "share_covering_oracle": 0.8834
  },
  "binary_search": {
   "drafts": 16,
@@ -37,7 +40,8 @@
   "share_narrow": 0.231,
   "share_covering_first_write": 0.8931,
   "share_covering_binary_search": 0.9483,
-  "share_covering_cf_search": 0.9172
+  "share_covering_cf_search": 0.9172,
+  "share_covering_oracle": 0.9041
  },
  "cf_search": {
   "drafts": 16,
@@ -47,6 +51,18 @@
   "share_narrow": 0.163,
   "share_covering_first_write": 0.9275,
   "share_covering_binary_search": 0.9384,
-  "share_covering_cf_search": 0.9275
+  "share_covering_cf_search": 0.9275,
+  "share_covering_oracle": 0.9266
+ },
+ "oracle": {
+  "drafts": 16,
+  "reads_per_draft": 18.9375,
+  "share_failing_traces_read": 1.0,
+  "failing_reads": 295,
+  "share_narrow": 0.1322,
+  "share_covering_first_write": 0.9492,
+  "share_covering_binary_search": 0.9695,
+  "share_covering_cf_search": 0.939,
+  "share_covering_oracle": 0.9531
  }
 }

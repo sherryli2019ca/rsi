@@ -1,5 +1,5 @@
 """Judges asked for the step with the largest rescue gain instead of the
-earliest decisive mistake (post hoc; not registered).
+earliest decisive mistake, or given less information (post hoc; not registered).
 
 The registered judge prompts ask for the earliest step whose correction would
 most likely have rescued the task, while the metric scores the rescue gain of
@@ -7,7 +7,15 @@ the named step. The rescue variants (attrib.methods all_at_once_rescue,
 binary_search_rescue) change only that definition. This script scores them
 against their registered versions on the same rescuable failures.
 
-  python -m attrib.rescue_prompt /home/user/attrib_runs/main [--out <json>]
+  python -m attrib.rescue_prompt /home/user/attrib_runs/main [--variant rescue|gain|blind] [--out <json>]
+
+Variants: rescue = the step whose correction most likely rescues the task
+(first review); gain = the step whose correction most increases success over
+letting the agent act again, the quantity R_k measures (second review);
+blind = the registered definition, given only what counterfactual search sees
+(policy and tools, no hidden customer instructions, no grading section), so
+search@40 and search@0 (its first suspect, no replay) are compared with judges
+under matched information.
 
 Per pair: mean R(k-hat) by domain and pooled, the paired difference
 (rescue minus registered) with a cluster-bootstrap interval, exact agreement
@@ -21,23 +29,37 @@ import json
 import random
 from pathlib import Path
 
-from attrib.analyze import _boot, _mean, load, score
+from attrib.analyze import _boot, _mean, _usage_dollars, load, score
 
 DOMAINS = ("tau2_retail", "tau2_airline", "appworld")
-PAIRS = (("all_at_once_flash", "all_at_once_rescue_flash"),
-         ("all_at_once_pro", "all_at_once_rescue_pro"),
-         ("binary_search_pro", "binary_search_rescue_pro"))
+VARIANTS = {"rescue": (("all_at_once_flash", "all_at_once_rescue_flash"),
+                      ("all_at_once_pro", "all_at_once_rescue_pro"),
+                      ("binary_search_pro", "binary_search_rescue_pro")),
+            "gain": (("all_at_once_flash", "all_at_once_gain_flash"),
+                     ("all_at_once_pro", "all_at_once_gain_pro"),
+                     ("binary_search_pro", "binary_search_gain_pro")),
+            "blind": (("all_at_once_pro", "all_at_once_blind_pro"),
+                      ("binary_search_pro", "binary_search_blind_pro"))}
 REF = ("first_write",)
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("main")
+    ap.add_argument("--variant", choices=tuple(VARIANTS), default="rescue")
     ap.add_argument("--out")
     args = ap.parse_args()
+    PAIRS = VARIANTS[args.variant]
     rng = random.Random(0)
     data = {d: load(Path(args.main) / d) for d in DOMAINS}
-    methods = [m for p in PAIRS for m in p] + list(REF)
+    ref = REF + (("search@40", "search@0") if args.variant == "blind" else ())
+    for d, v in data.items():
+        if "search@0" in ref:
+            sr = json.loads((Path(args.main) / d / "search" / "result.json").read_text())["failures"]
+            v["picks"]["search@0"] = {x["fid"]: (x["suspects"][0] if x["suspects"] else None) for x in sr}
+            v["cost"]["search@0"] = _usage_dollars(Path(args.main) / d / "search" / "usage.jsonl").get(
+                "search", 0.0) / max(len(sr), 1)
+    methods = [m for p in PAIRS for m in p] + list(ref)
     rows = []
     for d, v in data.items():
         for fid, g in v["gt"].items():
@@ -67,8 +89,23 @@ def main():
             "pooled": _boot([{"d": r[b] - r[a], "cluster": r["cluster"]} for r in rows],
                             lambda rs: _mean([x["d"] for x in rs]), rng),
             "same_step": round(_mean([float(r[a + "_step"] == r[b + "_step"]) for r in rows]), 3),
-            "rescue_minus_first_write": _boot([{"d": r[b] - r["first_write"], "cluster": r["cluster"]} for r in rows],
+            "variant_minus_first_write": _boot([{"d": r[b] - r["first_write"], "cluster": r["cluster"]} for r in rows],
                                               lambda rs: _mean([x["d"] for x in rs]), rng)}
+    if args.variant == "blind":
+        res["pairs"]["search@40-search@0"] = {
+            **{d: _boot([{"d": r["search@40"] - r["search@0"], "cluster": r["cluster"]} for r in rows
+                         if r["domain"] == d], lambda rs: _mean([x["d"] for x in rs]), rng) for d in DOMAINS},
+            "pooled": _boot([{"d": r["search@40"] - r["search@0"], "cluster": r["cluster"]} for r in rows],
+                            lambda rs: _mean([x["d"] for x in rs]), rng)}
+        for s_ in ("search@40", "search@0"):
+            for _, b in PAIRS:
+                res["pairs"][f"{s_}-{b}"] = {
+                    **{d: _boot([{"d": r[s_] - r[b], "cluster": r["cluster"]} for r in rows if r["domain"] == d],
+                                lambda rs: _mean([x["d"] for x in rs]), rng) for d in DOMAINS},
+                    "tau2": _boot([{"d": r[s_] - r[b], "cluster": r["cluster"]} for r in rows
+                                   if r["domain"] != "appworld"], lambda rs: _mean([x["d"] for x in rs]), rng),
+                    "pooled": _boot([{"d": r[s_] - r[b], "cluster": r["cluster"]} for r in rows],
+                                    lambda rs: _mean([x["d"] for x in rs]), rng)}
     # dollars for the whole re-run (all failures, not only rescuable ones)
     spent = 0.0
     for d in DOMAINS:

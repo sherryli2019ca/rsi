@@ -24,6 +24,17 @@ tasks at the domain's heldout_k, as is each state's incumbent.
   python -m attrib.phaseb analyze               # endpoints, after every deployment
 
 Everything lives under $PHASEB_ROOT (default /home/user/phaseb).
+
+Post hoc (second review of paper 2), not registered: an "oracle" group whose
+digests name, per failing trace, the step with the largest rescue gain in that
+trace's own rescue profile (attrib.groundtruth3 on the 81 failing traces,
+$PHASEB_ROOT/gt/<domain>/a/result.json; no digest if no step has a positive
+gain), with the same note as the other step groups:
+
+  python -m attrib.phaseb prep --groups oracle
+  python -m attrib.phaseb digests --groups oracle
+  python -m attrib.phaseb rounds --groups oracle
+  python -m attrib.phaseb deploy --groups oracle
 """
 from __future__ import annotations
 
@@ -54,6 +65,7 @@ TS = (5, 15)
 STATES = [f"{r}_{d}_t{t}" for r in TRAJ for d in DOMAINS for t in TS]
 GROUPS = ("none", "rrsi", "first_write", "binary_search", "cf_search")
 STEP_GROUPS = ("first_write", "binary_search", "cf_search")
+POSTHOC_GROUPS = ("oracle",)
 MAX_ERR = 0.02                          # common error check (paper 1)
 SEARCH_BUDGET = 40
 EXCERPT = 600
@@ -154,7 +166,7 @@ def harness_path(state: str, commit: str) -> Path:
     return wt / "domains" / dom / "harness"
 
 
-def prep_state(state: str) -> dict:
+def prep_state(state: str, groups=GROUPS) -> dict:
     traj, dom, t = parse_state(state)
     inc, trajectory, ev = incumbent(state)
     sd = state_dir(state)
@@ -170,7 +182,7 @@ def prep_state(state: str) -> dict:
     harness_rel = f"domains/{dom}/harness"
     tree = git("rev-parse", f"{inc['commit']}:{harness_rel}")[:12]
     fr_src = json.loads((src_dir(state) / "frontier.json").read_text())
-    for g in GROUPS:
+    for g in groups:
         rd = run_dir(g, state)
         (rd / "jobs").mkdir(parents=True, exist_ok=True)
         if not (rd / "frontier.json").exists():
@@ -201,7 +213,7 @@ def prep_state(state: str) -> dict:
         br = f"evolve/{branch_ns(g, state)}/{dom}"
         if git("rev-parse", "--verify", "--quiet", f"refs/heads/{br}", check=False) == "":
             git("branch", br, inc["commit"])
-    check = directives_check(state)
+    check = directives_check(state, groups)
     res = {"state": state, "incumbent": inc["commit"], "job": inc["job"], "traces": len(tr),
            "failing": len(fails), "rrsi_failure_digests": len(orig_fail_digests),
            "same_failing_set": sorted(f["task_id"] for f in fails) == orig_fail_digests,
@@ -210,7 +222,7 @@ def prep_state(state: str) -> dict:
     return res
 
 
-def directives_check(state: str) -> dict:
+def directives_check(state: str, groups=GROUPS) -> dict:
     """Recompute RRSI's directives (b_t, sigma_t, tried, E_t, prune set, delta,
     S*) from a group dir with the pinned code, compare with the original round."""
     _, dom, t = parse_state(state)
@@ -232,7 +244,7 @@ print(json.dumps({{'t': t, 'b_t': edit_budget(t, cfg.T, cfg.b_min, cfg.b_max), '
 """
     out = {}
     orig = json.loads((src_dir(state) / f"r{t}" / "directives.json").read_text())
-    for g in GROUPS:
+    for g in groups:
         r = subprocess.run([PY, "-c", code, str(run_dir(g, state)), str(t),
                             str(CODE / "domains" / dom / "rrsi.json")],
                            cwd=CODE, env={**os.environ, "PYTHONPATH": str(CODE)},
@@ -246,12 +258,13 @@ print(json.dumps({{'t': t, 'b_t': edit_budget(t, cfg.T, cfg.b_min, cfg.b_max), '
     return out
 
 
-def prep() -> None:
+def prep(groups=GROUPS) -> None:
     if not (CODE / ".git").exists():
         CODE.parent.mkdir(parents=True, exist_ok=True)
         git("worktree", "add", "--detach", str(CODE), PIN)
-    rows = [prep_state(s) for s in STATES]
-    (PB / "prep.json").write_text(json.dumps(rows, indent=1))
+    rows = [prep_state(s, groups) for s in STATES]
+    name = "prep.json" if tuple(groups) == GROUPS else f"prep_{'_'.join(groups)}.json"
+    (PB / name).write_text(json.dumps(rows, indent=1))
     for r in rows:
         print(json.dumps(r))
 
@@ -290,10 +303,16 @@ def picks(dom: str) -> dict:
     if res.exists():
         for r in json.loads(res.read_text())["failures"]:
             out["cf_search"][r["fid"]] = r[f"at{SEARCH_BUDGET}"]["step"]
+    gt = PB / "gt" / dom / "a" / "result.json"
+    if gt.exists():
+        out["oracle"] = {}
+        for r in json.loads(gt.read_text())["failures"]:
+            best = max(r["R"]) if r["R"] else 0.0
+            out["oracle"][r["fid"]] = r["R"].index(best) if best > 0 else None
     return out
 
 
-def write_digests() -> None:
+def write_digests(groups=STEP_GROUPS) -> None:
     for dom in DOMAINS:
         pk = picks(dom)
         for s in STATES:
@@ -301,7 +320,7 @@ def write_digests() -> None:
                 continue
             t = parse_state(s)[2]
             fails = json.loads((state_dir(s) / "failures.json").read_text())
-            for g in STEP_GROUPS:
+            for g in groups:
                 dg = run_dir(g, s) / f"r{t}" / "analysis" / "digests"
                 dg.mkdir(parents=True, exist_ok=True)
                 for f in fails:
@@ -335,7 +354,7 @@ def run_cell(g: str, s: str) -> str:
     rd = run_dir(g, s)
     if cell_done(g, s):
         return f"{g}:{s} done"
-    if g in STEP_GROUPS and not list((rd / f"r{t}" / "analysis" / "digests").glob("*.json")):
+    if g in STEP_GROUPS + POSTHOC_GROUPS and not list((rd / f"r{t}" / "analysis" / "digests").glob("*.json")):
         return f"{g}:{s} no digests (run attribute first)"
     (rd / "logs").mkdir(parents=True, exist_ok=True)
     env = {**os.environ, "PYTHONPATH": str(CODE), "RRSI_USAGE_LOG": str(rd / "usage.jsonl")}
@@ -346,9 +365,9 @@ def run_cell(g: str, s: str) -> str:
     return f"{g}:{s} exit {r.returncode}" + (" done" if cell_done(g, s) else "")
 
 
-def all_cells() -> list[tuple[str, str]]:
+def all_cells(groups=GROUPS) -> list[tuple[str, str]]:
     """State-major order: the five groups of a state run side by side."""
-    return [(g, s) for s in STATES for g in GROUPS]
+    return [(g, s) for s in STATES for g in groups]
 
 
 def rounds(cells: list[tuple[str, str]], parallel: int) -> None:
@@ -412,23 +431,23 @@ def deploy_one(dom: str, commit: str) -> str:
     return f"{dom} {commit[:12]} exit {r.returncode} trials {ev.get('n_expected')} missing {ev.get('missing')}"
 
 
-def deploy_jobs() -> list[tuple[str, str]]:
+def deploy_jobs(groups=GROUPS) -> list[tuple[str, str]]:
     jobs = []
     for s in STATES:
         dom = parse_state(s)[1]
         jobs.append((dom, incumbent(s)[0]["commit"]))
-        for g in GROUPS:
+        for g in groups:
             if cell_done(g, s):
                 jobs += [(dom, c["commit"]) for c in candidates(g, s) if c["gate"] is None]
     return list(dict.fromkeys(jobs))
 
 
-def deploy(parallel: int) -> None:
+def deploy(parallel: int, groups=GROUPS) -> None:
     """Two passes: the second fills trials an infrastructure error left missing
     (the driver skips trials already on disk)."""
     for _ in range(2):
         with ThreadPoolExecutor(parallel) as ex:
-            for msg in ex.map(lambda j: deploy_one(*j), deploy_jobs()):
+            for msg in ex.map(lambda j: deploy_one(*j), deploy_jobs(groups)):
                 log(msg)
 
 
@@ -459,7 +478,7 @@ def spend() -> dict:
     s["attribution_calls"] = sum(_usage(p) for p in (PB / "attrib").glob("*/*/usage.jsonl"))
     s["search_replays"], _ = _episodes(PB / "attrib", "*/search/replays/*.json")
     ev, n_ev = 0.0, 0
-    for g in GROUPS:
+    for g in GROUPS + POSTHOC_GROUPS:
         for st in STATES:
             jd = run_dir(g, st) / "jobs"
             for job in jd.iterdir() if jd.exists() else []:
@@ -473,15 +492,15 @@ def spend() -> dict:
     return {k: round(v, 2) if isinstance(v, float) else v for k, v in s.items()}
 
 
-def status() -> None:
-    cells = all_cells()
+def status(groups=GROUPS) -> None:
+    cells = all_cells(groups)
     done = [c for c in cells if cell_done(*c)]
     gates: dict = {}
     for g, s in done:
         for c in candidates(g, s):
             gates.setdefault(g, {}).setdefault(c["gate"] or "deployable", 0)
             gates[g][c["gate"] or "deployable"] += 1
-    jobs = deploy_jobs()
+    jobs = deploy_jobs(groups)
     k = {d: int(_cfg(d)["heldout_k"]) for d in DOMAINS}
     deployed = sum((heldout_dir(d, c) / "eval.json").exists() for d, c in jobs)
     print(json.dumps({"rounds_done": f"{len(done)}/{len(cells)}", "gates": gates,
@@ -496,20 +515,24 @@ def main():
     ap.add_argument("--cells", default="", help="group:state,... (default: all)")
     ap.add_argument("--parallel", type=int, default=10)
     ap.add_argument("--workers", type=int, default=8)
+    ap.add_argument("--groups", default="", help="post hoc groups, e.g. oracle (default: the registered ones)")
     args = ap.parse_args()
+    groups = tuple(g for g in args.groups.split(",") if g)
+    if any(g not in GROUPS + POSTHOC_GROUPS for g in groups):
+        raise SystemExit(f"unknown group in {groups}")
     if args.cmd == "prep":
-        prep()
+        prep(groups or GROUPS)
     elif args.cmd == "attribute":
         attribute(args.workers)
     elif args.cmd == "digests":
-        write_digests()
+        write_digests(groups or STEP_GROUPS)
     elif args.cmd == "rounds":
-        cells = [tuple(c.split(":")) for c in args.cells.split(",") if c] or all_cells()
+        cells = [tuple(c.split(":")) for c in args.cells.split(",") if c] or all_cells(groups or GROUPS)
         rounds(cells, args.parallel)
     elif args.cmd == "deploy":
-        deploy(args.parallel)
+        deploy(args.parallel, groups or GROUPS)
     elif args.cmd == "status":
-        status()
+        status(groups or GROUPS)
     elif args.cmd == "analyze":
         from attrib.phaseb_analyze import main as analyze_main
         analyze_main()

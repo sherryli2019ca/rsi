@@ -43,13 +43,13 @@ def heldout_S(dom: str, commit: str, root: Path | None = None) -> float:
     return json.loads(p.read_text())["S"]
 
 
-def slots() -> list[dict]:
+def slots(groups=GROUPS) -> list[dict]:
     rows = []
     for s in STATES:
         dom = parse_state(s)[1]
         inc = incumbent(s)[0]["commit"]
         s_inc = heldout_S(dom, inc)
-        for g in GROUPS:
+        for g in groups:
             if not cell_done(g, s):
                 raise SystemExit(f"round not finished: {g}:{s}")
             t = parse_state(s)[2]
@@ -119,9 +119,9 @@ def holm(ps: list[float]) -> list[float]:
     return adj
 
 
-def groups_table(rows: list[dict]) -> dict:
+def groups_table(rows: list[dict], groups=GROUPS) -> dict:
     out = {}
-    for g in GROUPS:
+    for g in groups:
         rs = [r for r in rows if r["group"] == g]
         dep = [r for r in rs if r["gate"] is None]
         gates: dict = {}

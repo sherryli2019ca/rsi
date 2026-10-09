@@ -29,6 +29,15 @@ to RRSI_USAGE_LOG, one line per call, tagged with the method as its role.
                   most likely rescue the episode, not the earliest decisive
                   mistake (post hoc, after Phase A; matches the rescue-gain
                   metric). Results under <method>_rescue_<model>/.
+  all_at_once_gain, binary_search_gain
+                  asked for the step whose correction would most increase the
+                  chance of success over letting the agent act again from it,
+                  the quantity R_k measures (post hoc, second review)
+  all_at_once_blind, binary_search_blind
+                  the registered judges reading only what counterfactual search
+                  reads: the domain policy and tools (AppWorld: the agent's
+                  rules and the APIs) and the episode, without the customer's
+                  hidden instructions or the grading (post hoc, second review)
 
   python -m attrib.methods run --domain tau2_retail --failures <failures.json> \
       --out <dir> --methods all_at_once:pro,step_by_step:pro,... [--workers 8]
@@ -96,12 +105,62 @@ RESCUE_DEF = ("The DECISIVE MISTAKE is the agent step whose correction would mos
               "most likely to make the task succeed, which need not be the earliest.")
 
 
+GAIN_DEF = ("The DECISIVE MISTAKE is the agent step where a correction would make the biggest "
+            "difference: the step at which acting correctly, and then continuing normally, would most "
+            "increase the chance that the task succeeds compared with letting the agent act again from "
+            "that step without any correction. A step from which the task would often have succeeded "
+            "anyway, without a correction, is a weak choice even if a correction there would succeed.")
+BLIND_HEAD = {
+    "tau2": ("A customer-service agent (an LLM inside a harness) failed a task of tau2-bench: the "
+             "customer's request was not resolved as the domain policy requires. Below is the "
+             "conversation (each agent step is numbered, with its tool calls and their results). You "
+             "see the domain policy and the agent's tools, but not the customer's instructions or the "
+             "grading, so you do not know what the correct outcome was."),
+    "appworld": ("An autonomous code agent (an LLM inside a harness) failed a task of AppWorld: it "
+                 "writes Python that calls simulated apps' APIs to do a supervisor's task, and the task "
+                 "was not done as its unit tests require. Below are the supervisor, the instruction and "
+                 "the agent's steps (each numbered, with its code and the output). You see the agent's "
+                 "rules and the apps' APIs, but not the grading, so you do not know what the correct "
+                 "outcome was.")}
+_CTX: dict = {}
+
+
 def _intro(target: str) -> str:
-    """INTRO with the decisive-mistake definition for `target` ("earliest" or "rescue")."""
+    """INTRO for `target`: "earliest" (registered), "rescue" or "gain" (other
+    definitions of the decisive mistake), "blind" (registered definition, the
+    information counterfactual search has)."""
     if target == "earliest":
         return INTRO
     assert EARLIEST_DEF in INTRO
-    return INTRO.replace(EARLIEST_DEF, RESCUE_DEF)
+    if target == "blind":
+        return BLIND_HEAD[DOMAIN] + INTRO[INTRO.index("\n\nThe DECISIVE MISTAKE"):]
+    return INTRO.replace(EARLIEST_DEF, {"rescue": RESCUE_DEF, "gain": GAIN_DEF}[target])
+
+
+def _view(rec: dict, target: str, upto: int | None = None) -> str:
+    text = view(rec, upto)
+    if target != "blind":
+        return text
+    text = text[:text.index("\n\n=== GRADING")]
+    if "\n\nRUN: " in text:
+        text = text[:text.index("\n\nRUN: ")]
+    return re.sub(r"CUSTOMER'S HIDDEN INSTRUCTIONS.*?(?=\nCUSTOMER \(opening\))", "", text, flags=re.S)
+
+
+def _system(target: str) -> str | None:
+    """Counterfactual search's context (policy and tools, or AppWorld's agent
+    rules and APIs) for the blind judges."""
+    if target != "blind":
+        return None
+    if DOMAIN not in _CTX:
+        if DOMAIN == "appworld":
+            from attrib import aw
+            _CTX[DOMAIN] = aw.context()
+        else:
+            from agent_exp import tau2_env as m
+            from attrib.groundtruth import _context
+            _CTX[DOMAIN] = _context(m)
+    return _CTX[DOMAIN]
 
 
 # ------------------------------------------------------------------- views --
@@ -133,7 +192,7 @@ def view(rec: dict, upto: int | None = None) -> str:
     return f"{head}\n\n(The conversation continues after step {upto}.)\n\n{grading}"
 
 
-def _call(prompt: str, method: str, model: str) -> dict:
+def _call(prompt: str, method: str, model: str, system: str | None = None) -> dict:
     from rrsi.llm import generate
     mdl, think = MODELS[model]
     role = f"{method}:{model}"
@@ -141,7 +200,7 @@ def _call(prompt: str, method: str, model: str) -> dict:
         from rrsi import llm
         llm.THINKING_ROLES.add(role)
     # thinking runs past its nominal budget on this endpoint: room for it, few retries
-    raw = generate(prompt, json_only=True, model=mdl, role=role,
+    raw = generate(prompt, json_only=True, model=mdl, role=role, cache_prefix=system,
                    max_tokens=24000 if think else 2000, max_retries=3 if think else 6)
     try:
         v = json.loads(raw)
@@ -178,14 +237,14 @@ def first_write(rec, model=None):
 
 
 def all_at_once(rec, model="pro", target="earliest"):
-    p = (_intro(target) + "\n\n=== FAILURE ===\n" + view(rec) + """
+    p = (_intro(target) + "\n\n=== FAILURE ===\n" + _view(rec, target) + """
 
 Find the decisive mistake and the harness component whose change would most likely have \
 prevented it. Answer with JSON:
 {"step": <step number>, "top3": [<the three most likely step numbers, best first>],
  "component": "<component>", "components3": ["<three most likely components, best first>"],
  "reason": "<one sentence>"}""")
-    v = _call(p, "all_at_once" if target == "earliest" else f"all_at_once_{target}", model)
+    v = _call(p, "all_at_once" if target == "earliest" else f"all_at_once_{target}", model, _system(target))
     n = rec["n_steps"]
     top3 = [k for k in (_int(x, n) for x in v.get("top3") or []) if k is not None][:3]
     step = _int(v.get("step"), n)
@@ -217,13 +276,14 @@ def binary_search(rec, model="pro", target="earliest"):
     comp = None
     while lo < hi:
         mid = (lo + hi) // 2
-        p = (_intro(target) + f"\n\n=== FAILURE, UP TO STEP {hi} ===\n" + view(rec, upto=hi) + f"""
+        p = (_intro(target) + f"\n\n=== FAILURE, UP TO STEP {hi} ===\n" + _view(rec, target, upto=hi) + f"""
 
 The decisive mistake is assumed to lie between step {lo} and step {hi}. Is it in the first \
 half (steps {lo} to {mid}) or in the second half (steps {mid + 1} to {hi})? Answer with JSON:
 {{"half": "first" | "second", "component": "<the component most likely at fault>",
  "reason": "<one sentence>"}}""")
-        v = _call(p, "binary_search" if target == "earliest" else f"binary_search_{target}", model)
+        v = _call(p, "binary_search" if target == "earliest" else f"binary_search_{target}", model,
+                  _system(target))
         calls += 1
         comp = _comp(v.get("component")) or comp
         if v.get("half") == "second":
@@ -297,7 +357,11 @@ METHODS = {"last_step": last_step, "first_write": first_write, "all_at_once": al
            "step_by_step": step_by_step, "binary_search": binary_search, "study1": study1,
            "rrsi_digest": rrsi_digest,
            "all_at_once_rescue": lambda rec, model="pro": all_at_once(rec, model, target="rescue"),
-           "binary_search_rescue": lambda rec, model="pro": binary_search(rec, model, target="rescue")}
+           "binary_search_rescue": lambda rec, model="pro": binary_search(rec, model, target="rescue"),
+           "all_at_once_gain": lambda rec, model="pro": all_at_once(rec, model, target="gain"),
+           "binary_search_gain": lambda rec, model="pro": binary_search(rec, model, target="gain"),
+           "all_at_once_blind": lambda rec, model="pro": all_at_once(rec, model, target="blind"),
+           "binary_search_blind": lambda rec, model="pro": binary_search(rec, model, target="blind")}
 
 
 def run(fails: list, out: Path, specs: list[str], workers: int) -> None:
