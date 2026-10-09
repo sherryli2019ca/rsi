@@ -99,6 +99,17 @@ def contrast(rows: list[dict], g: tuple, h: tuple, states=STATES, seed: int = 0)
             "equivalent_within_2.5pp": bool(ci90[0] > -EQ_MARGIN and ci90[1] < EQ_MARGIN)}
 
 
+def signflip(c: dict) -> float:
+    """Exact sign-flip p over the state differences: the test for S4, whose
+    unit is the cell (one round outcome per group and state). contrast()'s
+    slot permutation splits a cell's duplicated value across groups, so its
+    p_perm is not valid for S4 (deviation logged 2026-10-09)."""
+    d = np.array(c["state_diffs"])
+    obs = abs(d.mean())
+    flips = list(itertools.product((1, -1), repeat=len(d)))
+    return sum(abs((d * np.array(f)).mean()) >= obs - 1e-12 for f in flips) / len(flips)
+
+
 def holm(ps: list[float]) -> list[float]:
     order = np.argsort(ps)
     adj, run = [0.0] * len(ps), 0.0
@@ -210,7 +221,8 @@ def main():
            "secondary": {
                "S1_rrsi_vs_none": contrast(rows, ("rrsi",), ("none",)),
                "S2_step_groups_vs_none": contrast(rows, STEP_GROUPS, ("none",)),
-               "S4_round_level": [contrast(round_level(rows), (g,), (h,)) for g, h in PRIMARY],
+               "S4_round_level": [{**c, "p_signflip": signflip(c), "p_perm": None}
+                                  for c in (contrast(round_level(rows), (g,), (h,)) for g, h in PRIMARY)],
                "S4_round_level_means": {g: float(np.mean([r["G"] for r in round_level(rows) if r["group"] == g]))
                                         for g in GROUPS},
                "S5_by_domain": {d: [contrast(rows, (g,), (h,), states=[s for s in STATES if parse_state(s)[1] == d])

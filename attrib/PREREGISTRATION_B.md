@@ -199,3 +199,19 @@ traces, about 4). Total about 40 dollars; stop and report above 100
   candidates; no missing trial). The registered analysis
   (attrib/phaseb_analyze.py, unchanged since fa3a2b7 except the import of
   the job lookup fix) is run next; no held-out number was looked at before.
+- 07:10Z. Registered analysis run (results/attrib/phaseB_analysis.json;
+  write-up /mnt/project-files/notes/attrib-phaseB.md). Primary: no contrast
+  significant (Holm p = 1.0 for all six); first_write − rrsi +0.31 pp
+  [−0.56, +1.18] and binary_search − rrsi +0.29 [−0.82, +1.39] are
+  practically equivalent by S6; contrasts against none have intervals of
+  about ±10 pp because one none candidate (r3 retail t5 B, a write gate that
+  blocked nearly every write without raising, evolve S .11; RRSI's own rule
+  rejected it) has G = −72.5 pp; cf_search − rrsi −2.14 [−5.67, +1.40].
+  Spend about 35 dollars.
+- 07:12Z. Deviation in secondary S4: the registered code ran the slot
+  permutation on round-level values duplicated over a cell's two slots,
+  which splits one cell's value across groups and is not a valid test (it
+  gave p .009 for first_write − none). Replaced by the exact sign-flip test
+  over the 8 state differences (p .25 to 1.0 for the six S4 contrasts); the
+  estimates and t intervals are unchanged. Primary and other secondary
+  analyses unaffected.
