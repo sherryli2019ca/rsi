@@ -212,3 +212,23 @@ truth was then rerun from scratch.
   failures excluded) with a seeded 10% retest (Random("retest:0"), 10). Methods,
   search (12 replay workers) and the protocol-3 ground truth started; a memory
   watchdog stops AppWorld replays (resume-safe) below 1.7 GB.
+- 2026-10-09 01:47Z: AppWorld protocol-3 ground truth (rep a) finished all but
+  two of 6,540 replays: 4257c54_h_f861c32_3_s0_k13_o2_{0,1} fail on every
+  attempt because the oracle's correction passes a literal Ellipsis
+  (`access_token=...`), which AppWorld's request log cannot serialise. As
+  profile() does for any correction the replay could not apply, that sample
+  counts as no measured gain (attrib/groundtruth3.py --accept-missing, which
+  lists the keys in result.json). The other three corrections of that step
+  rescued nothing and the failure's max R is 0.375, so even two successful
+  replays could not have made it rescuable.
+- 02:12Z: retest (rep b, 10 failures) finished: same decisive step 8 of 10
+  (3 both unrescuable; the 2 others differ by 1-2 steps).
+- 02:15Z: analysis run as registered, on AppWorld alone
+  (`--domains appworld --out analysis_appworld.json`) and on all three domains
+  pooled (`--out analysis_pooled3.json`; the --out option only keeps the tau2
+  file). AppWorld: 55 of 100 rescuable; first_write 0.39 [0.26, 0.52], last_step
+  0.36, binary search 0.35, judges 0.26-0.28, search@40 0.28; registered primary
+  search@40 - all-at-once (pro) +0.025 [-0.087, +0.136], permutation p = .69.
+  Pooled: first_write 0.42 [0.33, 0.51]. Notes:
+  /mnt/project-files/notes/attrib-phaseA-appworld.md. AppWorld spend about 25
+  dollars; Phase A about 58 dollars (stop line 100).
