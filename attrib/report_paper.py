@@ -17,6 +17,11 @@ truth and traces for the kinds of decisive step. Writes:
   robustness.tex, nullpos.tex  the ranking under other ground-truth choices and
                null-replay success by step position, from
                results/attrib/phaseA_robustness.json (attrib/robustness.py)
+  prompt_variants.tex  judges asked for the largest rescue gain against their
+               registered prompts (results/attrib/phaseA_rescue_prompt.json,
+               attrib/rescue_prompt.py)
+  gold_rule.tex  the first deviation from tau2's gold actions against other
+               methods (results/attrib/phaseA_gold_rule.json, attrib/gold_rule.py)
 and prints the numbers the text quotes. Without <main>, only the Phase B and
 robustness tables are written.
 """
@@ -45,6 +50,14 @@ ROB_ROWS = [("main", "Registered"), ("K=2", "$K=2$"), ("K=1", "$K=1$"),
             ("threshold 0.25", "$\\theta=0.25$"), ("threshold 0.375", "$\\theta=0.375$"),
             ("threshold 0.625", "$\\theta=0.625$"), ("threshold 0.75", "$\\theta=0.75$"),
             ("unique rescuing step", "One rescuing step"), ("no null", "No null replays")]
+RESCUE_DEFAULT = ROB_DEFAULT.with_name("phaseA_rescue_prompt.json")
+GOLD_DEFAULT = ROB_DEFAULT.with_name("phaseA_gold_rule.json")
+VARIANT_ROWS = [("all_at_once_flash", "all_at_once_rescue_flash", "All-at-once, Flash"),
+                ("all_at_once_pro", "all_at_once_rescue_pro", "All-at-once, Pro"),
+                ("binary_search_pro", "binary_search_rescue_pro", "Binary search, Pro")]
+GOLD_ROWS = [("gold_deviation", "Gold deviation (rule)"), ("first_write", "First write (rule)"),
+             ("all_at_once_pro", "All-at-once, Pro"), ("binary_search_pro", "Binary search, Pro"),
+             ("search@40", "Counterfactual search@40")]
 PB_X = {g: i + 1 for i, (g, _) in enumerate([("none", 0), ("rrsi", 0), ("first_write", 0),
                                              ("binary_search", 0), ("cf_search", 0)])}
 PB_CLIP = -0.25
@@ -106,6 +119,11 @@ def _pp(x, d=2):
     return f"{0:.{d}f}" if abs(x * 100) < 0.5 * 10 ** -d else f"{x * 100:+.{d}f}".replace("-", "$-$")
 
 
+def _sg(x, d=2):
+    """Signed number, typeset minus."""
+    return f"{x:+.{d}f}".replace("-", "$-$")
+
+
 def _state_contrast(rows: list[dict], g: str, h: str) -> dict:
     """Mean over states of the difference in mean slot gain, t interval (df 7);
     the registered estimator of attrib/phaseb_analyze.py without its test."""
@@ -140,6 +158,47 @@ def robustness_tables(path: Path, out: Path) -> dict:
     (out / "nullpos.tex").write_text("\n".join(lines) + "\n")
     return {"variants": {k: V[k] for k, _ in ROB_ROWS}, "rescuable_by_domain": R["rescuable_by_domain"],
             "null_by_position": R["null_by_position"], "named_relative_position": R["named_relative_position"]}
+
+
+def variant_tables(rescue: Path, gold: Path, out: Path) -> dict:
+    res = {}
+    if rescue.exists():
+        V = json.loads(rescue.read_text())
+        M, P = V["methods"], V["pairs"]
+        lines = []
+        for i, (a, b, name) in enumerate(VARIANT_ROWS):
+            if i:
+                lines.append("\\midrule")
+            for m, prompt in ((a, "earliest"), (b, "largest gain")):
+                v = M[m]
+                cells = [name if m == a else "", prompt] + [_f(v["R"][d]) for d in DOMAINS]
+                cells += [_ci(v["R"]["pooled"]), _f(v["exact"]), _f(v["relative_position"]),
+                          f"{sum(v['dollars_per_trace'].values()) / 3:.4f}"]
+                if m == b:
+                    d = P[f"{b}-{a}"]["pooled"]
+                    cells.append(f"{_sg(d[0])} {{\\scriptsize [{_sg(d[1])}, {_sg(d[2])}]}}")
+                else:
+                    cells.append("")
+                lines.append(" & ".join(cells) + " \\\\")
+        fw = M["first_write"]
+        lines += ["\\midrule", " & ".join(["First write", "rule"] + [_f(fw["R"][d]) for d in DOMAINS]
+                                          + [_ci(fw["R"]["pooled"]), _f(fw["exact"]), _f(fw["relative_position"]),
+                                             "0", ""]) + " \\\\"]
+        (out / "prompt_variants.tex").write_text("\n".join(lines) + "\n")
+        res["rescue_prompt"] = {"pairs": P, "rerun_dollars": V["rerun_dollars"],
+                                "R": {m: M[m]["R"] for m in M}, "position": {m: M[m]["relative_position"] for m in M}}
+    if gold.exists():
+        G = json.loads(gold.read_text())
+        lines = []
+        for m, name in GOLD_ROWS:
+            v = G["R"][m]
+            dm = G["gold_minus"].get(m)
+            cells = [name, _f(v["tau2_retail"]), _f(v["tau2_airline"]), _ci(v["tau2"]), _f(G["exact"][m]),
+                     f"{_sg(dm[0])} {{\\scriptsize [{_sg(dm[1])}, {_sg(dm[2])}]}}" if dm else ""]
+            lines.append(" & ".join(cells) + " \\\\")
+        (out / "gold_rule.tex").write_text("\n".join(lines) + "\n")
+        res["gold_rule"] = G
+    return res
 
 
 def phaseb_tables(path: Path, out: Path) -> dict:
@@ -209,6 +268,8 @@ def main():
     ap.add_argument("main", nargs="?")
     ap.add_argument("--phaseb", default=str(PB_DEFAULT))
     ap.add_argument("--robustness", default=str(ROB_DEFAULT))
+    ap.add_argument("--rescue-prompt", default=str(RESCUE_DEFAULT))
+    ap.add_argument("--gold-rule", default=str(GOLD_DEFAULT))
     ap.add_argument("--out", default=str(Path(__file__).resolve().parents[1] / "paper2" / "tables"))
     ap.add_argument("--whowhen", default="/mnt/project-files/results/attrib/whowhen_scores.json")
     args = ap.parse_args()
@@ -216,14 +277,16 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     pb = phaseb_tables(Path(args.phaseb), out) if Path(args.phaseb).exists() else None
     rob = robustness_tables(Path(args.robustness), out) if Path(args.robustness).exists() else None
+    var = variant_tables(Path(args.rescue_prompt), Path(args.gold_rule), out)
     if not args.main:
-        print(json.dumps({"phaseb": pb, "robustness": rob}, indent=1))
+        print(json.dumps({"phaseb": pb, "robustness": rob, "variants": var}, indent=1))
         return
     main_dir = Path(args.main)
     A = {d: json.loads((main_dir / f"analysis_{d}.json").read_text()) for d in DOMAINS}
     P = json.loads((main_dir / "analysis_pooled3.json").read_text())
     summary = {"n": P["n"], "retest": P["retest"], "primary": {d: A[d].get("primary") for d in DOMAINS},
-               "primary_pooled3": P.get("primary"), "phaseb": pb, "robustness": rob}
+               "primary_pooled3": P.get("primary"), "phaseb": pb, "robustness": rob,
+               "variants": var}
 
     lines = []
     for i, (m, name, model) in enumerate(ROWS):

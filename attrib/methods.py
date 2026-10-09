@@ -24,6 +24,11 @@ to RRSI_USAGE_LOG, one line per call, tagged with the method as its role.
                   attribute), with RRSI's components
   rrsi_digest     RRSI's trace digester (failure lens): the earliest step its
                   evidence cites (none: the last step, fallback); no component
+  all_at_once_rescue, binary_search_rescue
+                  the same judges asked for the step whose correction would
+                  most likely rescue the episode, not the earliest decisive
+                  mistake (post hoc, after Phase A; matches the rescue-gain
+                  metric). Results under <method>_rescue_<model>/.
 
   python -m attrib.methods run --domain tau2_retail --failures <failures.json> \
       --out <dir> --methods all_at_once:pro,step_by_step:pro,... [--workers 8]
@@ -81,6 +86,22 @@ that step and continued normally, the task would most likely have succeeded.
 
 Harness components (a fix to the harness changes one of these):
 """ + COMP_TEXT
+
+
+EARLIEST_DEF = ("The DECISIVE MISTAKE is the earliest agent step such that, had the agent acted correctly at "
+                "that step and continued normally, the task would most likely have succeeded.")
+RESCUE_DEF = ("The DECISIVE MISTAKE is the agent step whose correction would most likely have rescued the "
+              "task: had the agent acted correctly at that step and continued normally, the task would "
+              "most likely have succeeded. If several steps qualify, choose the one where a correction is "
+              "most likely to make the task succeed, which need not be the earliest.")
+
+
+def _intro(target: str) -> str:
+    """INTRO with the decisive-mistake definition for `target` ("earliest" or "rescue")."""
+    if target == "earliest":
+        return INTRO
+    assert EARLIEST_DEF in INTRO
+    return INTRO.replace(EARLIEST_DEF, RESCUE_DEF)
 
 
 # ------------------------------------------------------------------- views --
@@ -156,15 +177,15 @@ def first_write(rec, model=None):
     return {**last_step(rec), "fallback": True}
 
 
-def all_at_once(rec, model="pro"):
-    p = (INTRO + "\n\n=== FAILURE ===\n" + view(rec) + """
+def all_at_once(rec, model="pro", target="earliest"):
+    p = (_intro(target) + "\n\n=== FAILURE ===\n" + view(rec) + """
 
 Find the decisive mistake and the harness component whose change would most likely have \
 prevented it. Answer with JSON:
 {"step": <step number>, "top3": [<the three most likely step numbers, best first>],
  "component": "<component>", "components3": ["<three most likely components, best first>"],
  "reason": "<one sentence>"}""")
-    v = _call(p, "all_at_once", model)
+    v = _call(p, "all_at_once" if target == "earliest" else f"all_at_once_{target}", model)
     n = rec["n_steps"]
     top3 = [k for k in (_int(x, n) for x in v.get("top3") or []) if k is not None][:3]
     step = _int(v.get("step"), n)
@@ -190,19 +211,19 @@ succeed)? Answer with JSON:
     return {**last_step(rec), "calls": n, "fallback": True}
 
 
-def binary_search(rec, model="pro"):
+def binary_search(rec, model="pro", target="earliest"):
     n = rec["n_steps"]
     lo, hi, calls = 0, n - 1, 0
     comp = None
     while lo < hi:
         mid = (lo + hi) // 2
-        p = (INTRO + f"\n\n=== FAILURE, UP TO STEP {hi} ===\n" + view(rec, upto=hi) + f"""
+        p = (_intro(target) + f"\n\n=== FAILURE, UP TO STEP {hi} ===\n" + view(rec, upto=hi) + f"""
 
 The decisive mistake is assumed to lie between step {lo} and step {hi}. Is it in the first \
 half (steps {lo} to {mid}) or in the second half (steps {mid + 1} to {hi})? Answer with JSON:
 {{"half": "first" | "second", "component": "<the component most likely at fault>",
  "reason": "<one sentence>"}}""")
-        v = _call(p, "binary_search", model)
+        v = _call(p, "binary_search" if target == "earliest" else f"binary_search_{target}", model)
         calls += 1
         comp = _comp(v.get("component")) or comp
         if v.get("half") == "second":
@@ -274,7 +295,9 @@ def use_appworld() -> None:
 
 METHODS = {"last_step": last_step, "first_write": first_write, "all_at_once": all_at_once,
            "step_by_step": step_by_step, "binary_search": binary_search, "study1": study1,
-           "rrsi_digest": rrsi_digest}
+           "rrsi_digest": rrsi_digest,
+           "all_at_once_rescue": lambda rec, model="pro": all_at_once(rec, model, target="rescue"),
+           "binary_search_rescue": lambda rec, model="pro": binary_search(rec, model, target="rescue")}
 
 
 def run(fails: list, out: Path, specs: list[str], workers: int) -> None:

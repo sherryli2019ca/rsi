@@ -1,0 +1,236 @@
+{
+ "n_rescuable": {
+  "tau2_retail": 65,
+  "tau2_airline": 37,
+  "appworld": 55
+ },
+ "methods": {
+  "all_at_once_flash": {
+   "R": {
+    "tau2_retail": 0.2865,
+    "tau2_airline": 0.4054,
+    "appworld": 0.2545,
+    "pooled": [
+     0.3033,
+     0.2399,
+     0.3668
+    ]
+   },
+   "exact": 0.2803,
+   "relative_position": 0.64,
+   "no_step": 0,
+   "dollars_per_trace": {
+    "tau2_retail": 0.00057,
+    "tau2_airline": 0.00068,
+    "appworld": 0.00166
+   }
+  },
+  "all_at_once_rescue_flash": {
+   "R": {
+    "tau2_retail": 0.3625,
+    "tau2_airline": 0.348,
+    "appworld": 0.2568,
+    "pooled": [
+     0.3221,
+     0.2508,
+     0.3949
+    ]
+   },
+   "exact": 0.3248,
+   "relative_position": 0.676,
+   "no_step": 0,
+   "dollars_per_trace": {
+    "tau2_retail": 0.00058,
+    "tau2_airline": 0.00069,
+    "appworld": 0.00167
+   }
+  },
+  "all_at_once_pro": {
+   "R": {
+    "tau2_retail": 0.2981,
+    "tau2_airline": 0.3446,
+    "appworld": 0.2591,
+    "pooled": [
+     0.2954,
+     0.2284,
+     0.3646
+    ]
+   },
+   "exact": 0.3057,
+   "relative_position": 0.627,
+   "no_step": 0,
+   "dollars_per_trace": {
+    "tau2_retail": 0.00179,
+    "tau2_airline": 0.00214,
+    "appworld": 0.00528
+   }
+  },
+  "all_at_once_rescue_pro": {
+   "R": {
+    "tau2_retail": 0.3279,
+    "tau2_airline": 0.4696,
+    "appworld": 0.3341,
+    "pooled": [
+     0.3635,
+     0.2909,
+     0.4375
+    ]
+   },
+   "exact": 0.3758,
+   "relative_position": 0.649,
+   "no_step": 0,
+   "dollars_per_trace": {
+    "tau2_retail": 0.00178,
+    "tau2_airline": 0.00215,
+    "appworld": 0.00531
+   }
+  },
+  "binary_search_pro": {
+   "R": {
+    "tau2_retail": 0.3317,
+    "tau2_airline": 0.3378,
+    "appworld": 0.3477,
+    "pooled": [
+     0.3388,
+     0.2668,
+     0.4137
+    ]
+   },
+   "exact": 0.3185,
+   "relative_position": 0.695,
+   "no_step": 0,
+   "dollars_per_trace": {
+    "tau2_retail": 0.0041,
+    "tau2_airline": 0.0045,
+    "appworld": 0.0107
+   }
+  },
+  "binary_search_rescue_pro": {
+   "R": {
+    "tau2_retail": 0.376,
+    "tau2_airline": 0.4206,
+    "appworld": 0.3216,
+    "pooled": [
+     0.3674,
+     0.2936,
+     0.4407
+    ]
+   },
+   "exact": 0.3503,
+   "relative_position": 0.72,
+   "no_step": 0,
+   "dollars_per_trace": {
+    "tau2_retail": 0.00424,
+    "tau2_airline": 0.00502,
+    "appworld": 0.01141
+   }
+  },
+  "first_write": {
+   "R": {
+    "tau2_retail": 0.5317,
+    "tau2_airline": 0.2736,
+    "appworld": 0.3898,
+    "pooled": [
+     0.4212,
+     0.3309,
+     0.5094
+    ]
+   },
+   "exact": 0.3822,
+   "relative_position": 0.779,
+   "no_step": 0,
+   "dollars_per_trace": {
+    "tau2_retail": 0.0,
+    "tau2_airline": 0.0,
+    "appworld": 0.0
+   }
+  }
+ },
+ "pairs": {
+  "all_at_once_rescue_flash-all_at_once_flash": {
+   "tau2_retail": [
+    0.076,
+    -0.0373,
+    0.2006
+   ],
+   "tau2_airline": [
+    -0.0574,
+    -0.1859,
+    0.0833
+   ],
+   "appworld": [
+    0.0023,
+    -0.0714,
+    0.0659
+   ],
+   "pooled": [
+    0.0187,
+    -0.0433,
+    0.0826
+   ],
+   "same_step": 0.503,
+   "rescue_minus_first_write": [
+    -0.0991,
+    -0.2041,
+    0.0099
+   ]
+  },
+  "all_at_once_rescue_pro-all_at_once_pro": {
+   "tau2_retail": [
+    0.0298,
+    -0.0611,
+    0.1271
+   ],
+   "tau2_airline": [
+    0.125,
+    0.0391,
+    0.2147
+   ],
+   "appworld": [
+    0.075,
+    -0.0136,
+    0.1673
+   ],
+   "pooled": [
+    0.0681,
+    0.0129,
+    0.1242
+   ],
+   "same_step": 0.541,
+   "rescue_minus_first_write": [
+    -0.0577,
+    -0.1747,
+    0.0647
+   ]
+  },
+  "binary_search_rescue_pro-binary_search_pro": {
+   "tau2_retail": [
+    0.0442,
+    -0.1088,
+    0.1739
+   ],
+   "tau2_airline": [
+    0.0828,
+    -0.041,
+    0.239
+   ],
+   "appworld": [
+    -0.0261,
+    -0.1034,
+    0.0488
+   ],
+   "pooled": [
+    0.0287,
+    -0.0444,
+    0.0992
+   ],
+   "same_step": 0.433,
+   "rescue_minus_first_write": [
+    -0.0537,
+    -0.1453,
+    0.0349
+   ]
+  }
+ },
+ "rerun_dollars": 3.28
+}
