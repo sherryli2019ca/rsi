@@ -321,7 +321,7 @@ def cmd_tables(js: Path, out: Path) -> None:
     for n in list(REFS) + [k for k in res["transfer"] if k not in REFS]:
         tr, c, acc = res["transfer"][n], res["cost"][n], res["accepts"][n]
         band = sum(1 for a in acc if a["within_band"])
-        rule = "sequential" if n not in REFS else "full"
+        rule = "seq." if n not in REFS else "full"
         sq = res["sequential"].get(n)
         ep = (f"{c['eval_episodes']} ({100 * sq['episodes'] / sq['planned']:.0f}\\%)" if sq
               else f"{c['eval_episodes']}")
@@ -329,7 +329,7 @@ def cmd_tables(js: Path, out: Path) -> None:
                     f"${pp(tr['point'])}$ & $[{pp(tr['ci90'][0])},{pp(tr['ci90'][1])}]$ \\\\")
     body = "\n".join(rows[:len(REFS)]) + "\n\\midrule\n" + "\n".join(rows[len(REFS):])
     tex = ("\\begin{tabular}{llrrrrr}\n\\toprule\n"
-           "Traj. & Selection & Accepted (in band) & Cand. episodes & Loop cost & Transfer & 90\\% CI \\\\\n"
+           "Traj. & Selection & Accepted & Cand.\\ episodes & Loop \\$ & Transfer & 90\\% CI \\\\\n"
            "\\midrule\n" + body + "\n\\bottomrule\n\\end{tabular}\n")
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(tex)
