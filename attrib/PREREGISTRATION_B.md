@@ -168,3 +168,10 @@ traces, about 4). Total about 40 dollars; stop and report above 100
 ## Operations log and deviations
 
 (Entries are appended below with UTC times.)
+
+- 03:17Z 2026-10-09. Before any round: the copies' frontier now records the
+  round in which the incumbent was accepted as `incumbent.t` (the prep first
+  wrote the state's round; the field only appears in RRSI's log line). A dry
+  run of RRSI's round on copies of two states passed its harness-tree check
+  and reused the report. Attribution started 03:13Z; restarted at 03:15Z
+  with 24 workers instead of 8 (resume-safe, nothing lost).

@@ -175,7 +175,8 @@ def prep_state(state: str) -> dict:
         (rd / "jobs").mkdir(parents=True, exist_ok=True)
         if not (rd / "frontier.json").exists():
             fr = {"domain": fr_src.get("domain"),
-                  "incumbent": {"t": t, "commit": inc["commit"], "harness_tree": tree, "job": inc["job"],
+                  "incumbent": {"t": min(x["t"] for x in trajectory if x["commit"] == inc["commit"]),
+                                "commit": inc["commit"], "harness_tree": tree, "job": inc["job"],
                                 "S": inc["S"], "C": inc["C"], "extra": ev.get("extra"),
                                 "variant": inc["job"][-1] if inc["job"] != "base" else "-"},
                   "S_star": max(x["S"] for x in trajectory), "trajectory": trajectory,
@@ -387,9 +388,11 @@ def heldout_dir(dom: str, commit: str) -> Path:
 def deploy_one(dom: str, commit: str) -> str:
     k = int(_cfg(dom)["heldout_k"])
     hd = heldout_dir(dom, commit)
-    if (hd / "eval.json").exists() and json.loads((hd / "eval.json").read_text()).get("n_expected") == \
-            k * len(json.loads((CODE / "domains" / dom / "split.json").read_text())["heldout"]):
-        return f"{dom} {commit[:12]} done"
+    n_tasks = len(json.loads((CODE / "domains" / dom / "split.json").read_text())["heldout"])
+    if (hd / "eval.json").exists():
+        ev = json.loads((hd / "eval.json").read_text())
+        if ev.get("n_expected") == k * n_tasks and not ev.get("missing"):
+            return f"{dom} {commit[:12]} done"
     (PB / "verify" / dom / "logs").mkdir(parents=True, exist_ok=True)
     env = {**os.environ, "PYTHONPATH": str(CODE)}
     with open(PB / "verify" / dom / "logs" / f"{commit[:12]}.log", "a") as fh:
@@ -416,9 +419,12 @@ def deploy_jobs() -> list[tuple[str, str]]:
 
 
 def deploy(parallel: int) -> None:
-    with ThreadPoolExecutor(parallel) as ex:
-        for msg in ex.map(lambda j: deploy_one(*j), deploy_jobs()):
-            log(msg)
+    """Two passes: the second fills trials an infrastructure error left missing
+    (the driver skips trials already on disk)."""
+    for _ in range(2):
+        with ThreadPoolExecutor(parallel) as ex:
+            for msg in ex.map(lambda j: deploy_one(*j), deploy_jobs()):
+                log(msg)
 
 
 # ----------------------------------------------------------------- status --
