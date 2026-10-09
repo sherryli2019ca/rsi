@@ -8,6 +8,7 @@ sequential full evaluation.
   python -m verify.cl status  --run DIR ...  progress, episodes and spend (no held-out S)
   python -m verify.cl analyze --run CL1 CL2 [--json results/cl/analysis.json]
                                              the registered outcomes, with r1 to r3 as reference
+  python -m verify.cl tables --run - [--json ...] [--tex paper/tables/cl.tex]
 
 DIR is a trajectory's checkout (its runs/ holds rrsi/ and verify/). Deployments
 go to DIR/runs/verify/tau2_airline/jobs/heldout/<commit12>/, as for r1 to r3.
@@ -294,16 +295,42 @@ def cmd_analyze(cl: list[Path], js: Path, B: int = 2000, seed: int = 5) -> dict:
     return res
 
 
+def cmd_tables(js: Path, out: Path) -> None:
+    """paper/tables/cl.tex from analysis.json: one row per trajectory."""
+    res = json.loads(Path(js).read_text())
+    pp = lambda x: f"{100 * x:+.2f}"
+    rows = []
+    for n in list(REFS) + [k for k in res["transfer"] if k not in REFS]:
+        tr, c, acc = res["transfer"][n], res["cost"][n], res["accepts"][n]
+        band = sum(1 for a in acc if a["within_band"])
+        rule = "sequential" if n not in REFS else "full"
+        sq = res["sequential"].get(n)
+        ep = (f"{c['eval_episodes']} ({100 * sq['episodes'] / sq['planned']:.0f}\\%)" if sq
+              else f"{c['eval_episodes']}")
+        rows.append(f"{n} & {rule} & {len(acc)} ({band}) & {ep} & \\${c['total']:.2f} & "
+                    f"${pp(tr['point'])}$ & $[{pp(tr['ci90'][0])},{pp(tr['ci90'][1])}]$ \\\\")
+    body = "\n".join(rows[:len(REFS)]) + "\n\\midrule\n" + "\n".join(rows[len(REFS):])
+    tex = ("\\begin{tabular}{llrrrrr}\n\\toprule\n"
+           "Traj. & Selection & Accepted (in band) & Cand. episodes & Loop cost & Transfer & 90\\% CI \\\\\n"
+           "\\midrule\n" + body + "\n\\bottomrule\n\\end{tabular}\n")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(tex)
+    print(tex)
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=("deploy", "shadow", "status", "analyze"))
+    ap.add_argument("cmd", choices=("deploy", "shadow", "status", "analyze", "tables"))
     ap.add_argument("--run", nargs="+", required=True)
     ap.add_argument("--json", default="results/cl/analysis.json")
+    ap.add_argument("--tex", default="paper/tables/cl.tex")
     a = ap.parse_args()
     if a.cmd == "deploy":
         cmd_deploy(Path(a.run[0]))
     elif a.cmd == "shadow":
         cmd_shadow(Path(a.run[0]))
+    elif a.cmd == "tables":
+        cmd_tables(Path(a.json), Path(a.tex))
     elif a.cmd == "analyze":
         Path(a.json).parent.mkdir(parents=True, exist_ok=True)
         cmd_analyze([Path(x) for x in a.run], Path(a.json))
