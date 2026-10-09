@@ -14,6 +14,11 @@ methods under:
 For each variant: rescuable failures, pooled mean R(k-hat) per method,
 Kendall's tau of the method ordering against main, the first write's rank,
 and first write minus binary search with a cluster-bootstrap interval.
+
+Also written: the null-free gain of a step decomposed as R_k plus a bias term
+(share of samples with a correction) x (null success), averaged per method on
+the main rescuable failures; and the retest agreement (gt/b) among failures
+that both runs call rescuable, with the step-level correlation of R_k.
 """
 from __future__ import annotations
 
@@ -38,6 +43,40 @@ def sample_gain(step: dict, s: dict, use_null: bool = True) -> float:
     if not use_null:
         return s["corrected"]
     return s["corrected"] - step["null"] if step["null"] is not None else 0.0
+
+
+def bias(g: dict) -> list[float]:
+    """Null-free gain minus R_k at each step: (m_k / K) * null_k."""
+    out = []
+    for st in g["steps"]:
+        m = sum(s.get("verdict") == "mistake" and s.get("corrected") is not None and s.get("n") == 2
+                for s in st["samples"])
+        out.append(m / len(st["samples"]) * (st["null"] or 0.0))
+    return out
+
+
+def retest(main_dir: Path, data: dict) -> dict:
+    import statistics
+    out = {}
+    for d, v in data.items():
+        p = main_dir / d / "gt" / "b" / "result.json"
+        if not p.exists():
+            continue
+        ga, gb = v["gt"], {f["fid"]: f for f in json.loads(p.read_text())["failures"]}
+        common = sorted(set(ga) & set(gb))
+        both = [x for x in common if ga[x]["decisive"] is not None and gb[x]["decisive"] is not None]
+        ra, rb = [], []
+        for x in common:
+            if len(ga[x]["R"]) == len(gb[x]["R"]):
+                ra += ga[x]["R"]
+                rb += gb[x]["R"]
+        out[d] = {"n": len(common),
+                  "same_rescuability": sum((ga[x]["decisive"] is None) == (gb[x]["decisive"] is None) for x in common),
+                  "both_rescuable": len(both),
+                  "same_decisive": sum(ga[x]["decisive"] == gb[x]["decisive"] for x in both),
+                  "decisive_within1": sum(abs(ga[x]["decisive"] - gb[x]["decisive"]) <= 1 for x in both),
+                  "step_r": round(statistics.correlation(ra, rb), 3), "steps": len(ra)}
+    return out
 
 
 def profile(g: dict, idx=None, use_null=True) -> list[float]:
@@ -136,8 +175,23 @@ def main():
                            and isinstance(v["picks"][m].get(f), int)]), 3) for m in METHODS}
     pos["decisive"] = round(_mean([g["decisive"] / max(g["n_steps"] - 1, 1) for v in data.values()
                                    for g in v["gt"].values() if g["decisive"] is not None]), 3)
+    # null-free score of each method = R + bias, on the main rescuable failures
+    dec = {}
+    for m in METHODS:
+        rr, bb = [], []
+        for v in data.values():
+            for f, g in v["gt"].items():
+                R = profile(g)
+                if max(R) < .5:
+                    continue
+                k = v["picks"][m].get(f)
+                ok = isinstance(k, int) and 0 <= k < len(R)
+                rr.append(R[k] if ok else 0.0)
+                bb.append(bias(g)[k] if ok else 0.0)
+        dec[m] = {"R": round(_mean(rr), 4), "bias": round(_mean(bb), 4), "no_null": round(_mean(rr) + _mean(bb), 4)}
     out = {"variants": res, "rescuable_by_domain": extra, "null_by_position": null_by_pos,
-           "named_relative_position": pos}
+           "named_relative_position": pos, "no_null_decomposition": dec,
+           "retest": retest(Path(args.main), data)}
     if args.out:
         Path(args.out).write_text(json.dumps(out, indent=1))
     for r in res:
@@ -148,6 +202,8 @@ def main():
     print(json.dumps(extra))
     print(json.dumps(null_by_pos))
     print(json.dumps(pos))
+    print(json.dumps(dec))
+    print(json.dumps(out["retest"]))
 
 
 if __name__ == "__main__":
