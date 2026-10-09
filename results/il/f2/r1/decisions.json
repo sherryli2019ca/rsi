@@ -1,0 +1,24 @@
+[
+ {
+  "variant": "A",
+  "admissible": true,
+  "reason": "admissible: gain -0.0167 within delta 0.0471; shaped 0.0*dS - 15.0*dC + 0.5*nu = +0.0402 > 0 (nu=0)",
+  "S": 0.75,
+  "C": 63734.55,
+  "delta_S": -0.01666666666666672,
+  "delta_C": -0.0026789451653411013,
+  "novelty": 0,
+  "guards": []
+ },
+ {
+  "variant": "B",
+  "admissible": false,
+  "reason": "below noise-adjusted floor: S' 0.6833 < S* 0.7667 - delta 0.0471",
+  "S": 0.6833333333333333,
+  "C": 71371.43333333333,
+  "delta_S": -0.08333333333333337,
+  "delta_C": 0.11682334270911983,
+  "novelty": 0,
+  "guards": []
+ }
+]

@@ -1,0 +1,17 @@
+{
+ "t": 7,
+ "selection": "full",
+ "rule": "full",
+ "b": null,
+ "ep_tokens": 66317.2,
+ "candidates": {},
+ "cost": {
+  "selection_episodes": 0,
+  "selection_replays": 0,
+  "selection_tokens": 0,
+  "selection_episode_equivalents": 0.0,
+  "judge_llm": {},
+  "refresh_episodes": 0,
+  "refresh_tokens": 0
+ }
+}

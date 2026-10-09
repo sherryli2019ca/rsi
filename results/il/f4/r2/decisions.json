@@ -1,0 +1,24 @@
+[
+ {
+  "variant": "A",
+  "admissible": false,
+  "reason": "critic_reject",
+  "S": null,
+  "C": null,
+  "delta_S": null,
+  "delta_C": null,
+  "novelty": 0,
+  "guards": []
+ },
+ {
+  "variant": "B",
+  "admissible": true,
+  "reason": "admissible: gain +0.1333 > delta 0.0817; cost change +0.059 <= budget 2.100 (beta0 0.1 + beta1 15.0 * dS)",
+  "S": 0.8166666666666667,
+  "C": 69610.83333333333,
+  "delta_S": 0.1333333333333333,
+  "delta_C": 0.05852134200428817,
+  "novelty": 0,
+  "guards": []
+ }
+]

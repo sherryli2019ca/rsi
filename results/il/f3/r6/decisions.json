@@ -1,0 +1,24 @@
+[
+ {
+  "variant": "A",
+  "admissible": false,
+  "reason": "below noise-adjusted floor: S' 0.7333 < S* 0.8333 - delta 0.0272",
+  "S": 0.7333333333333333,
+  "C": 76421.4,
+  "delta_S": -0.10000000000000009,
+  "delta_C": 0.06427547174541025,
+  "novelty": 0,
+  "guards": []
+ },
+ {
+  "variant": "B",
+  "admissible": false,
+  "reason": "below noise-adjusted floor: S' 0.7667 < S* 0.8333 - delta 0.0272",
+  "S": 0.7666666666666667,
+  "C": 79702.98333333334,
+  "delta_S": -0.06666666666666665,
+  "delta_C": 0.10997613478161765,
+  "novelty": 0,
+  "guards": []
+ }
+]

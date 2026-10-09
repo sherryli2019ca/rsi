@@ -1,0 +1,24 @@
+[
+ {
+  "variant": "A",
+  "admissible": false,
+  "reason": "no_proposal",
+  "S": null,
+  "C": null,
+  "delta_S": null,
+  "delta_C": null,
+  "novelty": 0,
+  "guards": []
+ },
+ {
+  "variant": "B",
+  "admissible": false,
+  "reason": "[seqfull: all 60 episodes] cost rule failed: gain -0.0167 within delta 0.0471; shaped 0.0*dS - 15.0*dC + 0.5*nu = -1.1483 <= 0 (nu=0)",
+  "S": 0.7333333333333333,
+  "C": 66513.13333333333,
+  "delta_S": -0.01666666666666672,
+  "delta_C": 0.07655172227752283,
+  "novelty": 0,
+  "guards": []
+ }
+]

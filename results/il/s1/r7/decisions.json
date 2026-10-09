@@ -1,0 +1,24 @@
+[
+ {
+  "variant": "A",
+  "admissible": false,
+  "reason": "[seqfull: all 60 episodes] below noise-adjusted floor: S' 0.7500 < S* 0.8000 - delta 0.0471",
+  "S": 0.75,
+  "C": 77907.26666666666,
+  "delta_S": -0.033333333333333326,
+  "delta_C": 0.09577785117705423,
+  "novelty": 0,
+  "guards": []
+ },
+ {
+  "variant": "B",
+  "admissible": false,
+  "reason": "no_proposal",
+  "S": null,
+  "C": null,
+  "delta_S": null,
+  "delta_C": null,
+  "novelty": 0,
+  "guards": []
+ }
+]

@@ -1,0 +1,166 @@
+[
+ {
+  "t": 0,
+  "seq_choice": "B",
+  "full_choice": "B",
+  "candidates": {
+   "B": {
+    "S": 0.7666666666666667,
+    "admissible": true,
+    "completed": false
+   }
+  }
+ },
+ {
+  "t": 1,
+  "seq_choice": "B",
+  "full_choice": "B",
+  "candidates": {
+   "B": {
+    "S": 0.75,
+    "admissible": true,
+    "completed": false
+   }
+  }
+ },
+ {
+  "t": 2,
+  "seq_choice": null,
+  "full_choice": null,
+  "candidates": {
+   "B": {
+    "S": 0.7333333333333333,
+    "admissible": false,
+    "completed": false
+   }
+  }
+ },
+ {
+  "t": 3,
+  "seq_choice": null,
+  "full_choice": null,
+  "candidates": {
+   "A": {
+    "S": 0.6833333333333333,
+    "admissible": false,
+    "completed": false
+   },
+   "B": {
+    "S": 0.7666666666666667,
+    "dS": 0.01666666666666672,
+    "dC": 0.9378987377967689,
+    "admissible": false,
+    "why": "gain +0.0167 within delta 0.0471; shaped 0.0*dS - 15.0*dC + 0.5*nu = -14.0685 <= 0 (nu=0)",
+    "completed": true,
+    "n_seq": 20,
+    "m_seq": -0.05
+   }
+  }
+ },
+ {
+  "t": 4,
+  "seq_choice": null,
+  "full_choice": null,
+  "candidates": {
+   "A": {
+    "S": 0.7166666666666667,
+    "dS": -0.033333333333333326,
+    "dC": 0.011203098993528438,
+    "admissible": false,
+    "why": "below floor",
+    "completed": true,
+    "n_seq": 40,
+    "m_seq": -0.025
+   },
+   "B": {
+    "S": 0.7333333333333333,
+    "dS": -0.01666666666666672,
+    "dC": 0.06709126762539078,
+    "admissible": false,
+    "why": "gain -0.0167 within delta 0.0471; shaped 0.0*dS - 15.0*dC + 0.5*nu = -1.0064 <= 0 (nu=0)",
+    "completed": true,
+    "n_seq": 50,
+    "m_seq": 0.0
+   }
+  }
+ },
+ {
+  "t": 5,
+  "seq_choice": "A",
+  "full_choice": "A",
+  "candidates": {
+   "A": {
+    "S": 0.8,
+    "admissible": true,
+    "completed": false
+   },
+   "B": {
+    "S": 0.6666666666666666,
+    "dS": -0.08333333333333337,
+    "dC": 0.5672088826304756,
+    "admissible": false,
+    "why": "below floor",
+    "completed": true,
+    "n_seq": 30,
+    "m_seq": -0.13333333333333333
+   }
+  }
+ },
+ {
+  "t": 6,
+  "seq_choice": "A",
+  "full_choice": "A",
+  "candidates": {
+   "A": {
+    "S": 0.7833333333333333,
+    "admissible": true,
+    "completed": false
+   },
+   "B": {
+    "S": 0.75,
+    "dS": -0.050000000000000044,
+    "dC": -0.06046410452720707,
+    "admissible": false,
+    "why": "below floor",
+    "completed": true,
+    "n_seq": 30,
+    "m_seq": -0.06666666666666667
+   }
+  }
+ },
+ {
+  "t": 7,
+  "seq_choice": null,
+  "full_choice": null,
+  "candidates": {
+   "A": {
+    "S": 0.75,
+    "admissible": false,
+    "completed": false
+   }
+  }
+ },
+ {
+  "t": 8,
+  "seq_choice": null,
+  "full_choice": null,
+  "candidates": {}
+ },
+ {
+  "t": 9,
+  "seq_choice": null,
+  "full_choice": null,
+  "candidates": {
+   "A": {
+    "S": 0.75,
+    "admissible": false,
+    "completed": false
+   },
+   "B": {
+    "S": 0.75,
+    "admissible": false,
+    "completed": false
+   }
+  }
+ }
+]

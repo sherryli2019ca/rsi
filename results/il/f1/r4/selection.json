@@ -1,0 +1,28 @@
+{
+ "t": 4,
+ "selection": "full",
+ "rule": "full",
+ "b": null,
+ "ep_tokens": 63554.066666666666,
+ "candidates": {
+  "A": {
+   "S": 0.7333333333333333,
+   "dS": -0.03333333333333344,
+   "fresh": {
+    "n": 60,
+    "missing": 0,
+    "tokens": 3895304,
+    "harness_errors": 0
+   }
+  }
+ },
+ "cost": {
+  "selection_episodes": 60,
+  "selection_replays": 0,
+  "selection_tokens": 3895304,
+  "selection_episode_equivalents": 60.0,
+  "judge_llm": {},
+  "refresh_episodes": 0,
+  "refresh_tokens": 0
+ }
+}

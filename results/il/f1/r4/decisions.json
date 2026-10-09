@@ -1,0 +1,24 @@
+[
+ {
+  "variant": "A",
+  "admissible": false,
+  "reason": "cost rule failed: gain -0.0333 within delta 0.0981; shaped 0.0*dS - 15.0*dC + 0.5*nu = -0.3389 <= 0 (nu=0)",
+  "S": 0.7333333333333333,
+  "C": 63216.75,
+  "delta_S": -0.03333333333333344,
+  "delta_C": 0.022592442315806177,
+  "novelty": 0,
+  "guards": []
+ },
+ {
+  "variant": "B",
+  "admissible": false,
+  "reason": "smoke_fail",
+  "S": null,
+  "C": null,
+  "delta_S": null,
+  "delta_C": null,
+  "novelty": 0,
+  "guards": []
+ }
+]

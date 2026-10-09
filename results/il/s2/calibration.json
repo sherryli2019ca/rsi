@@ -1,0 +1,24 @@
+{
+ "delta": 0.124722,
+ "z": 2.0,
+ "sd_null": 0.062361,
+ "sd_null_bootstrap": 0.042476,
+ "se_bootstrap": 0.017341,
+ "method": "repeated base evaluations",
+ "n_evals": 3,
+ "k": 2,
+ "n_tasks": 30,
+ "S_base": 0.75,
+ "C_base": 61790.4,
+ "S_per_eval": [
+  0.75,
+  0.6833333333333333,
+  0.6666666666666666
+ ],
+ "max_abs_diff": 0.08333333333333337,
+ "jobs": [
+  "base",
+  "heldout_base2",
+  "heldout_base3"
+ ]
+}

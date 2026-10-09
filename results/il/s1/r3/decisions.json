@@ -1,0 +1,24 @@
+[
+ {
+  "variant": "A",
+  "admissible": false,
+  "reason": "[seqfull: all 60 episodes] below noise-adjusted floor: S' 0.6833 < S* 0.7667 - delta 0.0471",
+  "S": 0.6833333333333333,
+  "C": 63418.76666666667,
+  "delta_S": -0.06666666666666665,
+  "delta_C": 0.026467692291091797,
+  "novelty": 0,
+  "guards": []
+ },
+ {
+  "variant": "B",
+  "admissible": false,
+  "reason": "[seqfull] stopped after 20 of 60 evolve episodes: P(admitted after all 60 episodes) = 0.048 < 0.05; early-stopped estimate dS -0.0500",
+  "S": 0.7,
+  "C": null,
+  "delta_S": -0.05,
+  "delta_C": 1.3217009121442334,
+  "novelty": 0,
+  "guards": []
+ }
+]

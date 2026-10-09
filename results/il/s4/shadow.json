@@ -1,0 +1,201 @@
+[
+ {
+  "t": 0,
+  "seq_choice": null,
+  "full_choice": "A",
+  "candidates": {
+   "A": {
+    "S": 0.7333333333333333,
+    "dS": -0.01666666666666672,
+    "dC": -0.05529814212732398,
+    "admissible": true,
+    "why": "gain -0.0167 within delta 0.0981; shaped 0.0*dS - 15.0*dC + 0.5*nu = +0.8295 > 0 (nu=0)",
+    "completed": true,
+    "n_seq": 40,
+    "m_seq": 0.0
+   },
+   "B": {
+    "S": 0.7,
+    "dS": -0.050000000000000044,
+    "dC": -0.042739935077864194,
+    "admissible": true,
+    "why": "gain -0.0500 within delta 0.0981; shaped 0.0*dS - 15.0*dC + 0.5*nu = +0.6411 > 0 (nu=0)",
+    "completed": true,
+    "n_seq": 10,
+    "m_seq": -0.2
+   }
+  }
+ },
+ {
+  "t": 1,
+  "seq_choice": null,
+  "full_choice": "B",
+  "candidates": {
+   "A": {
+    "S": 0.7666666666666667,
+    "dS": 0.01666666666666672,
+    "dC": 0.024865923072278782,
+    "admissible": false,
+    "why": "gain +0.0167 within delta 0.0981; shaped 0.0*dS - 15.0*dC + 0.5*nu = -0.3730 <= 0 (nu=0)",
+    "completed": true,
+    "n_seq": 50,
+    "m_seq": 0.04
+   },
+   "B": {
+    "S": 0.75,
+    "dS": 0.0,
+    "dC": -0.043747294375769935,
+    "admissible": true,
+    "why": "gain +0.0000 within delta 0.0981; shaped 0.0*dS - 15.0*dC + 0.5*nu = +0.6562 > 0 (nu=0)",
+    "completed": true,
+    "n_seq": 40,
+    "m_seq": 0.025
+   }
+  }
+ },
+ {
+  "t": 2,
+  "seq_choice": "B",
+  "full_choice": "B",
+  "candidates": {
+   "A": {
+    "S": 0.7333333333333333,
+    "dS": -0.01666666666666672,
+    "dC": 0.13586376371117231,
+    "admissible": false,
+    "why": "gain -0.0167 within delta 0.0981; shaped 0.0*dS - 15.0*dC + 0.5*nu = -2.0380 <= 0 (nu=0)",
+    "completed": true,
+    "n_seq": 20,
+    "m_seq": -0.05
+   },
+   "B": {
+    "S": 0.7,
+    "admissible": true,
+    "completed": false
+   }
+  }
+ },
+ {
+  "t": 3,
+  "seq_choice": "B",
+  "full_choice": "B",
+  "candidates": {
+   "A": {
+    "S": 0.75,
+    "admissible": true,
+    "completed": false
+   },
+   "B": {
+    "S": 0.7666666666666667,
+    "admissible": true,
+    "completed": false
+   }
+  }
+ },
+ {
+  "t": 4,
+  "seq_choice": null,
+  "full_choice": null,
+  "candidates": {
+   "B": {
+    "S": 0.7,
+    "dS": -0.06666666666666676,
+    "dC": 0.022756699535228884,
+    "admissible": false,
+    "why": "gain -0.0667 within delta 0.0981; shaped 0.0*dS - 15.0*dC + 0.5*nu = -0.3414 <= 0 (nu=0)",
+    "completed": true,
+    "n_seq": 20,
+    "m_seq": -0.05
+   }
+  }
+ },
+ {
+  "t": 5,
+  "seq_choice": "A",
+  "full_choice": "A",
+  "candidates": {
+   "A": {
+    "S": 0.7666666666666667,
+    "admissible": true,
+    "completed": false
+   }
+  }
+ },
+ {
+  "t": 6,
+  "seq_choice": null,
+  "full_choice": null,
+  "candidates": {}
+ },
+ {
+  "t": 7,
+  "seq_choice": null,
+  "full_choice": null,
+  "candidates": {
+   "A": {
+    "S": 0.6833333333333333,
+    "dS": -0.08333333333333337,
+    "dC": 0.1499422768866433,
+    "admissible": false,
+    "why": "gain -0.0833 within delta 0.0981; shaped 0.0*dS - 15.0*dC + 0.5*nu = -2.2491 <= 0 (nu=0)",
+    "completed": true,
+    "n_seq": 20,
+    "m_seq": -0.05
+   },
+   "B": {
+    "S": 0.75,
+    "dS": -0.01666666666666672,
+    "dC": 0.09418340754747027,
+    "admissible": false,
+    "why": "gain -0.0167 within delta 0.0981; shaped 0.0*dS - 15.0*dC + 0.5*nu = -0.9128 <= 0 (nu=1)",
+    "completed": true,
+    "n_seq": 40,
+    "m_seq": 0.025
+   }
+  }
+ },
+ {
+  "t": 8,
+  "seq_choice": null,
+  "full_choice": null,
+  "candidates": {
+   "B": {
+    "S": 0.6833333333333333,
+    "dS": -0.08333333333333337,
+    "dC": 0.0773220607219425,
+    "admissible": false,
+    "why": "gain -0.0833 within delta 0.0981; shaped 0.0*dS - 15.0*dC + 0.5*nu = -0.6598 <= 0 (nu=1)",
+    "completed": true,
+    "n_seq": 20,
+    "m_seq": -0.05
+   }
+  }
+ },
+ {
+  "t": 9,
+  "seq_choice": null,
+  "full_choice": null,
+  "candidates": {
+   "A": {
+    "S": 0.6833333333333333,
+    "dS": -0.08333333333333337,
+    "dC": 0.07158155350335944,
+    "admissible": false,
+    "why": "gain -0.0833 within delta 0.0981; shaped 0.0*dS - 15.0*dC + 0.5*nu = -1.0737 <= 0 (nu=0)",
+    "completed": true,
+    "n_seq": 30,
+    "m_seq": 0.0
+   },
+   "B": {
+    "S": 0.7833333333333333,
+    "dS": 0.016666666666666607,
+    "dC": 0.1675092945493453,
+    "admissible": false,
+    "why": "gain +0.0167 within delta 0.0981; shaped 0.0*dS - 15.0*dC + 0.5*nu = -2.5126 <= 0 (nu=0)",
+    "completed": true,
+    "n_seq": 50,
+    "m_seq": 0.04
+   }
+  }
+ }
+]

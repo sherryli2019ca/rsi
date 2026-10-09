@@ -1,0 +1,104 @@
+{
+ "t": 1,
+ "selection": "seqfull",
+ "rule": "seqfull",
+ "gamma": 0.05,
+ "batch": 10,
+ "S_star": 0.75,
+ "delta": 0.124722,
+ "S_inc": 0.75,
+ "candidates": {
+  "A": {
+   "variant": "A",
+   "N": 60,
+   "n": 30,
+   "dropped": true,
+   "why": "P(admitted after all 60 episodes) = 0.017 < 0.05",
+   "m": 0.0,
+   "dC": 0.08180546521644123,
+   "errors": 0,
+   "nu": 0,
+   "steps": [
+    {
+     "n": 10,
+     "m": -0.1,
+     "sd": 0.31622776601683794,
+     "dC": -0.21404613666106645,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.578389837759592
+    },
+    {
+     "n": 20,
+     "m": 0.05,
+     "sd": 0.5104177855340404,
+     "dC": -0.006077109886948789,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.9695980395555712
+    },
+    {
+     "n": 30,
+     "m": 0.0,
+     "sd": 0.454858826147342,
+     "dC": 0.08180546521644123,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.016837617062037014
+    }
+   ],
+   "finished": true
+  },
+  "B": {
+   "variant": "B",
+   "N": 60,
+   "n": 30,
+   "dropped": true,
+   "why": "P(admitted after all 60 episodes) = 0.000 < 0.05",
+   "m": -0.06666666666666667,
+   "dC": 0.17245548322944007,
+   "errors": 0,
+   "nu": 0,
+   "steps": [
+    {
+     "n": 10,
+     "m": 0.0,
+     "sd": 0.4714045207910317,
+     "dC": 0.36871224993832497,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.17969821762304627
+    },
+    {
+     "n": 20,
+     "m": 0.0,
+     "sd": 0.3244428422615251,
+     "dC": 0.27083493226301336,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.05732619420249585
+    },
+    {
+     "n": 30,
+     "m": -0.06666666666666667,
+     "sd": 0.3651483716701107,
+     "dC": 0.17245548322944007,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.0003089141716883237
+    }
+   ],
+   "finished": true
+  }
+ },
+ "winner": null,
+ "cost": {
+  "selection_episodes": 60,
+  "planned_episodes": 120,
+  "selection_replays": 0,
+  "selection_episode_equivalents": 60.0,
+  "judge_llm": {},
+  "refresh_episodes": 0,
+  "refresh_tokens": 0
+ }
+}

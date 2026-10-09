@@ -1,0 +1,139 @@
+{
+ "domain": "tau2_airline",
+ "incumbent": {
+  "t": 5,
+  "commit": "3b7fd47",
+  "harness_tree": "bcd40c20afef",
+  "job": "r4A",
+  "S": 0.8333333333333334,
+  "C": 71806.03333333334,
+  "extra": {
+   "trials": 60,
+   "harness_errors": 0,
+   "harness_error_rate": 0.0,
+   "db_match_rate": 0.8333333333333334,
+   "info_rate": 0.9333333333333333,
+   "max_steps_rate": 0.0,
+   "mean_steps": 8.866666666666667
+  },
+  "variant": "A"
+ },
+ "S_star": 0.8333333333333334,
+ "trajectory": [
+  {
+   "t": 0,
+   "S": 0.7166666666666667,
+   "C": 64137.183333333334,
+   "commit": "13588e1",
+   "job": "base"
+  },
+  {
+   "t": 1,
+   "S": 0.75,
+   "C": 66631.83333333333,
+   "commit": "82b5421",
+   "job": "r0A"
+  },
+  {
+   "t": 2,
+   "S": 0.7666666666666667,
+   "C": 63920.816666666666,
+   "commit": "3d7acb4",
+   "job": "r1A"
+  },
+  {
+   "t": 3,
+   "S": 0.8,
+   "C": 69083.9,
+   "commit": "0977f3f",
+   "job": "r2A"
+  },
+  {
+   "t": 4,
+   "S": 0.8333333333333334,
+   "C": 75464.43333333333,
+   "commit": "eb7c3a2",
+   "job": "r3B"
+  },
+  {
+   "t": 5,
+   "S": 0.8333333333333334,
+   "C": 71806.03333333334,
+   "commit": "3b7fd47",
+   "job": "r4A"
+  },
+  {
+   "t": 6,
+   "S": 0.8333333333333334,
+   "C": 71806.03333333334,
+   "commit": "3b7fd47",
+   "job": "r4A"
+  },
+  {
+   "t": 7,
+   "S": 0.8333333333333334,
+   "C": 71806.03333333334,
+   "commit": "3b7fd47",
+   "job": "r4A"
+  },
+  {
+   "t": 8,
+   "S": 0.8333333333333334,
+   "C": 71806.03333333334,
+   "commit": "3b7fd47",
+   "job": "r4A"
+  },
+  {
+   "t": 9,
+   "S": 0.8333333333333334,
+   "C": 71806.03333333334,
+   "commit": "3b7fd47",
+   "job": "r4A"
+  },
+  {
+   "t": 10,
+   "S": 0.8333333333333334,
+   "C": 71806.03333333334,
+   "commit": "3b7fd47",
+   "job": "r4A"
+  }
+ ],
+ "config": {
+  "T": 20,
+  "k": 2,
+  "m": 2,
+  "b_min": 1,
+  "b_max": 4,
+  "w": 3,
+  "m_draft": 1,
+  "delta": null,
+  "delta_z": 2.0,
+  "beta0": 0.1,
+  "beta1": 15.0,
+  "w_s": 0.0,
+  "w_c": 15.0,
+  "w_n": 0.5,
+  "n_prune": 4,
+  "repair_rounds": 5,
+  "invalid_missing_frac": 0.15,
+  "n_fail_traces": 14,
+  "n_success_traces": 4,
+  "eval_parallel": 2,
+  "proposer_model": "deepseek-v4-pro",
+  "analyst_model": "deepseek-v4-pro",
+  "critic_model": "deepseek-v4-pro",
+  "selection": "full",
+  "branch_ns": "il_f3",
+  "notes": {
+   "_doc": "tau2-bench airline instance. Evolve set = tau2's train split (30 tasks), held-out = its test split; S = fraction of trials with reward 1 (database equals gold AND all required info said) over 30 x k = 60 trials; C = policy tokens per trial. Policy and user simulator: deepseek-v4-flash, thinking off; proposer / analyst / critic: deepseek-v4-pro, thinking off (rrsi/llm.py maps the upstream model names). Selection constants follow the upstream coding instance rescaled to this trial count: beta1 = 0.25 / (1/60) (25% more tokens per additional solved trial), w_s = 0 (inside the noise band only a token saving or a new structural component admits). delta = null: estimate it with `calibrate` from repeated base evaluations. policy_temperature is passed to the frozen driver (null = endpoint default). heldout_k / heldout_k_endpoints: trials per held-out task for every candidate and incumbent / for the base and final incumbent (verify/, experiment E1).",
+   "policy_model": "deepseek-v4-flash",
+   "policy_label": "DeepSeek-V4-Flash (thinking off)",
+   "policy_temperature": 0.0,
+   "concurrency": 8,
+   "max_harness_error_rate": 0.02,
+   "heldout_k": 12,
+   "heldout_k_endpoints": 12,
+   "judge_model": "deepseek-v4-pro"
+  }
+ }
+}

@@ -1,0 +1,24 @@
+[
+ {
+  "variant": "A",
+  "admissible": true,
+  "reason": "[seqfull: all 60 episodes] admissible: gain +0.0333 within delta 0.1186; shaped 0.0*dS - 15.0*dC + 0.5*nu = +0.0926 > 0 (nu=1)",
+  "S": 0.75,
+  "C": 62663.01666666667,
+  "delta_S": 0.033333333333333326,
+  "delta_C": 0.02715872985517867,
+  "novelty": 1,
+  "guards": []
+ },
+ {
+  "variant": "B",
+  "admissible": false,
+  "reason": "no_proposal",
+  "S": null,
+  "C": null,
+  "delta_S": null,
+  "delta_C": null,
+  "novelty": 0,
+  "guards": []
+ }
+]

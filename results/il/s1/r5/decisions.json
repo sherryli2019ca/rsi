@@ -1,0 +1,24 @@
+[
+ {
+  "variant": "A",
+  "admissible": true,
+  "reason": "[seqfull: all 60 episodes] admissible: gain +0.0500 > delta 0.0471; cost change +0.169 <= budget 0.850 (beta0 0.1 + beta1 15.0 * dS)",
+  "S": 0.8,
+  "C": 72251.68333333333,
+  "delta_S": 0.050000000000000044,
+  "delta_C": 0.16943331687802302,
+  "novelty": 0,
+  "guards": []
+ },
+ {
+  "variant": "B",
+  "admissible": false,
+  "reason": "[seqfull] stopped after 30 of 60 evolve episodes: P(admitted after all 60 episodes) = 0.003 < 0.05; early-stopped estimate dS -0.1333",
+  "S": 0.6166666666666667,
+  "C": null,
+  "delta_S": -0.13333333333333333,
+  "delta_C": 0.7130820641668539,
+  "novelty": 1,
+  "guards": []
+ }
+]

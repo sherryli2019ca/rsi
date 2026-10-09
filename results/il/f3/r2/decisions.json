@@ -1,0 +1,24 @@
+[
+ {
+  "variant": "A",
+  "admissible": true,
+  "reason": "admissible: gain +0.0333 > delta 0.0272; cost change +0.081 <= budget 0.600 (beta0 0.1 + beta1 15.0 * dS)",
+  "S": 0.8,
+  "C": 69083.9,
+  "delta_S": 0.033333333333333326,
+  "delta_C": 0.08077311277572843,
+  "novelty": 0,
+  "guards": []
+ },
+ {
+  "variant": "B",
+  "admissible": false,
+  "reason": "below noise-adjusted floor: S' 0.6667 < S* 0.7667 - delta 0.0272",
+  "S": 0.6666666666666666,
+  "C": 66319.46666666666,
+  "delta_S": -0.10000000000000009,
+  "delta_C": 0.03752533407869989,
+  "novelty": 0,
+  "guards": []
+ }
+]

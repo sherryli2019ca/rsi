@@ -1,0 +1,21 @@
+{
+ "t": 6,
+ "selection": "seqfull",
+ "rule": "seqfull",
+ "gamma": 0.05,
+ "batch": 10,
+ "S_star": 0.7166666666666667,
+ "delta": 0.118634,
+ "S_inc": 0.7166666666666667,
+ "candidates": {},
+ "winner": null,
+ "cost": {
+  "selection_episodes": 0,
+  "planned_episodes": 0,
+  "selection_replays": 0,
+  "selection_episode_equivalents": 0.0,
+  "judge_llm": {},
+  "refresh_episodes": 0,
+  "refresh_tokens": 0
+ }
+}

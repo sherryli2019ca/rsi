@@ -1,0 +1,95 @@
+{
+ "t": 0,
+ "selection": "seqfull",
+ "rule": "seqfull",
+ "gamma": 0.05,
+ "batch": 10,
+ "S_star": 0.75,
+ "delta": 0.098131,
+ "S_inc": 0.75,
+ "candidates": {
+  "A": {
+   "variant": "A",
+   "N": 60,
+   "n": 40,
+   "dropped": true,
+   "why": "P(admitted after all 60 episodes) = 0.007 < 0.05",
+   "m": 0.0,
+   "dC": 0.04963083196170325,
+   "errors": 0,
+   "nu": 0,
+   "steps": [
+    {
+     "n": 10,
+     "m": 0.0,
+     "sd": 0.0,
+     "dC": 0.0033906040095901062,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.216212713083757
+    },
+    {
+     "n": 20,
+     "m": 0.0,
+     "sd": 0.0,
+     "dC": 0.12391755877423587,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.10725303447512813
+    },
+    {
+     "n": 30,
+     "m": 0.03333333333333333,
+     "sd": 0.18257418583505536,
+     "dC": 0.11803034299426969,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.12320039733720423
+    },
+    {
+     "n": 40,
+     "m": 0.0,
+     "sd": 0.22645540682891915,
+     "dC": 0.04963083196170325,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.006522475583816911
+    }
+   ],
+   "finished": true
+  },
+  "B": {
+   "variant": "B",
+   "N": 60,
+   "n": 10,
+   "dropped": true,
+   "why": "P(admitted after all 60 episodes) = 0.009 < 0.05",
+   "m": -0.2,
+   "dC": 0.10312544772561254,
+   "errors": 0,
+   "nu": 0,
+   "steps": [
+    {
+     "n": 10,
+     "m": -0.2,
+     "sd": 0.42163702135578396,
+     "dC": 0.10312544772561254,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.008538446525617416
+    }
+   ],
+   "finished": true
+  }
+ },
+ "winner": null,
+ "cost": {
+  "selection_episodes": 50,
+  "planned_episodes": 120,
+  "selection_replays": 0,
+  "selection_episode_equivalents": 50.0,
+  "judge_llm": {},
+  "refresh_episodes": 0,
+  "refresh_tokens": 0
+ }
+}

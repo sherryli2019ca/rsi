@@ -71,3 +71,15 @@ with this file, before any episode.
 ## Operations log
 
 (changes after registration are recorded here)
+
+- 2026-10-09 14:44Z: the eight loops launched together from worktrees detached at
+  13588e1, as registered.
+- No restart and no retried round: every loop settled rounds 0..9 at the first
+  attempt (14:54Z to 16:57Z); deployments and shadow evaluations finished
+  between 16:54Z and 17:28Z. Progress was monitored from counts and spend only.
+- Measured spend of IL: $34.12 (quote $35, stop line $60).
+- 18:01Z: the registered analysis (`verify/il.py analyze`, unchanged since
+  13588e1) run for the first time, after every deployment had finished; output
+  results/il/analysis.json, table paper/tables/il.tex. The per-loop records
+  (decisions, selections, frontier, calibration, shadow evaluation, held-out
+  evaluations) are copied to results/il/<loop>/.

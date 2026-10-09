@@ -1,0 +1,113 @@
+{
+ "t": 4,
+ "selection": "seqfull",
+ "rule": "seqfull",
+ "gamma": 0.05,
+ "batch": 10,
+ "S_star": 0.7166666666666667,
+ "delta": 0.118634,
+ "S_inc": 0.7166666666666667,
+ "candidates": {
+  "A": {
+   "variant": "A",
+   "N": 60,
+   "n": 30,
+   "dropped": true,
+   "why": "P(admitted after all 60 episodes) = 0.004 < 0.05",
+   "m": -0.03333333333333333,
+   "dC": 0.05009449312401506,
+   "errors": 0,
+   "nu": 0,
+   "steps": [
+    {
+     "n": 10,
+     "m": 0.0,
+     "sd": 0.0,
+     "dC": 0.03826216157635142,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.18088572930710067
+    },
+    {
+     "n": 20,
+     "m": 0.05,
+     "sd": 0.22360679774997896,
+     "dC": 0.03634845749121473,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.20207207108522318
+    },
+    {
+     "n": 30,
+     "m": -0.03333333333333333,
+     "sd": 0.31984191497474596,
+     "dC": 0.05009449312401506,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.0044971304381520305
+    }
+   ],
+   "finished": true
+  },
+  "B": {
+   "variant": "B",
+   "N": 60,
+   "n": 40,
+   "dropped": true,
+   "why": "P(admitted after all 60 episodes) = 0.011 < 0.05",
+   "m": 0.025,
+   "dC": 0.11677895275456252,
+   "errors": 0,
+   "nu": 0,
+   "steps": [
+    {
+     "n": 10,
+     "m": 0.0,
+     "sd": 0.0,
+     "dC": 0.020355081550870863,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.18088572930710067
+    },
+    {
+     "n": 20,
+     "m": 0.1,
+     "sd": 0.30779350562554625,
+     "dC": 0.017319371878359784,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.4104080897174487
+    },
+    {
+     "n": 30,
+     "m": 0.1,
+     "sd": 0.30512857662936466,
+     "dC": 0.10390857564280084,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.3743656148174682
+    },
+    {
+     "n": 40,
+     "m": 0.025,
+     "sd": 0.42290206176626033,
+     "dC": 0.11677895275456252,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.011416026636979493
+    }
+   ],
+   "finished": true
+  }
+ },
+ "winner": null,
+ "cost": {
+  "selection_episodes": 70,
+  "planned_episodes": 120,
+  "selection_replays": 0,
+  "selection_episode_equivalents": 70.0,
+  "judge_llm": {},
+  "refresh_episodes": 0,
+  "refresh_tokens": 0
+ }
+}

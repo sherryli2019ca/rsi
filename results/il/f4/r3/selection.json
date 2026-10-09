@@ -1,0 +1,38 @@
+{
+ "t": 3,
+ "selection": "full",
+ "rule": "full",
+ "b": null,
+ "ep_tokens": 71436.53333333334,
+ "candidates": {
+  "A": {
+   "S": 0.7,
+   "dS": -0.1166666666666667,
+   "fresh": {
+    "n": 60,
+    "missing": 0,
+    "tokens": 4101778,
+    "harness_errors": 0
+   }
+  },
+  "B": {
+   "S": 0.7666666666666667,
+   "dS": -0.04999999999999993,
+   "fresh": {
+    "n": 60,
+    "missing": 0,
+    "tokens": 4484212,
+    "harness_errors": 0
+   }
+  }
+ },
+ "cost": {
+  "selection_episodes": 120,
+  "selection_replays": 0,
+  "selection_tokens": 8585990,
+  "selection_episode_equivalents": 120.0,
+  "judge_llm": {},
+  "refresh_episodes": 0,
+  "refresh_tokens": 0
+ }
+}
