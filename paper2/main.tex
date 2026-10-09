@@ -26,25 +26,24 @@
 \maketitle
 
 \begin{abstract}
-Self-improving agent loops start by attributing each failure to a step of the episode, usually by asking an LLM to read the trace. We ask how well attribution methods find the step whose correction would have rescued a failed episode, at what cost, and whether better attribution gives better repairs. Defining ground truth as the earliest such step proved unstable: a failure often has several rescuable steps, and two independent runs named the same step in 42\% of comparisons. We instead measure, for every step, how much a single correction raises the success of continued replays above replays without it, and score a method by this rescue gain at the step it names. On 300 natural failures from a running self-improvement loop in three domains, $\tau^2$-bench retail and airline and AppWorld with a code agent, with registered analyses, no LLM-based method did better than a zero-cost rule naming the first state-changing action (mean rescue gain 0.42, against 0.20--0.34). Counterfactual search with up to 40 replays was no better than one judge call ($\tau^2$: $-0.06$ $[-0.15,+0.03]$; AppWorld: $+0.03$ $[-0.09,+0.14]$) at seven times the cost, and a small model's judge matched a large model with thinking at a fourteenth of the cost. The best simple rule changed with the domain: in AppWorld, where decisive steps came late, naming the last step did as well as any judge. Binary search was the only method whose accuracy held across domains. In a second registered experiment, we gave each attribution to the loop's proposer at eight states of the loop in $\tau^2$ and deployed the 54 resulting repairs on held-out tasks: repairs drafted from the first-write rule or binary search were practically equivalent to those drafted from the loop's own, less accurate analysis ($+0.3$ points of held-out success, 90\% intervals within $\pm2.5$), and counterfactual search did not help. Attribution benchmarks need rescue-based ground truth with null controls, domain baselines and a test on repairs before LLM attributors can be said to help.
+Self-improving agent loops start by attributing each failure to a step of the episode, usually by asking an LLM to read the trace. We evaluate attribution against counterfactual rescue. Because a failure often has several rescuable steps, we measure for every step how much a single correction raises the success of continued replays above uncorrected replays from the same step, and score a method by this rescue gain at the step it names. On 300 natural failures from a self-improvement loop in $\tau^2$-bench retail and airline and in AppWorld, with registered analyses, no LLM-based method beat a zero-cost rule that names the first state-changing action (mean rescue gain 0.42, against 0.20--0.34). Counterfactual search with 40 replays was no better than one judge call at seven times the cost. The null replays decide the ranking: without them (post hoc), early steps earn credit for chance recoveries and an LLM judge ranks first. More accurate attribution also did not yield better repairs. When the loop's proposer drafted repairs from each attribution, those drafted from the first-write rule or binary search were practically equivalent on held-out tasks to those drafted from the loop's own, less accurate analysis. Attribution benchmarks need null-controlled ground truth, simple baselines and a test on repairs.
 \end{abstract}
 
 \section{Introduction}
 
-Agents that improve themselves from their own failures share a first step. An analyst model reads a failed episode, decides where it went wrong, and hands that diagnosis to a proposer that edits the agent's prompts, tools or code \citep{shinn2023reflexion,zhao2024expel,zhang2026ace,chen2026harnessfix,rrsi2026}. If the diagnosis points at the wrong step, the proposer repairs the wrong thing. Failure attribution has therefore become a task of its own, with benchmarks of human-labelled multi-agent logs \citep{zhang2025whichagent,liu2026whowhenpro}, taxonomies of failure modes \citep{cemri2025mast,cemri2026adamast,zhu2025agentdebug}, and methods that replay a failure with a step changed \citep{zhang2026agentracer,ma2025dover,lin2026reflect,bonagiri2026causalflow,shah2026car}.
+Agents that improve themselves from their own failures share a first step. An analyst model reads a failed episode, decides where it went wrong, and hands that diagnosis to a proposer that edits the agent's prompts, tools or code \citep{shinn2023reflexion,zhao2024expel,zhang2026ace,chen2026harnessfix,rrsi2026}. If the diagnosis points at the wrong step, the proposer may repair the wrong thing. Failure attribution has therefore become a task of its own, with benchmarks of human-labelled multi-agent logs \citep{zhang2025whichagent,liu2026whowhenpro}, taxonomies of failure modes \citep{cemri2025mast,cemri2026adamast,zhu2025agentdebug}, and methods that replay a failure with a step changed \citep{zhang2026agentracer,ma2025dover,lin2026reflect,bonagiri2026causalflow,shah2026car}.
 
-Two questions are rarely asked together: is an attribution correct in the sense a repair loop needs, and is it worth what it costs? A human label says which step an annotator blames; a repair loop needs the step whose correction would have made the episode succeed. Replay-based methods test that directly but spend agent episodes; an LLM judge spends one call. We evaluate both kinds against a ground truth defined by rescue and report cost next to accuracy.
+Three questions are rarely asked together. Is an attribution correct in the sense a repair loop needs? Is it worth what it costs? And does a more accurate attribution make the loop's repairs better? A human label says which step an annotator blames; a repair loop needs a step whose correction would have made the episode succeed. Replay-based methods test that directly but spend agent episodes; an LLM judge spends one call. We evaluate both kinds against a ground truth defined by rescue, report cost next to accuracy, and then hand each attribution to a working loop and measure the repairs it produces.
 
-Defining that ground truth turned out to be the hard part. Our registered plan named the \emph{earliest} step whose single correction beats replays without correction. On a pilot, two independent runs of this protocol agreed on 42\% of failures (\S\ref{sec:gt}): a failure usually has several steps whose correction rescues it, and which one is found first depends on which corrections an oracle happens to write. We therefore measure a \emph{rescue profile}: for every step, the mean gain in success over null replays across four independent corrections. A method is scored by the rescue gain at the step it names, and a failure is \emph{rescuable} when some step reaches a gain of 0.5. Null replays matter: continuing an unchanged failed episode from a step succeeded 11--27\% of the time, depending on the domain.
+Defining that ground truth turned out to be the hard part. Our registered plan named the \emph{earliest} step whose single correction beats replays without correction. On a pilot, two independent runs of this protocol agreed on 42\% of failures (\S\ref{sec:gt}): a failure usually has several steps whose correction rescues it, and which one is found first depends on which corrections an oracle happens to write. We therefore measure a \emph{rescue profile}: for every step, the mean gain in success over null replays across four independent corrections. A method is scored by the rescue gain at the step it names, and a failure is \emph{rescuable} when some step reaches a gain of 0.5. The null replays, which continue the unchanged episode from the same step, turned out to matter most: they succeed often from early steps and rarely from late ones, and without them an LLM judge would rank first among the methods and the rule that wins with them sixth.
 
-We apply the profile to 300 natural failures of agents built by a self-improvement loop, RRSI \citep{rrsi2026}, in $\tau^2$-bench's retail and airline domains \citep{barres2025tau2} and in AppWorld with a code agent \citep{trivedi2024appworld}, and compare twelve attributions: three all-at-once judges of different cost, step-by-step and binary-search judges \citep{zhang2025whichagent}, a root-cause attributor, the trace digester RRSI uses, counterfactual search with up to 40 replays, and two structural rules. Methods, metrics and analyses were registered before any ground truth was computed. A second registered experiment re-runs one round of RRSI at eight of its own states in $\tau^2$ with each attribution, or none, given to the proposer, and deploys every resulting repair on 240 held-out episodes (\S\ref{sec:repairs}). Our findings:
+We apply the profile to 300 natural failures of agents built by a self-improvement loop, RRSI \citep{rrsi2026}, in $\tau^2$-bench's retail and airline domains \citep{barres2025tau2} and in AppWorld with a code agent \citep{trivedi2024appworld}, and compare twelve attributions: three all-at-once judges of different cost, step-by-step and binary-search judges \citep{zhang2025whichagent}, a root-cause attributor, the trace digester RRSI uses, counterfactual search with up to 40 replays, and two structural rules. Methods, metrics and analyses were registered before any ground truth was computed. A second registered experiment re-runs one round of RRSI at eight of its own states in $\tau^2$ with each attribution, or none, given to the proposer, and deploys every resulting repair on 240 held-out episodes (\S\ref{sec:repairs}). Our contributions:
 
 \begin{itemize}
-\item No LLM-based method did better than naming the first state-changing action, a rule that costs nothing (\S\ref{sec:results}). The best LLM method, binary search, was 0.08 lower (exploratory interval $[-0.02,+0.18]$).
-\item The registered comparison of counterfactual search against a single judge call found no difference in either $\tau^2$ or AppWorld, and search cost seven times as much. The cheapest judge matched the most expensive one.
-\item Which simple rule wins depends on the domain. In retail most decisive steps are writes; in airline most are utterances, and the judges led; in AppWorld decisive steps come late and are often the submission, so naming the last step scored 0.36, against 0.11--0.13 in $\tau^2$.
-\item More accurate attribution did not give better repairs. Repairs drafted from first-write or binary-search steps were practically equivalent to those drafted from RRSI's own analysis, which had located decisive steps less well ($+0.31$ and $+0.29$ points of held-out success; 90\% intervals within $\pm2.5$ points), and those drafted from counterfactual search were not better (\S\ref{sec:repairs}). The largest losses came from single harmful edits, which RRSI's own re-evaluation rejected.
-\item On Who\&When, our judges reproduce the published gap between agent-level and step-level accuracy (\S\ref{sec:whowhen}).
+\setlength\itemsep{1pt}
+\item \textbf{A ground truth by rescue profile} with null controls. It is stable across independent reruns (25 of 30 retested failures agree on the decisive step) and, post hoc, across the number of oracle samples and the rescue threshold. Without null replays the conclusion reverses, because uncorrected replays from early steps often succeed by chance (\S\ref{sec:robust}).
+\item \textbf{A cost-aware comparison of twelve attributions} on 300 natural failures. No LLM-based method beat the free first-write rule; the closest, binary search, scored 0.08 lower (exploratory interval $[-0.02,+0.18]$). The registered comparison of counterfactual search with a single judge call found no difference in either $\tau^2$ or AppWorld at seven times the cost, and the cheapest judge matched the most expensive. Which simple rule wins depends on the domain (\S\ref{sec:results}).
+\item \textbf{A test on repairs.} Repairs drafted from first-write or binary-search steps were practically equivalent on held-out tasks to those drafted from RRSI's own, less accurate analysis ($+0.31$ and $+0.29$ points; 90\% intervals within $\pm2.5$), and counterfactual search's were not better. The proposers read every failing trace whatever they were shown; the largest losses came from single harmful edits, which RRSI's own re-evaluation rejected (\S\ref{sec:repairs}).
 \end{itemize}
 
 \section{Related Work}
@@ -69,7 +68,32 @@ We apply the profile to 300 natural failures of agents built by a self-improveme
 \begin{equation}
 R_k=\frac{1}{K}\sum_{i=1}^{K}\bigl(\hat{p}^{\,\mathrm{corr}}_{k,i}-\hat{p}^{\,\mathrm{null}}_{k}\bigr),
 \end{equation}
-where a sample judging the step correct, or giving an action the replay cannot apply, contributes 0. A failure is rescuable if $\max_k R_k\ge 0.5$, and then its decisive step is the step with the largest gain (earliest on ties). We also record the earliest step with $R_k\ge 0.5$. On the pilot, step-level gains of two independent runs correlated .74 (retail) and .64 (airline), and the decisive step agreed on 15 of 20 failures; where both runs found one, on 7 of 8, the eighth one step apart.
+where a sample judging the step correct, or giving an action the replay cannot apply, contributes 0. A failure is rescuable if $\max_k R_k\ge 0.5$, and then its decisive step is the step with the largest gain (earliest on ties). We also record the earliest step with $R_k\ge 0.5$. Figure~\ref{fig:profile} shows one profile. On the pilot, step-level gains of two independent runs correlated .74 (retail) and .64 (airline), and the decisive step agreed on 15 of 20 failures; where both runs found one, on 7 of 8, the eighth one step apart.
+
+\begin{figure}[t]
+\centering
+% retail failure 7ebe956_h_64_s6 (task 64), from gt/a/result.json
+\begin{tikzpicture}
+\begin{axis}[width=\columnwidth, height=4.3cm, xmin=-0.6, xmax=11.6, ymin=-0.35, ymax=1.3,
+  xtick={0,...,11}, ytick={-0.25,0,0.25,0.5,0.75,1}, xlabel={Agent step $k$}, ylabel={Success / gain},
+  label style={font=\small}, tick label style={font=\scriptsize}, grid=major, grid style={gray!15},
+  legend style={font=\scriptsize, draw=none, fill=none, at={(0.5,1.03)}, anchor=south, legend columns=3,
+  /tikz/every even column/.append style={column sep=6pt}}]
+\addplot[ybar, bar width=6pt, fill=gray!70, draw=none, area legend] coordinates {(0,0) (1,0) (2,0) (3,0) (4,-0.25) (5,-0.25) (6,0) (7,0) (8,0.75) (9,0.5) (10,1.0) (11,0)};
+\addlegendentry{rescue gain $R_k$}
+\addplot[only marks, mark=triangle*, mark size=2pt, black] coordinates {(4,0.75) (5,0) (6,0.75) (7,0) (8,0.75) (9,0.5) (10,1.0) (11,0)};
+\addlegendentry{corrected}
+\addplot[dashed, mark=o, mark size=1.8pt, black] coordinates {(4,1.0) (5,1.0) (6,0.75) (7,0) (8,0) (9,0) (10,0) (11,0)};
+\addlegendentry{null}
+\node[font=\scriptsize\bfseries, anchor=south] at (axis cs:5,1.08) {B};
+\node[font=\scriptsize\bfseries, anchor=south] at (axis cs:6,1.08) {J};
+\node[font=\scriptsize\bfseries, anchor=south] at (axis cs:8,1.08) {F};
+\node[font=\scriptsize\bfseries, anchor=south] at (axis cs:10,1.08) {D};
+\end{axis}
+\end{tikzpicture}
+\caption{Rescue profile of one retail failure. Corrected: mean success of the oracle's corrections; null: success of uncorrected replays (run only where some sample proposed a correction). Steps 8--10 all rescue the episode; D marks the decisive step, F the first write, J the all-at-once judges' step and B binary search's. At step 6, three of four corrections succeeded, but so did three of four uncorrected replays.}
+\label{fig:profile}
+\end{figure}
 
 \paragraph{Scoring a method.} A method names one step $\hat{k}$. Its score on a failure is $\Rhat$, the rescue gain at that step, and 0 for an invalid step. The primary metric is the mean of $\Rhat$ over rescuable failures; it rewards naming any step whose correction helps, in proportion to how much it helps. Secondary metrics are exact agreement with the decisive step, agreement within one step, agreement with the earliest rescuing step, the share $\Rhat/\max_k R_k$, and $\Rhat$ over all failures.
 
@@ -168,23 +192,43 @@ AppWorld & steps/dec. & docs & read & write & submit \\
 \label{tab:kinds}
 \end{table}
 
+\paragraph{The ranking is robust, except to the null control.}
+\label{sec:robust}
+The ground truth rests on three choices: four oracle samples per step, a rescue threshold of 0.5, and null replays. Table~\ref{tab:robust} re-scores every method under other choices (post hoc). Using two or one of the four samples (averaged over all subsets), thresholds from 0.25 to 0.75, or only the 102 failures with a single rescuing step left the first write first and binary search the best LLM method, with Kendall's $\tau$ of 0.78 to 1.00 between the method ordering and the registered one. Dropping the null replays did not. Scoring a step by the success of its corrected replays alone made 203 failures rescuable instead of 157, moved the first write from first to sixth place, and put the all-at-once judge with thinking first (0.42 against 0.37). In retail the first write's lead over the best LLM method shrank from 0.20 to 0.02, and in airline the judge with thinking would lead it by 0.31. The cause is visible in Figure~\ref{fig:nullpos}: uncorrected replays from the first fifth of an episode succeeded 41--44\% of the time, and from the last fifth 2--6\%. LLM methods other than binary search named steps on average 53--67\% of the way through an episode, against 77\% for decisive steps, so without the null control they collect credit for recoveries that happen anyway.
+
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lccccc}
+\toprule
+Ground truth & Resc. & First wr. & Best LLM & Rank & $\tau$ \\
+\midrule
+\csname @@input\endcsname tables/robustness.tex
+\bottomrule
+\end{tabular}}
+\caption{Method scores under other ground-truth choices (post hoc), pooled over the three domains: rescuable failures, the first write's mean $\Rhat$, the best LLM method and its $\Rhat$ (judge: all-at-once, Pro), the first write's rank among the ten methods of Table~\ref{tab:main}, and Kendall's $\tau$ of the method ordering against the registered one ($K=4$ oracle samples, null replays, threshold $\theta=0.5$). Rows with fewer samples average over all subsets of the four.}
+\label{tab:robust}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[width=\columnwidth, height=4.2cm, xmin=0, xmax=1, ymin=0, ymax=0.5,
+  xlabel={Relative position of the step in the episode}, ylabel={Null-replay success},
+  label style={font=\small}, tick label style={font=\scriptsize}, grid=major, grid style={gray!20},
+  legend style={font=\scriptsize, draw=none, fill=none, at={(0.98,0.97)}, anchor=north east}]
+\csname @@input\endcsname tables/nullpos.tex
+\end{axis}
+\end{tikzpicture}
+\caption{Success of uncorrected (null) replays from a step, by the step's position in the failed episode (fifths), at the steps where the oracle proposed a correction.}
+\label{fig:nullpos}
+\end{figure}
+
 \paragraph{Who\&When.}
 \label{sec:whowhen}
 To check that our judges are not unusually weak, we ran the all-at-once, step-by-step and binary-search judges on the 184 logs of Who\&When with its authors' prompts and the setting that shows the ground-truth answer \citep{zhang2025whichagent}. They identified the responsible agent in 58--67\% of logs with all-at-once judging and the responsible step in 3--25\% (Appendix Table~\ref{tab:whowhen}), the same pattern the benchmark reports: agents are found far more often than steps.
-
-\section{Do Better Attributions Give Better Repairs?}
-\label{sec:repairs}
-
-\paragraph{Design.} Accuracy against rescue profiles is a proxy: a loop needs attributions only to repair its agent. We tested this on RRSI itself, in a separately registered experiment. We took two other runs of the loop in each $\tau^2$ domain and the harness each run had accepted by the start of rounds 5 and 15, giving eight incumbent states. At each state we re-ran one unmodified RRSI round five times, changing only the evidence the proposer gets:
-\begin{itemize}
-\setlength\itemsep{0pt}
-\item \textbf{No attribution}: a note asking the proposer to read the traces itself.
-\item \textbf{RRSI analysis}: the round's own analysis report and trace digests, unchanged.
-\item \textbf{First write}, \textbf{binary search} (Pro) and \textbf{counterfactual search@40}: for each failing trace, the step the method named and an excerpt of it, with no reason, component or method name (Appendix~\ref{app:prompts}).
-\end{itemize}
-The proposer works from the traces RRSI builds from the incumbent's evaluation on training tasks (81 failing traces in all, 42 retail and 39 airline) and, as in RRSI, can read each of them, grading report included. Each round drafts two candidates and puts them through RRSI's critic, smoke test and full evaluation on training tasks, after which RRSI's own rule decides whether to accept one. A candidate is \emph{deployable} if it passes these gates with a harness error rate of at most 2\%. Every deployable candidate and every incumbent was deployed on 240 held-out episodes (retail 40 tasks $\times$ 6, airline 20 $\times$ 12).
-
-\paragraph{Analysis.} A candidate slot's gain $G$ is its held-out success minus its incumbent's, in points, and 0 if it was not deployable, since the loop then keeps the incumbent. A contrast between two groups is the mean over the eight states of the difference in their mean gains. The six primary contrasts compare each step attribution with no attribution and with RRSI's analysis; $p$ values come from permuting group labels within states and are Holm-adjusted, and 95\% intervals from a $t$ distribution over states (df 7). A contrast whose 90\% interval lies within $\pm2.5$ points, about one standard deviation of a single candidate's gain in earlier runs, counts as practically equivalent. The design, with an expected standard error of 0.9 points per contrast, was registered before any attribution was run on these traces, and no held-out result was looked at until all 62 deployments had finished.
 
 \begin{table*}[t]
 \centering
@@ -212,25 +256,62 @@ Primary contrast & Difference [95\%] & $p$ & Holm & Equivalent & Round level [95
 \label{tab:repairs}
 \end{table*}
 
+\section{Do Better Attributions Give Better Repairs?}
+\label{sec:repairs}
+
+\paragraph{Design.} Accuracy against rescue profiles is a proxy: a loop needs attributions only to repair its agent. We tested this on RRSI itself, in a separately registered experiment. We took two other runs of the loop in each $\tau^2$ domain and the harness each run had accepted by the start of rounds 5 and 15, giving eight incumbent states. At each state we re-ran one unmodified RRSI round five times, changing only the evidence the proposer gets:
+\begin{itemize}
+\setlength\itemsep{0pt}
+\item \textbf{No attribution}: a note asking the proposer to read the traces itself.
+\item \textbf{RRSI analysis}: the round's own analysis report and trace digests, unchanged.
+\item \textbf{First write}, \textbf{binary search} (Pro) and \textbf{counterfactual search@40}: for each failing trace, the step the method named and an excerpt of it, with no reason, component or method name (Appendix~\ref{app:prompts}).
+\end{itemize}
+The proposer works from the traces RRSI builds from the incumbent's evaluation on training tasks (81 failing traces in all, 42 retail and 39 airline) and, as in RRSI, can read each of them, grading report included. Each round drafts two candidates and puts them through RRSI's critic, smoke test and full evaluation on training tasks, after which RRSI's own rule decides whether to accept one. A candidate is \emph{deployable} if it passes these gates with a harness error rate of at most 2\%. Every deployable candidate and every incumbent was deployed on 240 held-out episodes (retail 40 tasks $\times$ 6, airline 20 $\times$ 12).
+
+\paragraph{Analysis.} A candidate slot's gain $G$ is its held-out success minus its incumbent's, in points, and 0 if it was not deployable, since the loop then keeps the incumbent. A contrast between two groups is the mean over the eight states of the difference in their mean gains. The six primary contrasts compare each step attribution with no attribution and with RRSI's analysis; $p$ values come from permuting group labels within states and are Holm-adjusted, and 95\% intervals from a $t$ distribution over states (df 7). A contrast whose 90\% interval lies within $\pm2.5$ points, about one standard deviation of a single candidate's gain in earlier runs, counts as practically equivalent. The design, with an expected standard error of 0.9 points per contrast, was registered before any attribution was run on these traces, and no held-out result was looked at until all 62 deployments had finished.
+
+
+
 \paragraph{No contrast was significant.} Of 80 drafts, 54 were deployable, 9 to 13 per group (Table~\ref{tab:repairs}); the others made no proposal, were rejected by the critic or failed the smoke test, and none failed the error check. No primary contrast was significant (Holm-adjusted $p=1.0$ for all six). Repairs drafted from first-write and binary-search steps were practically equivalent to those drafted from RRSI's analysis: $+0.31$ $[-0.56,+1.18]$ and $+0.29$ $[-0.82,+1.39]$ points. Counterfactual search was 2.14 points below RRSI's analysis $[-5.67,+1.40]$, mostly through two airline candidates that lost 23 and 14 points: a gate that blocked writes it judged unconfirmed or inconsistent with the conversation, and an edit that added totals to flight searches and zeroed paid bags in baggage updates. The contrasts with no attribution span about $\pm10$ points because of a single candidate drafted without attribution. It held back every write whose order identifier had not appeared in an earlier order lookup; its check did not match how lookups were recorded, so it blocked nearly every write without raising an error and lost 72.5 points. Without it, the no-attribution group's mean gain was $+0.17$ points, in line with the others (exploratory).
 
 \paragraph{Accuracy did not carry over.} In retail, the first write had located decisive steps three times as well as RRSI's digester (0.53 against 0.17), yet repairs drafted from the two differed by $+0.52$ $[-0.49,+1.54]$ points. The three step methods rarely named the same step (all three agreed on 10\% of retail traces and on none in airline), so the proposers did receive different evidence. Most repairs did not help on held-out tasks in any group: 25--60\% of deployable candidates gained, and no group's mean gain was above zero. RRSI's own rule rejected all three candidates that lost more than 10 points, so at the level of the loop the gain of the accepted candidate differed little between groups: between $-0.10$ and $+0.47$ points, with no contrast significant (exact sign-flip $p\ge.25$). As checks, the RRSI-analysis group's mean gain ($-0.34$) matched that of the candidates the original rounds had drafted from the same evidence ($-0.42$), and re-deploying each incumbent moved its held-out success by $-2.5$ to $+3.3$ points against its earlier deployment, within the noise of 240 episodes.
 
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[width=\columnwidth, height=4.6cm, xmin=0.4, xmax=5.6, ymin=-27, ymax=7,
+  xtick={1,2,3,4,5}, xticklabels={None, RRSI, First wr., Binary, CF search},
+  ylabel={Held-out gain $G$ (points)}, label style={font=\small}, tick label style={font=\scriptsize},
+  ytick={-25,-20,-15,-10,-5,0,5}, yticklabels={$\le\!-25$,$-20$,$-15$,$-10$,$-5$,0,5},
+  grid=major, grid style={gray!20}]
+\addplot[gray!60, dashed, forget plot] coordinates {(0.4,0) (5.6,0)};
+\csname @@input\endcsname tables/phaseb_points.tex
+\node[font=\scriptsize, anchor=west] at (axis cs:1.12,-25) {$-72.5$};
+\end{axis}
+\end{tikzpicture}
+\caption{Held-out gain of every deployable candidate in the repair experiment, by the evidence its proposer got. Filled: accepted by RRSI's own rule. One candidate ($-72.5$) is drawn at $-25$.}
+\label{fig:repairs}
+\end{figure}
+
+\paragraph{Proposers read the same traces.} The proposers' action logs suggest why the evidence mattered so little (post hoc). In every group the proposer opened 97--100\% of the failing traces, with 13 to 20 trace reads per draft, and most reads returned the whole trace or a long window of it. Without any attribution, 96--97\% of the reads of a failing trace covered the step each of the three methods named for it. Step digests changed how proposers read, raising the share of reads limited to at most five steps from 7--8\% to 16--23\%, but not what they saw. Figure~\ref{fig:repairs} shows where the differences between groups came from: most candidates in every group landed within 5 points of their incumbent, and the group means were set by a few large losses.
+
 \section{Discussion}
 \label{sec:discussion}
+
+\paragraph{Replay labels need null controls.} Counterfactual replay is a common way to label or verify attributions \citep{zhang2026agentracer,ma2025dover,bonagiri2026causalflow,shah2026car}. Our data show what it measures without a control: from steps in the first fifth of an episode, an unchanged continuation of a failed $\tau^2$ or AppWorld episode succeeded in about two cases of five, so a corrected replay's success there is weak evidence that the correction mattered. A protocol that counts such successes as rescues favours early steps and the attributors that name them, and in our data it would have reversed the comparison between LLM judges and the first-write rule. Null replays from the same step cost a few replays per step and remove this bias.
 
 \paragraph{Why a rule wins.} The rescue profile asks where a single correction helps most. In customer service, an agent that changes the database wrongly fails at that write, and correcting it is the most direct rescue; the first write is often that step. The judges, reading the same gold actions, tended to blame earlier steps: imperfect questions or confirmations that a correction did not turn into success. Where the decisive mistake is a conversational act, as in airline, the judges have the advantage. A deployed loop does not know in advance which situation it is in, so a judge that is beaten by a free rule in one domain and beats it in another needs a domain baseline before its accuracy means anything.
 
 \paragraph{What the oracle's knowledge does.} Our corrections come from an oracle that sees grading criteria. This makes rescue achievable, but it also favours steps where knowing the expected outcome suffices to correct the action, such as writes with the right arguments. The judges see the same criteria, so the gap to the first-write rule is not an information gap. Counterfactual search, which corrects without them, usually had a rescuing step among its suspects but could not confirm it with its own corrections; an attributor that replays needs corrections as good as the oracle's before replays pay for themselves.
 
-\paragraph{Implications for self-improving loops.} The analyst in RRSI-style loops is a trace digester; on our failures it was among the least accurate attributors. Yet replacing its analysis with a more accurate step did not give better repairs (\S\ref{sec:repairs}). We see two possible reasons, neither tested here. The proposer reads the traces itself, grading report included, and may find the same mistakes whichever step it is pointed to; a loop that hid the traces would test attribution more directly. And a repair's value depended less on where the failure lay than on how the edit was built: the largest losses came from write gates and argument rewrites that misfired broadly, and RRSI's re-evaluation on training tasks rejected each of them. Our results suggest that in a loop like this one, the evaluation that decides which repairs to keep protects the agent more than the accuracy of the attribution behind them.
+\paragraph{Implications for self-improving loops.} The analyst in RRSI-style loops is a trace digester; on our failures it was among the least accurate attributors. Yet replacing its analysis with a more accurate step did not give better repairs (\S\ref{sec:repairs}). The proposers' logs point to one reason: a proposer that reads every failing trace in full sees the decisive steps whether or not it is told where they are. Attribution may matter more where a loop cannot show its proposer whole traces, with long episodes or many failures per round. A second reason is that a repair's value depended less on where the failure lay than on how the edit was built: the largest losses came from write gates and argument rewrites that misfired broadly, and RRSI's re-evaluation on training tasks rejected each of them. Our results suggest that in a loop like this one, the evaluation that decides which repairs to keep protects the agent more than the accuracy of the attribution behind them.
 
 \section{Conclusion}
 
-Against a ground truth defined by counterfactual rescue with null controls, LLM attribution of agent failures did not beat a free structural rule on 300 natural failures in three domains, and replays and larger models did not close the gap. Giving a self-improvement loop's proposer more accurate steps did not make its repairs better on held-out tasks. The earliest-step ground truth common in this literature is unstable once several steps can rescue a failure; a rescue profile is stable enough to compare methods. We release the failures, rescue profiles and code.
+Against a ground truth defined by counterfactual rescue with null controls, LLM attribution of agent failures did not beat a free structural rule on 300 natural failures in three domains, and replays and larger models did not close the gap. Giving a self-improvement loop's proposer more accurate steps did not make its repairs better on held-out tasks; its proposer read every failing trace anyway. The earliest-step ground truth common in this literature is unstable once several steps can rescue a failure; a rescue profile is stable enough to compare methods, but only with null replays, without which the comparison reverses. We release the failures, rescue profiles and code.
 
 \section*{Limitations}
-All agents, oracles and attributors use one model family (DeepSeek-V4). The failures come from one self-improvement loop and three domains, with 37 to 65 rescuable failures each, so per-domain intervals are wide. Ground-truth corrections are written by an oracle that sees grading criteria, which may favour write actions (\S\ref{sec:discussion}); a different oracle would give a different profile, and the retest measures only the oracle's sampling variation. The threshold of 0.5 for rescuability and the use of four samples per step were fixed on a 20-failure pilot. Our methods were prompted for the earliest decisive mistake while the primary metric rewards any rescuing step; agreement with the earliest step is reported as a secondary metric and orders the methods similarly. Fourteen retail failures were drawn after the others, from two further runs of the same loop, because the first did not yield enough distinct retail failures. Two of 6{,}540 AppWorld replays could not run (Appendix~\ref{app:prereg}). Who\&When is a multi-agent benchmark with a different format; only methods without replay were run there. The repair experiment covers $\tau^2$ only, with eight states and 16 candidate slots per group. For the first write and binary search it rules out differences from RRSI's analysis larger than 2.5 points, not smaller ones, and its contrasts with no attribution are dominated by one candidate. Its digests carried only the step, not a reason or a component, and its proposers could read every trace with its grading report, so it tests whether pointing a proposer at a better step helps, not whether a better diagnosis would.
+All agents, oracles and attributors use one model family (DeepSeek-V4). The failures come from one self-improvement loop and three domains, with 37 to 65 rescuable failures each, so per-domain intervals are wide. Ground-truth corrections are written by an oracle that sees grading criteria, which may favour write actions (\S\ref{sec:discussion}); a different oracle would give a different profile, and the retest measures only the oracle's sampling variation. The threshold of 0.5 for rescuability and the use of four samples per step were fixed on a 20-failure pilot; the ranking held for thresholds from 0.25 to 0.75 and for one or two samples, but these checks and the analysis of the proposers' reading are post hoc. Our methods were prompted for the earliest decisive mistake while the primary metric rewards any rescuing step; agreement with the earliest step is reported as a secondary metric and orders the methods similarly. Fourteen retail failures were drawn after the others, from two further runs of the same loop, because the first did not yield enough distinct retail failures. Two of 6{,}540 AppWorld replays could not run (Appendix~\ref{app:prereg}). Who\&When is a multi-agent benchmark with a different format; only methods without replay were run there. The repair experiment covers $\tau^2$ only, with eight states and 16 candidate slots per group. For the first write and binary search it rules out differences from RRSI's analysis larger than 2.5 points, not smaller ones, and its contrasts with no attribution are dominated by one candidate. Its digests carried only the step, not a reason or a component, and its proposers could read every trace with its grading report, so it tests whether pointing a proposer at a better step helps, not whether a better diagnosis would.
 
 \section*{Ethics Statement}
 All environments use synthetic users and data. Attribution methods that misdiagnose failures can lead self-improving agents to change the wrong behaviour; our results suggest that such diagnoses should be checked against simple baselines before they drive automatic changes.
@@ -321,5 +402,7 @@ The registration (methods, prompts, metrics, the primary comparison and the budg
 \end{itemize}
 
 \paragraph{Repair experiment.} Registered separately, before any attribution was run on its traces and before any candidate was drafted. The first state served as a pilot; it exposed no bug, so its cells were kept, as registered. Two operational problems had no effect on data: a lookup by abbreviated commit hash re-invoked finished deployments, which skipped every episode as already done, and a container restart interrupted the deployments, which resumed with finished episodes kept. One secondary test changed. The registered code tested the round-level contrasts by permuting slots, but a round has one accepted candidate, so each cell's value was copied to its two slots and the permutation split the copies between groups, which is not a valid test. We noticed this after the first run of the analysis, which gave $p=.009$ for first write against no attribution, and replaced the test by an exact sign-flip test over the eight state differences ($p\ge.25$); estimates and intervals are unchanged.
+
+\paragraph{Post-hoc analyses.} Not registered: the re-scoring under other ground-truth choices and the null-replay rates by step position (Table~\ref{tab:robust}, Figure~\ref{fig:nullpos}; \texttt{attrib/robustness.py}), the proposers' reading of traces in the repair experiment (\texttt{attrib/phaseb\_reading.py}), and the no-attribution group's mean without its worst candidate.
 
 \end{document}

@@ -11,10 +11,14 @@ truth and traces for the kinds of decisive step. Writes:
   search.tex   counterfactual search by budget, by domain
   secondary.tex  pooled secondary metrics per method
   whowhen.tex  agent and step accuracy on Who&When (results/attrib/whowhen_scores.json)
-  phaseb_groups.tex, phaseb_contrasts.tex  the repair experiment (Phase B) from
-               results/attrib/phaseB_analysis.json (attrib/phaseb_analyze.py)
-and prints the numbers the text quotes. Without <main>, only the Phase B tables
-are written.
+  phaseb_groups.tex, phaseb_contrasts.tex, phaseb_points.tex  the repair
+               experiment (Phase B) from results/attrib/phaseB_analysis.json
+               (attrib/phaseb_analyze.py)
+  robustness.tex, nullpos.tex  the ranking under other ground-truth choices and
+               null-replay success by step position, from
+               results/attrib/phaseA_robustness.json (attrib/robustness.py)
+and prints the numbers the text quotes. Without <main>, only the Phase B and
+robustness tables are written.
 """
 from __future__ import annotations
 
@@ -36,6 +40,14 @@ MIDRULES = {2, 5, 7}
 PB_GROUPS = [("none", "No attribution"), ("rrsi", "RRSI analysis"), ("first_write", "First write"),
              ("binary_search", "Binary search"), ("cf_search", "Counterfactual search@40")]
 PB_DEFAULT = Path(__file__).resolve().parents[1] / "results" / "attrib" / "phaseB_analysis.json"
+ROB_DEFAULT = Path(__file__).resolve().parents[1] / "results" / "attrib" / "phaseA_robustness.json"
+ROB_ROWS = [("main", "Registered"), ("K=2", "$K=2$"), ("K=1", "$K=1$"),
+            ("threshold 0.25", "$\\theta=0.25$"), ("threshold 0.375", "$\\theta=0.375$"),
+            ("threshold 0.625", "$\\theta=0.625$"), ("threshold 0.75", "$\\theta=0.75$"),
+            ("unique rescuing step", "One rescuing step"), ("no null", "No null replays")]
+PB_X = {g: i + 1 for i, (g, _) in enumerate([("none", 0), ("rrsi", 0), ("first_write", 0),
+                                             ("binary_search", 0), ("cf_search", 0)])}
+PB_CLIP = -0.25
 T975_DF7 = 2.364624
 
 
@@ -105,6 +117,31 @@ def _state_contrast(rows: list[dict], g: str, h: str) -> dict:
     return {"estimate": float(d.mean()), "ci95": [float(d.mean() - T975_DF7 * se), float(d.mean() + T975_DF7 * se)]}
 
 
+def robustness_tables(path: Path, out: Path) -> dict:
+    R = json.loads(path.read_text())
+    V = {v["variant"]: v for v in R["variants"]}
+    short = {m: (name if model in ("rule", "Pro", "Pro, replays") else f"{name}, {model}")
+             for m, name, model in ROWS}
+    short["all_at_once_pro_think"] = "Judge, thinking"
+    lines = []
+    for key, label in ROB_ROWS:
+        v = V[key]
+        lines.append(" & ".join([label, f"{v['n_rescuable']:.0f}", _f(v["mean"]["first_write"]),
+                                 f"{short[v['best_llm']]} {_f(v['best_llm_R'])}",
+                                 f"{v['first_write_rank']:.0f}", _f(v["kendall_tau_vs_main"])]) + " \\\\")
+    (out / "robustness.tex").write_text("\n".join(lines) + "\n")
+    names = {"tau2_retail": "Retail", "tau2_airline": "Airline", "appworld": "AppWorld"}
+    marks = {"tau2_retail": "*", "tau2_airline": "square*", "appworld": "triangle*"}
+    lines = []
+    for d, bins in R["null_by_position"].items():
+        pts = " ".join(f"({(i + 0.5) / 5:.1f},{b[0]:.3f})" for i, b in enumerate(bins))
+        lines.append(f"\\addplot[mark={marks[d]}, mark size=1.6pt] coordinates {{{pts}}};")
+        lines.append(f"\\addlegendentry{{{names[d]}}}")
+    (out / "nullpos.tex").write_text("\n".join(lines) + "\n")
+    return {"variants": {k: V[k] for k, _ in ROB_ROWS}, "rescuable_by_domain": R["rescuable_by_domain"],
+            "null_by_position": R["null_by_position"], "named_relative_position": R["named_relative_position"]}
+
+
 def phaseb_tables(path: Path, out: Path) -> dict:
     B = json.loads(path.read_text())
     S = B["secondary"]
@@ -136,6 +173,17 @@ def phaseb_tables(path: Path, out: Path) -> dict:
         lines.append(" & ".join(cells) + " \\\\")
     (out / "phaseb_contrasts.tex").write_text("\n".join(lines) + "\n")
 
+    # strip plot of every deployable candidate's gain, clipped at PB_CLIP
+    lines = []
+    for acc, style in ((False, "mark=o, gray"), (True, "mark=*, black")):
+        pts = []
+        states = sorted({x["state"] for x in B["slots"]})
+        for r in (x for x in B["slots"] if x["gate"] is None and x["accepted"] == acc):
+            jit = (2 * states.index(r["state"]) + (r["variant"] == "B") - 7.5) * 0.025
+            pts.append(f"({PB_X[r['group']] + jit:.2f},{max(r['G'], PB_CLIP) * 100:.2f})")
+        lines.append(f"\\addplot[only marks, {style}, mark size=1.5pt] coordinates {{{' '.join(pts)}}};")
+    (out / "phaseb_points.tex").write_text("\n".join(lines) + "\n")
+
     # exploratory, not registered: the no-attribution group without its one
     # catastrophic candidate (dropped, or set to 0 as if a gate had stopped it)
     rows = B["slots"]
@@ -160,20 +208,22 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("main", nargs="?")
     ap.add_argument("--phaseb", default=str(PB_DEFAULT))
+    ap.add_argument("--robustness", default=str(ROB_DEFAULT))
     ap.add_argument("--out", default=str(Path(__file__).resolve().parents[1] / "paper2" / "tables"))
     ap.add_argument("--whowhen", default="/mnt/project-files/results/attrib/whowhen_scores.json")
     args = ap.parse_args()
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     pb = phaseb_tables(Path(args.phaseb), out) if Path(args.phaseb).exists() else None
+    rob = robustness_tables(Path(args.robustness), out) if Path(args.robustness).exists() else None
     if not args.main:
-        print(json.dumps({"phaseb": pb}, indent=1))
+        print(json.dumps({"phaseb": pb, "robustness": rob}, indent=1))
         return
     main_dir = Path(args.main)
     A = {d: json.loads((main_dir / f"analysis_{d}.json").read_text()) for d in DOMAINS}
     P = json.loads((main_dir / "analysis_pooled3.json").read_text())
     summary = {"n": P["n"], "retest": P["retest"], "primary": {d: A[d].get("primary") for d in DOMAINS},
-               "primary_pooled3": P.get("primary"), "phaseb": pb}
+               "primary_pooled3": P.get("primary"), "phaseb": pb, "robustness": rob}
 
     lines = []
     for i, (m, name, model) in enumerate(ROWS):
