@@ -195,3 +195,7 @@ traces, about 4). Total about 40 dollars; stop and report above 100
 - ~05:55Z. The container restarted (uptime 0 at 06:01Z) with 23 of 62
   deployments finished; the deployments resumed at 06:03Z
   (/home/user/phaseb/run_deploy.sh; trials already on disk are kept).
+- 07:08Z. All 62 held-out deployments complete (8 incumbents, 54
+  candidates; no missing trial). The registered analysis
+  (attrib/phaseb_analyze.py, unchanged since fa3a2b7 except the import of
+  the job lookup fix) is run next; no held-out number was looked at before.
