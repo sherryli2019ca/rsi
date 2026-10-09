@@ -201,6 +201,10 @@ def main():
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--replay-workers", type=int, default=None,
                     help="parallel replays (default --workers); AppWorld episodes need ~0.65 GB each")
+    ap.add_argument("--accept-missing", action="store_true",
+                    help="score even if some replays still fail after the retries: their correction "
+                         "counts as not applied (no measured gain), as profile() does for any correction "
+                         "the replay could not apply")
     args = ap.parse_args()
     if args.domain == "appworld":
         dom, m = "appworld", None
@@ -217,9 +221,23 @@ def main():
     os.environ.setdefault("RRSI_USAGE_LOG", str(rep / "usage.jsonl"))
     odir, rdir = rep / "oracle", rep / "replays"
     run_oracle(fails, odir, m, args.workers)
-    run_replays(fails, odir, rdir, dom, args.replay_workers or args.workers)
+    missing = []
+    try:
+        run_replays(fails, odir, rdir, dom, args.replay_workers or args.workers)
+    except SystemExit as e:
+        if not args.accept_missing:
+            raise
+        for f in fails:
+            for k in range(f["n_steps"]):
+                for i, v in enumerate(_samples(f, k, odir)):
+                    keys = [f"{f['fid']}_k{k}_o{i}_{j}" for j in range(R_C)]
+                    if v.get("verdict") == "mistake":
+                        missing += [x for x in keys if not (rdir / f"{x}.json").exists()]
+        print(f"accepting missing replays: {e} {missing}", flush=True)
     res = {"protocol": 3, "K": K, "R_C": R_C, "R_N": R_N, "threshold": THRESHOLD,
            "failures": [profile(f, odir, rdir) for f in fails]}
+    if missing:
+        res["missing_replays"] = missing
     (rep / "result.json").write_text(json.dumps(res, indent=1))
     for x in res["failures"]:
         print(f"{x['fid']:30s} max R {x['max_R']:.2f} decisive {x['decisive']} earliest {x['earliest']}")
