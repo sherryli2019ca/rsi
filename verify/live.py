@@ -24,6 +24,19 @@ evaluation is not used for the decision and its cost is reported separately.
                 episodes on pairs H_t solved, compared with H_t's other trial
                 of the task: f * (fix_c - fix_null) + (1 - f) * mean(c - h_other)
 
+seqfull       RRSI's own full evaluation and rule, run sequentially: each
+              screened candidate's evolve episodes in batches of SEQ_BATCH
+              (random order over (task, trial) pairs); after each batch the
+              candidate is dropped when its harness errors already exceed the
+              guard's share of the planned episodes or when the predictive
+              probability that RRSI's Algorithm 2 admits it after all episodes
+              falls below SEQ_GAMMA (verify/posthoc_e1.p_admissible, the rule
+              registered offline in PREREGISTRATION_E1R.md, addendum 2).
+              Candidates that are not dropped complete their evaluation and
+              are decided by RRSI's select_round; a dropped candidate is
+              recorded as REJECTED with its early-stopped estimate, which is
+              what the proposer sees in the next rounds' history.
+
 f = failed trials / trials of H_t's evaluation. A missing replay (infrastructure)
 is left out, as in the offline analysis; a missing fresh episode scores 0, as in
 RRSI's Evaluate.
@@ -56,7 +69,9 @@ from . import judge as judge_mod
 from .replays import references
 from .state import Cand, Round, trial_path
 
-RULES = ("none", "judge", "sample", "replay", "replaynull", "net")
+RULES = ("none", "judge", "sample", "replay", "replaynull", "net", "seqfull")
+SEQ_BATCH = 10
+SEQ_GAMMA = 0.05
 MIN_B = {"sample": 1, "replay": 1, "replaynull": 2, "net": 4}
 
 
@@ -65,8 +80,8 @@ def parse_mode(mode: str) -> tuple[str, int]:
     rule, _, b = str(mode).strip().partition("@")
     if rule not in RULES:
         raise SystemExit(f"unknown selection {mode!r}: use full, none, judge, sample@b, "
-                         f"replay@b, replaynull@b or net@b")
-    if rule in ("none", "judge"):
+                         f"replay@b, replaynull@b, net@b or seqfull")
+    if rule in ("none", "judge", "seqfull"):
         if b:
             raise SystemExit(f"selection {rule} takes no episode budget")
         return rule, 0
@@ -262,6 +277,8 @@ def select_with_evidence(run, t: int, cands: list, inc_ev: EvalResult, rdir: Pat
     evolve evaluation in winner.ev."""
     d, cfg = run.domain, run.cfg
     rule, b = parse_mode(cfg.selection)
+    if rule == "seqfull":
+        return select_sequential(run, t, cands, inc_ev, rdir, ids, counts)
     z = float(cfg.delta_z)
     edir = rdir / "evidence"
     edir.mkdir(exist_ok=True)
@@ -400,3 +417,113 @@ def account_full(run, t: int, rdir: Path, cands: list) -> None:
                     "selection_episode_equivalents": float(n), "judge_llm": {},
                     "refresh_episodes": 0, "refresh_tokens": 0}}
     (rdir / "selection.json").write_text(json.dumps(out, indent=1))
+
+
+# ------------------------------------------------------------- sequential --
+def _seq_candidate(run, t: int, c, inc_ev: EvalResult, S_star: float, delta: float,
+                   nu: int, sdir: Path) -> dict:
+    """Run candidate c's evolve episodes in batches with the predictive stop.
+    Resume-safe: episodes already on disk are reused, and the stopping
+    sequence is replayed from the same order. Returns the candidate's record."""
+    from .posthoc_e1 import p_admissible
+    d, cfg = run.domain, run.cfg
+    rp = sdir / f"{c.variant}.json"
+    if rp.exists():
+        rec = json.loads(rp.read_text())
+        if rec.get("finished"):
+            return rec
+    job = f"r{t}{c.variant}"
+    wt = run.wt_root / job
+    pairs = [(tid, s) for tid, tr in sorted(inc_ev.per_task.items()) for s in range(len(tr.rewards))]
+    random.Random(f"{d.name}:{t}:{c.variant}:seq").shuffle(pairs)
+    N = len(pairs)
+    cap = float(cfg.notes.get("max_harness_error_rate", 0.02))
+    s_inc = inc_ev.S
+    floor_var = s_inc * (1 - s_inc)
+    L = S_star - delta - s_inc
+    cfgd = {"beta0": cfg.beta0, "beta1": cfg.beta1, "w_s": cfg.w_s, "w_c": cfg.w_c, "w_n": cfg.w_n}
+    slot, drawn, steps = Counter(), [], []
+    n, dropped, why, m, dC, errors = 0, False, "", 0.0, 0.0, 0
+    while n < N:
+        batch = pairs[n:n + SEQ_BATCH]
+        for tid, s in batch:
+            drawn.append((tid, s, slot[tid]))
+            slot[tid] += 1
+        need = {}
+        for tid, _, _ in drawn[n:]:
+            need[tid] = slot[tid]
+        for k in sorted(set(need.values())):
+            d.run(wt, run.runs, job, sorted(x for x in need if need[x] == k), k, log_prefix=job)
+        n = len(drawn)
+        recs = [_load(trial_path(run.runs, job, tid, j)) for tid, _, j in drawn]
+        diff = [_reward(r) - inc_ev.per_task[tid].rewards[s] for r, (tid, s, _) in zip(recs, drawn)]
+        errors = sum(1 for r in recs if r is not None and "harness_error" in r)
+        m = float(np.mean(diff))
+        sv = float(np.var(diff, ddof=1)) if n > 1 else 0.0
+        dC = _rel_cost([_agent_tokens(r) for r in recs],
+                       [inc_ev.per_task[tid].tokens[s] if s < len(inc_ev.per_task[tid].tokens) else None
+                        for tid, s, _ in drawn])
+        step = {"n": n, "m": m, "sd": math.sqrt(sv), "dC": dC, "errors": errors,
+                "missing": sum(1 for r in recs if r is None)}
+        if errors > cap * N:
+            dropped, why = True, (f"harness errors {errors} already exceed {cap:.0%} of the "
+                                  f"{N} planned episodes")
+        elif n < N:
+            p = p_admissible(m, max(sv, floor_var), n, N, delta, L, dC, nu, cfgd)
+            step["p_admit"] = p
+            if p < SEQ_GAMMA:
+                dropped, why = True, (f"P(admitted after all {N} episodes) = {p:.3f} < {SEQ_GAMMA}")
+        steps.append(step)
+        if dropped:
+            break
+    rec = {"variant": c.variant, "N": N, "n": n, "dropped": dropped, "why": why, "m": m,
+           "dC": dC, "errors": errors, "nu": nu, "steps": steps, "finished": True}
+    rp.write_text(json.dumps(rec, indent=1))
+    return rec
+
+
+def select_sequential(run, t: int, cands: list, inc_ev: EvalResult, rdir: Path, ids: list,
+                      counts: dict):
+    """Steps 5-6 with sequential full evaluation (selection = seqfull)."""
+    from rrsi.selection import select_round
+    d, cfg = run.domain, run.cfg
+    fr = run.frontier()
+    S_star, delta = fr["S_star"], run.delta()
+    sdir = rdir / "sequential"
+    sdir.mkdir(exist_ok=True)
+    live = [c for c in cands if c.gate_failure is None]
+    nus = {c.variant: novelty(c.components, counts) for c in live}
+    with ThreadPoolExecutor(max_workers=max(1, cfg.eval_parallel)) as ex:
+        recs = list(ex.map(lambda c: _seq_candidate(run, t, c, inc_ev, S_star, delta,
+                                                    nus[c.variant], sdir), live))
+    seq = {c.variant: r for c, r in zip(live, recs)}
+    alive = [c for c in live if not seq[c.variant]["dropped"]]
+    for c in alive:
+        run._evaluate(t, c, rdir, ids)        # every episode is on disk: scores only
+    winner, dec_alive = select_round(alive, inc_ev, S_star, delta, cfg, counts,
+                                     guard_fn=d.guards)
+    by_v = {c.variant: x for c, x in zip(alive, dec_alive)}
+    decisions = []
+    for c in cands:
+        if c.gate_failure is not None:
+            decisions.append(Decision(c.variant, False, c.gate_failure))
+        elif c.variant in by_v:
+            x = by_v[c.variant]
+            x.reason = f"[seqfull: all {seq[c.variant]['N']} episodes] {x.reason}"
+            decisions.append(x)
+        else:
+            r = seq[c.variant]
+            decisions.append(Decision(
+                c.variant, False,
+                f"[seqfull] stopped after {r['n']} of {r['N']} evolve episodes: {r['why']}; "
+                f"early-stopped estimate dS {r['m']:+.4f}",
+                S=inc_ev.S + r["m"], C=None, delta_S=r["m"], delta_C=r["dC"], novelty=r["nu"]))
+    ep = sum(r["n"] for r in seq.values())
+    out = {"t": t, "selection": cfg.selection, "rule": "seqfull", "gamma": SEQ_GAMMA,
+           "batch": SEQ_BATCH, "S_star": S_star, "delta": delta, "S_inc": inc_ev.S,
+           "candidates": seq, "winner": None if winner is None else winner.variant,
+           "cost": {"selection_episodes": ep, "planned_episodes": sum(r["N"] for r in seq.values()),
+                    "selection_replays": 0, "selection_episode_equivalents": float(ep),
+                    "judge_llm": {}, "refresh_episodes": 0, "refresh_tokens": 0}}
+    (rdir / "selection.json").write_text(json.dumps(out, indent=1))
+    return winner, decisions
