@@ -175,3 +175,12 @@ traces, about 4). Total about 40 dollars; stop and report above 100
   run of RRSI's round on copies of two states passed its harness-tree check
   and reused the report. Attribution started 03:13Z; restarted at 03:15Z
   with 24 workers instead of 8 (resume-safe, nothing lost).
+- 03:54Z. Attribution done: every method gave a valid step on all 81 failing
+  traces; counterfactual search confirmed a suspect on 28 of 81 (fell back to
+  its first suspect on the rest), 17.8 replays per trace on average.
+- 04:19Z. Pilot (r2 retail t5, five groups side by side) ran end to end: 10
+  drafts, 6 deployable, 2 no proposal (proposer turn limit), 2 critic
+  rejections; step-group proposers read the traces around the digests' steps.
+  No Phase B code change; the pilot cells stay in the analysis. Spend so far
+  about 4 dollars. Main run started 04:21Z (/home/user/phaseb/run_main.sh:
+  rounds two states at a time, deployments of finished cells alongside).
