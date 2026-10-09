@@ -89,3 +89,14 @@ committed before the deployments finish.
 ## Operations log
 
 (changes after registration are recorded here)
+
+- 2026-10-09 ~08:45Z, while both loops were calibrating the base harness (no
+  candidate evaluated, nothing deployed): `verify/cl.py` gains `analyze` (the
+  outcomes above, with r1 to r3 as reference; tested on r1 to r3, where it
+  reproduces their registered transfer at round 10, +8.75, +8.75 and +2.92,
+  and gives their loop cost over rounds 0 to 9, 3.42, 3.46 and 3.49 dollars).
+  `shadow` now completes a dropped candidate's evaluation in a separate job
+  (`r<t><v>_shadow`, seeded with a copy of the loop's episodes), so the loop's
+  job directories keep only what the loop ran, and applies the domain's guard
+  as RRSI does. The worktrees cl1 and cl2 use this version for their
+  deployment and shadow steps.
