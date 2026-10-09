@@ -160,3 +160,15 @@ of full evaluation.
   worktree. The paper table is written by verify/report_e1r.py from the same
   inputs and bootstrap. r4 airline is still running and is not part of this
   analysis.
+- 2026-10-09 00:46Z: r4 airline's loop stopped after round 9 as decided; its
+  follower deployed round 9 and the base and final harnesses (done 00:47Z).
+  00:49-00:51Z: `python -m verify.e1r prepare --traj r4=/home/user/e1r4/runs
+  --domains tau2_airline` as committed. The descriptive comparison is restricted
+  to the first ten airline rounds of every trajectory, since r4 ran ten
+  (`python -m verify.report_e1r --compare tau2_airline --rounds 10`, output
+  runs/verify/r4_compare.json of the r4 worktree): r4 measured 6 of 20 drafts
+  (14 ended without a proposal; r1-r3: 2-6), all six with a positive deployment
+  gain (mean +3.5 points; r1-r3: +0.2 to +1.0); decision values +0.85 to +1.17
+  points per round for every rule; incumbent after ten rounds +9.2
+  [+3.8, +15.4] held out over base (r1-r3: +8.8, +8.8, +2.9). r4 spend about
+  17.5 dollars (retail 5.3, airline 12.0).

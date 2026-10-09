@@ -15,6 +15,15 @@ round (episodes and episode equivalents) and Net(N) at N = 10^4, v = 10.
 writes e3_rules.tex instead, from the E3 report of verify/e1r.py: per rule, the
 decision value with its block-bootstrap interval, episodes per round, and the
 non-inferiority contrast with full evaluation (difference, one-sided p, Holm).
+
+  python -m verify.report_e1r --compare tau2_airline --rounds 10 --traj r1=... r4=... [--json FILE]
+
+the descriptive comparison of the r4 addendum on one domain, restricted to the
+first --rounds rounds of every trajectory (r4 airline ran ten): drafts, gate
+outcomes, critic rejections, acceptances, the measured candidates' deployment
+gains, decision values of the rules (block bootstrap within the trajectory),
+and the held-out gain of the incumbent after those rounds over the base harness.
+Writes r4_compare.tex.
 """
 from __future__ import annotations
 
@@ -69,14 +78,76 @@ def e3_table(report: Path, out: Path):
     print("\n".join(lines))
 
 
+CMP_RULES = ("full", "sample@40", "net@40", "replaynull@40", "seqfull", "seqsample@80", "judge", "none")
+
+
+def compare(trajs: dict, D: str, T: int, out: Path, js: Path | None):
+    import json
+    from collections import Counter
+    from .analyze import _ev, task_diffs
+    from .e1r import GUARD, describe
+    from .state import rounds
+    res = {}
+    for n, P in trajs.items():
+        rr = [r for r in rounds(P / "rrsi" / D) if r.t < T]
+        tab = next(x for x in json.loads((P / "verify" / GUARD).read_text())["tables"] if x["name"] == D)
+        tab = {**tab, "name": f"{n}/{D}", "rows": [row for row in tab["rows"] if row["t"] < T]}
+        block_of = {f"{n}/{D}": {r.t: r.inc_commit for r in rr}}
+        dv = block_dv([tab], block_of)
+        gains = [float(np.mean(list(d.values()))) for row in tab["rows"] for d in row.get("dep", {}).values()]
+        held = lambda c: _ev(P / "verify" / D / "jobs" / "heldout" / c[:12] / "eval.json")
+        fr = json.loads((P / "rrsi" / D / "frontier.json").read_text())["trajectory"]
+        base, after = fr[0]["commit"], next(x for x in fr if x["t"] == T)["commit"]
+        hb, ha = held(base), held(after)
+        tr = None
+        if hb and ha:
+            d = np.array(list(task_diffs({t: x.rewards for t, x in ha.per_task.items()},
+                                         {t: x.rewards for t, x in hb.per_task.items()}, 10 ** 6).values()))
+            bs = [np.mean(np.random.default_rng(i).choice(d, len(d))) for i in range(2000)]
+            tr = [float(d.mean()), float(np.percentile(bs, 5)), float(np.percentile(bs, 95))]
+        des = describe(n, P, (D,))
+        res[n] = {"rounds": len(rr), "drafts": sum(len(r.cands) for r in rr),
+                  "gates": dict(Counter(c.gate_failure or "measured" for r in rr for c in r.cands)),
+                  "accepted": sum(r.accepted is not None for r in rr),
+                  "measured_deployed": len(gains), "mean_gain": float(np.mean(gains)) if gains else None,
+                  "share_positive": float(np.mean(np.array(gains) > 0)) if gains else None,
+                  "dv": {k: dv[k] for k in CMP_RULES if k in dv}, "heldout_after_T_vs_base": tr,
+                  "final_transfer": des["transfer"].get(D), "labels_all_rounds": des["labels"],
+                  "files_all_rounds": des["files"]}
+    if js:
+        js.write_text(json.dumps(res, indent=1))
+    pp = lambda x: f"{100 * x:+.2f}".replace("-", "$-$")
+    lines = []
+    for n, r in res.items():
+        dv = r["dv"]
+        cells = [n + (" (thinking)" if n == "r4" else ""), str(r["drafts"]),
+                 f"{r['gates'].get('measured', 0)}", str(r["accepted"]),
+                 f"{pp(r['mean_gain'])}" if r["mean_gain"] is not None else "--",
+                 f"{r['share_positive']:.2f}" if r["share_positive"] is not None else "--"]
+        cells += [pp(dv[k][0]) if k in dv else "--" for k in ("full", "seqfull", "sample@40", "replaynull@40", "none")]
+        t = r["heldout_after_T_vs_base"]
+        cells.append(f"{pp(t[0])} {{\\scriptsize [{pp(t[1])}, {pp(t[2])}]}}" if t else "--")
+        lines.append(" & ".join(cells) + " \\\\")
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "r4_compare.tex").write_text("\n".join(lines) + "\n")
+    print(json.dumps(res, indent=1))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--traj", nargs="+", help="name=runs directory")
     ap.add_argument("--e3-report", default=None)
+    ap.add_argument("--compare", default=None, help="domain of the r4 comparison")
+    ap.add_argument("--rounds", type=int, default=10)
+    ap.add_argument("--json", default=None)
     ap.add_argument("--out", default=str(Path(__file__).resolve().parents[1] / "paper" / "tables"))
     args = ap.parse_args()
     if args.e3_report:
         e3_table(Path(args.e3_report), Path(args.out))
+        return
+    if args.compare:
+        compare(_trajs(args.traj), args.compare, args.rounds, Path(args.out),
+                Path(args.json) if args.json else None)
         return
     trajs = _trajs(args.traj)
     res = {name: block_dv(*_tables(trajs, names)) for name, names in SETS}
