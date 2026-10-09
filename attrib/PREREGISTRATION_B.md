@@ -184,3 +184,11 @@ traces, about 4). Total about 40 dollars; stop and report above 100
   No Phase B code change; the pilot cells stay in the analysis. Spend so far
   about 4 dollars. Main run started 04:21Z (/home/user/phaseb/run_main.sh:
   rounds two states at a time, deployments of finished cells alongside).
+- 05:03Z. All 40 rounds done (the main run's 35 exited cleanly): 80 drafts,
+  54 deployable (none 10, rrsi 13, first_write 10, binary_search 9, cf_search
+  12); no evaluation was invalid and no candidate failed the error check.
+- 05:20Z. Bookkeeping bug, no effect on data: phaseb looked up held-out jobs
+  by the short incumbent hash while verify.deploy names them by the full
+  hash, so finished deployments were re-invoked (every trial skipped as
+  already on disk) and their worktrees were not removed. Fixed (commit
+  4554d65); stale worktrees removed. No held-out number was looked at.
