@@ -90,7 +90,7 @@ committed before the deployments finish.
 
 (changes after registration are recorded here)
 
-- 2026-10-09 ~08:45Z, while both loops were calibrating the base harness (no
+- 2026-10-09 08:38Z, while both loops were calibrating the base harness (no
   candidate evaluated, nothing deployed): `verify/cl.py` gains `analyze` (the
   outcomes above, with r1 to r3 as reference; tested on r1 to r3, where it
   reproduces their registered transfer at round 10, +8.75, +8.75 and +2.92,
@@ -114,3 +114,9 @@ committed before the deployments finish.
   started early in separate processes; the steps of `run_cl.sh` then find
   them done (all steps are resume-safe). What is run and how it is scored are
   unchanged.
+- 2026-10-09 14:07Z: every deployment of both trajectories finished (240
+  episodes each, none missing); 14:08Z the registered analysis was run as
+  committed (`results/cl/analysis.json`). Post hoc, not registered: the two
+  candidates that full evaluation would have accepted and the sequential loop
+  dropped (cl1, rounds 3 and 9) were deployed on the same 240 held-out
+  episodes, to measure the gain the loop forwent in those states.

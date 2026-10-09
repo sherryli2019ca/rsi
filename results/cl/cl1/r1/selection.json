@@ -1,0 +1,104 @@
+{
+ "t": 1,
+ "selection": "seqfull",
+ "rule": "seqfull",
+ "gamma": 0.05,
+ "batch": 10,
+ "S_star": 0.7166666666666667,
+ "delta": 0.124722,
+ "S_inc": 0.7166666666666667,
+ "candidates": {
+  "A": {
+   "variant": "A",
+   "N": 60,
+   "n": 40,
+   "dropped": true,
+   "why": "P(admitted after all 60 episodes) = 0.035 < 0.05",
+   "m": 0.05,
+   "dC": 0.2258177458497787,
+   "errors": 0,
+   "nu": 0,
+   "steps": [
+    {
+     "n": 10,
+     "m": 0.1,
+     "sd": 0.31622776601683794,
+     "dC": 0.19800292880937903,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.4246351614176891
+    },
+    {
+     "n": 20,
+     "m": 0.0,
+     "sd": 0.45883146774112354,
+     "dC": 0.18298589089610137,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.06826363788588208
+    },
+    {
+     "n": 30,
+     "m": 0.06666666666666667,
+     "sd": 0.5208304597621879,
+     "dC": 0.3003948370590855,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.19395369308127908
+    },
+    {
+     "n": 40,
+     "m": 0.05,
+     "sd": 0.4500712194354384,
+     "dC": 0.2258177458497787,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.034648049374799594
+    }
+   ],
+   "finished": true
+  },
+  "B": {
+   "variant": "B",
+   "N": 60,
+   "n": 20,
+   "dropped": true,
+   "why": "P(admitted after all 60 episodes) = 0.017 < 0.05",
+   "m": -0.05,
+   "dC": 0.051736613603473196,
+   "errors": 0,
+   "nu": 0,
+   "steps": [
+    {
+     "n": 10,
+     "m": -0.1,
+     "sd": 0.5676462121975466,
+     "dC": 0.058071499205218084,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.08512794036685523
+    },
+    {
+     "n": 20,
+     "m": -0.05,
+     "sd": 0.3940344628262061,
+     "dC": 0.051736613603473196,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.016846060966663523
+    }
+   ],
+   "finished": true
+  }
+ },
+ "winner": null,
+ "cost": {
+  "selection_episodes": 60,
+  "planned_episodes": 120,
+  "selection_replays": 0,
+  "selection_episode_equivalents": 60.0,
+  "judge_llm": {},
+  "refresh_episodes": 0,
+  "refresh_tokens": 0
+ }
+}

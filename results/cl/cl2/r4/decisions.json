@@ -1,0 +1,24 @@
+[
+ {
+  "variant": "A",
+  "admissible": false,
+  "reason": "[seqfull] stopped after 30 of 60 evolve episodes: P(admitted after all 60 episodes) = 0.030 < 0.05; early-stopped estimate dS -0.0333",
+  "S": 0.7166666666666667,
+  "C": null,
+  "delta_S": -0.03333333333333333,
+  "delta_C": 0.1847007880172143,
+  "novelty": 0,
+  "guards": []
+ },
+ {
+  "variant": "B",
+  "admissible": false,
+  "reason": "[seqfull: all 60 episodes] cost rule failed: gain +0.0500 within delta 0.0720; shaped 0.0*dS - 15.0*dC + 0.5*nu = -4.1447 <= 0 (nu=1)",
+  "S": 0.8,
+  "C": 86654.16666666667,
+  "delta_S": 0.050000000000000044,
+  "delta_C": 0.3096499354904366,
+  "novelty": 1,
+  "guards": []
+ }
+]

@@ -1,0 +1,24 @@
+[
+ {
+  "variant": "A",
+  "admissible": false,
+  "reason": "[seqfull] stopped after 20 of 60 evolve episodes: P(admitted after all 60 episodes) = 0.017 < 0.05; early-stopped estimate dS -0.0500",
+  "S": 0.6666666666666666,
+  "C": null,
+  "delta_S": -0.05,
+  "delta_C": 0.03574343490384659,
+  "novelty": 0,
+  "guards": []
+ },
+ {
+  "variant": "B",
+  "admissible": false,
+  "reason": "[seqfull] stopped after 30 of 60 evolve episodes: P(admitted after all 60 episodes) = 0.017 < 0.05; early-stopped estimate dS +0.0000",
+  "S": 0.7166666666666667,
+  "C": null,
+  "delta_S": 0.0,
+  "delta_C": 0.18427261557027033,
+  "novelty": 0,
+  "guards": []
+ }
+]

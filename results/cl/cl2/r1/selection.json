@@ -1,0 +1,89 @@
+{
+ "t": 1,
+ "selection": "seqfull",
+ "rule": "seqfull",
+ "gamma": 0.05,
+ "batch": 10,
+ "S_star": 0.7,
+ "delta": 0.072008,
+ "S_inc": 0.7,
+ "candidates": {
+  "A": {
+   "variant": "A",
+   "N": 60,
+   "n": 60,
+   "dropped": false,
+   "why": "",
+   "m": 0.1,
+   "dC": 0.09388472743004347,
+   "errors": 0,
+   "nu": 0,
+   "steps": [
+    {
+     "n": 10,
+     "m": 0.1,
+     "sd": 0.31622776601683794,
+     "dC": 0.084654620633487,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.5837903012163007
+    },
+    {
+     "n": 20,
+     "m": 0.1,
+     "sd": 0.44721359549995787,
+     "dC": 0.03589556574541443,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.6310246543200126
+    },
+    {
+     "n": 30,
+     "m": 0.13333333333333333,
+     "sd": 0.5074162634049248,
+     "dC": 0.08075942486102596,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.8254051914255822
+    },
+    {
+     "n": 40,
+     "m": 0.1,
+     "sd": 0.49613893835683387,
+     "dC": 0.10132873508666214,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.7317276978258027
+    },
+    {
+     "n": 50,
+     "m": 0.12,
+     "sd": 0.47979587496419046,
+     "dC": 0.12447464983169715,
+     "errors": 0,
+     "missing": 0,
+     "p_admit": 0.9584076132360435
+    },
+    {
+     "n": 60,
+     "m": 0.1,
+     "sd": 0.43956835530216554,
+     "dC": 0.09388472743004347,
+     "errors": 0,
+     "missing": 0
+    }
+   ],
+   "finished": true
+  }
+ },
+ "winner": "A",
+ "cost": {
+  "selection_episodes": 60,
+  "planned_episodes": 60,
+  "selection_replays": 0,
+  "selection_episode_equivalents": 60.0,
+  "judge_llm": {},
+  "refresh_episodes": 0,
+  "refresh_tokens": 0
+ }
+}

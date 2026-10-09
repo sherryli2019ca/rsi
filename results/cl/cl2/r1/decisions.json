@@ -1,0 +1,24 @@
+[
+ {
+  "variant": "A",
+  "admissible": true,
+  "reason": "[seqfull: all 60 episodes] admissible: gain +0.1000 > delta 0.0720; cost change +0.094 <= budget 1.600 (beta0 0.1 + beta1 15.0 * dS)",
+  "S": 0.8,
+  "C": 69660.56666666667,
+  "delta_S": 0.10000000000000009,
+  "delta_C": 0.09388472743004347,
+  "novelty": 0,
+  "guards": []
+ },
+ {
+  "variant": "B",
+  "admissible": false,
+  "reason": "critic_reject",
+  "S": null,
+  "C": null,
+  "delta_S": null,
+  "delta_C": null,
+  "novelty": 0,
+  "guards": []
+ }
+]
