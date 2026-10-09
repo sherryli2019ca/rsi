@@ -37,6 +37,22 @@ seqfull       RRSI's own full evaluation and rule, run sequentially: each
               recorded as REJECTED with its early-stopped estimate, which is
               what the proposer sees in the next rounds' history.
 
+seqhist       Mechanism arms of experiment BK (verify/PREREGISTRATION_BK.md),
+seqadm        which cross what the sequential rule changes in a loop: which
+              candidates can be accepted (admission) and what the proposer's
+              history records for the candidates it stops (history). Every
+              screened candidate is evaluated in full, as with "full"; the
+              sequential rule is then replayed on each candidate's episodes in
+              seqfull's order to find where seqfull would have stopped it.
+              seqhist: full admission (RRSI's select_round over all
+              candidates); a stopped candidate that does not win enters the
+              history exactly as seqfull records it (early-stopped estimate,
+              seqfull's reason, no attribution).
+              seqadm: sequential admission (select_round over the candidates
+              the rule does not stop); every candidate enters the history with
+              its full evaluation, and a stopped candidate that full evaluation
+              admits is recorded as not admitted by the sequential rule.
+
 f = failed trials / trials of H_t's evaluation. A missing replay (infrastructure)
 is left out, as in the offline analysis; a missing fresh episode scores 0, as in
 RRSI's Evaluate.
@@ -69,7 +85,9 @@ from . import judge as judge_mod
 from .replays import references
 from .state import Cand, Round, trial_path
 
-RULES = ("none", "judge", "sample", "replay", "replaynull", "net", "seqfull")
+RULES = ("none", "judge", "sample", "replay", "replaynull", "net", "seqfull", "seqhist",
+         "seqadm")
+SEQ_RULES = ("seqfull", "seqhist", "seqadm")
 SEQ_BATCH = 10
 SEQ_GAMMA = 0.05
 MIN_B = {"sample": 1, "replay": 1, "replaynull": 2, "net": 4}
@@ -80,8 +98,8 @@ def parse_mode(mode: str) -> tuple[str, int]:
     rule, _, b = str(mode).strip().partition("@")
     if rule not in RULES:
         raise SystemExit(f"unknown selection {mode!r}: use full, none, judge, sample@b, "
-                         f"replay@b, replaynull@b, net@b or seqfull")
-    if rule in ("none", "judge", "seqfull"):
+                         f"replay@b, replaynull@b, net@b, seqfull, seqhist or seqadm")
+    if rule in ("none", "judge") + SEQ_RULES:
         if b:
             raise SystemExit(f"selection {rule} takes no episode budget")
         return rule, 0
@@ -279,6 +297,8 @@ def select_with_evidence(run, t: int, cands: list, inc_ev: EvalResult, rdir: Pat
     rule, b = parse_mode(cfg.selection)
     if rule == "seqfull":
         return select_sequential(run, t, cands, inc_ev, rdir, ids, counts)
+    if rule in ("seqhist", "seqadm"):
+        return select_mechanism(run, t, cands, inc_ev, rdir, ids, counts)
     z = float(cfg.delta_z)
     edir = rdir / "evidence"
     edir.mkdir(exist_ok=True)
@@ -421,10 +441,12 @@ def account_full(run, t: int, rdir: Path, cands: list) -> None:
 
 # ------------------------------------------------------------- sequential --
 def _seq_candidate(run, t: int, c, inc_ev: EvalResult, S_star: float, delta: float,
-                   nu: int, sdir: Path) -> dict:
+                   nu: int, sdir: Path, execute: bool = True) -> dict:
     """Run candidate c's evolve episodes in batches with the predictive stop.
     Resume-safe: episodes already on disk are reused, and the stopping
-    sequence is replayed from the same order. Returns the candidate's record."""
+    sequence is replayed from the same order. Returns the candidate's record.
+    execute=False replays the rule on episodes already on disk (a complete
+    evaluation) without running any."""
     from .posthoc_e1 import p_admissible
     d, cfg = run.domain, run.cfg
     rp = sdir / f"{c.variant}.json"
@@ -452,7 +474,7 @@ def _seq_candidate(run, t: int, c, inc_ev: EvalResult, S_star: float, delta: flo
         need = {}
         for tid, _, _ in drawn[n:]:
             need[tid] = slot[tid]
-        for k in sorted(set(need.values())):
+        for k in sorted(set(need.values())) if execute else ():
             d.run(wt, run.runs, job, sorted(x for x in need if need[x] == k), k, log_prefix=job)
         n = len(drawn)
         recs = [_load(trial_path(run.runs, job, tid, j)) for tid, _, j in drawn]
@@ -523,6 +545,72 @@ def select_sequential(run, t: int, cands: list, inc_ev: EvalResult, rdir: Path, 
            "batch": SEQ_BATCH, "S_star": S_star, "delta": delta, "S_inc": inc_ev.S,
            "candidates": seq, "winner": None if winner is None else winner.variant,
            "cost": {"selection_episodes": ep, "planned_episodes": sum(r["N"] for r in seq.values()),
+                    "selection_replays": 0, "selection_episode_equivalents": float(ep),
+                    "judge_llm": {}, "refresh_episodes": 0, "refresh_tokens": 0}}
+    (rdir / "selection.json").write_text(json.dumps(out, indent=1))
+    return winner, decisions
+
+
+def select_mechanism(run, t: int, cands: list, inc_ev: EvalResult, rdir: Path, ids: list,
+                     counts: dict):
+    """Steps 5-6 for the mechanism arms seqhist and seqadm (see the module
+    docstring). r<t>/selection.json records, besides the arm's own choice, the
+    choices of full evaluation and of seqfull in this state."""
+    from rrsi.selection import select_round
+    d, cfg = run.domain, run.cfg
+    rule = parse_mode(cfg.selection)[0]
+    fr = run.frontier()
+    S_star, delta = fr["S_star"], run.delta()
+    sdir = rdir / "sequential"
+    sdir.mkdir(exist_ok=True)
+    live = [c for c in cands if c.gate_failure is None]
+    with ThreadPoolExecutor(max_workers=max(1, cfg.eval_parallel)) as ex:
+        list(ex.map(lambda c: run._evaluate(t, c, rdir, ids), live))
+    ok = [c for c in live if c.gate_failure is None]          # eval_invalid drops out here
+    seq = {c.variant: _seq_candidate(run, t, c, inc_ev, S_star, delta,
+                                     novelty(c.components, counts), sdir, execute=False)
+           for c in ok}
+    stopped = {v for v, r in seq.items() if r["dropped"]}
+    full_winner, full_dec = select_round(ok, inc_ev, S_star, delta, cfg, counts,
+                                         guard_fn=d.guards)
+    by_v = {c.variant: x for c, x in zip(ok, full_dec)}
+    alive_adm = [c for c in ok if c.variant not in stopped and by_v[c.variant].admissible]
+    seq_winner = max(alive_adm, key=lambda c: by_v[c.variant].S) if alive_adm else None
+    winner = full_winner if rule == "seqhist" else seq_winner
+    full_rec = {c.variant: {"S": x.S, "dS": x.delta_S, "dC": x.delta_C, "admissible": x.admissible,
+                            "reason": x.reason} for c, x in zip(ok, full_dec)}
+    decisions = []
+    for c in cands:
+        if c.gate_failure is not None:
+            decisions.append(Decision(c.variant, False, c.gate_failure))
+            continue
+        x, r = by_v[c.variant], seq[c.variant]
+        if c.variant not in stopped or (rule == "seqhist" and c is winner):
+            if rule == "seqhist":                 # as seqfull records a completed candidate
+                x.reason = f"[seqfull: all {r['N']} episodes] {x.reason}"
+            decisions.append(x)
+        elif rule == "seqadm":
+            if x.admissible:
+                x.admissible = False
+                x.reason = (f"not admitted: the sequential rule stopped it after {r['n']} of "
+                            f"{r['N']} evolve episodes (full evaluation: {x.reason})")
+            decisions.append(x)
+        else:                                     # seqhist: exactly seqfull's record
+            decisions.append(Decision(
+                c.variant, False,
+                f"[seqfull] stopped after {r['n']} of {r['N']} evolve episodes: {r['why']}; "
+                f"early-stopped estimate dS {r['m']:+.4f}",
+                S=inc_ev.S + r["m"], C=None, delta_S=r["m"], delta_C=r["dC"], novelty=r["nu"]))
+            c.ev = None                           # no attribution, as in seqfull
+    name = lambda c: None if c is None else c.variant
+    ep = sum(r["N"] for r in seq.values())
+    out = {"t": t, "selection": cfg.selection, "rule": rule, "gamma": SEQ_GAMMA,
+           "batch": SEQ_BATCH, "S_star": S_star, "delta": delta, "S_inc": inc_ev.S,
+           "candidates": seq, "stopped": sorted(stopped),
+           "full": full_rec,
+           "winner": name(winner), "full_choice": name(full_winner), "seq_choice": name(seq_winner),
+           "cost": {"selection_episodes": ep, "planned_episodes": ep,
+                    "seq_episodes": sum(r["n"] for r in seq.values()),
                     "selection_replays": 0, "selection_episode_equivalents": float(ep),
                     "judge_llm": {}, "refresh_episodes": 0, "refresh_tokens": 0}}
     (rdir / "selection.json").write_text(json.dumps(out, indent=1))
