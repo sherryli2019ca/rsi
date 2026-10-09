@@ -129,7 +129,7 @@ def cmd_status(runs: list[Path]) -> None:
     for run in runs:
         rr = _rrsi(run)
         fr = json.loads((rr / "frontier.json").read_text()) if (rr / "frontier.json").exists() else None
-        settled = len(fr["trajectory"]) - 1 if fr else -1
+        settled = len(fr["trajectory"]) - 1 if fr else 0
         ep = planned = 0
         for t in range(T_LAST + 1):
             sp = rr / f"r{t}" / "selection.json"
@@ -148,7 +148,7 @@ def cmd_status(runs: list[Path]) -> None:
         n_ep = sum(1 for _ in (rr / "jobs").rglob("s*/*.json")) if (rr / "jobs").exists() else 0
         vdir = Path(run) / "runs" / "verify" / D / "jobs" / "heldout"
         n_ho = sum(1 for _ in vdir.rglob("s*/*.json")) if vdir.exists() else 0
-        print(f"{Path(run).name}: settled rounds {settled + 1 if settled >= 0 else 0}/10, "
+        print(f"{Path(run).name}: settled rounds {settled}/10, "
               f"accepted {len(_commits(run)) - 1 if fr else 0}, candidate episodes {ep}/{planned} planned, "
               f"evolve-side episodes on disk {n_ep}, held-out episodes {n_ho}, model calls ${usd:.2f}")
 
