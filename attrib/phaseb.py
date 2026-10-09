@@ -381,8 +381,13 @@ def candidates(g: str, s: str) -> list[dict]:
     return out
 
 
+def full_commit(commit: str) -> str:
+    return git("rev-parse", commit) if len(commit) < 40 else commit
+
+
 def heldout_dir(dom: str, commit: str) -> Path:
-    return PB / "verify" / dom / "jobs" / "heldout" / commit[:12]
+    """verify.deploy names the job by the first 12 characters of the full hash."""
+    return PB / "verify" / dom / "jobs" / "heldout" / full_commit(commit)[:12]
 
 
 def deploy_one(dom: str, commit: str) -> str:
@@ -399,7 +404,7 @@ def deploy_one(dom: str, commit: str) -> str:
         r = subprocess.run([PY, "-m", "verify.deploy", "--domain", dom, "--ref", commit, "--k", str(k),
                             "--out", str(PB / "verify")], cwd=CODE, env=env, stdout=fh,
                            stderr=subprocess.STDOUT)
-    wt = PB / "verify" / dom / "wt" / commit[:12]
+    wt = PB / "verify" / dom / "wt" / full_commit(commit)[:12]
     if wt.exists():
         git("worktree", "remove", "--force", str(wt), check=False)
         shutil.rmtree(wt, ignore_errors=True)
