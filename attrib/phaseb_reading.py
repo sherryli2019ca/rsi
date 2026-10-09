@@ -19,7 +19,7 @@ import ast
 import json
 from pathlib import Path
 
-from attrib.phaseb import GROUPS, POSTHOC_GROUPS, STATES, STEP_GROUPS, parse_state, run_dir
+from attrib.phaseb import GROUPS, NOREAD_GROUPS, POSTHOC_GROUPS, STATES, STEP_GROUPS, parse_state, run_dir
 
 OUT = Path(__file__).resolve().parents[1] / "results" / "attrib" / "phaseB_reading.json"
 
@@ -30,7 +30,7 @@ def _mean(xs):
 
 def _posthoc() -> tuple:
     return tuple(g for g in POSTHOC_GROUPS
-                 if all((run_dir(g, s) / f"r{parse_state(s)[2]}" / "A").exists() for s in STATES))
+                 if g not in NOREAD_GROUPS and all((run_dir(g, s) / f"r{parse_state(s)[2]}" / "A").exists() for s in STATES))
 
 
 def named_steps() -> dict:

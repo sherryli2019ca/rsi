@@ -1,0 +1,921 @@
+{
+ "rates": {
+  "tau2_retail": {
+   "n": 1554,
+   "unseen_id": 0.0039,
+   "unseen_any": 0.0759,
+   "expanded": 0.0039,
+   "strict": 0.0148,
+   "unseen_id_or_expanded": 0.0077,
+   "unparsable": 0,
+   "mean_gain_flagged_id": -0.125,
+   "mean_gain_clean": 0.184
+  },
+  "tau2_airline": {
+   "n": 1549,
+   "unseen_id": 0.0155,
+   "unseen_any": 0.1001,
+   "expanded": 0.0232,
+   "strict": 0.0374,
+   "unseen_id_or_expanded": 0.0387,
+   "unparsable": 0,
+   "mean_gain_flagged_id": -0.0625,
+   "mean_gain_clean": 0.1343
+  },
+  "appworld": {
+   "n": 1692,
+   "unseen_id": 0.0024,
+   "unseen_any": 0.0112,
+   "expanded": 0.0272,
+   "strict": 0.159,
+   "unseen_id_or_expanded": 0.0296,
+   "unparsable": 5,
+   "mean_gain_flagged_id": 0.5625,
+   "mean_gain_clean": 0.213
+  }
+ },
+ "rates_pooled": {
+  "n": 4795,
+  "unseen_id": 0.0071,
+  "unseen_any": 0.0609,
+  "expanded": 0.0184,
+  "strict": 0.073,
+  "unseen_id_or_expanded": 0.0254,
+  "unparsable": 5,
+  "mean_gain_flagged_id": 0.0,
+  "mean_gain_clean": 0.1784
+ },
+ "rates_rescuable_positive": {
+  "n": 1107,
+  "unseen_id": 0.0054,
+  "unseen_any": 0.0388,
+  "expanded": 0.0199,
+  "strict": 0.0641,
+  "unseen_id_or_expanded": 0.0253,
+  "unparsable": 1,
+  "mean_gain_flagged_id": 0.5417,
+  "mean_gain_clean": 0.8209
+ },
+ "rates_decisive_step": {
+  "n": 553,
+  "unseen_id": 0.0018,
+  "unseen_any": 0.0289,
+  "expanded": 0.0289,
+  "strict": 0.0579,
+  "unseen_id_or_expanded": 0.0307,
+  "unparsable": 0,
+  "mean_gain_flagged_id": 1.0,
+  "mean_gain_clean": 0.8624
+ },
+ "by_kind": {
+  "tau2_retail": {
+   "read": {
+    "n": 385,
+    "unseen_id": 0.0052,
+    "unseen_any": 0.0052,
+    "expanded": 0.0,
+    "strict": 0.0,
+    "unseen_id_or_expanded": 0.0052,
+    "unparsable": 0,
+    "mean_gain_flagged_id": -0.25,
+    "mean_gain_clean": 0.0176
+   },
+   "transfer": {
+    "n": 27,
+    "unseen_id": 0.0,
+    "unseen_any": 0.0,
+    "expanded": 0.0,
+    "strict": 0.0,
+    "unseen_id_or_expanded": 0.0,
+    "unparsable": 0,
+    "mean_gain_flagged_id": null,
+    "mean_gain_clean": 0.1481
+   },
+   "utterance": {
+    "n": 889,
+    "unseen_id": 0.0045,
+    "unseen_any": 0.1294,
+    "expanded": 0.0056,
+    "strict": 0.0247,
+    "unseen_id_or_expanded": 0.0101,
+    "unparsable": 0,
+    "mean_gain_flagged_id": -0.0625,
+    "mean_gain_clean": 0.1537
+   },
+   "write": {
+    "n": 253,
+    "unseen_id": 0.0,
+    "unseen_any": 0.004,
+    "expanded": 0.004,
+    "strict": 0.004,
+    "unseen_id_or_expanded": 0.004,
+    "unparsable": 0,
+    "mean_gain_flagged_id": null,
+    "mean_gain_clean": 0.5466
+   }
+  },
+  "tau2_airline": {
+   "read": {
+    "n": 427,
+    "unseen_id": 0.0281,
+    "unseen_any": 0.0539,
+    "expanded": 0.007,
+    "strict": 0.0094,
+    "unseen_id_or_expanded": 0.0351,
+    "unparsable": 0,
+    "mean_gain_flagged_id": 0.0,
+    "mean_gain_clean": 0.0765
+   },
+   "transfer": {
+    "n": 18,
+    "unseen_id": 0.0,
+    "unseen_any": 0.0556,
+    "expanded": 0.0556,
+    "strict": 0.0556,
+    "unseen_id_or_expanded": 0.0556,
+    "unparsable": 0,
+    "mean_gain_flagged_id": null,
+    "mean_gain_clean": 0.3824
+   },
+   "utterance": {
+    "n": 859,
+    "unseen_id": 0.0116,
+    "unseen_any": 0.1269,
+    "expanded": 0.0361,
+    "strict": 0.057,
+    "unseen_id_or_expanded": 0.0477,
+    "unparsable": 0,
+    "mean_gain_flagged_id": -0.1,
+    "mean_gain_clean": 0.1406
+   },
+   "write": {
+    "n": 245,
+    "unseen_id": 0.0082,
+    "unseen_any": 0.0898,
+    "expanded": 0.0041,
+    "strict": 0.0163,
+    "unseen_id_or_expanded": 0.0122,
+    "unparsable": 0,
+    "mean_gain_flagged_id": -0.25,
+    "mean_gain_clean": 0.1942
+   }
+  },
+  "appworld": {
+   "docs": {
+    "n": 157,
+    "unseen_id": 0.0,
+    "unseen_any": 0.0,
+    "expanded": 0.0318,
+    "strict": 0.1783,
+    "unseen_id_or_expanded": 0.0318,
+    "unparsable": 0,
+    "mean_gain_flagged_id": null,
+    "mean_gain_clean": 0.1891
+   },
+   "other": {
+    "n": 251,
+    "unseen_id": 0.0,
+    "unseen_any": 0.0199,
+    "expanded": 0.0598,
+    "strict": 0.1952,
+    "unseen_id_or_expanded": 0.0598,
+    "unparsable": 1,
+    "mean_gain_flagged_id": null,
+    "mean_gain_clean": 0.1472
+   },
+   "read": {
+    "n": 475,
+    "unseen_id": 0.0042,
+    "unseen_any": 0.0084,
+    "expanded": 0.0232,
+    "strict": 0.1642,
+    "unseen_id_or_expanded": 0.0274,
+    "unparsable": 2,
+    "mean_gain_flagged_id": 0.125,
+    "mean_gain_clean": 0.1515
+   },
+   "submit": {
+    "n": 237,
+    "unseen_id": 0.0,
+    "unseen_any": 0.0169,
+    "expanded": 0.0127,
+    "strict": 0.1561,
+    "unseen_id_or_expanded": 0.0127,
+    "unparsable": 1,
+    "mean_gain_flagged_id": null,
+    "mean_gain_clean": 0.3291
+   },
+   "write": {
+    "n": 572,
+    "unseen_id": 0.0035,
+    "unseen_any": 0.0105,
+    "expanded": 0.021,
+    "strict": 0.1346,
+    "unseen_id_or_expanded": 0.0245,
+    "unparsable": 1,
+    "mean_gain_flagged_id": 1.0,
+    "mean_gain_clean": 0.2496
+   }
+  }
+ },
+ "calls": {
+  "tau2_retail": {
+   "obs_mean": 0.938,
+   "corr_mean": 0.683,
+   "obs_lines_mean": 0.0,
+   "corr_lines_mean": 0.0
+  },
+  "tau2_airline": {
+   "obs_mean": 1.305,
+   "corr_mean": 0.802,
+   "obs_lines_mean": 0.0,
+   "corr_lines_mean": 0.0
+  },
+  "appworld": {
+   "obs_mean": 0.958,
+   "corr_mean": 1.041,
+   "obs_lines_mean": 5.26,
+   "corr_lines_mean": 5.39
+  }
+ },
+ "examples_unseen_id": {
+  "tau2_retail": [
+   {
+    "fid": "98502ff_h_49_s1",
+    "k": 0,
+    "values": [
+     "aarav",
+     "anderson"
+    ]
+   },
+   {
+    "fid": "c2ffaa3_e_41_s0",
+    "k": 0,
+    "values": [
+     "mei",
+     "patel"
+    ]
+   },
+   {
+    "fid": "c2ffaa3_h_45_s0",
+    "k": 4,
+    "values": [
+     "#w9502127"
+    ]
+   },
+   {
+    "fid": "c2ffaa3_h_45_s0",
+    "k": 4,
+    "values": [
+     "#w9502127"
+    ]
+   },
+   {
+    "fid": "98502ff_h_49_s4",
+    "k": 0,
+    "values": [
+     "user@example.com"
+    ]
+   },
+   {
+    "fid": "024abfd_h_71_s9",
+    "k": 7,
+    "values": [
+     "3583801998",
+     "3583801998"
+    ]
+   }
+  ],
+  "tau2_airline": [
+   {
+    "fid": "c2ffaa3_e_41_s0",
+    "k": 0,
+    "values": [
+     "amelia_davis_8890"
+    ]
+   },
+   {
+    "fid": "06259ff_h_2_s9",
+    "k": 0,
+    "values": [
+     "noah_muller_9847"
+    ]
+   },
+   {
+    "fid": "c2ffaa3_e_33_s0",
+    "k": 2,
+    "values": [
+     "2024-05-19"
+    ]
+   },
+   {
+    "fid": "c2ffaa3_e_33_s0",
+    "k": 2,
+    "values": [
+     "2024-05-19"
+    ]
+   },
+   {
+    "fid": "c2ffaa3_e_33_s0",
+    "k": 2,
+    "values": [
+     "2024-05-19"
+    ]
+   },
+   {
+    "fid": "c2ffaa3_e_33_s0",
+    "k": 2,
+    "values": [
+     "2024-05-19"
+    ]
+   },
+   {
+    "fid": "728a8e1_h_16_s4",
+    "k": 4,
+    "values": [
+     "2024-05-24"
+    ]
+   },
+   {
+    "fid": "728a8e1_h_16_s4",
+    "k": 4,
+    "values": [
+     "2024-05-24",
+     "2024-05-24"
+    ]
+   }
+  ],
+  "appworld": [
+   {
+    "fid": "10ffaa6_h_bde252e_3_s0",
+    "k": 17,
+    "values": [
+     "search_tasks"
+    ]
+   },
+   {
+    "fid": "4257c54_e_76f2c72_1_s0",
+    "k": 9,
+    "values": [
+     "download_file"
+    ]
+   },
+   {
+    "fid": "4101495_h_bde252e_1_s3",
+    "k": 21,
+    "values": [
+     "move_task"
+    ]
+   },
+   {
+    "fid": "9f1695f_h_425a494_2_s3",
+    "k": 6,
+    "values": [
+     "indie, hip-hop, edm"
+    ]
+   }
+  ]
+ },
+ "rescored": {
+  "unseen_id": {
+   "n_rescuable": {
+    "tau2_retail": 65,
+    "tau2_airline": 37,
+    "appworld": 55
+   },
+   "mean": {
+    "first_write": 0.4212,
+    "last_step": 0.2022,
+    "all_at_once_flash": 0.3033,
+    "all_at_once_pro": 0.2954,
+    "all_at_once_pro_think": 0.3065,
+    "step_by_step_pro": 0.1986,
+    "binary_search_pro": 0.3388,
+    "study1_pro": 0.2687,
+    "rrsi_digest_pro": 0.2186,
+    "search@40": 0.2643,
+    "all_at_once_gain_pro": 0.3643,
+    "binary_search_gain_pro": 0.4045
+   },
+   "by_domain": {
+    "first_write": {
+     "tau2_retail": 0.5317,
+     "tau2_airline": 0.2736,
+     "appworld": 0.3898
+    },
+    "last_step": {
+     "tau2_retail": 0.1077,
+     "tau2_airline": 0.1284,
+     "appworld": 0.3636
+    },
+    "all_at_once_flash": {
+     "tau2_retail": 0.2865,
+     "tau2_airline": 0.4054,
+     "appworld": 0.2545
+    },
+    "all_at_once_pro": {
+     "tau2_retail": 0.2981,
+     "tau2_airline": 0.3446,
+     "appworld": 0.2591
+    },
+    "all_at_once_pro_think": {
+     "tau2_retail": 0.2596,
+     "tau2_airline": 0.4223,
+     "appworld": 0.2841
+    },
+    "step_by_step_pro": {
+     "tau2_retail": 0.1394,
+     "tau2_airline": 0.1689,
+     "appworld": 0.2886
+    },
+    "binary_search_pro": {
+     "tau2_retail": 0.3317,
+     "tau2_airline": 0.3378,
+     "appworld": 0.3477
+    },
+    "study1_pro": {
+     "tau2_retail": 0.2596,
+     "tau2_airline": 0.3615,
+     "appworld": 0.217
+    },
+    "rrsi_digest_pro": {
+     "tau2_retail": 0.1683,
+     "tau2_airline": 0.3514,
+     "appworld": 0.1886
+    },
+    "search@40": {
+     "tau2_retail": 0.2212,
+     "tau2_airline": 0.3108,
+     "appworld": 0.2841
+    },
+    "all_at_once_gain_pro": {
+     "tau2_retail": 0.3923,
+     "tau2_airline": 0.4189,
+     "appworld": 0.2943
+    },
+    "binary_search_gain_pro": {
+     "tau2_retail": 0.4423,
+     "tau2_airline": 0.4223,
+     "appworld": 0.3477
+    }
+   },
+   "decisive": 0.7568,
+   "first_write_rank": 1,
+   "best_llm": "binary_search_pro",
+   "first_write_minus_binary_search": [
+    0.0824,
+    -0.0161,
+    0.1806
+   ],
+   "first_write_minus_best_llm": [
+    0.0824,
+    -0.0157,
+    0.1816
+   ],
+   "first_write_minus_all_at_once_gain_pro": [
+    0.0569,
+    -0.0437,
+    0.154
+   ],
+   "first_write_minus_binary_search_gain_pro": [
+    0.0167,
+    -0.07,
+    0.0994
+   ],
+   "kendall_tau_vs_registered": 1.0
+  },
+  "unseen_any": {
+   "n_rescuable": {
+    "tau2_retail": 65,
+    "tau2_airline": 35,
+    "appworld": 55
+   },
+   "mean": {
+    "first_write": 0.4238,
+    "last_step": 0.2048,
+    "all_at_once_flash": 0.2843,
+    "all_at_once_pro": 0.2782,
+    "all_at_once_pro_think": 0.2956,
+    "step_by_step_pro": 0.1915,
+    "binary_search_pro": 0.327,
+    "study1_pro": 0.2637,
+    "rrsi_digest_pro": 0.2069,
+    "search@40": 0.2573,
+    "all_at_once_gain_pro": 0.3407,
+    "binary_search_gain_pro": 0.3927
+   },
+   "by_domain": {
+    "first_write": {
+     "tau2_retail": 0.5279,
+     "tau2_airline": 0.2839,
+     "appworld": 0.3898
+    },
+    "last_step": {
+     "tau2_retail": 0.1077,
+     "tau2_airline": 0.1357,
+     "appworld": 0.3636
+    },
+    "all_at_once_flash": {
+     "tau2_retail": 0.2548,
+     "tau2_airline": 0.3857,
+     "appworld": 0.2545
+    },
+    "all_at_once_pro": {
+     "tau2_retail": 0.2615,
+     "tau2_airline": 0.3393,
+     "appworld": 0.2591
+    },
+    "all_at_once_pro_think": {
+     "tau2_retail": 0.2462,
+     "tau2_airline": 0.4054,
+     "appworld": 0.2841
+    },
+    "step_by_step_pro": {
+     "tau2_retail": 0.1183,
+     "tau2_airline": 0.175,
+     "appworld": 0.2886
+    },
+    "binary_search_pro": {
+     "tau2_retail": 0.299,
+     "tau2_airline": 0.3464,
+     "appworld": 0.3477
+    },
+    "study1_pro": {
+     "tau2_retail": 0.2538,
+     "tau2_airline": 0.3554,
+     "appworld": 0.217
+    },
+    "rrsi_digest_pro": {
+     "tau2_retail": 0.149,
+     "tau2_airline": 0.3429,
+     "appworld": 0.1886
+    },
+    "search@40": {
+     "tau2_retail": 0.2038,
+     "tau2_airline": 0.3143,
+     "appworld": 0.2841
+    },
+    "all_at_once_gain_pro": {
+     "tau2_retail": 0.3519,
+     "tau2_airline": 0.3929,
+     "appworld": 0.2943
+    },
+    "binary_search_gain_pro": {
+     "tau2_retail": 0.4077,
+     "tau2_airline": 0.4357,
+     "appworld": 0.3477
+    }
+   },
+   "decisive": 0.7565,
+   "first_write_rank": 1,
+   "best_llm": "binary_search_pro",
+   "first_write_minus_binary_search": [
+    0.0968,
+    -0.0018,
+    0.1975
+   ],
+   "first_write_minus_best_llm": [
+    0.0968,
+    -0.0054,
+    0.1976
+   ],
+   "first_write_minus_all_at_once_gain_pro": [
+    0.0831,
+    -0.022,
+    0.1844
+   ],
+   "first_write_minus_binary_search_gain_pro": [
+    0.031,
+    -0.0606,
+    0.1155
+   ],
+   "kendall_tau_vs_registered": 1.0
+  },
+  "expanded": {
+   "n_rescuable": {
+    "tau2_retail": 65,
+    "tau2_airline": 34,
+    "appworld": 53
+   },
+   "mean": {
+    "first_write": 0.4285,
+    "last_step": 0.2072,
+    "all_at_once_flash": 0.301,
+    "all_at_once_pro": 0.2952,
+    "all_at_once_pro_think": 0.3117,
+    "step_by_step_pro": 0.1937,
+    "binary_search_pro": 0.3359,
+    "study1_pro": 0.2644,
+    "rrsi_digest_pro": 0.2142,
+    "search@40": 0.259,
+    "all_at_once_gain_pro": 0.3631,
+    "binary_search_gain_pro": 0.4079
+   },
+   "by_domain": {
+    "first_write": {
+     "tau2_retail": 0.5317,
+     "tau2_airline": 0.2831,
+     "appworld": 0.395
+    },
+    "last_step": {
+     "tau2_retail": 0.1077,
+     "tau2_airline": 0.1397,
+     "appworld": 0.3726
+    },
+    "all_at_once_flash": {
+     "tau2_retail": 0.2865,
+     "tau2_airline": 0.3897,
+     "appworld": 0.2618
+    },
+    "all_at_once_pro": {
+     "tau2_retail": 0.2981,
+     "tau2_airline": 0.3309,
+     "appworld": 0.2689
+    },
+    "all_at_once_pro_think": {
+     "tau2_retail": 0.2596,
+     "tau2_airline": 0.4375,
+     "appworld": 0.2948
+    },
+    "step_by_step_pro": {
+     "tau2_retail": 0.1394,
+     "tau2_airline": 0.1397,
+     "appworld": 0.2948
+    },
+    "binary_search_pro": {
+     "tau2_retail": 0.3317,
+     "tau2_airline": 0.3125,
+     "appworld": 0.3561
+    },
+    "study1_pro": {
+     "tau2_retail": 0.2596,
+     "tau2_airline": 0.3346,
+     "appworld": 0.2252
+    },
+    "rrsi_digest_pro": {
+     "tau2_retail": 0.1683,
+     "tau2_airline": 0.3309,
+     "appworld": 0.1958
+    },
+    "search@40": {
+     "tau2_retail": 0.2212,
+     "tau2_airline": 0.3015,
+     "appworld": 0.2783
+    },
+    "all_at_once_gain_pro": {
+     "tau2_retail": 0.3923,
+     "tau2_airline": 0.3971,
+     "appworld": 0.3054
+    },
+    "binary_search_gain_pro": {
+     "tau2_retail": 0.4423,
+     "tau2_airline": 0.4154,
+     "appworld": 0.3608
+    }
+   },
+   "decisive": 0.7586,
+   "first_write_rank": 1,
+   "best_llm": "binary_search_pro",
+   "first_write_minus_binary_search": [
+    0.0925,
+    -0.0065,
+    0.1933
+   ],
+   "first_write_minus_best_llm": [
+    0.0925,
+    -0.0051,
+    0.1914
+   ],
+   "first_write_minus_all_at_once_gain_pro": [
+    0.0654,
+    -0.0378,
+    0.1657
+   ],
+   "first_write_minus_binary_search_gain_pro": [
+    0.0206,
+    -0.0684,
+    0.1045
+   ],
+   "kendall_tau_vs_registered": 1.0
+  },
+  "strict": {
+   "n_rescuable": {
+    "tau2_retail": 65,
+    "tau2_airline": 34,
+    "appworld": 49
+   },
+   "mean": {
+    "first_write": 0.421,
+    "last_step": 0.2002,
+    "all_at_once_flash": 0.2998,
+    "all_at_once_pro": 0.2872,
+    "all_at_once_pro_think": 0.3133,
+    "step_by_step_pro": 0.19,
+    "binary_search_pro": 0.3264,
+    "study1_pro": 0.269,
+    "rrsi_digest_pro": 0.2014,
+    "search@40": 0.2492,
+    "all_at_once_gain_pro": 0.356,
+    "binary_search_gain_pro": 0.4029
+   },
+   "by_domain": {
+    "first_write": {
+     "tau2_retail": 0.5298,
+     "tau2_airline": 0.2757,
+     "appworld": 0.3776
+    },
+    "last_step": {
+     "tau2_retail": 0.1038,
+     "tau2_airline": 0.1397,
+     "appworld": 0.3699
+    },
+    "all_at_once_flash": {
+     "tau2_retail": 0.2846,
+     "tau2_airline": 0.3897,
+     "appworld": 0.2577
+    },
+    "all_at_once_pro": {
+     "tau2_retail": 0.2962,
+     "tau2_airline": 0.3235,
+     "appworld": 0.25
+    },
+    "all_at_once_pro_think": {
+     "tau2_retail": 0.2577,
+     "tau2_airline": 0.4375,
+     "appworld": 0.301
+    },
+    "step_by_step_pro": {
+     "tau2_retail": 0.1375,
+     "tau2_airline": 0.1379,
+     "appworld": 0.2959
+    },
+    "binary_search_pro": {
+     "tau2_retail": 0.3317,
+     "tau2_airline": 0.3051,
+     "appworld": 0.3342
+    },
+    "study1_pro": {
+     "tau2_retail": 0.2558,
+     "tau2_airline": 0.3272,
+     "appworld": 0.2462
+    },
+    "rrsi_digest_pro": {
+     "tau2_retail": 0.1663,
+     "tau2_airline": 0.3309,
+     "appworld": 0.1582
+    },
+    "search@40": {
+     "tau2_retail": 0.2192,
+     "tau2_airline": 0.3015,
+     "appworld": 0.2526
+    },
+    "all_at_once_gain_pro": {
+     "tau2_retail": 0.3885,
+     "tau2_airline": 0.3897,
+     "appworld": 0.2895
+    },
+    "binary_search_gain_pro": {
+     "tau2_retail": 0.4404,
+     "tau2_airline": 0.4154,
+     "appworld": 0.3444
+    }
+   },
+   "decisive": 0.7589,
+   "first_write_rank": 1,
+   "best_llm": "binary_search_pro",
+   "first_write_minus_binary_search": [
+    0.0946,
+    -0.0072,
+    0.1944
+   ],
+   "first_write_minus_best_llm": [
+    0.0946,
+    -0.0058,
+    0.1932
+   ],
+   "first_write_minus_all_at_once_gain_pro": [
+    0.065,
+    -0.0389,
+    0.1641
+   ],
+   "first_write_minus_binary_search_gain_pro": [
+    0.0182,
+    -0.0752,
+    0.104
+   ],
+   "kendall_tau_vs_registered": 1.0
+  },
+  "unseen_id_or_expanded": {
+   "n_rescuable": {
+    "tau2_retail": 65,
+    "tau2_airline": 34,
+    "appworld": 53
+   },
+   "mean": {
+    "first_write": 0.4285,
+    "last_step": 0.2072,
+    "all_at_once_flash": 0.301,
+    "all_at_once_pro": 0.2952,
+    "all_at_once_pro_think": 0.3117,
+    "step_by_step_pro": 0.1961,
+    "binary_search_pro": 0.3359,
+    "study1_pro": 0.2644,
+    "rrsi_digest_pro": 0.2142,
+    "search@40": 0.259,
+    "all_at_once_gain_pro": 0.3631,
+    "binary_search_gain_pro": 0.4079
+   },
+   "by_domain": {
+    "first_write": {
+     "tau2_retail": 0.5317,
+     "tau2_airline": 0.2831,
+     "appworld": 0.395
+    },
+    "last_step": {
+     "tau2_retail": 0.1077,
+     "tau2_airline": 0.1397,
+     "appworld": 0.3726
+    },
+    "all_at_once_flash": {
+     "tau2_retail": 0.2865,
+     "tau2_airline": 0.3897,
+     "appworld": 0.2618
+    },
+    "all_at_once_pro": {
+     "tau2_retail": 0.2981,
+     "tau2_airline": 0.3309,
+     "appworld": 0.2689
+    },
+    "all_at_once_pro_think": {
+     "tau2_retail": 0.2596,
+     "tau2_airline": 0.4375,
+     "appworld": 0.2948
+    },
+    "step_by_step_pro": {
+     "tau2_retail": 0.1394,
+     "tau2_airline": 0.1507,
+     "appworld": 0.2948
+    },
+    "binary_search_pro": {
+     "tau2_retail": 0.3317,
+     "tau2_airline": 0.3125,
+     "appworld": 0.3561
+    },
+    "study1_pro": {
+     "tau2_retail": 0.2596,
+     "tau2_airline": 0.3346,
+     "appworld": 0.2252
+    },
+    "rrsi_digest_pro": {
+     "tau2_retail": 0.1683,
+     "tau2_airline": 0.3309,
+     "appworld": 0.1958
+    },
+    "search@40": {
+     "tau2_retail": 0.2212,
+     "tau2_airline": 0.3015,
+     "appworld": 0.2783
+    },
+    "all_at_once_gain_pro": {
+     "tau2_retail": 0.3923,
+     "tau2_airline": 0.3971,
+     "appworld": 0.3054
+    },
+    "binary_search_gain_pro": {
+     "tau2_retail": 0.4423,
+     "tau2_airline": 0.4154,
+     "appworld": 0.3608
+    }
+   },
+   "decisive": 0.757,
+   "first_write_rank": 1,
+   "best_llm": "binary_search_pro",
+   "first_write_minus_binary_search": [
+    0.0925,
+    -0.0076,
+    0.1909
+   ],
+   "first_write_minus_best_llm": [
+    0.0925,
+    -0.0048,
+    0.1933
+   ],
+   "first_write_minus_all_at_once_gain_pro": [
+    0.0654,
+    -0.0326,
+    0.1634
+   ],
+   "first_write_minus_binary_search_gain_pro": [
+    0.0206,
+    -0.0683,
+    0.1022
+   ],
+   "kendall_tau_vs_registered": 1.0
+  }
+ },
+ "audit": {
+  "items": 60,
+  "dir": "/mnt/project-files/reviews/paper2-audit",
+  "flagged_in_sample": 19
+ }
+}

@@ -35,6 +35,15 @@ gain), with the same note as the other step groups:
   python -m attrib.phaseb digests --groups oracle
   python -m attrib.phaseb rounds --groups oracle
   python -m attrib.phaseb deploy --groups oracle
+
+Post hoc (third review of paper 2), not registered: two groups whose proposer
+cannot read the failing traces (RRSI code at PIN_NOREAD = PIN plus the
+RRSI_NO_FAIL_READ switch in rrsi/propose.py, local branch pb/code-noread):
+  rrsi_noread        RRSI's own analysis report and digests, as in rrsi
+  oracle_fix_noread  per failing trace with a positive rescue gain: the oracle
+                     step, its excerpt, the oracle's diagnosis and the
+                     correction that rescued most often there
+Same commands with --groups rrsi_noread,oracle_fix_noread.
 """
 from __future__ import annotations
 
@@ -58,6 +67,8 @@ from attrib.pilot_report import PRICES, replay_dollars  # noqa: E402
 PB = Path(os.environ.get("PHASEB_ROOT", "/home/user/phaseb"))
 CODE = PB / "code"                      # worktree pinned at the commit E1R ran
 PIN = "1b69724"
+CODE_NOREAD = PB / "code_noread"        # PIN + the no-failing-trace-read switch (post hoc)
+PIN_NOREAD = "9226aaf"
 PY = "/home/user/venv-tau2/bin/python"
 TRAJ = {"r2": Path("/home/user/e1r2"), "r3": Path("/home/user/e1r3")}
 DOMAINS = ("tau2_retail", "tau2_airline")
@@ -65,7 +76,8 @@ TS = (5, 15)
 STATES = [f"{r}_{d}_t{t}" for r in TRAJ for d in DOMAINS for t in TS]
 GROUPS = ("none", "rrsi", "first_write", "binary_search", "cf_search")
 STEP_GROUPS = ("first_write", "binary_search", "cf_search")
-POSTHOC_GROUPS = ("oracle",)
+POSTHOC_GROUPS = ("oracle", "rrsi_noread", "oracle_fix_noread")
+NOREAD_GROUPS = ("rrsi_noread", "oracle_fix_noread")
 MAX_ERR = 0.02                          # common error check (paper 1)
 SEARCH_BUDGET = 40
 EXCERPT = 600
@@ -76,6 +88,11 @@ NOTE_STEP = (NOTE_NONE + " For each failing trace, PER-TASK DIGESTS give decisiv
              "step at which an automatic failure-attribution method located the failure. Read "
              "the trace around that step (read_trace with from_step/to_step) to see what went "
              "wrong there.")
+NOTE_FIX = ("No analysis report this round, and the failing traces cannot be read. For each failing "
+            "trace, PER-TASK DIGESTS give decisive_step: the step at which, in counterfactual "
+            "replays, one corrected action most raised the chance that the task succeeds; an excerpt "
+            "of that step; a diagnosis of what went wrong there; and that corrected action. Failing "
+            "traces without a digest had no such step. Work from these digests.")
 
 
 def log(msg: str) -> None:
@@ -203,13 +220,14 @@ def prep_state(state: str, groups=GROUPS) -> dict:
             link.symlink_to(src_dir(state) / "jobs" / inc["job"])
         rdir = rd / f"r{t}"
         (rdir / "analysis" / "digests").mkdir(parents=True, exist_ok=True)
-        if g == "rrsi":
+        if g in ("rrsi", "rrsi_noread"):
             shutil.copy(orig / "analysis_report.json", rdir / "analysis_report.json")
             for p in (orig / "analysis" / "digests").glob("*.json"):
                 shutil.copy(p, rdir / "analysis" / "digests" / p.name)
         else:
             (rdir / "analysis_report.json").write_text(json.dumps(
-                {"note": NOTE_NONE if g == "none" else NOTE_STEP}, indent=1))
+                {"note": NOTE_NONE if g == "none" else NOTE_FIX if g == "oracle_fix_noread" else NOTE_STEP},
+                indent=1))
         br = f"evolve/{branch_ns(g, state)}/{dom}"
         if git("rev-parse", "--verify", "--quiet", f"refs/heads/{br}", check=False) == "":
             git("branch", br, inc["commit"])
@@ -309,7 +327,32 @@ def picks(dom: str) -> dict:
         for r in json.loads(gt.read_text())["failures"]:
             best = max(r["R"]) if r["R"] else 0.0
             out["oracle"][r["fid"]] = r["R"].index(best) if best > 0 else None
+        out["oracle_fix_noread"] = out["oracle"]
     return out
+
+
+def oracle_fix(dom: str, fid: str, k: int) -> dict | None:
+    """The oracle's diagnosis and correction at step k: of the samples whose
+    correction was applied, the one with the most successful corrected
+    replays (first such sample on ties)."""
+    g = next(r for r in json.loads((PB / "gt" / dom / "a" / "result.json").read_text())["failures"]
+             if r["fid"] == fid)
+    st = g["steps"][k]
+    best = None
+    for i, s in enumerate(st["samples"]):
+        if s.get("verdict") == "mistake" and s.get("corrected") is not None and s.get("n") == 2 \
+                and (best is None or s["corrected"] > best[1]):
+            best = (i, s["corrected"])
+    if best is None:
+        return None
+    o = json.loads((PB / "gt" / dom / "a" / "oracle" / f"{fid}_k{k}_o{best[0]}.json").read_text())
+    act = o.get("action") or {}
+    if "message" in act:
+        text = f"say to the user: {act['message']}"
+    else:
+        text = "\n".join(f"call {c.get('name')}({json.dumps(c.get('arguments'), ensure_ascii=False)})"
+                         for c in act.get("tool_calls") or [])
+    return {"diagnosis": o.get("why"), "corrected_action": text}
 
 
 def write_digests(groups=STEP_GROUPS) -> None:
@@ -332,10 +375,15 @@ def write_digests(groups=STEP_GROUPS) -> None:
                     if st is None:
                         continue
                     ex = _render_step(st)
-                    (dg / f"{f['task_id']}_failure.json").write_text(json.dumps(
-                        {"task_id": f["task_id"], "lens": "failure", "decisive_step": k,
-                         "step_excerpt": ex[:EXCERPT] + (" ...[truncated]" if len(ex) > EXCERPT else ""),
-                         "blocker": f"failure decided at step {k}"}, ensure_ascii=False, indent=1))
+                    dgst = {"task_id": f["task_id"], "lens": "failure", "decisive_step": k,
+                            "step_excerpt": ex[:EXCERPT] + (" ...[truncated]" if len(ex) > EXCERPT else ""),
+                            "blocker": f"failure decided at step {k}"}
+                    if g == "oracle_fix_noread":
+                        fix = oracle_fix(dom, f["fid"], k)
+                        if fix is None:
+                            continue
+                        dgst.update(fix)
+                    (dg / f"{f['task_id']}_failure.json").write_text(json.dumps(dgst, ensure_ascii=False, indent=1))
     log("digests written")
 
 
@@ -357,11 +405,13 @@ def run_cell(g: str, s: str) -> str:
     if g in STEP_GROUPS + POSTHOC_GROUPS and not list((rd / f"r{t}" / "analysis" / "digests").glob("*.json")):
         return f"{g}:{s} no digests (run attribute first)"
     (rd / "logs").mkdir(parents=True, exist_ok=True)
-    env = {**os.environ, "PYTHONPATH": str(CODE), "RRSI_USAGE_LOG": str(rd / "usage.jsonl")}
+    code = CODE_NOREAD if g in NOREAD_GROUPS else CODE
+    env = {**os.environ, "PYTHONPATH": str(code), "RRSI_USAGE_LOG": str(rd / "usage.jsonl"),
+           **({"RRSI_NO_FAIL_READ": "1"} if g in NOREAD_GROUPS else {})}
     with open(rd / "logs" / f"round{t}.log", "a") as fh:
         r = subprocess.run([PY, "rrsi.py", "--domain", dom, "--runs", str(runs_root(g, s)),
                             "--branch-ns", branch_ns(g, s), "round", "--t", str(t)],
-                           cwd=CODE, env=env, stdout=fh, stderr=subprocess.STDOUT)
+                           cwd=code, env=env, stdout=fh, stderr=subprocess.STDOUT)
     return f"{g}:{s} exit {r.returncode}" + (" done" if cell_done(g, s) else "")
 
 

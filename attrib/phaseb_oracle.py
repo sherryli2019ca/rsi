@@ -23,10 +23,10 @@ from pathlib import Path
 
 import numpy as np
 
-from attrib.phaseb import GROUPS, POSTHOC_GROUPS, STEP_GROUPS
+from attrib.phaseb import GROUPS, STEP_GROUPS
 from attrib.phaseb_analyze import contrast, groups_table, round_level, signflip, slots
 
-ALL = GROUPS + POSTHOC_GROUPS
+ALL = GROUPS + ("oracle",)
 
 
 def main():
