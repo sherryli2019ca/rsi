@@ -10,3 +10,10 @@ paper/*.out
 paper/*.fls
 paper/*.fdb_latexmk
 domains/*/scenarios.json
+paper2/*.aux
+paper2/*.log
+paper2/*.bbl
+paper2/*.blg
+paper2/*.out
+paper2/*.fls
+paper2/*.fdb_latexmk
