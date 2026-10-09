@@ -34,6 +34,12 @@ AppWorld (Addendum 2 of attrib/PREREGISTRATION.md): the same protocol with the
 oracle, its context and the replay driver of attrib.aw.
 
 Replay keys: <fid>_k<k>_o<i>_<j> (sample i corrected), <fid>_k<k>_n<j> (null).
+
+A second oracle (post hoc, second review of paper 2): --oracle-model
+deepseek-v4-flash --rep flash --null-from <out>/a/replays draws the K samples
+from another model and links the first run's null replays where they exist, so
+the two profiles differ only in who writes the corrections; steps that only the
+second oracle corrects get new null replays.
 """
 from __future__ import annotations
 
@@ -191,6 +197,7 @@ def profile(f: dict, odir: Path, rdir: Path) -> dict:
 
 
 def main():
+    global ORACLE_MODEL
     ap = argparse.ArgumentParser()
     ap.add_argument("cmd", choices=("run",))
     ap.add_argument("--domain", required=True, choices=("tau2_retail", "tau2_airline", "appworld"))
@@ -201,6 +208,9 @@ def main():
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--replay-workers", type=int, default=None,
                     help="parallel replays (default --workers); AppWorld episodes need ~0.65 GB each")
+    ap.add_argument("--oracle-model", default=ORACLE_MODEL)
+    ap.add_argument("--null-from", default=None,
+                    help="link null replays from this replay directory where they exist")
     ap.add_argument("--accept-missing", action="store_true",
                     help="score even if some replays still fail after the retries: their correction "
                          "counts as not applied (no measured gain), as profile() does for any correction "
@@ -220,7 +230,18 @@ def main():
     rep.mkdir(parents=True, exist_ok=True)
     os.environ.setdefault("RRSI_USAGE_LOG", str(rep / "usage.jsonl"))
     odir, rdir = rep / "oracle", rep / "replays"
+    ORACLE_MODEL = args.oracle_model
     run_oracle(fails, odir, m, args.workers)
+    if args.null_from:
+        src = Path(args.null_from)
+        rdir.mkdir(parents=True, exist_ok=True)
+        for f in fails:
+            for k in range(f["n_steps"]):
+                if any(v.get("verdict") == "mistake" for v in _samples(f, k, odir)):
+                    for j in range(R_N):
+                        a, b = src / f"{f['fid']}_k{k}_n{j}.json", rdir / f"{f['fid']}_k{k}_n{j}.json"
+                        if a.exists() and not b.exists():
+                            b.symlink_to(a.resolve())
     missing = []
     try:
         run_replays(fails, odir, rdir, dom, args.replay_workers or args.workers)

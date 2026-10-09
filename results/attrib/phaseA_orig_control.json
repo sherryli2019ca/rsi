@@ -1,0 +1,32 @@
+{
+ "n_failures": 157,
+ "still_rescuable": 156,
+ "steps_compared": 1035,
+ "mean_null": 0.1947,
+ "mean_observed": 0.1655,
+ "mean": {
+  "first_write": 0.4399,
+  "last_step": 0.2038,
+  "all_at_once_flash": 0.3635,
+  "all_at_once_pro": 0.3885,
+  "all_at_once_pro_think": 0.4001,
+  "step_by_step_pro": 0.2373,
+  "binary_search_pro": 0.385,
+  "study1_pro": 0.3463,
+  "rrsi_digest_pro": 0.2799,
+  "search@40": 0.285
+ },
+ "kendall_tau_vs_main": 0.822,
+ "first_write_rank": 1,
+ "best_llm": "all_at_once_pro_think",
+ "first_write_minus_binary_search": [
+  0.0549,
+  -0.044,
+  0.1504
+ ],
+ "first_write_minus_best_llm": [
+  0.0398,
+  -0.0732,
+  0.1456
+ ]
+}

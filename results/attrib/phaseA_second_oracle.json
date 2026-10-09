@@ -1,0 +1,279 @@
+{
+ "agreement": {
+  "tau2_retail": {
+   "failures": 100,
+   "rescuable_registered": 65,
+   "rescuable_second": 52,
+   "rescuable_both": 43,
+   "agreement": 0.69,
+   "kappa": 0.372,
+   "decisive_equal": 0.721,
+   "decisive_within1": 0.86,
+   "step_pearson": 0.633,
+   "steps": 1165,
+   "proposal_share_registered": 0.3444,
+   "proposal_share_second": 0.2416,
+   "max_R_registered": 0.5625,
+   "max_R_second": 0.4412
+  },
+  "tau2_airline": {
+   "failures": 100,
+   "rescuable_registered": 37,
+   "rescuable_second": 27,
+   "rescuable_both": 18,
+   "agreement": 0.72,
+   "kappa": 0.364,
+   "decisive_equal": 0.722,
+   "decisive_within1": 0.889,
+   "step_pearson": 0.588,
+   "steps": 1026,
+   "proposal_share_registered": 0.367,
+   "proposal_share_second": 0.2566,
+   "max_R_registered": 0.3919,
+   "max_R_second": 0.3113
+  },
+  "appworld": {
+   "failures": 100,
+   "rescuable_registered": 55,
+   "rescuable_second": 41,
+   "rescuable_both": 38,
+   "agreement": 0.8,
+   "kappa": 0.607,
+   "decisive_equal": 0.711,
+   "decisive_within1": 0.816,
+   "step_pearson": 0.722,
+   "steps": 1961,
+   "proposal_share_registered": 0.2173,
+   "proposal_share_second": 0.1609,
+   "max_R_registered": 0.465,
+   "max_R_second": 0.3663
+  },
+  "pooled_step_pearson": 0.656
+ },
+ "registered_mean": {
+  "first_write": 0.4212,
+  "last_step": 0.2022,
+  "all_at_once_flash": 0.3033,
+  "all_at_once_pro": 0.2954,
+  "all_at_once_pro_think": 0.3065,
+  "step_by_step_pro": 0.1963,
+  "binary_search_pro": 0.3388,
+  "study1_pro": 0.2687,
+  "rrsi_digest_pro": 0.2186,
+  "search@40": 0.2643
+ },
+ "second": {
+  "n_rescuable": {
+   "tau2_retail": 52,
+   "tau2_airline": 27,
+   "appworld": 41
+  },
+  "mean": {
+   "first_write": 0.3771,
+   "last_step": 0.1938,
+   "all_at_once_flash": 0.2578,
+   "all_at_once_pro": 0.2656,
+   "all_at_once_pro_think": 0.2568,
+   "step_by_step_pro": 0.1906,
+   "binary_search_pro": 0.2922,
+   "study1_pro": 0.2062,
+   "rrsi_digest_pro": 0.2078,
+   "search@40": 0.2406,
+   "all_at_once_gain_pro": 0.3344,
+   "binary_search_gain_pro": 0.3536
+  },
+  "by_domain": {
+   "first_write": {
+    "tau2_retail": 0.4423,
+    "tau2_airline": 0.1991,
+    "appworld": 0.4116
+   },
+   "last_step": {
+    "tau2_retail": 0.0938,
+    "tau2_airline": 0.1111,
+    "appworld": 0.375
+   },
+   "all_at_once_flash": {
+    "tau2_retail": 0.2163,
+    "tau2_airline": 0.2986,
+    "appworld": 0.2835
+   },
+   "all_at_once_pro": {
+    "tau2_retail": 0.2344,
+    "tau2_airline": 0.2361,
+    "appworld": 0.3247
+   },
+   "all_at_once_pro_think": {
+    "tau2_retail": 0.2031,
+    "tau2_airline": 0.287,
+    "appworld": 0.3049
+   },
+   "step_by_step_pro": {
+    "tau2_retail": 0.1202,
+    "tau2_airline": 0.1852,
+    "appworld": 0.2835
+   },
+   "binary_search_pro": {
+    "tau2_retail": 0.351,
+    "tau2_airline": 0.1551,
+    "appworld": 0.3079
+   },
+   "study1_pro": {
+    "tau2_retail": 0.1647,
+    "tau2_airline": 0.25,
+    "appworld": 0.2302
+   },
+   "rrsi_digest_pro": {
+    "tau2_retail": 0.1659,
+    "tau2_airline": 0.3264,
+    "appworld": 0.1829
+   },
+   "search@40": {
+    "tau2_retail": 0.2007,
+    "tau2_airline": 0.3032,
+    "appworld": 0.25
+   },
+   "all_at_once_gain_pro": {
+    "tau2_retail": 0.3353,
+    "tau2_airline": 0.3634,
+    "appworld": 0.314
+   },
+   "binary_search_gain_pro": {
+    "tau2_retail": 0.4002,
+    "tau2_airline": 0.2801,
+    "appworld": 0.343
+   }
+  },
+  "decisive": 0.6854,
+  "first_write_rank": 1,
+  "best_llm": "binary_search_pro",
+  "first_write_minus_binary_search": [
+   0.0849,
+   0.0109,
+   0.1573
+  ],
+  "first_write_minus_best_llm": [
+   0.0849,
+   0.0115,
+   0.159
+  ],
+  "first_write_minus_all_at_once_gain_pro": [
+   0.0427,
+   -0.0433,
+   0.1261
+  ],
+  "first_write_minus_binary_search_gain_pro": [
+   0.0234,
+   -0.0426,
+   0.0859
+  ],
+  "kendall_tau_vs_registered": 0.778
+ },
+ "average": {
+  "n_rescuable": {
+   "tau2_retail": 56,
+   "tau2_airline": 24,
+   "appworld": 41
+  },
+  "mean": {
+   "first_write": 0.4272,
+   "last_step": 0.2133,
+   "all_at_once_flash": 0.2833,
+   "all_at_once_pro": 0.2856,
+   "all_at_once_pro_think": 0.2686,
+   "step_by_step_pro": 0.1963,
+   "binary_search_pro": 0.3231,
+   "study1_pro": 0.2381,
+   "rrsi_digest_pro": 0.2185,
+   "search@40": 0.2492,
+   "all_at_once_gain_pro": 0.3574,
+   "binary_search_gain_pro": 0.4032
+  },
+  "by_domain": {
+   "first_write": {
+    "tau2_retail": 0.4833,
+    "tau2_airline": 0.2786,
+    "appworld": 0.4375
+   },
+   "last_step": {
+    "tau2_retail": 0.0982,
+    "tau2_airline": 0.1458,
+    "appworld": 0.4101
+   },
+   "all_at_once_flash": {
+    "tau2_retail": 0.2416,
+    "tau2_airline": 0.3906,
+    "appworld": 0.2774
+   },
+   "all_at_once_pro": {
+    "tau2_retail": 0.2556,
+    "tau2_airline": 0.3112,
+    "appworld": 0.3117
+   },
+   "all_at_once_pro_think": {
+    "tau2_retail": 0.197,
+    "tau2_airline": 0.3685,
+    "appworld": 0.3079
+   },
+   "step_by_step_pro": {
+    "tau2_retail": 0.1295,
+    "tau2_airline": 0.1615,
+    "appworld": 0.3079
+   },
+   "binary_search_pro": {
+    "tau2_retail": 0.3225,
+    "tau2_airline": 0.2995,
+    "appworld": 0.3377
+   },
+   "study1_pro": {
+    "tau2_retail": 0.1975,
+    "tau2_airline": 0.3229,
+    "appworld": 0.2439
+   },
+   "rrsi_digest_pro": {
+    "tau2_retail": 0.1618,
+    "tau2_airline": 0.3854,
+    "appworld": 0.1982
+   },
+   "search@40": {
+    "tau2_retail": 0.197,
+    "tau2_airline": 0.3294,
+    "appworld": 0.2736
+   },
+   "all_at_once_gain_pro": {
+    "tau2_retail": 0.3527,
+    "tau2_airline": 0.4219,
+    "appworld": 0.3262
+   },
+   "binary_search_gain_pro": {
+    "tau2_retail": 0.4062,
+    "tau2_airline": 0.4375,
+    "appworld": 0.3788
+   }
+  },
+  "decisive": 0.6963,
+  "first_write_rank": 1,
+  "best_llm": "binary_search_pro",
+  "first_write_minus_binary_search": [
+   0.1041,
+   0.0169,
+   0.1901
+  ],
+  "first_write_minus_best_llm": [
+   0.1041,
+   0.0164,
+   0.1908
+  ],
+  "first_write_minus_all_at_once_gain_pro": [
+   0.0697,
+   -0.0257,
+   0.1598
+  ],
+  "first_write_minus_binary_search_gain_pro": [
+   0.024,
+   -0.0527,
+   0.0961
+  ],
+  "kendall_tau_vs_registered": 0.822
+ }
+}

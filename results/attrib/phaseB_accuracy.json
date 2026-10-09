@@ -1,0 +1,163 @@
+{
+ "failures": {
+  "tau2_retail": 42,
+  "tau2_airline": 39
+ },
+ "mean_max_R": {
+  "tau2_retail": 0.3616,
+  "tau2_airline": 0.4167
+ },
+ "oracle_pointers": {
+  "tau2_retail": 31,
+  "tau2_airline": 29
+ },
+ "R_all_failures": {
+  "rrsi": [
+   0.1034,
+   0.0355,
+   0.1748
+  ],
+  "first_write": [
+   0.1227,
+   0.0632,
+   0.1945
+  ],
+  "binary_search": [
+   0.1883,
+   0.107,
+   0.2824
+  ],
+  "cf_search": [
+   0.1312,
+   0.0683,
+   0.2013
+  ],
+  "oracle": [
+   0.3881,
+   0.3038,
+   0.4828
+  ]
+ },
+ "rescuable": {
+  "tau2_retail": 17,
+  "tau2_airline": 16
+ },
+ "groups": {
+  "rrsi": {
+   "R": {
+    "tau2_retail": 0.3015,
+    "tau2_airline": 0.2148,
+    "pooled": [
+     0.2595,
+     0.1366,
+     0.373
+    ]
+   },
+   "exact": 0.2424,
+   "no_pointer": 2
+  },
+  "first_write": {
+   "R": {
+    "tau2_retail": 0.3676,
+    "tau2_airline": 0.1602,
+    "pooled": [
+     0.267,
+     0.1589,
+     0.3879
+    ]
+   },
+   "exact": 0.303,
+   "no_pointer": 0
+  },
+  "binary_search": {
+   "R": {
+    "tau2_retail": 0.3235,
+    "tau2_airline": 0.5078,
+    "pooled": [
+     0.4129,
+     0.2565,
+     0.5625
+    ]
+   },
+   "exact": 0.4545,
+   "no_pointer": 0
+  },
+  "cf_search": {
+   "R": {
+    "tau2_retail": 0.2721,
+    "tau2_airline": 0.3203,
+    "pooled": [
+     0.2955,
+     0.1746,
+     0.4196
+    ]
+   },
+   "exact": 0.303,
+   "no_pointer": 0
+  },
+  "oracle": {
+   "R": {
+    "tau2_retail": 0.6691,
+    "tau2_airline": 0.8125,
+    "pooled": [
+     0.7386,
+     0.6573,
+     0.8194
+    ]
+   },
+   "exact": 1.0,
+   "no_pointer": 0
+  }
+ },
+ "rrsi_digests": {
+  "tau2_retail": 41,
+  "tau2_airline": 35
+ },
+ "diffs": {
+  "first_write-rrsi": [
+   0.0076,
+   -0.152,
+   0.1875
+  ],
+  "binary_search-rrsi": [
+   0.1534,
+   -0.0323,
+   0.3504
+  ],
+  "cf_search-rrsi": [
+   0.036,
+   -0.1212,
+   0.2104
+  ],
+  "first_write-binary_search": [
+   -0.1458,
+   -0.3217,
+   0.0444
+  ],
+  "first_write-cf_search": [
+   -0.0284,
+   -0.1895,
+   0.1472
+  ],
+  "binary_search-cf_search": [
+   0.1174,
+   -0.0259,
+   0.2559
+  ],
+  "oracle-first_write": [
+   0.4716,
+   0.3266,
+   0.6042
+  ],
+  "oracle-binary_search": [
+   0.3258,
+   0.1959,
+   0.4629
+  ],
+  "oracle-cf_search": [
+   0.4432,
+   0.3286,
+   0.5539
+  ]
+ }
+}

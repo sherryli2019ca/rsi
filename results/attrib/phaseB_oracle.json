@@ -1,0 +1,587 @@
+{
+ "n_slots": 96,
+ "groups": {
+  "none": {
+   "slots": 16,
+   "gates": {
+    "deployable": 10,
+    "no_proposal": 3,
+    "critic_reject": 3
+   },
+   "mean_G": -0.04375,
+   "deployable": 10,
+   "mean_G_deployable": -0.06999999999999999,
+   "share_positive_deployable": 0.5,
+   "accepted_by_rrsi": 2,
+   "by_domain": {
+    "tau2_retail": -0.09270833333333334,
+    "tau2_airline": 0.005208333333333343
+   }
+  },
+  "rrsi": {
+   "slots": 16,
+   "gates": {
+    "deployable": 13,
+    "critic_reject": 2,
+    "smoke_fail": 1
+   },
+   "mean_G": -0.0033854166666666616,
+   "deployable": 13,
+   "mean_G_deployable": -0.0041666666666666605,
+   "share_positive_deployable": 0.38461538461538464,
+   "accepted_by_rrsi": 1,
+   "by_domain": {
+    "tau2_retail": -0.0031250000000000167,
+    "tau2_airline": -0.0036458333333333065
+   }
+  },
+  "first_write": {
+   "slots": 16,
+   "gates": {
+    "no_proposal": 4,
+    "deployable": 10,
+    "critic_reject": 2
+   },
+   "mean_G": -0.00026041666666666574,
+   "deployable": 10,
+   "mean_G_deployable": -0.0004166666666666652,
+   "share_positive_deployable": 0.6,
+   "accepted_by_rrsi": 2,
+   "by_domain": {
+    "tau2_retail": 0.002083333333333326,
+    "tau2_airline": -0.0026041666666666574
+   }
+  },
+  "binary_search": {
+   "slots": 16,
+   "gates": {
+    "deployable": 9,
+    "critic_reject": 3,
+    "smoke_fail": 2,
+    "no_proposal": 2
+   },
+   "mean_G": -0.0005208333333333245,
+   "deployable": 9,
+   "mean_G_deployable": -0.0009259259259259103,
+   "share_positive_deployable": 0.4444444444444444,
+   "accepted_by_rrsi": 0,
+   "by_domain": {
+    "tau2_retail": 0.0015625000000000083,
+    "tau2_airline": -0.0026041666666666574
+   }
+  },
+  "cf_search": {
+   "slots": 16,
+   "gates": {
+    "deployable": 12,
+    "critic_reject": 1,
+    "no_proposal": 3
+   },
+   "mean_G": -0.024739583333333336,
+   "deployable": 12,
+   "mean_G_deployable": -0.03298611111111111,
+   "share_positive_deployable": 0.25,
+   "accepted_by_rrsi": 2,
+   "by_domain": {
+    "tau2_retail": -0.0026041666666666713,
+    "tau2_airline": -0.046875
+   }
+  },
+  "oracle": {
+   "slots": 16,
+   "gates": {
+    "no_proposal": 4,
+    "deployable": 10,
+    "critic_reject": 2
+   },
+   "mean_G": -0.00390625,
+   "deployable": 10,
+   "mean_G_deployable": -0.00625,
+   "share_positive_deployable": 0.5,
+   "accepted_by_rrsi": 1,
+   "by_domain": {
+    "tau2_retail": -0.010416666666666657,
+    "tau2_airline": 0.0026041666666666574
+   }
+  }
+ },
+ "slot_level": {
+  "none": {
+   "g": "oracle",
+   "h": "none",
+   "estimate": 0.03984375,
+   "ci95": [
+    -0.0739399077508253,
+    0.15362740775082528
+   ],
+   "p_perm": 0.7458254174582541,
+   "se": 0.04811913342282972,
+   "state_diffs": [
+    -0.006249999999999978,
+    -0.03541666666666671,
+    -0.006249999999999978,
+    0.0020833333333332704,
+    0.37500000000000006,
+    -0.004166666666666652,
+    -0.016666666666666663,
+    0.01041666666666663
+   ],
+   "ci90": [
+    -0.05132174968109131,
+    0.1310092496810913
+   ],
+   "equivalent_within_2.5pp": false
+  },
+  "rrsi": {
+   "g": "oracle",
+   "h": "rrsi",
+   "estimate": -0.0005208333333333384,
+   "ci95": [
+    -0.019730470788097598,
+    0.01868880412143092
+   ],
+   "p_perm": 0.9763023697630236,
+   "se": 0.00812375982598682,
+   "state_diffs": [
+    -0.0020833333333332704,
+    -0.04583333333333334,
+    -0.006249999999999978,
+    0.004166666666666596,
+    0.027083333333333348,
+    -0.008333333333333304,
+    -5.551115123125783e-17,
+    0.027083333333333293
+   ],
+   "ci90": [
+    -0.015911938100691622,
+    0.014870271434024945
+   ],
+   "equivalent_within_2.5pp": true
+  },
+  "first_write": {
+   "g": "oracle",
+   "h": "first_write",
+   "estimate": -0.0036458333333333343,
+   "ci95": [
+    -0.022445009817573938,
+    0.015153343150907269
+   ],
+   "p_perm": 0.7130286971302869,
+   "se": 0.007950175792955075,
+   "state_diffs": [
+    -0.012499999999999956,
+    -0.04375000000000001,
+    0.004166666666666707,
+    0.014583333333333282,
+    0.027083333333333348,
+    -0.020833333333333315,
+    -0.00833333333333336,
+    0.01041666666666663
+   ],
+   "ci90": [
+    -0.018708069436974367,
+    0.011416402770307699
+   ],
+   "equivalent_within_2.5pp": true
+  },
+  "binary_search": {
+   "g": "oracle",
+   "h": "binary_search",
+   "estimate": -0.0033854166666666755,
+   "ci95": [
+    -0.017563819980836545,
+    0.010792986647503194
+   ],
+   "p_perm": 0.7046295370462954,
+   "se": 0.005996049821946267,
+   "state_diffs": [
+    -0.004166666666666652,
+    -0.03958333333333336,
+    -0.006249999999999978,
+    0.018749999999999933,
+    0.0,
+    -0.004166666666666652,
+    -0.002083333333333326,
+    0.01041666666666663
+   ],
+   "ci90": [
+    -0.014745406742279811,
+    0.00797457340894646
+   ],
+   "equivalent_within_2.5pp": true
+  },
+  "cf_search": {
+   "g": "oracle",
+   "h": "cf_search",
+   "estimate": 0.020833333333333336,
+   "ci95": [
+    -0.021287869195555156,
+    0.06295453586222183
+   ],
+   "p_perm": 0.3173682631736826,
+   "se": 0.017813065641255645,
+   "state_diffs": [
+    -0.008333333333333304,
+    -0.03541666666666671,
+    -0.008333333333333304,
+    0.012499999999999956,
+    0.01666666666666672,
+    -0.004166666666666652,
+    0.11458333333333331,
+    0.07916666666666666
+   ],
+   "ci90": [
+    -0.012914926756211143,
+    0.054581593422877814
+   ],
+   "equivalent_within_2.5pp": false
+  }
+ },
+ "slot_level_vs_step_groups": {
+  "g": "oracle",
+  "h": "first_write+binary_search+cf_search",
+  "estimate": 0.004600694444444442,
+  "ci95": [
+   -0.01620732370840812,
+   0.025408712597297003
+  ],
+  "p_perm": 0.7518248175182481,
+  "se": 0.008799715368216072,
+  "state_diffs": [
+   -0.008333333333333304,
+   -0.03958333333333336,
+   -0.0034722222222221917,
+   0.015277777777777724,
+   0.014583333333333354,
+   -0.009722222222222207,
+   0.03472222222222221,
+   0.03333333333333331
+  ],
+  "ci90": [
+   -0.012071061498154994,
+   0.021272450387043878
+  ],
+  "equivalent_within_2.5pp": true
+ },
+ "round_level": {
+  "none": {
+   "g": "oracle",
+   "h": "none",
+   "estimate": 0.0036458333333333204,
+   "ci95": [
+    -0.002651220257200373,
+    0.009942886923867014
+   ],
+   "p_perm": null,
+   "se": 0.0026630253226448235,
+   "state_diffs": [
+    0.0,
+    0.0,
+    0.0,
+    0.008333333333333304,
+    0.0,
+    0.0,
+    0.0,
+    0.02083333333333326
+   ],
+   "ci90": [
+    -0.0013994785194177866,
+    0.008691145186084426
+   ],
+   "equivalent_within_2.5pp": true,
+   "p_signflip": 0.5
+  },
+  "rrsi": {
+   "g": "oracle",
+   "h": "rrsi",
+   "estimate": 0.0036458333333333204,
+   "ci95": [
+    -0.002651220257200374,
+    0.009942886923867016
+   ],
+   "p_perm": null,
+   "se": 0.002663025322644824,
+   "state_diffs": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.008333333333333304,
+    0.02083333333333326
+   ],
+   "ci90": [
+    -0.0013994785194177874,
+    0.008691145186084428
+   ],
+   "equivalent_within_2.5pp": true,
+   "p_signflip": 0.5
+  },
+  "first_write": {
+   "g": "oracle",
+   "h": "first_write",
+   "estimate": -0.00208333333333334,
+   "ci95": [
+    -0.012940369744672404,
+    0.008773703078005724
+   ],
+   "p_perm": null,
+   "se": 0.004591443041827819,
+   "state_diffs": [
+    -0.02499999999999991,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    -0.012500000000000067,
+    0.02083333333333326
+   ],
+   "ci90": [
+    -0.010782184900076448,
+    0.006615518233409768
+   ],
+   "equivalent_within_2.5pp": true,
+   "p_signflip": 0.75
+  },
+  "binary_search": {
+   "g": "oracle",
+   "h": "binary_search",
+   "estimate": 0.0026041666666666574,
+   "ci95": [
+    -0.003553708333333321,
+    0.008762041666666637
+   ],
+   "p_perm": null,
+   "se": 0.0026041666666666574,
+   "state_diffs": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.02083333333333326
+   ],
+   "ci90": [
+    -0.0023296328124999916,
+    0.0075379661458333065
+   ],
+   "equivalent_within_2.5pp": true,
+   "p_signflip": 1.0
+  },
+  "cf_search": {
+   "g": "oracle",
+   "h": "cf_search",
+   "estimate": 0.001041666666666663,
+   "ci95": [
+    -0.012985009441009119,
+    0.015068342774342445
+   ],
+   "p_perm": null,
+   "se": 0.005931884353569862,
+   "state_diffs": [
+    0.0,
+    0.0,
+    -0.033333333333333326,
+    0.0,
+    0.02083333333333337,
+    0.0,
+    0.0,
+    0.02083333333333326
+   ],
+   "ci90": [
+    -0.010196756860035372,
+    0.012280090193368698
+   ],
+   "equivalent_within_2.5pp": true,
+   "p_signflip": 1.0
+  }
+ },
+ "round_level_means": {
+  "none": -0.001041666666666663,
+  "rrsi": -0.001041666666666663,
+  "first_write": 0.004687499999999997,
+  "binary_search": 0.0,
+  "cf_search": 0.0015624999999999944,
+  "oracle": 0.0026041666666666574
+ },
+ "slots": [
+  {
+   "group": "oracle",
+   "state": "r2_tau2_retail_t5",
+   "variant": "A",
+   "commit": null,
+   "gate": "no_proposal",
+   "accepted": false,
+   "G": 0.0
+  },
+  {
+   "group": "oracle",
+   "state": "r2_tau2_retail_t5",
+   "variant": "B",
+   "commit": null,
+   "gate": "no_proposal",
+   "accepted": false,
+   "G": 0.0
+  },
+  {
+   "group": "oracle",
+   "state": "r2_tau2_retail_t15",
+   "variant": "A",
+   "commit": "f1698eb",
+   "gate": null,
+   "evolve_S": 0.7635135135135135,
+   "evolve_C": 85642.54054054055,
+   "error_rate": 0.0,
+   "accepted": false,
+   "G": -0.08750000000000002
+  },
+  {
+   "group": "oracle",
+   "state": "r2_tau2_retail_t15",
+   "variant": "B",
+   "commit": null,
+   "gate": "no_proposal",
+   "accepted": false,
+   "G": 0.0
+  },
+  {
+   "group": "oracle",
+   "state": "r2_tau2_airline_t5",
+   "variant": "A",
+   "commit": "2588ae3",
+   "gate": null,
+   "evolve_S": 0.8166666666666667,
+   "evolve_C": 68410.33333333333,
+   "error_rate": 0.0,
+   "accepted": false,
+   "G": -0.012499999999999956
+  },
+  {
+   "group": "oracle",
+   "state": "r2_tau2_airline_t5",
+   "variant": "B",
+   "commit": "66a56ac",
+   "gate": null,
+   "evolve_S": 0.6833333333333333,
+   "evolve_C": 68542.85,
+   "error_rate": 0.0,
+   "accepted": false,
+   "G": 0.02083333333333337
+  },
+  {
+   "group": "oracle",
+   "state": "r2_tau2_airline_t15",
+   "variant": "A",
+   "commit": "95a6ded",
+   "gate": null,
+   "evolve_S": 0.7333333333333333,
+   "evolve_C": 64546.333333333336,
+   "error_rate": 0.0,
+   "accepted": false,
+   "G": 0.016666666666666607
+  },
+  {
+   "group": "oracle",
+   "state": "r2_tau2_airline_t15",
+   "variant": "B",
+   "commit": "58bdc10",
+   "gate": null,
+   "evolve_S": 0.75,
+   "evolve_C": 66753.36666666667,
+   "error_rate": 0.0,
+   "accepted": false,
+   "G": -0.02083333333333337
+  },
+  {
+   "group": "oracle",
+   "state": "r3_tau2_retail_t5",
+   "variant": "A",
+   "commit": "c7a737e",
+   "gate": null,
+   "evolve_S": 0.9121621621621622,
+   "evolve_C": 76873.07432432432,
+   "error_rate": 0.0,
+   "accepted": false,
+   "G": -0.008333333333333304
+  },
+  {
+   "group": "oracle",
+   "state": "r3_tau2_retail_t5",
+   "variant": "B",
+   "commit": "d3d12c2",
+   "gate": null,
+   "evolve_S": 0.8716216216216216,
+   "evolve_C": 74941.89864864865,
+   "error_rate": 0.0,
+   "accepted": false,
+   "G": 0.004166666666666652
+  },
+  {
+   "group": "oracle",
+   "state": "r3_tau2_retail_t15",
+   "variant": "A",
+   "commit": "6fa4448",
+   "gate": null,
+   "evolve_S": 0.8716216216216216,
+   "evolve_C": 77460.62837837837,
+   "error_rate": 0.0,
+   "accepted": false,
+   "G": 0.008333333333333415
+  },
+  {
+   "group": "oracle",
+   "state": "r3_tau2_retail_t15",
+   "variant": "B",
+   "commit": null,
+   "gate": "critic_reject",
+   "accepted": false,
+   "G": 0.0
+  },
+  {
+   "group": "oracle",
+   "state": "r3_tau2_airline_t5",
+   "variant": "A",
+   "commit": "7c24ff2",
+   "gate": null,
+   "evolve_S": 0.65,
+   "evolve_C": 62253.63333333333,
+   "error_rate": 0.0,
+   "accepted": false,
+   "G": -0.004166666666666652
+  },
+  {
+   "group": "oracle",
+   "state": "r3_tau2_airline_t5",
+   "variant": "B",
+   "commit": null,
+   "gate": "no_proposal",
+   "accepted": false,
+   "G": 0.0
+  },
+  {
+   "group": "oracle",
+   "state": "r3_tau2_airline_t15",
+   "variant": "A",
+   "commit": "1b37733",
+   "gate": null,
+   "evolve_S": 0.65,
+   "evolve_C": 61989.1,
+   "error_rate": 0.0,
+   "accepted": true,
+   "G": 0.02083333333333326
+  },
+  {
+   "group": "oracle",
+   "state": "r3_tau2_airline_t15",
+   "variant": "B",
+   "commit": null,
+   "gate": "critic_reject",
+   "accepted": false,
+   "G": 0.0
+  }
+ ]
+}
