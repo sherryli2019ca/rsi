@@ -144,8 +144,12 @@ class _Err(float):
     """A reward of an episode that ended in a harness error."""
 
 
-def _guard(runs: Path, out: Path, dollars: bool = False, domains: str = "tau2_retail,tau2_airline"):
-    """dollars: costs in price-weighted episode equivalents instead of token
+def _guard(runs: Path, out: Path, dollars: bool = False, domains: str = "tau2_retail,tau2_airline",
+           dest: str | None = None, hook=None):
+    """dest: output file name in <out> (default as below); hook: called with the
+    analyze module after the guard's patches and before the analysis runs, to
+    change rules or the decision rule (verify/posthoc_r7.py).
+    dollars: costs in price-weighted episode equivalents instead of token
     counts (a replay costs its price over the mean price of a base-harness
     evolve episode, a judge call likewise, and the running cost of a harness is
     its mean price per held-out episode); output e1_analysis_guard_dollars_posthoc.json."""
@@ -376,12 +380,16 @@ def _guard(runs: Path, out: Path, dollars: bool = False, domains: str = "tau2_re
     shutil.copy2(primary, backup)
     try:
         sys.argv = ["analyze", "--runs", str(runs), "--out", str(out), "--domains", domains]
+        if hook is not None:
+            hook(A)
         A.main()
-        shutil.move(primary, out / ("e1_analysis_guard_dollars_posthoc.json" if dollars
-                                    else "e1_analysis_guard_posthoc.json"))
+        shutil.move(primary, out / (dest or ("e1_analysis_guard_dollars_posthoc.json" if dollars
+                                             else "e1_analysis_guard_posthoc.json")))
     finally:
         shutil.copy2(backup, primary)
         backup.unlink()
+        A._replays, A._ev, A._fix, A.estimate, A.random = orig_replays, orig_ev, orig_fix, orig_est, random
+        A.rules, A.choice_probs, A.label, A.load = orig_rules, orig_probs, orig_label, orig_load
 
 
 # ---------------------------------------------------------------- summary --

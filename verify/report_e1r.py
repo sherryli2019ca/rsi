@@ -8,7 +8,9 @@ block bootstrap of verify/e1r.py (blocks of rounds sharing an incumbent, and
 held-out tasks, within domain and trajectory), on the first trajectory (r1),
 on the registered primary set (r2 and r3) and on all three pooled; then, on the
 primary set, how often the rule accepts a candidate, its evidence cost per
-round (episodes and episode equivalents) and Net(N) at N = 10^4, v = 10.
+round (episodes) and Net(N) at N = 10^4, v = 10. A first row keeps the
+incumbent (zero cost, zero value); the Agree column is the share of rounds in
+which the rule makes full evaluation's choice (review 7).
 
   python -m verify.report_e1r --e3-report /home/user/e3/runs/verify/e1r_report.json
 
@@ -164,16 +166,29 @@ def main():
         e = "\\textbf{" + pp(est) + "}" if est >= best else pp(est)
         return f"{e} {{\\scriptsize [{pp(lo)}, {pp(hi)}]}}"
 
-    lines = []
+    def agree(k):
+        """share of rounds (expected over evidence draws) in which rule k makes
+        full evaluation's choice, r2+r3"""
+        out = []
+        for row in rows_all:
+            f = row["probs"]["full"]
+            fc = max(f, key=f.get)
+            out.append(row["probs"][k].get(fc, 0.0))
+        return float(np.mean(out))
+
+    keep_d = "+0.00 {\\scriptsize [+0.00, +0.00]}"
+    keep_agree = float(np.mean([max(r["probs"]["full"], key=r["probs"]["full"].get) in (None, "null")
+                                for r in rows_all]))
+    lines = [" & ".join(["Keep incumbent", "0"] + [keep_d] * len(SETS)
+                        + ["0.00", f"{keep_agree:.2f}", "0", "0"]) + " \\\\"]
     for i, (k, name, b) in enumerate(ROWS):
         if i in MIDRULES:
             lines.append("\\midrule")
         ep = np.mean([row["cost"][k]["episodes"] for row in rows_all])
-        eq = np.mean([row["cost"][k]["episode_equivalents"] for row in rows_all])
         x = pr[k]
         net = 1e4 * (10 * np.mean([a for a, _, _ in x]) - np.mean([d for _, d, _ in x])) - np.mean([c for _, _, c in x])
         cells = [name, b] + [cell(n, k) for n, _ in SETS] + [
-            f"{accept_rate(rows_all, k):.2f}", f"{ep:.0f} / {eq:.0f}",
+            f"{accept_rate(rows_all, k):.2f}", f"{agree(k):.2f}", f"{ep:.0f}",
             f"{net:,.0f}".replace("-", "$-$").replace(",", "{,}")]
         lines.append(" & ".join(cells) + " \\\\")
     out = Path(args.out)

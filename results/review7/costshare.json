@@ -1,0 +1,200 @@
+{
+ "r1/tau2_airline": {
+  "usd": {
+   "llm_analyst": 0.10377257099999998,
+   "llm_digester": 1.2096533489999985,
+   "llm_proposer": 3.091262242200002,
+   "llm_critic": 0.11453523059999997,
+   "candidate_eval": 1.7418915808,
+   "smoke": 0.034582632,
+   "calibration": 0.22356289480000002
+  },
+  "total_usd": 6.519260500400001,
+  "episodes": {
+   "candidate_eval": 1380,
+   "smoke": 48,
+   "calibration": 180
+  },
+  "share_candidate_eval": 0.26719159031812323,
+  "share_llm": 0.6932110463330489,
+  "seqfull_saved_episodes": 793.475,
+  "seqfull_saved_usd": 1.0015561029531015,
+  "seqfull_saved_share_of_total": 0.15363032400556004
+ },
+ "r1/tau2_retail": {
+  "usd": {
+   "llm_analyst": 0.13146330179999996,
+   "llm_digester": 1.6168080402000016,
+   "llm_proposer": 3.220651448999997,
+   "llm_critic": 0.09016576079999998,
+   "candidate_eval": 4.982145554400001,
+   "smoke": 0.04308621800000001,
+   "calibration": 0.6423732392
+  },
+  "total_usd": 10.7266935634,
+  "episodes": {
+   "candidate_eval": 3552,
+   "smoke": 48,
+   "calibration": 444
+  },
+  "share_candidate_eval": 0.46446237369913534,
+  "share_llm": 0.4716354132704839,
+  "seqfull_saved_episodes": 1536.135,
+  "seqfull_saved_usd": 2.154630676015835,
+  "seqfull_saved_share_of_total": 0.2008662467405184
+ },
+ "r2/tau2_airline": {
+  "usd": {
+   "llm_analyst": 0.10415067480000002,
+   "llm_digester": 1.4194571574000003,
+   "llm_proposer": 2.8307442540000003,
+   "llm_critic": 0.07978898339999996,
+   "candidate_eval": 2.229472952,
+   "smoke": 0.03947611920000001,
+   "calibration": 0.21256871160000002
+  },
+  "total_usd": 6.915658852400001,
+  "episodes": {
+   "candidate_eval": 1740,
+   "smoke": 60,
+   "calibration": 180
+  },
+  "share_candidate_eval": 0.322380412276451,
+  "share_llm": 0.6411740608143478,
+  "seqfull_saved_episodes": 436.575,
+  "seqfull_saved_usd": 0.5593862954134483,
+  "seqfull_saved_share_of_total": 0.08088691292505264
+ },
+ "r2/tau2_retail": {
+  "usd": {
+   "llm_analyst": 0.1369198218,
+   "llm_digester": 1.7884935354000002,
+   "llm_proposer": 2.890358710799997,
+   "llm_critic": 0.07125392219999999,
+   "candidate_eval": 6.3733661236,
+   "smoke": 0.05347422920000001,
+   "calibration": 0.6089045872
+  },
+  "total_usd": 11.922770930199997,
+  "episodes": {
+   "candidate_eval": 3996,
+   "smoke": 54,
+   "calibration": 444
+  },
+  "share_candidate_eval": 0.5345541033130535,
+  "share_llm": 0.4098901185647471,
+  "seqfull_saved_episodes": 2361.38,
+  "seqfull_saved_usd": 3.766251075311954,
+  "seqfull_saved_share_of_total": 0.31588722934969427
+ },
+ "r3/tau2_airline": {
+  "usd": {
+   "llm_analyst": 0.12404335199999998,
+   "llm_digester": 1.7603622108000012,
+   "llm_proposer": 3.20181575700001,
+   "llm_critic": 0.05596706100000001,
+   "candidate_eval": 1.715869316,
+   "smoke": 0.0221699604,
+   "calibration": 0.22085796600000002
+  },
+  "total_usd": 7.101085623200011,
+  "episodes": {
+   "candidate_eval": 1380,
+   "smoke": 48,
+   "calibration": 180
+  },
+  "share_candidate_eval": 0.2416347875589713,
+  "share_llm": 0.7241411600502222,
+  "seqfull_saved_episodes": 391.575,
+  "seqfull_saved_usd": 0.486877918415,
+  "seqfull_saved_share_of_total": 0.06856387096985811
+ },
+ "r3/tau2_retail": {
+  "usd": {
+   "llm_analyst": 0.125845857,
+   "llm_digester": 1.399373737200001,
+   "llm_proposer": 3.120422169000006,
+   "llm_critic": 0.07985992139999999,
+   "candidate_eval": 6.439966923600001,
+   "smoke": 0.048638441600000006,
+   "calibration": 0.6182281504
+  },
+  "total_usd": 11.832335200200008,
+  "episodes": {
+   "candidate_eval": 4144,
+   "smoke": 58,
+   "calibration": 444
+  },
+  "share_candidate_eval": 0.5442684655765282,
+  "share_llm": 0.39937185725773977,
+  "seqfull_saved_episodes": 1604.2,
+  "seqfull_saved_usd": 2.493000709179325,
+  "seqfull_saved_share_of_total": 0.21069388814620332
+ },
+ "r4/tau2_airline": {
+  "usd": {
+   "llm_analyst": 0.21054987240000006,
+   "llm_digester": 1.8486298115999986,
+   "llm_proposer": 6.5265178572000035,
+   "llm_critic": 0.1110559602,
+   "candidate_eval": 0.47191635960000006,
+   "smoke": 0.010431120000000002,
+   "calibration": 0.20601254800000002
+  },
+  "total_usd": 9.385113529000002,
+  "episodes": {
+   "candidate_eval": 360,
+   "smoke": 12,
+   "calibration": 180
+  },
+  "share_candidate_eval": 0.050283500369151475,
+  "share_llm": 0.9266540542665821,
+  "seqfull_saved_episodes": 93.07499999999999,
+  "seqfull_saved_usd": 0.12201004213825001,
+  "seqfull_saved_share_of_total": 0.01300037999127437
+ },
+ "r4/tau2_retail": {
+  "usd": {
+   "llm_analyst": 0.10528176239999999,
+   "llm_digester": 0.9172583478000004,
+   "llm_proposer": 1.5237616782000012,
+   "llm_critic": 0.0219511764,
+   "candidate_eval": 0.6110400100000001,
+   "smoke": 0.006317791200000001,
+   "calibration": 0.6038467848
+  },
+  "total_usd": 3.7894575508000017,
+  "episodes": {
+   "candidate_eval": 444,
+   "smoke": 6,
+   "calibration": 444
+  },
+  "share_candidate_eval": 0.1612473558045272,
+  "share_llm": 0.6777363066800448,
+  "seqfull_saved_episodes": 0.0,
+  "seqfull_saved_usd": 0.0,
+  "seqfull_saved_share_of_total": 0.0
+ },
+ "e3/appworld": {
+  "usd": {
+   "llm_analyst": 0.11247778020000002,
+   "llm_digester": 4.857517298400009,
+   "llm_proposer": 4.619744993999996,
+   "llm_critic": 0.0809136018,
+   "candidate_eval": 8.2870483164,
+   "smoke": 0.06070208480000001,
+   "calibration": 0.5646753084
+  },
+  "total_usd": 18.583079384000005,
+  "episodes": {
+   "candidate_eval": 3480,
+   "smoke": 60,
+   "calibration": 360
+  },
+  "share_candidate_eval": 0.44594591376147985,
+  "share_llm": 0.520401031205109,
+  "seqfull_saved_episodes": 1317.95,
+  "seqfull_saved_usd": 3.13848141626419,
+  "seqfull_saved_share_of_total": 0.16888920029940874
+ }
+}

@@ -1,0 +1,66 @@
+{
+ "tau2_retail": {
+  "sample@40": {
+   "cover_evolve": 0.9694642857142857,
+   "cover_deploy": 0.9116071428571428,
+   "n_candidates": 28
+  },
+  "net@40": {
+   "cover_evolve": 0.9385714285714286,
+   "cover_deploy": 0.9291071428571428,
+   "n_candidates": 28
+  },
+  "replaynull@40": {
+   "cover_evolve": 0.5832142857142857,
+   "cover_deploy": 0.7171428571428572,
+   "n_candidates": 28
+  },
+  "replay@40": {
+   "cover_evolve": 0.0035714285714285718,
+   "cover_deploy": 0.03875,
+   "n_candidates": 28
+  },
+  "fullse": {
+   "cover_evolve": 1.0,
+   "cover_deploy": 0.8214285714285714,
+   "n_candidates": 28
+  },
+  "judge_sign": {
+   "cover_evolve": 0.14285714285714285,
+   "cover_deploy": 0.4642857142857143,
+   "n_candidates": 28
+  }
+ },
+ "tau2_airline": {
+  "sample@40": {
+   "cover_evolve": 0.997608695652174,
+   "cover_deploy": 0.9593478260869566,
+   "n_candidates": 23
+  },
+  "net@40": {
+   "cover_evolve": 0.9352173913043479,
+   "cover_deploy": 0.9682608695652175,
+   "n_candidates": 23
+  },
+  "replaynull@40": {
+   "cover_evolve": 0.7652173913043477,
+   "cover_deploy": 0.9286956521739127,
+   "n_candidates": 23
+  },
+  "replay@40": {
+   "cover_evolve": 0.3141304347826087,
+   "cover_deploy": 0.18195652173913046,
+   "n_candidates": 23
+  },
+  "fullse": {
+   "cover_evolve": 1.0,
+   "cover_deploy": 0.9565217391304348,
+   "n_candidates": 23
+  },
+  "judge_sign": {
+   "cover_evolve": 0.5217391304347826,
+   "cover_deploy": 0.5217391304347826,
+   "n_candidates": 23
+  }
+ }
+}

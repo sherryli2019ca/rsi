@@ -31,7 +31,7 @@
 \maketitle
 
 \begin{abstract}
-Self-improving agent loops change an agent's harness (its prompts, tool descriptions and control code) and keep a change only when verification evidence says it helps: a replay of the failure, an LLM judge's verdict, reruns of solved tasks, or a full re-evaluation. We ask which evidence predicts a change's gain when it is deployed on independent tasks, and whether the evidence is worth its cost, counted in agent episodes. In one round of attribution-driven repair of a DeepSeek-V4-Flash agent on $\tau^2$-bench, mostly of injected faults, no patch set chosen by up to ten verification policies beat applying the attributed patches unverified, in a test with little power. We therefore built on RRSI, a regularised self-improvement loop that edits harness code, ran it for 20 rounds on three independent trajectories in each of two domains, collected seven kinds of evidence for each of the 154 candidate changes it measured, and, to score each rule's choices, deployed every candidate, accepted or rejected, on held-out tasks under registered analyses. Most candidates did not raise held-out success. On the first trajectory, an LLM judge and replays without null replays did as badly as no verification, because they accepted a change that crashed the harness. On two further trajectories, registered after these results, full re-evaluation's value was $+0.04$ points per round (90\% interval $[-0.35,+0.43]$); paired samples and net replay evidence at about a third of its cost were non-inferior to it (margin 0.75 points, Holm $p=0.045$), and stopping each evaluation once RRSI's rule was predicted to reject the candidate was non-inferior at 57\% of its episodes ($p<0.001$), as it was on a registered AppWorld trajectory with a code agent. Replays with null replays but no regression runs accepted a change that blocked legitimate actions and lost 0.39 points per round. No rule's choices were shown to beat keeping the incumbent, and the retail domain's evolve gains never transferred. Our results identify failure modes of verification rather than a ranking of evidence by predictive quality.
+Self-improving agent loops change an agent's harness (its prompts, tool descriptions and control code) and keep a change only when verification evidence says it helps. We measure what that evidence is worth by deploying every candidate change, accepted or rejected, on held-out tasks, and count its cost in agent episodes. In one round of attribution-driven repair of a DeepSeek-V4-Flash agent on $\tau^2$-bench, mostly of injected faults, no patch set chosen by up to ten verification policies beat applying the attributed patches unverified, in a test with little power. We then ran RRSI, a regularised self-improvement loop that edits harness code, for 20 rounds on three trajectories in each of two domains and on AppWorld, and scored seven kinds of evidence on the 183 candidates it measured, under registered analyses. Two findings are supported. Stopping each evaluation once RRSI's rule is predicted to reject the candidate reproduced full re-evaluation's decision in 93\% of rounds at 57\% of its episodes and was non-inferior to it at a margin of 0.25 points per round, which keeping the incumbent fails; it was also on AppWorld and on a trajectory with a stronger proposer. And evidence that never runs the changed agent on solved tasks accepted changes that crashed the harness or blocked legitimate actions. Which evidence predicts deployment gain remains open: full re-evaluation itself gained $+0.04$ points per round ($[-0.35,+0.43]$) on the registered trajectories, so fixed-budget samples and replay evidence, non-inferior to it at the registered margin of 0.75 points, are no more informative than keeping the incumbent, which passes that test too.
 \end{abstract}
 
 \section{Introduction}
@@ -40,11 +40,11 @@ A growing family of systems improves LLM agents from their own failures. The age
 
 This paper asks two questions about verification evidence. \emph{Which evidence predicts a change's deployment gain?} And \emph{is the evidence worth what it costs?} Answering the first needs ground truth that verification does not provide: deploying the changes, from the first step, on independent tasks. Answering the second needs an account of what verification costs and what the change it selects is worth over a deployment horizon, which we write as $\mathrm{Net}(N)$ (\S\ref{sec:problem}). We price every piece of evidence in agent episodes and answer both questions in two studies.
 
-\textbf{Study 1} (\S\ref{sec:study1}, completed) is one round of attribution-driven repair of a DeepSeek-V4-Flash agent on the retail and airline domains of $\tau^2$-bench \citep{barres2025tau2}, with patches that rewrite policy sections, tool descriptions and the step limit. We record intervention banks of targeted replays, null replays, judge checks and regression runs for 108 patches per domain, let eleven verification policies choose patch sets from them, and deploy the sets on held-out tasks. Four findings stand out. Applying the attributed patches without verification raised held-out success by 11.7 (retail) and 6.7 (airline) points, mostly on episodes with injected faults, and no verified set did better. Replay evidence ranked the deployed sets poorly, but the differences it predicted between sets were below the noise of our deployment measurements. No evidence was cheap: judge checks cost 22--72\% of a replay and were at best about as informative per token, and a fifth of unpatched replays succeed anyway. Finally, verification cost at most ten episodes, far less than the uncertainty of its net worth over a thousand deployed episodes, so its worth turns on its quality, not its price.
+\textbf{Study 1} (\S\ref{sec:study1}, completed) is one round of attribution-driven repair of a DeepSeek-V4-Flash agent on the retail and airline domains of $\tau^2$-bench \citep{barres2025tau2}, with patches that rewrite policy sections, tool descriptions and the step limit. We record banks of targeted replays, null replays, judge checks and regression runs for 108 patches per domain, let eleven verification policies choose patch sets from them, and deploy the sets on held-out tasks. Applying the attributed patches without verification raised held-out success by 11.7 (retail) and 6.7 (airline) points, mostly on episodes with injected faults, and no verified set did better in the primary comparison. Replay evidence ranked the deployed sets poorly, but the differences it predicted were below our deployment noise; judge checks cost 22--72\% of a replay, and a fifth of unpatched replays succeed anyway.
 
-\textbf{Study 2} (\S\ref{sec:study2}, registered) tests evidence quality with the power and the modification space Study 1 lacked. We build on RRSI's open-source loop \citep{rrsi2026}, whose proposer edits harness code over many rounds of natural failures, port it to DeepSeek models and $\tau^2$-bench, make targeted replays work for code-level changes, and replace RRSI's selection step with each kind of evidence at equal budget. We deploy every candidate and incumbent on held-out tasks, with endpoints, decision rule and analysis code fixed before any held-out episode was run. On a first trajectory per domain, evidence that does not run the changed agent accepted a change that crashed the harness. On two further registered trajectories, paired samples, net replay evidence and sequential evaluation were non-inferior to full re-evaluation at a third to a half of its episodes, replays without regression runs accepted a change that blocked legitimate actions, and no rule was shown to beat keeping the incumbent. A registered trajectory on AppWorld, with a code agent, confirmed the sequential rule.
+\textbf{Study 2} (\S\ref{sec:study2}, registered) tests evidence quality with the power and the modification space Study 1 lacked. We build on RRSI's open-source loop \citep{rrsi2026}, whose proposer edits harness code over many rounds of natural failures, port it to DeepSeek models and $\tau^2$-bench, make targeted replays work for code-level changes, and replace RRSI's selection step with each kind of evidence at equal budget. We deploy every candidate and incumbent on held-out tasks, with endpoints, decision rule and analysis code fixed before any held-out episode was run. On a first trajectory per domain, evidence that does not run the changed agent accepted a change that crashed the harness. On two further registered trajectories, replays without regression runs accepted a change that blocked legitimate actions, and no rule was shown to beat keeping the incumbent. Full re-evaluation gained so little there that cheap evidence passing a non-inferiority test against it says little, because keeping the incumbent passes too. Sequential evaluation, which stops a candidate's evaluation once RRSI's rule is predicted to reject it, is the exception: it made full re-evaluation's decision in 93\% of rounds at 57\% of its episodes and was non-inferior at a margin three times smaller, on AppWorld with a code agent and with a thinking proposer as well.
 
-Our contributions are a deployment-grounded evaluation of verification evidence with an explicit cost account; the measurements of Study 1; and the RRSI-based harness, replay mechanism, registered design and results of Study 2, which we release together with the environments, banks and evidence. The multi-fidelity allocation method we started from, which assumed that judge checks are cheap, is reported as a design study in Appendix~\ref{app:carve}.
+Our contributions are an evaluation protocol that scores verification decisions by deploying every candidate, accepted or rejected, with an explicit cost account; sequential verification, which keeps a loop's decisions at about half the evaluation cost; and the measurements of both studies, released with the environments, banks and evidence. The loop, its regularised edits and its selection rule are RRSI's \citep{rrsi2026}; we change only the evidence its selection step uses. The multi-fidelity allocation method we started from, which assumed that judge checks are cheap, is reported as a design study in Appendix~\ref{app:carve}.
 
 \section{Related Work}
 
@@ -69,9 +69,7 @@ DoVer validates hypotheses by editing a message or plan and re-running \citep{ma
 \mathrm{Net}(N)=N\,(v\,\Delta p-\Delta c_{\mathrm{run}})-C_{\mathrm{verify}}-\Delta C_{\mathrm{change}},
 \label{eq:net}
 \end{equation}
-with every cost in episodes of the unmodified agent's running cost and $v$ the value of one success in the same unit. The one-off costs do not grow with $N$, so once $Nv$ is large compared with $C_{\mathrm{verify}}$ the sign of $\mathrm{Net}(N)$ is the sign of $v\Delta p-\Delta c_{\mathrm{run}}$: evidence pays if the changes it selects are better, or cheaper to run. Its worth then rests on its \emph{quality}, which we measure in two ways: how well its estimates correlate with, and are calibrated against, measured deployment gains, and the \emph{decision value} of a rule that uses it, the mean deployment gain of the changes it accepts.
-
-\paragraph{An accounting decomposition.} Appendix~\ref{app:framework} splits a patch's net effect into repair, spurious recovery and regressions, and bounds the value of perfect verification; it shows where verification could add value, not a decision rule.
+with every cost in episodes of the unmodified agent's running cost and $v$ the value of one success in the same unit. The one-off costs do not grow with $N$, so once $Nv$ is large compared with $C_{\mathrm{verify}}$ the sign of $\mathrm{Net}(N)$ is the sign of $v\Delta p-\Delta c_{\mathrm{run}}$: evidence pays if the changes it selects are better, or cheaper to run. Its worth then rests on its \emph{quality}, which we measure in two ways: how well its estimates correlate with, and are calibrated against, measured deployment gains, and the \emph{decision value} of a rule that uses it, the mean deployment gain of the changes it accepts. Appendix~\ref{app:framework} splits a patch's net effect into repair, spurious recovery and regressions.
 
 \section{Study 1: One Round of Attribution-Driven Repair}
 \label{sec:study1}
@@ -100,7 +98,7 @@ Patch set (budget 10) & All & Clean & $-$Apply [90\%] & \#p & $C$ & All & Clean 
 
 \subsection{Deployment gains}
 
-Table~\ref{tab:deploy} reports absolute held-out success. Applying the attributed patches without verification raised success from 75.8\% to 87.5\% on retail ($+11.7$ points, 90\% interval $[4.5,18.8]$) and from 68.3\% to 75.0\% on airline ($+6.7$, $[-3.3,16.6]$). No verified set did better: their differences from the unverified set range from $-4.3$ to $+0.3$ points on retail and from $-4.0$ to $-0.3$ on airline. This is not an equivalence result. The intervals reach $+6.0$ points on retail and $+8.5$ on airline. Most of retail's gain comes from fault-injected episodes: on its 38 clean episodes the unverified set gains $+5.3$ points $[-5.1,15.6]$, and on 158 clean episodes, 120 of them new, $+4$ $[-3,10]$ (Appendix~\ref{app:ablate}).
+Table~\ref{tab:deploy} reports absolute held-out success. Applying the attributed patches without verification raised success from 75.8\% to 87.5\% on retail ($+11.7$ points, 90\% interval $[4.5,18.8]$) and from 68.3\% to 75.0\% on airline ($+6.7$, $[-3.3,16.6]$). No verified set did better: their differences from the unverified set range from $-4.3$ to $+0.3$ points on retail and from $-4.0$ to $-0.3$ on airline. This is not an equivalence result, and it concerns all held-out episodes; on clean episodes an exploratory comparison puts the bundle gate 4 points ahead, from seed sets identical to the unverified one (Appendix~\ref{app:ablate}). The intervals reach $+6.0$ points on retail and $+8.5$ on airline. Most of retail's gain comes from fault-injected episodes: on its 38 clean episodes the unverified set gains $+5.3$ points $[-5.1,15.6]$, and on 158 clean episodes, 120 of them new, $+4$ $[-3,10]$ (Appendix~\ref{app:ablate}).
 
 \begin{figure}[t]
 \centering
@@ -132,62 +130,15 @@ Replays measure repair from the failing step, whereas deployed patches act from 
 
 The ranking test has little power, for a reason that matters beyond this study. Replay predictions differ between sets by a standard deviation of 1.0 point on retail and 1.7 on airline, whereas a set's held-out success measured on 120 (60) episodes has a run-to-run standard error of 2.6 (3.8) points; the observed gains spread by 2.8 (3.7), no more than that noise. A perfect predictor of differences this small would be indistinguishable from a useless one. Testing whether evidence predicts deployment needs candidates that differ by more than the deployment noise and more precise deployment measurements; Study 2 is designed for both.
 
-\begin{table}[t]
-\centering
-\small
-\setlength{\tabcolsep}{3pt}
-\resizebox{\columnwidth}{!}{\begin{tabular}{lccc}
-\toprule
- & ShopDesk & Retail & Airline \\
-\midrule
-Analyst accuracy (audited) & 0.72 & 0.41 & 0.29 \\
-Effective edges among blamed cells & -- & 0.18 & 0.33 \\
-\midrule
-Judge check: cost / replay & 0.72 & 0.28 & 0.23 \\
-\quad sens.\ / FPR, vs.\ single replay & 0.57 / 0.21 & 0.37 / 0.11 & 0.41 / 0.13 \\
-\quad sens.\ / FPR, vs.\ patch replay rate & -- & 0.49 / 0.05 & 0.55 / 0.07 \\
-\quad efficiency ratio vs.\ replays & -- & 0.88 {\footnotesize[0.46, 1.53]} & 1.25 {\footnotesize[0.19, 3.95]} \\
-\midrule
-Spurious recovery $b$ (range) & -- & 0.23 (0--0.50) & 0.20 (0--0.50) \\
-Repair $q$ of effective edges (median) & -- & 0.50 & 0.41 \\
-Replays to decide an edge & -- & 5 & 7 \\
-\midrule
-Unpatched failure on solved tasks & -- & 0.15 & 0.12 \\
-Mean harm $\bar\rho$ (points) & -- & $-1.0$ {\footnotesize[$-3.4$, 1.5]} & $-0.6$ {\footnotesize[$-3.3$, 1.9]} \\
-Spread of $\rho_k$ (points) & -- & 2.6 {\footnotesize[0.2, 5.3]} & 2.1 {\footnotesize[0.2, 4.5]} \\
-Patches harmful / helpful (95\%) & -- & 2 / 5 & 3 / 4 \\
-\bottomrule
-\end{tabular}}
-\caption{What the evidence costs and shows. The efficiency ratio is the judge's break-even cost ratio divided by its actual cost (Proposition~\ref{prop:cfid}); values above 1 favour judge checks (Appendix~\ref{app:judges}). Harm rows: excess failure rate of a patch on previously solved tasks under the task-level binomial model (Appendix~\ref{app:harm}), posterior mean and 90\% interval; the last row counts patches whose 20 regression runs differ significantly from the task-matched baseline.}
-\label{tab:measured}
-\end{table}
 
 \subsection{What the evidence costs}
 
-Table~\ref{tab:measured} collects the measurements. \emph{Judge checks are not cheap.} A single-step check costs 22--72\% of a full replay in tokens, and its information per token is at best similar to a replay's: against a patch's replay success rate its efficiency ratio is 0.88 $[0.46,1.53]$ on retail and 1.25 $[0.19,3.95]$ on airline, and against single replays it is below 1 for every judge (Appendix~\ref{app:judges}). \emph{Replays need controls}: without any patch, 20--23\% of replays from the failing step succeed anyway, and the rate ranges from 0 to 0.5 across categories. \emph{Harm is the least measurable quantity}: the mean effect of a patch on previously solved tasks is $-1.0$ points on retail and $-0.6$ on airline, with 90\% intervals of about $\pm2.5$, and patches differ by a spread of 2--3 points; detecting a 3-point regression against a 15\% base rate with 90\% power takes about 1{,}200 runs per patch (Proposition~\ref{prop:cost}).
+Table~\ref{tab:measured} (Appendix~\ref{app:s1tables}) collects the measurements. \emph{Judge checks are not cheap.} A single-step check costs 22--72\% of a full replay in tokens, and its information per token is at best similar to a replay's: against a patch's replay success rate its efficiency ratio is 0.88 $[0.46,1.53]$ on retail and 1.25 $[0.19,3.95]$ on airline, and against single replays it is below 1 for every judge (Appendix~\ref{app:judges}). \emph{Replays need controls}: without any patch, 20--23\% of replays from the failing step succeed anyway, and the rate ranges from 0 to 0.5 across categories. \emph{Harm is the least measurable quantity}: the mean effect of a patch on previously solved tasks is $-1.0$ points on retail and $-0.6$ on airline, with 90\% intervals of about $\pm2.5$, and patches differ by a spread of 2--3 points; detecting a 3-point regression against a 15\% base rate with 90\% power takes about 1{,}200 runs per patch (Proposition~\ref{prop:cost}).
 
-\begin{table}[t]
-\centering
-\small
-\setlength{\tabcolsep}{2.5pt}
-\resizebox{\columnwidth}{!}{\begin{tabular}{lccccc}
-\toprule
- & & & & \multicolumn{2}{c}{$\mathrm{Net}(1000)$ [90\%], episodes} \\
-\cmidrule(lr){5-6}
-Verified set & $\Delta p$ [90\%] & $\Delta c_{\mathrm{run}}$ & $C$ & $v=1$ & $v=10$ \\
-\midrule
-\csname @@input\endcsname tables/netn.tex
-\bottomrule
-\end{tabular}}
-\caption{$\mathrm{Net}(N)$ of each verified set against Apply attributed (Eq.~\ref{eq:net}), at $N=1000$ deployed episodes, with no change cost and a success worth $v$ episodes of running cost. $\Delta p$: held-out difference in points (Table~\ref{tab:deploy}); $\Delta c_{\mathrm{run}}$: estimated change in running cost per deployed episode, from the tokens of patched agents on solved tasks and of truncated step-limit episodes; $C$: verification episodes. Intervals combine the uncertainty of $\Delta p$ and of $\Delta c_{\mathrm{run}}$ (standard error about 0.1), as normal.}
-\label{tab:netn}
-\end{table}
 
 \subsection{Is verification worth its cost?}
 
-Table~\ref{tab:netn} evaluates Eq.~\ref{eq:net} for every verified set against applying the attributed patches. The verification bill is at most 10 episodes, about two cents of $\tau^2$ compute at our measured cost, while at $N=1000$ the 90\% intervals of $\mathrm{Net}(N)$ span 370--520 episodes at $v=1$, mostly from the uncertain running cost, and 630--1{,}830 at $v=10$. The sign of $\mathrm{Net}(N)$ is thus decided by $\Delta p$ and the running cost, not by the bill, and every interval includes zero. In this regime the question ``is verification worth its cost'' reduces to ``does it select better changes'', which Study 1 could not resolve.
-
-\paragraph{Policies on the banks.} Scored on the banks without new runs, the verifying policies were not reliably better than applying the attributed patches either, and edge priors with the audited analyst accuracy only lowered their value (Appendix~\ref{app:policies}).
+Table~\ref{tab:netn} (Appendix~\ref{app:s1tables}) evaluates Eq.~\ref{eq:net} for every verified set against applying the attributed patches. The verification bill is at most 10 episodes, about two cents of $\tau^2$ compute at our measured cost, while at $N=1000$ the 90\% intervals of $\mathrm{Net}(N)$ span 370--520 episodes at $v=1$, mostly from the uncertain running cost, and 630--1{,}830 at $v=10$. The sign of $\mathrm{Net}(N)$ is thus decided by $\Delta p$ and the running cost, not by the bill, and every interval includes zero. In this regime the question ``is verification worth its cost'' reduces to ``does it select better changes'', which Study 1 could not resolve; scored on the banks, the verifying policies were not reliably better either (Appendix~\ref{app:policies}).
 
 \section{Study 2: Verification Evidence Inside RRSI}
 \label{sec:study2}
@@ -196,7 +147,7 @@ Study 1 patches only text, runs one round, draws most failures from injected fau
 
 \paragraph{Loop.} We vendor RRSI's code (Apache 2.0) and change only its model backend, its cost accounting and one rule for empty proposals. Analyst, proposer, critic and judge are DeepSeek-V4-Pro with thinking disabled; the agent and user simulator are DeepSeek-V4-Flash at temperature 0, at which our episode loop matches $\tau^2$'s own orchestrator; the starting harness is $\tau^2$'s reference agent. Each round the proposer drafts $m=2$ candidates under an edit budget that anneals from 4 to 1, a critic rejects edits that hard-code task data or touch the grader, and RRSI evaluates the candidates that pass a smoke test twice on every evolve task. It accepts a candidate that beats the incumbent by more than a noise band $\delta$, calibrated from three evaluations of the base harness, or that is within the band and cheaper to run or of an untried kind, and it rejects a harness that raises errors in more than 2\% of trials (Appendix~\ref{app:rrsi}). Evolve tasks are $\tau^2$'s training split (74 retail, 30 airline) and held-out tasks its test split (40 and 20). The loop ran $T=20$ rounds per domain on three independent trajectories, r1--r3, which differ only in the samples of the proposer, analyst and critic, with r2 and r3 started after r1's results were known (below).
 
-\paragraph{Evidence and decisions.} For each measured candidate we collect the evidence of \S\ref{sec:problem} as estimates of its change $\Delta S$ in evolve success (Table~\ref{tab:evidence}, Appendix~\ref{app:rrsi}): an LLM judge's prediction from the diff and the failures it targets (no episodes); \emph{sample@$b$}, the paired difference on $b$ evolve episodes; \emph{replay@$b$}, the failure share times the success rate of $b$ targeted replays of failed evolve trials; \emph{replay$-$null@$b$}, which subtracts the success rate of null replays with the incumbent; and \emph{net@$b$}, which splits $b$ between both kinds of replay and regression runs on solved tasks, with or without a Beta prior on the repair rate. Budgets of 10, 40 and 80 episodes per candidate are subsamples of one collection, four replays with each candidate and four null replays of each failed evolve task (at most 20 per round), plus RRSI's own full evaluation. A replay re-executes the recorded prefix through the new harness and goes live where it would first act differently. Every rule decides with RRSI's rule, with $\Delta S$ replaced by its estimate and $\delta$ by twice the estimate's standard error, so the rules differ only in their evidence.
+\paragraph{Evidence and decisions.} For each measured candidate we collect the evidence of \S\ref{sec:problem} as estimates of its change $\Delta S$ in evolve success (Table~\ref{tab:evidence}, Appendix~\ref{app:rrsi}): an LLM judge's prediction from the diff and the failures it targets (no episodes); \emph{sample@$b$}, the paired difference on $b$ evolve episodes; \emph{replay@$b$}, the failure share times the success rate of $b$ targeted replays of failed evolve trials; \emph{replay$-$null@$b$}, which subtracts the success rate of null replays with the incumbent; and \emph{net@$b$}, which splits $b$ between both kinds of replay and regression runs on solved tasks, with or without a Beta prior on the repair rate. Budgets of 10, 40 and 80 episodes per candidate are subsamples of one collection, four replays with each candidate and four null replays of each failed evolve task (at most 20 per round), plus RRSI's own full evaluation. A replay re-executes the recorded prefix through the new harness and goes live where it would first act differently. Every rule decides with RRSI's rule, with $\Delta S$ replaced by its estimate and $\delta$ by twice the estimate's standard error; full evaluation keeps RRSI's calibrated $\delta$. The rules thus differ in their evidence and in the band it implies, which decides when RRSI's within-band branch applies; Appendix~\ref{app:review} decides every rule with one criterion.
 
 \paragraph{Ground truth and estimand.} Every incumbent and measured candidate is deployed from the first step on the held-out tasks, 240 episodes each (retail 40 tasks $\times$ 6, airline 20 $\times$ 12), and the base and final harnesses on 400 and 240. A candidate's deployment gain $\Delta p(c\mid H_t)$ is its held-out success minus that of the incumbent $H_t$ it was proposed against, paired by task. A rule $E$'s \emph{decision value} on a set $\mathcal{T}$ of rounds of both domains is $D(E)=\frac{1}{|\mathcal{T}|}\sum_{t\in\mathcal{T}}\sum_c P_E(c\mid t)\,\Delta p(c\mid H_t)$, the mean expected deployment gain of its choice per round (zero when it keeps $H_t$), with $P_E$ taken over 400 subsamples of the evidence. $D$ is conditional on RRSI's trajectories: it scores each rule's decisions in the states RRSI visited, not a loop driven by that rule, whose later incumbents and candidates would differ. For r1 the registered endpoints are (P1) \emph{transfer}, the held-out gain of the final harness over the base, and (P2) $D$ at $b=40$ with three Holm-adjusted contrasts (Appendix~\ref{app:r1}).
 
@@ -206,16 +157,16 @@ Study 1 patches only text, runs one round, draws most failures from injected fau
 \centering
 \small
 \setlength{\tabcolsep}{3pt}
-\begin{tabular}{lcrrrcrr}
+\begin{tabular}{lcrrrccrr}
 \toprule
- & & \multicolumn{3}{c}{Decision value $D$ [90\%], common error check} & \multicolumn{3}{c}{r2+r3} \\
-\cmidrule(lr){3-5}\cmidrule(lr){6-8}
-Evidence & $b$ & r1 (40 rounds) & r2+r3 (80, primary) & r1--r3 (120) & Accepts & Ep.\ / equiv. & $\mathrm{Net}(10^4)$ \\
+ & & \multicolumn{3}{c}{Decision value $D$ [90\%], common error check} & \multicolumn{4}{c}{r2+r3} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-9}
+Evidence & $b$ & r1 (40 rounds) & r2+r3 (80, primary) & r1--r3 (120) & Accepts & Agree & Ep. & $\mathrm{Net}(10^4)$ \\
 \midrule
 \csname @@input\endcsname tables/e1r_rules.tex
 \bottomrule
 \end{tabular}
-\caption{Study 2: decision value $D$ of each rule with the error check applied to every rule's own episodes, the held-out gain of its choice over the incumbent in points per round (keeping the incumbent scores 0), with 90\% intervals from a bootstrap of blocks of rounds that share an incumbent and of held-out tasks, within domain and trajectory. r1: the first trajectory per domain (its registered analysis is in Table~\ref{tab:e1}); r2+r3: the registered primary analysis; r1--r3: pooled. \emph{+ check} rules run 10 episodes of each candidate only for the check; sequential rules stop a candidate's episodes early. Accepts (mean probability of accepting a candidate in a round), evidence cost per round in episodes and episode equivalents, and $\mathrm{Net}(10^4)$ (Eq.~\ref{eq:net} against keeping the incumbent, $N=10^4$ deployed episodes, a success worth $v=10$ episodes, in episodes) are for r2+r3. Full: RRSI's own decision. Best value per column in bold.}
+\caption{Study 2: decision value $D$ of each rule with the error check applied to every rule's own episodes, the held-out gain of its choice over the incumbent in points per round (keeping the incumbent scores 0), with 90\% intervals from a bootstrap of blocks of rounds that share an incumbent and of held-out tasks, within domain and trajectory. r1: the first trajectory per domain (its registered analysis is in Table~\ref{tab:e1}); r2+r3: the registered primary analysis; r1--r3: pooled. \emph{+ check} rules run 10 episodes of each candidate only for the check; sequential rules stop a candidate's episodes early. Accepts (mean probability of accepting a candidate in a round), Agree (share of rounds in which the rule makes full evaluation's choice), evidence episodes per round, and $\mathrm{Net}(10^4)$ (Eq.~\ref{eq:net} against keeping the incumbent, $N=10^4$ deployed episodes, a success worth $v=10$ episodes, in episodes) are for r2+r3. Full: RRSI's own decision. Best value per column in bold.}
 \label{tab:e1r}
 \end{table*}
 
@@ -228,31 +179,35 @@ Evidence & $b$ & r1 (40 rounds) & r2+r3 (80, primary) & r1--r3 (120) & Accepts &
 
 \paragraph{First trajectory.} On r1, most of the losses of no verification, the judge and replay without null replays come from one candidate (retail, round 6), a check that reads an attribute the harness never sets: the harness raised errors in half of its evolve episodes and held-out success fell by 51.7 points, yet the critic passed it and the judge predicted a gain. In the registered analysis, which gave RRSI's error check to full evaluation only, full evaluation led with $+0.22$ points per round [$-0.06,+0.62$], and net@40 was neither shown non-inferior nor inferior to it ($p=0.058$, Holm 0.17; Appendix~\ref{app:r1}). With the common error check, accepting whatever passes the check still loses 0.58 points per round.
 
-\paragraph{Primary analysis (r2 and r3).} On their 80 rounds, full evaluation's decision value was $+0.04$ points per round [$-0.35,+0.43$] at 141 episodes (Table~\ref{tab:e1r}). Sample@40 and net@40, at 54 and 49 episodes, were non-inferior to it: differences $-0.10$ [$-0.57,+0.35$] and $-0.14$ [$-0.58,+0.27$] (one-sided $p=0.018$ and $0.015$, Holm 0.045 each). Replay$-$null@40 was not ($-0.43$ [$-0.94,+0.05$], $p=0.14$); its own value, $-0.39$ [$-0.79,-0.03$], lies below zero, 40\% of it from one candidate (r3 retail, round 11). That candidate held every write whose arguments it could not trace to earlier tool results; it raised no harness errors but blocked legitimate writes, lowering held-out success by 12.5 points. Full evaluation, sample and net, which run solved tasks, rejected it; replay$-$null, which replays only failures, and the judge accepted it. Full evaluation's advantage over accepting every candidate, $+0.51$ [$-0.51,+1.48$], was not resolved: no rule was shown to beat keeping the incumbent.
+\paragraph{Primary analysis (r2 and r3).} On their 80 rounds, full evaluation's decision value was $+0.04$ points per round [$-0.35,+0.43$] at 141 episodes (Table~\ref{tab:e1r}). Sample@40 and net@40, at 54 and 49 episodes, were non-inferior to it: differences $-0.10$ [$-0.57,+0.35$] and $-0.14$ [$-0.58,+0.27$] (one-sided $p=0.018$ and $0.015$, Holm 0.045 each). Replay$-$null@40 was not ($-0.43$ [$-0.94,+0.05$], $p=0.14$); its own value, $-0.39$ [$-0.79,-0.03$], lies below zero, 40\% of it from one candidate (r3 retail, round 11). That candidate held every write whose arguments it could not trace to earlier tool results; it raised no harness errors but blocked legitimate writes, lowering held-out success by 12.5 points. Full evaluation, sample and net, which run solved tasks, rejected it; replay$-$null, which replays only failures, and the judge accepted it. Full evaluation's advantage over accepting every candidate, $+0.51$ [$-0.51,+1.48$], was not resolved: no rule was shown to beat keeping the incumbent. Because full evaluation gained so little, keeping the incumbent is itself non-inferior to it at the registered margin ($p=0.004$), more clearly than sample@40 and net@40; at a margin of 0.25 points neither they nor keeping the incumbent are ($p\ge0.17$; post hoc, Table~\ref{tab:margins}). Their non-inferiority therefore shows that they lose little against a rule that gained little, not that they preserve a useful improvement process.
 
-\paragraph{Sequential evaluation.} Sequential full evaluation was non-inferior to full evaluation, $-0.02$ [$-0.12,+0.07$] at 81 episodes per round (57\%), as was sequential sampling capped at 80 episodes, $+0.03$ [$-0.26,+0.35$] at 53 (both $p<0.001$). On r1, where they were designed, sequential full evaluation gained $+0.15$ at 65 episodes per round against $+0.22$ at 123.
+\paragraph{Sequential evaluation.} Sequential full evaluation was non-inferior to full evaluation, $-0.02$ [$-0.12,+0.07$] at 81 episodes per round (57\%), as was sequential sampling capped at 80 episodes, $+0.03$ [$-0.26,+0.35$] at 53 (both $p<0.001$). Unlike the fixed-budget rules, sequential full evaluation stays non-inferior at a margin of 0.25 points ($p<0.001$) and makes full evaluation's choice in 93\% of rounds, against 74\% for keeping the incumbent; sequential sampling makes it in 78\% and is non-inferior at 0.5 points ($p=0.002$). On r1, where they were designed, sequential full evaluation gained $+0.15$ at 65 episodes per round against $+0.22$ at 123 (agreement 96\%).
 
-\paragraph{All three trajectories.} Pooled over 120 rounds, full evaluation gained $+0.10$ [$-0.18,+0.41$]; sample@40, net@40 and both sequential rules were non-inferior to it (Holm $p\le0.018$), replay$-$null@40 was not ($p=0.058$). Full evaluation's value was $+0.22$, $+0.16$ and $-0.07$ on r1--r3, and accepting every candidate's $-1.87$, $-1.08$ and $+0.14$: trajectories differed more than rules.
+\paragraph{All three trajectories.} Pooled over 120 rounds, full evaluation gained $+0.10$ [$-0.18,+0.41$], with the same non-inferiority results (Holm $p\le0.018$; replay$-$null@40 $p=0.058$). Full evaluation's value was $+0.22$, $+0.16$ and $-0.07$ on r1--r3, and accepting every candidate's $-1.87$, $-1.08$ and $+0.14$: trajectories differed more than rules.
 
-\paragraph{A code agent (E3).} On AppWorld the 29 measured candidates barely changed held-out success (mean $-0.2$ points, standard deviation 1.8), and the final harness's evolve gain of 4.2 points did not transfer ($0.0$ [$-2.1,+2.1$]). Full evaluation's value was $+0.03$ points per round [$-0.30,+0.71$] at 174 episodes (Table~\ref{tab:e3}). The @40 rules came within 0.11 points of it but missed non-inferiority after Holm adjustment (one-sided $p=0.018$--$0.025$, Holm 0.053); sequential full evaluation was non-inferior at 62\% of its episodes ($p<0.001$).
+\paragraph{Evidence or decision rule?} Deciding full evaluation with twice its standard error, like every other rule, changes its value on r2 and r3 from $+0.04$ to $+0.03$ and leaves the order of the evidence unchanged. Without the within-band branch every episode-based rule accepts in at most 3\% of rounds and gains 0.00 to $+0.10$ points, except replay$-$null@40, which accepts in 7\% and stays below full evaluation ($-0.21$ [$-0.47,-0.01$]; Table~\ref{tab:ablation}). The value and risk of RRSI's decisions lie mostly in its within-band acceptances, 19 of 26.
 
-\paragraph{Resolution.} Few candidates' gains exceeded the single-candidate detectable effect of 5.3--5.9 points (4--11\%), and the split-half correlation of held-out gains was at most 0.31 without r1's broken candidate. Differences between full evaluation and the @40 rules are detected with 80\% power from 0.64--0.75 points per round, about the margin, and correlations of the evidence with deployment gain were at most 0.33 (Appendix~\ref{app:r1}).
+\paragraph{A stronger proposer (r4).} With thinking enabled, one airline trajectory of ten rounds measured six candidates, all helpful (descriptive, Appendix~\ref{app:rrsi}). Full evaluation gained $+0.92$ points per round, so keeping the incumbent is no longer non-inferior to it ($p=0.56$ at the registered margin), while sequential full evaluation made its choice in 95\% of rounds and was non-inferior at 0.25 points ($p=0.023$).
 
-\paragraph{Cost.} Full evaluation cost 123 (r1) and 141 (r2, r3) episodes per round and the @40 rules about a third of that; weighting tokens by list prices changes no ranking. On r2 and r3, $\mathrm{Net}(10^4)$ at $v=10$ against keeping the incumbent was $-108$ episodes for full evaluation and positive only for sequential sampling ($+10$). r1--r3 and E3 used about 83{,}000 episodes and \$168 (Appendices~\ref{app:rrsi} and~\ref{app:e3}).
+\paragraph{A code agent (E3).} On AppWorld the 29 measured candidates barely changed held-out success (mean $-0.2$ points), and the final harness's evolve gain of 4.2 points did not transfer ($0.0$ [$-2.1,+2.1$]). Full evaluation's value was $+0.03$ points per round [$-0.30,+0.71$] at 174 episodes (Table~\ref{tab:e3}). The @40 rules came within 0.11 points of it but missed non-inferiority after Holm adjustment (one-sided $p=0.018$--$0.025$, Holm 0.053); sequential full evaluation was non-inferior at 62\% of its episodes ($p<0.001$, also at a margin of 0.1 points) and made full evaluation's choice in 98\% of rounds.
+
+\paragraph{Resolution.} Few candidates' gains exceeded the single-candidate detectable effect of 5.3--5.9 points (4--11\%); differences between full evaluation and the @40 rules are detected with 80\% power from 0.64--0.75 points per round, and correlations of the evidence with deployment gain were at most 0.33 (Appendix~\ref{app:r1}).
+
+\paragraph{Cost.} Full evaluation cost 123 (r1) and 141 (r2, r3) episodes per round and the @40 rules about a third of that; weighting tokens by list prices changes no ranking. On r2 and r3, $\mathrm{Net}(10^4)$ at $v=10$ against keeping the incumbent was $-108$ episodes for full evaluation and positive only for sequential sampling, $+10$ [$-315,+350$], which shows no economic advantage. Candidate evaluation was 24--54\% of the loop's own dollar cost on $\tau^2$, the proposal side's model calls most of the rest, so sequential full evaluation would have cut the whole loop's cost by 19\% (7--32\% per domain and trajectory; 17\% on AppWorld; Table~\ref{tab:loopcost}). r1--r3 and E3 used about 83{,}000 episodes and \$168.
 
 \section{Discussion}
 
-\paragraph{What the evidence shows.} Our results identify failure modes of verification, not a ranking of evidence by predictive quality. Most changes did not help held out, so verification earned its place by rejecting harmful ones. Evidence that never runs the changed agent on solved tasks accepted both kinds we saw, changes that crash the harness and changes that break solved tasks; evidence that runs it on solved and failed tasks rejected both.
+\paragraph{What the evidence shows.} Our results identify failure modes of verification and a cheaper way to reach the same decisions, not a ranking of evidence by predictive quality. Most changes did not help held out, so verification earned its place by rejecting harmful ones, and only evidence that runs the changed agent on solved tasks rejected both kinds we saw.
 
-\paragraph{Resolution limited these studies more than price.} A round of full evaluation costs about 25 cents of $\tau^2$ compute. What limited both studies was the resolution of deployment measurements: comparing evidence needs per-round differences of about 0.7 points or candidate gains above 3--5 points, and few changes reached that. Non-inferiority at a margin of 0.75 points says that cheap evidence loses little against a rule that itself gained little.
+\paragraph{Resolution limited these studies more than price.} A round of full evaluation costs about 25 cents of $\tau^2$ compute. What limited both studies was the resolution of deployment measurements: comparing evidence needs per-round differences of about 0.7 points or candidate gains above 3--5 points, and few changes reached that. Non-inferiority at a margin of 0.75 points says that cheap evidence loses little against a rule that itself gained little; keeping the incumbent passes the same test, so a comparison of verification rules needs a reference that gains, a margin below what doing nothing loses, or agreement with the reference's decisions, the measure on which sequential evaluation stands apart.
 
-\paragraph{Implications for self-improvement loops.} Loops that report only the final agent's held-out success \citep{chen2026harnessfix,zhang2026ace,rrsi2026} measure all their decisions at once; on retail and AppWorld, evolve gains of 4--7 points never transferred. Recording the held-out gain of accepted and rejected changes shows which evidence earns its place. Replays need null replays and regression runs, and stopping an evaluation once its outcome is settled cut its cost by 40--50\% on both benchmarks.
+\paragraph{Implications for self-improvement loops.} Loops that report only the final agent's held-out success \citep{chen2026harnessfix,zhang2026ace,rrsi2026} measure all their decisions at once; on retail and AppWorld, evolve gains of 4--7 points never transferred. Recording the held-out gain of accepted and rejected changes shows which evidence earns its place. Replays need null replays and regression runs. Stopping an evaluation once rejection is predicted with high probability cut its episodes by 40--50\% on both benchmarks and the loop's whole cost by about a fifth; accepted candidates still complete their evaluation, so the traces the next round analyses are unchanged.
 
 \section{Conclusion}
-Inside RRSI's loop most proposed changes did not raise held-out success. Evidence that never runs the changed agent on solved tasks accepted changes that crashed the harness or blocked legitimate actions. Evidence that does was non-inferior to full re-evaluation on $\tau^2$ at a third to a half of its cost, and sequential evaluation on both benchmarks, although full re-evaluation itself was not shown to beat keeping the incumbent.
+Inside RRSI's loop most changes did not raise held-out success, and evidence that never runs the changed agent on solved tasks accepted changes that crashed the harness or blocked legitimate actions. Sequential evaluation reproduced full re-evaluation's decisions in 93--98\% of rounds at about half its episodes. Which evidence predicts deployment gain remains open.
 
 \section*{Limitations}
-Both studies use one model family, with DeepSeek-V4-Flash as agent and DeepSeek-V4-Pro as analyst, proposer and judge, and two customer-service domains of $\tau^2$-bench; Study 1 adds ShopDesk and Study 2 one AppWorld trajectory. Study 1's patches rewrite only policy sections, tool descriptions and a step limit; it runs a single round, mostly on injected faults (natural failures are 16--25\% of training failures), and deploys patch sets only at budget 10, on 120 (retail) and 60 (airline) held-out episodes, where most of retail's gain comes from fault-injected episodes. Its bank analyses rest on a harm model fitted to at most 20 regression runs per patch, and its edge priors use an analyst accuracy of 0.7 unless stated. Study 1's agent used the provider's default sampling and Study 2's uses temperature 0. Study 2's proposer is likely weaker than the model RRSI was developed with; a fourth trajectory with a thinking proposer was cut short because its drafts took over an hour and mostly ended without a proposal; on airline all six of its measured candidates helped, which suggests that a stronger proposer leaves less for verification to decide, but rests on one trajectory (Appendix~\ref{app:rrsi}). Its held-out sets are $\tau^2$'s test splits of 40 and 20 tasks, on which most candidates' gains were not resolved. Its decision values are conditional on RRSI's trajectories: they score each rule's decisions in the states RRSI visited, not loops driven by those rules. Three trajectories per domain show that between-trajectory variation is as large as the differences between rules, and the pooled analysis treats trajectories as fixed. The non-inferiority margin of 0.75 points per round was set before any result, but it is large relative to the decision values we observed. On r1, the registered analysis gave RRSI's error check to full evaluation only, so the comparison with a common check is post hoc there; its held-out count was raised after six rounds, when some held-out episodes had run and a few results had been seen (Appendix~\ref{app:rrsi}), and the registered count gives the same conclusions. While r2 and r3 ran, a few of their held-out success rates appeared in progress logs before analysis; the analysis code had been fixed and tested on r1 only. The sequential rules were designed on r1's rounds and confirmed on r2 and r3. r1's component labels did not recognise our harness's files, which may have changed what its proposer was told to explore; r2 and r3 use corrected labels, so the trajectories differ in that respect as well as in sampling. Token prices for the models we used change; we report costs in episodes, and weighting tokens by list prices changes no ranking.
+Both studies use one model family, with DeepSeek-V4-Flash as agent and DeepSeek-V4-Pro as analyst, proposer and judge, and two customer-service domains of $\tau^2$-bench; Study 1 adds ShopDesk and Study 2 one AppWorld trajectory. Study 1's patches rewrite only policy sections, tool descriptions and a step limit; it runs a single round, mostly on injected faults (natural failures are 16--25\% of training failures), and deploys patch sets only at budget 10, on 120 (retail) and 60 (airline) held-out episodes, where most of retail's gain comes from fault-injected episodes. Its bank analyses rest on a harm model fitted to at most 20 regression runs per patch, and its edge priors use an analyst accuracy of 0.7 unless stated. Study 1's agent used the provider's default sampling and Study 2's uses temperature 0. Study 2's proposer is likely weaker than the model RRSI was developed with; a fourth trajectory with a thinking proposer was cut short because its drafts took over an hour and mostly ended without a proposal; on airline all six of its measured candidates helped, which suggests that a stronger proposer leaves less for verification to decide, but rests on one trajectory (Appendix~\ref{app:rrsi}). Its held-out sets are $\tau^2$'s test splits of 40 and 20 tasks, on which most candidates' gains were not resolved. Its decision values are conditional on RRSI's trajectories: they score each rule's decisions in the states RRSI visited, not loops driven by those rules, which we did not run. A loop driven by sequential evaluation follows RRSI's path until its first different decision, which the agreement rates make rare, except that RRSI shows the proposer the measured gains of rejected candidates, which would be early-stopped estimates; an immediately neutral acceptance may also change later exploration, which one-step decision values do not capture. $\mathrm{Net}(N)$ sets the change cost to zero; charging each accepted change a fixed review cost favours rules that accept less and leaves the order of the sequential rules and full evaluation unchanged (Appendix~\ref{app:review}). Three trajectories per domain show that between-trajectory variation is as large as the differences between rules, and the pooled analysis treats trajectories as fixed. The non-inferiority margin of 0.75 points per round was set before any result, but it is large relative to the decision values we observed; the smaller margins, the agreement rates and the decision-rule ablation are post hoc. On r1, the registered analysis gave RRSI's error check to full evaluation only, so the comparison with a common check is post hoc there; its held-out count was raised after six rounds, when some held-out episodes had run and a few results had been seen (Appendix~\ref{app:rrsi}), and the registered count gives the same conclusions. While r2 and r3 ran, a few of their held-out success rates appeared in progress logs before analysis; the analysis code had been fixed and tested on r1 only. The sequential rules were designed on r1's rounds and confirmed on r2 and r3. r1's component labels did not recognise our harness's files, which may have changed what its proposer was told to explore; r2 and r3 use corrected labels, so the trajectories differ in that respect as well as in sampling. Token prices for the models we used change; we report costs in episodes, and weighting tokens by list prices changes no ranking.
 
 \section*{Ethics Statement}
 Self-improving agents change their own behaviour without a person reviewing each change. In Study 2 most proposed changes did not raise held-out success; one that crashed the harness in half of its episodes, and another that blocked legitimate writes, passed both an LLM critic and an LLM judge. That Study 1 detected no gain from verification does not show that verification is unnecessary; our measurements cannot exclude small harms per patch and should not be read as licence to skip review. On ShopDesk a single patch silently broke a quarter of tasks (Appendix~\ref{app:shopdesk}). Our environments use synthetic customer data only.
@@ -321,6 +276,57 @@ Two consequences follow. First, targeted replays are uninformative about the har
 
 \paragraph{Where could verification add value?} Table~\ref{tab:vpi} evaluates Proposition~\ref{prop:vpi} on deployable sets. Every value in it is conditional on a model of the harm $\rho_k$ that the regression runs cannot pin down per patch, so we read only its qualitative pattern. \emph{Defaults.} The Bayes default, built from the net-effect method's priors, scores 1.49 oracles on retail against 1.43 for applying the attributed patches, and 0.53 against 0.66 on airline; $G_D\ge0$ holds only under the prior, so the negative realised gap on airline means the edge prior is too generous there. \emph{Value.} Under the binomial model, perfect information is worth 1.18 oracles over the heuristic on retail (90\% interval $[0.10,2.99]$, about 8 points of absolute success) and 0.86 on airline ($[0.24,1.55]$, about 10 points), split into 0.41, 0.57 and 0.20 (retail) and 0.20, 0.36 and 0.29 (airline) for harm, choice and discovery. Under the earlier normal models the retail value ranges from 0.87 (complete pooling) to 4.65 (no pooling) and airline's from 0.69 to 1.15; dropping the support constraint, so that the uncertain benefits of every unblamed patch add up without limit, gives 9.5 on retail (Table~\ref{tab:harmmodels}). Only coarse features are stable: all three terms contribute, and most of the value needs evidence about patches the default applies (harm and choice) rather than discovery of missed edges. Proposition~\ref{prop:vpi} names the quantities that could make verification pay, but it cannot decide whether to verify a new diagnosis: its most influential input, each patch's harm, takes hundreds of regression runs to measure (Proposition~\ref{prop:cost}), and its values move several-fold with the harm model.
 
+
+\section{Study 1: Measurements and Net Value}
+\label{app:s1tables}
+Tables~\ref{tab:measured} and~\ref{tab:netn} give the measurements and the $\mathrm{Net}(N)$ values discussed in \S\ref{sec:study1}.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{\begin{tabular}{lccc}
+\toprule
+ & ShopDesk & Retail & Airline \\
+\midrule
+Analyst accuracy (audited) & 0.72 & 0.41 & 0.29 \\
+Effective edges among blamed cells & -- & 0.18 & 0.33 \\
+\midrule
+Judge check: cost / replay & 0.72 & 0.28 & 0.23 \\
+\quad sens.\ / FPR, vs.\ single replay & 0.57 / 0.21 & 0.37 / 0.11 & 0.41 / 0.13 \\
+\quad sens.\ / FPR, vs.\ patch replay rate & -- & 0.49 / 0.05 & 0.55 / 0.07 \\
+\quad efficiency ratio vs.\ replays & -- & 0.88 {\footnotesize[0.46, 1.53]} & 1.25 {\footnotesize[0.19, 3.95]} \\
+\midrule
+Spurious recovery $b$ (range) & -- & 0.23 (0--0.50) & 0.20 (0--0.50) \\
+Repair $q$ of effective edges (median) & -- & 0.50 & 0.41 \\
+Replays to decide an edge & -- & 5 & 7 \\
+\midrule
+Unpatched failure on solved tasks & -- & 0.15 & 0.12 \\
+Mean harm $\bar\rho$ (points) & -- & $-1.0$ {\footnotesize[$-3.4$, 1.5]} & $-0.6$ {\footnotesize[$-3.3$, 1.9]} \\
+Spread of $\rho_k$ (points) & -- & 2.6 {\footnotesize[0.2, 5.3]} & 2.1 {\footnotesize[0.2, 4.5]} \\
+Patches harmful / helpful (95\%) & -- & 2 / 5 & 3 / 4 \\
+\bottomrule
+\end{tabular}}
+\caption{What the evidence costs and shows. The efficiency ratio is the judge's break-even cost ratio divided by its actual cost (Proposition~\ref{prop:cfid}); values above 1 favour judge checks (Appendix~\ref{app:judges}). Harm rows: excess failure rate of a patch on previously solved tasks under the task-level binomial model (Appendix~\ref{app:harm}), posterior mean and 90\% interval; the last row counts patches whose 20 regression runs differ significantly from the task-matched baseline.}
+\label{tab:measured}
+\end{table}
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{2.5pt}
+\resizebox{\columnwidth}{!}{\begin{tabular}{lccccc}
+\toprule
+ & & & & \multicolumn{2}{c}{$\mathrm{Net}(1000)$ [90\%], episodes} \\
+\cmidrule(lr){5-6}
+Verified set & $\Delta p$ [90\%] & $\Delta c_{\mathrm{run}}$ & $C$ & $v=1$ & $v=10$ \\
+\midrule
+\csname @@input\endcsname tables/netn.tex
+\bottomrule
+\end{tabular}}
+\caption{$\mathrm{Net}(N)$ of each verified set against Apply attributed (Eq.~\ref{eq:net}), at $N=1000$ deployed episodes, with no change cost and a success worth $v$ episodes of running cost. $\Delta p$: held-out difference in points (Table~\ref{tab:deploy}); $\Delta c_{\mathrm{run}}$: estimated change in running cost per deployed episode, from the tokens of patched agents on solved tasks and of truncated step-limit episodes; $C$: verification episodes. Intervals combine the uncertainty of $\Delta p$ and of $\Delta c_{\mathrm{run}}$ (standard error about 0.1), as normal.}
+\label{tab:netn}
+\end{table}
 
 \section{Proofs}
 \label{app:proofs}
@@ -725,6 +731,91 @@ Evidence & $D$ [90\%] & Ep. & $-$ full [90\%] & $p$ (Holm) \\
 \end{table}
 
 \paragraph{Results.} Table~\ref{tab:e3}. Accepting every candidate gained $-0.02$ points per round and the judge's choice $+0.18$; candidates' gains exceeded the single-candidate detectable effect of 3.2 points for 1 of 29, and their split-half correlation was 0.36. Under r1's registered analysis, with its bootstrap over rounds, net@40 was non-inferior to full evaluation (Holm $p=0.036$). $\mathrm{Net}(10^4)$ at $v=10$ was negative for every rule ($-160$ episodes for full evaluation, $-39$ for sequential full evaluation).
+
+\section{Margins, Decision Rules, Calibration and Loop Cost}
+\label{app:review}
+
+The analyses of this appendix are post hoc and use no new episodes: they recompute the registered decision values from the same evidence and deployments (\texttt{verify/posthoc\_r7.py}).
+
+\paragraph{Smaller margins and agreement.} Table~\ref{tab:margins} repeats the non-inferiority tests against full evaluation at margins of 0.1, 0.25 and 0.5 points per round, adds keeping the incumbent as a rule with zero cost and zero value, and reports how often each rule makes full evaluation's choice (for keeping the incumbent, how often full evaluation keeps it). At the registered margin every rule that runs solved tasks passes, and so does keeping the incumbent; at 0.25 points only sequential full evaluation passes on r2+r3 (sequential sampling: $p=0.056$), and on r1, the design set, it passes from 0.5. On r4, where full evaluation gained, keeping the incumbent fails at every margin and the sequential rules pass at 0.25.
+
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\resizebox{\textwidth}{!}{\begin{tabular}{lrccccccccccc}
+\toprule
+ & \multicolumn{5}{c}{r2+r3: non-inferiority to full evaluation} & \multicolumn{4}{c}{Agree with full evaluation} & \multicolumn{3}{c}{$p$ at margin 0.25} \\
+\cmidrule(lr){2-6}\cmidrule(lr){7-10}\cmidrule(lr){11-13}
+Rule & $-$ full [90\%] & 0.1 & 0.25 & 0.5 & 0.75 & r2+r3 & r1 & r4 & E3 & r1 & r4 & E3 \\
+\midrule
+\csname @@input\endcsname tables/r7_margins.tex
+\bottomrule
+\end{tabular}}
+\caption{Non-inferiority to full evaluation at smaller margins (one-sided bootstrap $p$, block bootstrap as in Table~\ref{tab:e1r}, not adjusted; 0.75 is the registered margin), and the expected share of rounds in which a rule makes full evaluation's choice. For keeping the incumbent, Agree is the share of rounds in which full evaluation keeps it. r1 is the exploratory set of the sequential rules; r4 has ten airline rounds and three blocks.}
+\label{tab:margins}
+\end{table*}
+
+\paragraph{Evidence or decision rule.} In the registered analysis full evaluation is RRSI's own decision, with the noise band calibrated from three base evaluations, while every other rule uses twice its estimate's standard error, and RRSI admits a candidate within its band if it is cheaper or of an untried kind. Table~\ref{tab:ablation} decides full evaluation (and sequential full evaluation) like the other rules, with its own band, and then decides every rule by one criterion: admit only if the estimate exceeds twice its standard error and the cost condition holds, with no within-band branch. The judge and no verification have no standard error and are unchanged. With their own band, full evaluation's value hardly changes. With one criterion every rule that runs episodes accepts a candidate in at most 3\% of rounds (replay$-$null@40: 7\%), and its value moves towards zero; replay$-$null@40 remains below full evaluation decided the same way ($-0.21$ [$-0.47,-0.01$]). The evidence's standard errors are wide relative to candidates' effects, so whether a rule gains or loses is decided mostly by its within-band acceptances.
+
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrcrcrc}
+\toprule
+ & \multicolumn{2}{c}{Registered rule} & \multicolumn{2}{c}{Full evaluation with own band} & \multicolumn{2}{c}{One criterion, no within-band branch} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+Rule & $D$ [90\%] & Accepts & $D$ [90\%] & Accepts & $D$ [90\%] & Accepts \\
+\midrule
+\csname @@input\endcsname tables/r7_ablation.tex
+\bottomrule
+\end{tabular}
+\caption{Decision value on r2+r3 (common error check, points per round, block bootstrap) under three decision rules. ``Own band'': full and sequential full evaluation decided with twice their own standard error, as the other rules already are, so only their rows change. ``One criterion'': every rule admits a candidate only if its estimate exceeds twice its standard error and the cost condition holds.}
+\label{tab:ablation}
+\end{table*}
+
+\paragraph{Calibration of the bands.} Table~\ref{tab:coverage} gives, for each evidence type at 40 episodes, the share of evidence draws whose interval, the estimate $\pm$ twice its standard error, covers the candidate's full-evaluation $\Delta S$ on the evolve set, which the evidence estimates, and its held-out deployment gain. Paired samples and net evidence are close to their nominal 95\% on $\tau^2$ and below it on AppWorld (0.81 and 0.70). Replay$-$null bands cover their target in only 39--62\% of draws, because replays of failures cannot see harm to solved tasks: the shortfall is bias, not variance, which is why replay$-$null@40 accepted the change that blocked legitimate writes. Full evaluation's own band covers the deployment gain in 90--100\% of candidates.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{\begin{tabular}{lcccc}
+\toprule
+Evidence (@40) & r1 & r2+r3 & r4 & E3 \\
+\midrule
+\csname @@input\endcsname tables/r7_coverage.tex
+\bottomrule
+\end{tabular}}
+\caption{Coverage of $\pm2$ standard-error intervals: evolve $\Delta S$ / deployment gain, averaged over candidates (200 evidence draws each). Full evaluation covers its own $\Delta S$ by construction.}
+\label{tab:coverage}
+\end{table}
+
+\paragraph{The loop's whole cost.} Table~\ref{tab:loopcost} prices the RRSI loop itself, not this study's extra evidence or deployments: the proposal side's model calls (analyst, digester, proposer, critic), the candidates' full evaluations, smoke tests and the base-harness calibration, at list prices. Candidate evaluation is 24--54\% of it on $\tau^2$ and 45\% on AppWorld; the episodes sequential full evaluation would have saved are 19\% of the loop's cost on r1--r3 and 17\% on AppWorld. With a thinking proposer (r4) the model calls are 93\% of the cost and sequential evaluation saves 1\%.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{\begin{tabular}{lrrrrrr}
+\toprule
+ & Loop & Model & Cand.\ & Smoke, & \multicolumn{2}{c}{Sequential full saves} \\
+\cmidrule(lr){6-7}
+Trajectory & \$ & calls \% & eval.\ \% & calib.\ \% & episodes & \% of loop \\
+\midrule
+\csname @@input\endcsname tables/r7_cost.tex
+\bottomrule
+\end{tabular}}
+\caption{Dollar cost of the RRSI loop per trajectory and domain (r4 retail, stopped after two rounds, omitted), its shares, and the evolve episodes sequential full evaluation would have saved, priced at the mean price of a candidate-evaluation episode.}
+\label{tab:loopcost}
+\end{table}
+
+\paragraph{What each rule buys.} Every rule uses what the loop already has: the incumbent's full evaluation, which it ran when it accepted the incumbent, and its failed trials. Sample and sequential rules buy only candidate episodes, paired with the incumbent's existing trials. Replay rules buy candidate and null replays from recorded failures; null replays are shared by a round's candidates. Net evidence buys replays and candidate runs on solved tasks. None of them needs anything the next round would otherwise lack: an accepted candidate's evaluation becomes the next incumbent's, so under sequential evaluation accepted candidates complete their evaluation, and only the scores of rejected candidates, which RRSI shows its proposer, become early-stopped estimates. The fixed-budget rules would need an extra full evaluation of each accepted candidate to give the next round the same traces; our counts omit it, which favours them.
+
+\paragraph{Change cost.} $\mathrm{Net}(N)$ sets $\Delta C_{\mathrm{change}}=0$ because every rule sees the same candidates, a simplification: reviewing and maintaining an accepted change costs something, and rules accept different numbers of changes. Charging $\kappa$ episodes per accepted change lowers a rule's $\mathrm{Net}(10^4)$ by $\kappa$ times its acceptance rate. On r2+r3 at $v=10$, sequential sampling, sequential full evaluation and full evaluation have $+10$ [$-315,+350$], $-71$ [$-438,+254$] and $-108$ [$-500,+274$] episodes at $\kappa=0$ and $-215$, $-267$ and $-370$ at $\kappa=1{,}000$; the fixed-budget rules, which accept 38--44\% of rounds, fall further.
+
+\paragraph{Registration timeline.} All times UTC, 2026, from the repository history. 7 Oct 11:26: r1's registration, analysis code and launch script committed; the loop and its held-out deployments started after it. 15:34--15:54: the registered power rule raised held-out trials (Appendix~\ref{app:rrsi}). 20:22: r1 finished; 20:23 its final disagreement rate logged. 8 Oct 00:24: r2 and r3 registered, before any of their episodes; 00:45: addendum (thinking roles for r4, verify-one-candidate rules). 01:00: E3 registered, before any episode of its loop. 02:06: the sequential rules and their tests registered for r2, r3 and E3 (addendum 2); no decision value of r2, r3 or E3 had been computed. 08:01: r2 and r3's analysis code committed, tested on r1 only. 09:55: every round of r2 and r3 deployed; 10:00--10:15 their registered analyses run as committed. 16:32 and 18:02: E3's loop and deployments finished; 18:14 its registered analysis run. The operations logs in the registration files record the restarts, the r4 truncation and the held-out rates seen in progress logs.
 
 \section{Reproducibility}
 \label{app:repro}
