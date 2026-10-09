@@ -11,7 +11,10 @@ truth and traces for the kinds of decisive step. Writes:
   search.tex   counterfactual search by budget, by domain
   secondary.tex  pooled secondary metrics per method
   whowhen.tex  agent and step accuracy on Who&When (results/attrib/whowhen_scores.json)
-and prints the numbers the text quotes.
+  phaseb_groups.tex, phaseb_contrasts.tex  the repair experiment (Phase B) from
+               results/attrib/phaseB_analysis.json (attrib/phaseb_analyze.py)
+and prints the numbers the text quotes. Without <main>, only the Phase B tables
+are written.
 """
 from __future__ import annotations
 
@@ -30,6 +33,10 @@ ROWS = [("first_write", "First write", "rule"), ("last_step", "Last step", "rule
         ("study1_pro", "Root-cause attributor", "Pro"), ("rrsi_digest_pro", "RRSI trace digester", "Pro"),
         ("search@40", "Counterfactual search@40", "Pro, replays")]
 MIDRULES = {2, 5, 7}
+PB_GROUPS = [("none", "No attribution"), ("rrsi", "RRSI analysis"), ("first_write", "First write"),
+             ("binary_search", "Binary search"), ("cf_search", "Counterfactual search@40")]
+PB_DEFAULT = Path(__file__).resolve().parents[1] / "results" / "attrib" / "phaseB_analysis.json"
+T975_DF7 = 2.364624
 
 
 def _f(x, d=2):
@@ -82,18 +89,91 @@ def kinds(main: Path, d: str) -> dict:
                                     if g["decisive"] is not None)}
 
 
+def _pp(x, d=2):
+    """Percentage points with a sign, typeset minus."""
+    return f"{0:.{d}f}" if abs(x * 100) < 0.5 * 10 ** -d else f"{x * 100:+.{d}f}".replace("-", "$-$")
+
+
+def _state_contrast(rows: list[dict], g: str, h: str) -> dict:
+    """Mean over states of the difference in mean slot gain, t interval (df 7);
+    the registered estimator of attrib/phaseb_analyze.py without its test."""
+    import numpy as np
+    states = sorted({r["state"] for r in rows})
+    d = np.array([np.mean([r["G"] for r in rows if r["group"] == g and r["state"] == s]) -
+                  np.mean([r["G"] for r in rows if r["group"] == h and r["state"] == s]) for s in states])
+    se = d.std(ddof=1) / np.sqrt(len(d))
+    return {"estimate": float(d.mean()), "ci95": [float(d.mean() - T975_DF7 * se), float(d.mean() + T975_DF7 * se)]}
+
+
+def phaseb_tables(path: Path, out: Path) -> dict:
+    B = json.loads(path.read_text())
+    S = B["secondary"]
+    acc, rl = S["S7_phase_a_accuracy"], S["S4_round_level_means"]
+    lines = []
+    for g, name in PB_GROUPS:
+        v = B["groups"][g]
+        pa = "--" if g == "none" else " / ".join(_f(acc[d][g]) for d in ("tau2_retail", "tau2_airline"))
+        dep = v["mean_G_deployable"]
+        cells = [name, pa, f"{v['deployable']}/{v['slots']}", _pp(v["mean_G"]),
+                 _pp(v["by_domain"]["tau2_retail"]), _pp(v["by_domain"]["tau2_airline"]),
+                 _pp(dep) if dep is not None else "--",
+                 f"{v['share_positive_deployable']:.0%}".replace("%", "\\%") if dep is not None else "--",
+                 str(v["accepted_by_rrsi"]), _pp(rl[g])]
+        lines.append(" & ".join(cells) + " \\\\")
+    (out / "phaseb_groups.tex").write_text("\n".join(lines) + "\n")
+
+    name = {**dict(PB_GROUPS), "cf_search": "CF search@40", "none": "none", "rrsi": "RRSI"}
+    s4 = {(c["g"], c["h"]): c for c in S["S4_round_level"]}
+    lines = []
+    for i, c in enumerate(B["primary"]):
+        if i == 3:
+            lines.append("\\midrule")
+        r = s4[(c["g"], c["h"])]
+        cells = [f"{name[c['g']]} $-$ {name[c['h']]}",
+                 f"{_pp(c['estimate'])} {{\\scriptsize [{_pp(c['ci95'][0])}, {_pp(c['ci95'][1])}]}}",
+                 f"{c['p_perm']:.2f}", f"{c['p_holm']:.2f}", "yes" if c["equivalent_within_2.5pp"] else "no",
+                 f"{_pp(r['estimate'])} {{\\scriptsize [{_pp(r['ci95'][0])}, {_pp(r['ci95'][1])}]}}"]
+        lines.append(" & ".join(cells) + " \\\\")
+    (out / "phaseb_contrasts.tex").write_text("\n".join(lines) + "\n")
+
+    # exploratory, not registered: the no-attribution group without its one
+    # catastrophic candidate (dropped, or set to 0 as if a gate had stopped it)
+    rows = B["slots"]
+    worst = min(rows, key=lambda r: r["G"])
+    none_wo = [r["G"] for r in rows if r["group"] == "none" and r is not worst]
+    zeroed = [{**r, "G": 0.0} if r is worst else r for r in rows]
+    big = sorted([r for r in rows if r["G"] < -0.10], key=lambda r: r["G"])
+    return {"n_slots": B["n_slots"], "deployable": sum(B["groups"][g]["deployable"] for g, _ in PB_GROUPS),
+            "worst": {k: worst[k] for k in ("group", "state", "variant", "commit", "G", "evolve_S", "accepted")},
+            "losses_over_10pp": [{k: r[k] for k in ("group", "state", "variant", "G", "accepted")} for r in big],
+            "exploratory_none_without_worst_mean_G": sum(none_wo) / len(none_wo),
+            "exploratory_vs_none_worst_set_to_0": {g: _state_contrast(zeroed, g, "none")
+                                                   for g in ("rrsi", "first_write", "binary_search", "cf_search")},
+            "S5_retail_first_write_vs_rrsi": next(c for c in S["S5_by_domain"]["tau2_retail"]
+                                                  if c["g"] == "first_write" and c["h"] == "rrsi"),
+            "S8": S["S8_agreement"], "S9": [x["diff"] for x in S["S9_drift"]],
+            "S10_mean_G": S["S10_original_round"]["mean_G"],
+            "S4_signflip": {f"{c['g']}-{c['h']}": c["p_signflip"] for c in S["S4_round_level"]}}
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("main")
+    ap.add_argument("main", nargs="?")
+    ap.add_argument("--phaseb", default=str(PB_DEFAULT))
     ap.add_argument("--out", default=str(Path(__file__).resolve().parents[1] / "paper2" / "tables"))
     ap.add_argument("--whowhen", default="/mnt/project-files/results/attrib/whowhen_scores.json")
     args = ap.parse_args()
-    main_dir, out = Path(args.main), Path(args.out)
+    out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
+    pb = phaseb_tables(Path(args.phaseb), out) if Path(args.phaseb).exists() else None
+    if not args.main:
+        print(json.dumps({"phaseb": pb}, indent=1))
+        return
+    main_dir = Path(args.main)
     A = {d: json.loads((main_dir / f"analysis_{d}.json").read_text()) for d in DOMAINS}
     P = json.loads((main_dir / "analysis_pooled3.json").read_text())
     summary = {"n": P["n"], "retest": P["retest"], "primary": {d: A[d].get("primary") for d in DOMAINS},
-               "primary_pooled3": P.get("primary")}
+               "primary_pooled3": P.get("primary"), "phaseb": pb}
 
     lines = []
     for i, (m, name, model) in enumerate(ROWS):
