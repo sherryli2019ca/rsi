@@ -10,6 +10,7 @@
 \usepackage{graphicx}
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
+\usepackage{fvextra}
 \usepackage{xcolor}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.16}
@@ -59,7 +60,7 @@ We apply the profile to 300 natural failures of agents built by a self-improveme
 
 \paragraph{Replays.} A failed episode is a sequence of agent steps $0,\dots,n-1$. A \emph{replay from step $k$} keeps steps $0,\dots,k-1$ and the environment state they produced, and lets the same agent and user simulator continue; a \emph{corrected} replay forces a given action at step $k$ first. The agent runs at temperature 0, but replays still vary, so each outcome is a sample.
 
-\paragraph{Oracle corrections.} For each step an oracle (DeepSeek-V4-Pro, thinking off) sees the domain policy, the tools, the episode up to the step and the task's grading criteria: $\tau^2$'s gold actions and required information, or AppWorld's unit tests with their expected values. It either judges the step correct or writes the action the agent should have taken. The LLM attributors we evaluate read the same grading report, as RRSI's analyst does (\S\ref{sec:setup}); only counterfactual search works without it.
+\paragraph{Oracle corrections.} For each step an oracle (DeepSeek-V4-Pro, thinking off) sees the domain policy, the tools, the episode up to the step and the task's grading criteria: $\tau^2$'s gold actions and required information, or AppWorld's unit tests with their expected values. It either judges the step correct or writes the action the agent should have taken, using only what the agent knew at that point: the criteria tell it the right outcome, not identifiers or facts the agent had not yet seen. The LLM attributors we evaluate read the same grading report, as RRSI's analyst does (\S\ref{sec:setup}); only counterfactual search works without it.
 
 \paragraph{From earliest step to profile.} Our first registered protocol named the earliest step whose correction succeeded on at least 2 of 4 replays more than 4 null replays did. On 20 pilot failures, four independent runs of it named the same decisive step in 42\% of pairs of runs (50 of 120), and in 23\% of pairs where either run found one. Most disagreements came from the oracle, not from replay noise: a step judged correct in one run and corrected in another, or a correction that worked in one run and a different correction that did not in the next. Before computing any ground truth on the main set, we registered protocol~3 instead.
 
@@ -204,7 +205,9 @@ All environments use synthetic users and data. Attribution methods that misdiagn
 
 \section{Prompts}
 \label{app:prompts}
-\todo{prompt texts of the judges, the root-cause attributor, the search's suspect call and the oracle, from attrib/methods.py, attrib/search.py, attrib/groundtruth.py and attrib/aw.py.}
+The $\tau^2$ prompts follow, verbatim; braces mark what is filled in. The AppWorld prompts replace the description of the agent and the task, the grading report and the component descriptions with AppWorld's (the code agent, its unit tests, and the same nine components worded for it), and the oracle and search ask for one assistant turn with one Python block.
+
+\csname @@input\endcsname tables/prompts.tex
 
 \section{Secondary Metrics and Search Budgets}
 \label{app:secondary}

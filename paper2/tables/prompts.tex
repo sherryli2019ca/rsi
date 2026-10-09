@@ -1,0 +1,93 @@
+\paragraph{Shared introduction (all judges)}
+\begin{Verbatim}[fontsize=\scriptsize, breaklines, breakanywhere]
+A customer-service agent (an LLM inside a harness) failed a task of tau2-bench. Below is the failure as the developers' analysis tools see it: the customer's hidden instructions, the conversation (each agent step is numbered), and the grading.
+
+The DECISIVE MISTAKE is the earliest agent step such that, had the agent acted correctly at that step and continued normally, the task would most likely have succeeded.
+
+Harness components (a fix to the harness changes one of these):
+- prompt: the system prompt text (instructions and policy wording the model reads)
+- control_flow: the agent loop code: how the next action is produced, checks or gates applied to tool calls before they run, retries, enforced confirmations
+- config: numeric settings such as temperature, token limits or step limits
+- output_plumbing: how tool results and tool descriptions are rendered to the model
+- context_mgmt: which parts of the conversation history the model sees
+- client_tool: extra tools the harness gives the model (e.g. a checker or calculator)
+- skill: instruction files loaded for specific situations
+- memory: structured state the harness keeps across steps
+- subagent: an extra model call, e.g. a second model reviewing an action
+
+=== FAILURE ===
+{the failure: hidden instructions, numbered steps, grading report}
+\end{Verbatim}
+
+\paragraph{All-at-once}
+\begin{Verbatim}[fontsize=\scriptsize, breaklines, breakanywhere]
+Find the decisive mistake and the harness component whose change would most likely have prevented it. Answer with JSON:
+{"step": <step number>, "top3": [<the three most likely step numbers, best first>],
+ "component": "<component>", "components3": ["<three most likely components, best first>"],
+ "reason": "<one sentence>"}
+\end{Verbatim}
+
+\paragraph{Step-by-step (asked for $k=0,1,\dots$ on the episode up to step $k$)}
+\begin{Verbatim}[fontsize=\scriptsize, breaklines, breakanywhere]
+Judge step {k} only, given what happened before it. Is the agent's action at step {k} the decisive mistake (the earliest step whose correction would most likely have made the task succeed)? Answer with JSON:
+{"decisive": true | false, "component": "<component, if decisive>", "reason": "<one sentence>"}
+\end{Verbatim}
+
+\paragraph{Binary search (episode up to step \texttt{hi})}
+\begin{Verbatim}[fontsize=\scriptsize, breaklines, breakanywhere]
+The decisive mistake is assumed to lie between step {lo} and step {hi}. Is it in the first half (steps {lo} to {mid}) or in the second half (steps {mid + 1} to {hi})? Answer with JSON:
+{"half": "first" | "second", "component": "<the component most likely at fault>",
+ "reason": "<one sentence>"}
+\end{Verbatim}
+
+\paragraph{Root-cause attributor}
+\begin{Verbatim}[fontsize=\scriptsize, breaklines, breakanywhere]
+An LLM agent failed a task. Find the root cause of the failure.
+
+Agent components (id: role):
+{COMP_TEXT}
+
+Trace:
+{view(rec)}
+
+Give (1) a one-sentence root cause describing the cause, not the symptom;
+(2) the index of the earliest step where the agent went wrong;
+(3) the single component whose change would most plausibly prevent this failure.
+Answer with JSON: {"root_cause": "...", "step": <int>, "component": "<component id>"}
+\end{Verbatim}
+
+\paragraph{Ground-truth oracle (system prompt)}
+\begin{Verbatim}[fontsize=\scriptsize, breaklines, breakanywhere]
+You construct ground truth for failure attribution. A customer-service agent failed a task of tau2-bench. You see the domain policy, the agent's tools, the task's grading criteria (the database must end as if exactly the gold actions were executed, and the agent must tell the user every required piece of information), and the conversation up to one step of the agent.
+
+Decide whether the agent's action at that step is a mistake: an action a careful agent following the policy would not take on the way to the gold outcome. Actions that are correct, or harmless and do not lead away from the gold outcome, are ok.
+
+If it is a mistake, give the single action a careful agent would take at that step instead: one assistant turn, either a message to the user or one or more tool calls. Correct only this step; do not do more than a careful agent would do at this point. The corrected action must be one the agent could have taken with what it knew then (the conversation and tool results so far, and the policy); use the grading criteria only to know what the right outcome is, never to supply ids, amounts or facts the agent had not yet learned.
+
+Answer with JSON:
+{"verdict": "ok" | "mistake", "why": "<one sentence>",
+ "action": {"message": "<text to the user>"} | {"tool_calls": [{"name": "<tool>", "arguments": {...}}]}}
+("action" only when the verdict is mistake.)
+\end{Verbatim}
+
+\paragraph{Counterfactual search, suspect call (system prompt)}
+\begin{Verbatim}[fontsize=\scriptsize, breaklines, breakanywhere]
+A customer-service agent on tau2-bench failed its task: the customer's request was not resolved as the domain policy requires. You see the domain policy, the agent's tools and the conversation; you do not know what the correct outcome was.
+
+Name the steps where the agent most likely went wrong, most suspect first (at most 5). For each, give the single action a careful agent would have taken at that step instead (one assistant turn: a message to the user or one or more tool calls, using only what the agent knew at that point) and the harness component most likely at fault.
+
+Harness components:
+- prompt: the system prompt text (instructions and policy wording the model reads)
+- control_flow: the agent loop code: how the next action is produced, checks or gates applied to tool calls before they run, retries, enforced confirmations
+- config: numeric settings such as temperature, token limits or step limits
+- output_plumbing: how tool results and tool descriptions are rendered to the model
+- context_mgmt: which parts of the conversation history the model sees
+- client_tool: extra tools the harness gives the model (e.g. a checker or calculator)
+- skill: instruction files loaded for specific situations
+- memory: structured state the harness keeps across steps
+- subagent: an extra model call, e.g. a second model reviewing an action
+
+Answer with JSON:
+{"suspects": [{"step": <int>, "why": "<one sentence>", "component": "<component>",
+  "action": {"message": "<text>"} | {"tool_calls": [{"name": "<tool>", "arguments": {...}}]}}]}
+\end{Verbatim}
