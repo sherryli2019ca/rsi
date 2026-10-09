@@ -192,3 +192,6 @@ traces, about 4). Total about 40 dollars; stop and report above 100
   hash, so finished deployments were re-invoked (every trial skipped as
   already on disk) and their worktrees were not removed. Fixed (commit
   4554d65); stale worktrees removed. No held-out number was looked at.
+- ~05:55Z. The container restarted (uptime 0 at 06:01Z) with 23 of 62
+  deployments finished; the deployments resumed at 06:03Z
+  (/home/user/phaseb/run_deploy.sh; trials already on disk are kept).
