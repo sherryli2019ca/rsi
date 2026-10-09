@@ -106,3 +106,11 @@ committed before the deployments finish.
   with the same command; every step is resume-safe, episodes already on disk
   are reused and the sequential stopping order is replayed from the same
   seed. Nothing had been deployed.
+- 2026-10-09 13:37Z, before any deployment had finished: to make up for the
+  two hours lost to the restart, `verify/cl.py deploy` and `shadow` now run
+  their jobs side by side (three at a time; worktrees still made one at a
+  time). cl1 had already started its deployments with the sequential
+  version, so its final incumbent's deployment and its shadow evaluation were
+  started early in separate processes; the steps of `run_cl.sh` then find
+  them done (all steps are resume-safe). What is run and how it is scored are
+  unchanged.

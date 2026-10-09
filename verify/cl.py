@@ -48,14 +48,23 @@ def _commits(run: Path) -> list[str]:
     return out
 
 
-def cmd_deploy(run: Path) -> None:
+def cmd_deploy(run: Path, workers: int = 3) -> None:
+    """Deployments run side by side (worktrees made one at a time first, as git
+    needs); each is resume-safe, as in r1 to r3."""
+    from concurrent.futures import ThreadPoolExecutor
     dom = load_domain(D)
     out = Path(run) / "runs" / "verify" / D
     out.mkdir(parents=True, exist_ok=True)
-    for c in _commits(run):
+    cs = _commits(run)
+    for c in cs:
+        worktree(Path(run), out / "wt", c)
+
+    def one(c):
         deploy.run(dom, Path(run), out, c, K_HELDOUT)
         print(f"deployed {c[:12]} (k={K_HELDOUT})", flush=True)     # S deliberately not printed
-    (out / "deploy.done").write_text("\n".join(_commits(run)) + "\n")
+    with ThreadPoolExecutor(max_workers=workers) as ex:
+        list(ex.map(one, cs))
+    (out / "deploy.done").write_text("\n".join(cs) + "\n")
 
 
 def cmd_shadow(run: Path) -> None:
@@ -70,19 +79,16 @@ def cmd_shadow(run: Path) -> None:
     ids = dom.evolve_ids()
     cfg = json.loads((dom.root / "rrsi.json").read_text())
     k = int(cfg["k"])
-    rows = []
+    from concurrent.futures import ThreadPoolExecutor
+    rounds, todo = [], []
     for t in range(T_LAST + 1):
         sp = rr / f"r{t}" / "selection.json"
         if not sp.exists():
             continue
         sel = json.loads(sp.read_text())
-        decs = {x["variant"]: x for x in json.loads((rr / f"r{t}" / "decisions.json").read_text())}
-        S_inc, S_star, delta = sel["S_inc"], sel["S_star"], sel["delta"]
-        full = {}
+        rounds.append((t, sel))
         for v, rec in sel["candidates"].items():
             if not rec["dropped"]:
-                d = decs[v]
-                full[v] = {"S": d.get("S"), "admissible": bool(d.get("admissible")), "completed": False}
                 continue
             job, sjob = f"r{t}{v}", f"r{t}{v}_shadow"
             for f in (rr / "jobs" / job).glob("s*/*.json"):
@@ -91,8 +97,20 @@ def cmd_shadow(run: Path) -> None:
                     g.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(f, g)
             prep = json.loads((rr / f"r{t}" / v / "prep.json").read_text())
-            wt = worktree(Path(run), rr / "wt_shadow", prep["commit"])
-            dom.run(wt, rr, sjob, ids, k, log_prefix=f"shadow {sjob}")
+            todo.append((sjob, worktree(Path(run), rr / "wt_shadow", prep["commit"])))
+    with ThreadPoolExecutor(max_workers=3) as ex:
+        list(ex.map(lambda x: dom.run(x[1], rr, x[0], ids, k, log_prefix=f"shadow {x[0]}"), todo))
+    rows = []
+    for t, sel in rounds:
+        decs = {x["variant"]: x for x in json.loads((rr / f"r{t}" / "decisions.json").read_text())}
+        S_inc, S_star, delta = sel["S_inc"], sel["S_star"], sel["delta"]
+        full = {}
+        for v, rec in sel["candidates"].items():
+            if not rec["dropped"]:
+                d = decs[v]
+                full[v] = {"S": d.get("S"), "admissible": bool(d.get("admissible")), "completed": False}
+                continue
+            sjob = f"r{t}{v}_shadow"
             per, extra = dom.score(rr, sjob, ids, k)
             ev = aggregate(sjob, k, per, extra)
             dS, dC = ev.S - S_inc, relative_cost_change(ev.C, _inc_C(rr, t))
