@@ -1,0 +1,1400 @@
+{
+ "source_runs": [
+  {
+   "g": "first_write",
+   "h": "none",
+   "estimate_pp": 4.35,
+   "states": {
+    "ci95": [
+     -5.97,
+     14.67
+    ],
+    "ci90": [
+     -3.92,
+     12.62
+    ],
+    "eq_margin": 12.62
+   },
+   "runs": {
+    "ci95": [
+     -10.43,
+     19.12
+    ],
+    "ci90": [
+     -6.58,
+     15.28
+    ],
+    "eq_margin": 15.28,
+    "diffs": [
+     0.73,
+     -1.15,
+     18.23,
+     -0.42
+    ]
+   },
+   "checkpoint_corr": 0.75
+  },
+  {
+   "g": "binary_search",
+   "h": "none",
+   "estimate_pp": 4.32,
+   "states": {
+    "ci95": [
+     -6.9,
+     15.55
+    ],
+    "ci90": [
+     -4.67,
+     13.32
+    ],
+    "eq_margin": 13.32
+   },
+   "runs": {
+    "ci95": [
+     -11.0,
+     19.64
+    ],
+    "ci90": [
+     -7.01,
+     15.65
+    ],
+    "eq_margin": 15.65,
+    "diffs": [
+     0.1,
+     -0.83,
+     18.75,
+     -0.73
+    ]
+   },
+   "checkpoint_corr": 0.21
+  },
+  {
+   "g": "cf_search",
+   "h": "none",
+   "estimate_pp": 1.9,
+   "states": {
+    "ci95": [
+     -10.24,
+     14.04
+    ],
+    "ci90": [
+     -7.82,
+     11.63
+    ],
+    "eq_margin": 11.63
+   },
+   "runs": {
+    "ci95": [
+     -16.63,
+     20.43
+    ],
+    "ci90": [
+     -11.8,
+     15.6
+    ],
+    "eq_margin": 15.6,
+    "diffs": [
+     0.1,
+     -0.42,
+     17.92,
+     -10.0
+    ]
+   },
+   "checkpoint_corr": 0.65
+  },
+  {
+   "g": "first_write",
+   "h": "rrsi",
+   "estimate_pp": 0.31,
+   "states": {
+    "ci95": [
+     -0.56,
+     1.18
+    ],
+    "ci90": [
+     -0.38,
+     1.01
+    ],
+    "eq_margin": 1.01
+   },
+   "runs": {
+    "ci95": [
+     -1.23,
+     1.86
+    ],
+    "ci90": [
+     -0.83,
+     1.45
+    ],
+    "eq_margin": 1.45,
+    "diffs": [
+     0.42,
+     -1.04,
+     0.63,
+     1.25
+    ]
+   },
+   "checkpoint_corr": 0.53
+  },
+  {
+   "g": "binary_search",
+   "h": "rrsi",
+   "estimate_pp": 0.29,
+   "states": {
+    "ci95": [
+     -0.82,
+     1.39
+    ],
+    "ci90": [
+     -0.6,
+     1.17
+    ],
+    "eq_margin": 1.17
+   },
+   "runs": {
+    "ci95": [
+     -1.15,
+     1.72
+    ],
+    "ci90": [
+     -0.77,
+     1.35
+    ],
+    "eq_margin": 1.35,
+    "diffs": [
+     -0.21,
+     -0.73,
+     1.15,
+     0.94
+    ]
+   },
+   "checkpoint_corr": -0.05
+  },
+  {
+   "g": "cf_search",
+   "h": "rrsi",
+   "estimate_pp": -2.14,
+   "states": {
+    "ci95": [
+     -5.67,
+     1.4
+    ],
+    "ci90": [
+     -4.97,
+     0.7
+    ],
+    "eq_margin": 4.97
+   },
+   "runs": {
+    "ci95": [
+     -8.72,
+     4.45
+    ],
+    "ci90": [
+     -7.01,
+     2.74
+    ],
+    "eq_margin": 7.01,
+    "diffs": [
+     -0.21,
+     -0.31,
+     0.31,
+     -8.33
+    ]
+   },
+   "checkpoint_corr": 1.0
+  },
+  {
+   "g": "oracle",
+   "h": "rrsi",
+   "estimate_pp": -0.05,
+   "states": {
+    "ci95": [
+     -1.97,
+     1.87
+    ],
+    "ci90": [
+     -1.59,
+     1.49
+    ],
+    "eq_margin": 1.59
+   },
+   "runs": {
+    "ci95": [
+     -2.72,
+     2.62
+    ],
+    "ci90": [
+     -2.03,
+     1.92
+    ],
+    "eq_margin": 2.03,
+    "diffs": [
+     -2.4,
+     -0.1,
+     0.94,
+     1.35
+    ]
+   },
+   "checkpoint_corr": -0.04
+  },
+  {
+   "g": "oracle",
+   "h": "none",
+   "estimate_pp": 3.98,
+   "states": {
+    "ci95": [
+     -7.39,
+     15.36
+    ],
+    "ci90": [
+     -5.13,
+     13.1
+    ],
+    "eq_margin": 13.1
+   },
+   "runs": {
+    "ci95": [
+     -11.52,
+     19.49
+    ],
+    "ci90": [
+     -7.48,
+     15.45
+    ],
+    "eq_margin": 15.45,
+    "diffs": [
+     -2.08,
+     -0.21,
+     18.54,
+     -0.31
+    ]
+   },
+   "checkpoint_corr": 0.07
+  },
+  {
+   "g": "oracle",
+   "h": "first_write+binary_search+cf_search",
+   "estimate_pp": 0.46,
+   "states": {
+    "ci95": [
+     -1.62,
+     2.54
+    ],
+    "ci90": [
+     -1.21,
+     2.13
+    ],
+    "eq_margin": 2.13
+   },
+   "runs": {
+    "ci95": [
+     -3.31,
+     4.23
+    ],
+    "ci90": [
+     -2.33,
+     3.25
+    ],
+    "eq_margin": 3.25,
+    "diffs": [
+     -2.4,
+     0.59,
+     0.24,
+     3.4
+    ]
+   },
+   "checkpoint_corr": 0.7
+  }
+ ],
+ "pointer_gain": {
+  "step_and_oracle": {
+   "slots": 64,
+   "pearson": 0.177,
+   "spearman": 0.167,
+   "pearson_within_state": 0.192,
+   "spearman_within_state": 0.147,
+   "p_perm_within_state": 0.1414,
+   "deployable_slots": 41,
+   "spearman_within_state_deployable": 0.222
+  },
+  "step_oracle_rrsi": {
+   "slots": 80,
+   "pearson": 0.122,
+   "spearman": 0.066,
+   "pearson_within_state": 0.152,
+   "spearman_within_state": 0.161,
+   "p_perm_within_state": 0.0785,
+   "deployable_slots": 54,
+   "spearman_within_state_deployable": 0.192
+  },
+  "pointer_score_by_group": {
+   "rrsi": 0.105,
+   "oracle": 0.385,
+   "first_write": 0.122,
+   "binary_search": 0.186,
+   "cf_search": 0.139
+  }
+ },
+ "noread": {
+  "groups": {
+   "none": {
+    "slots": 16,
+    "gates": {
+     "deployable": 10,
+     "no_proposal": 3,
+     "critic_reject": 3
+    },
+    "mean_G": -0.04375,
+    "deployable": 10,
+    "mean_G_deployable": -0.06999999999999999,
+    "share_positive_deployable": 0.5,
+    "accepted_by_rrsi": 2,
+    "by_domain": {
+     "tau2_retail": -0.09270833333333334,
+     "tau2_airline": 0.005208333333333343
+    }
+   },
+   "rrsi": {
+    "slots": 16,
+    "gates": {
+     "deployable": 13,
+     "critic_reject": 2,
+     "smoke_fail": 1
+    },
+    "mean_G": -0.0033854166666666616,
+    "deployable": 13,
+    "mean_G_deployable": -0.0041666666666666605,
+    "share_positive_deployable": 0.38461538461538464,
+    "accepted_by_rrsi": 1,
+    "by_domain": {
+     "tau2_retail": -0.0031250000000000167,
+     "tau2_airline": -0.0036458333333333065
+    }
+   },
+   "first_write": {
+    "slots": 16,
+    "gates": {
+     "no_proposal": 4,
+     "deployable": 10,
+     "critic_reject": 2
+    },
+    "mean_G": -0.00026041666666666574,
+    "deployable": 10,
+    "mean_G_deployable": -0.0004166666666666652,
+    "share_positive_deployable": 0.6,
+    "accepted_by_rrsi": 2,
+    "by_domain": {
+     "tau2_retail": 0.002083333333333326,
+     "tau2_airline": -0.0026041666666666574
+    }
+   },
+   "binary_search": {
+    "slots": 16,
+    "gates": {
+     "deployable": 9,
+     "critic_reject": 3,
+     "smoke_fail": 2,
+     "no_proposal": 2
+    },
+    "mean_G": -0.0005208333333333245,
+    "deployable": 9,
+    "mean_G_deployable": -0.0009259259259259103,
+    "share_positive_deployable": 0.4444444444444444,
+    "accepted_by_rrsi": 0,
+    "by_domain": {
+     "tau2_retail": 0.0015625000000000083,
+     "tau2_airline": -0.0026041666666666574
+    }
+   },
+   "cf_search": {
+    "slots": 16,
+    "gates": {
+     "deployable": 12,
+     "critic_reject": 1,
+     "no_proposal": 3
+    },
+    "mean_G": -0.024739583333333336,
+    "deployable": 12,
+    "mean_G_deployable": -0.03298611111111111,
+    "share_positive_deployable": 0.25,
+    "accepted_by_rrsi": 2,
+    "by_domain": {
+     "tau2_retail": -0.0026041666666666713,
+     "tau2_airline": -0.046875
+    }
+   },
+   "oracle": {
+    "slots": 16,
+    "gates": {
+     "no_proposal": 4,
+     "deployable": 10,
+     "critic_reject": 2
+    },
+    "mean_G": -0.00390625,
+    "deployable": 10,
+    "mean_G_deployable": -0.00625,
+    "share_positive_deployable": 0.5,
+    "accepted_by_rrsi": 1,
+    "by_domain": {
+     "tau2_retail": -0.010416666666666657,
+     "tau2_airline": 0.0026041666666666574
+    }
+   },
+   "rrsi_noread": {
+    "slots": 16,
+    "gates": {
+     "deployable": 14,
+     "critic_reject": 2
+    },
+    "mean_G": -0.003906249999999986,
+    "deployable": 14,
+    "mean_G_deployable": -0.004464285714285698,
+    "share_positive_deployable": 0.21428571428571427,
+    "accepted_by_rrsi": 2,
+    "by_domain": {
+     "tau2_retail": -0.004166666666666666,
+     "tau2_airline": -0.0036458333333333065
+    }
+   },
+   "oracle_fix_noread": {
+    "slots": 16,
+    "gates": {
+     "deployable": 10,
+     "no_proposal": 1,
+     "critic_reject": 3,
+     "smoke_fail": 2
+    },
+    "mean_G": 0.0,
+    "deployable": 10,
+    "mean_G_deployable": 0.0,
+    "share_positive_deployable": 0.6,
+    "accepted_by_rrsi": 1,
+    "by_domain": {
+     "tau2_retail": 0.004166666666666666,
+     "tau2_airline": -0.004166666666666666
+    }
+   }
+  },
+  "slot_level": [
+   {
+    "g": "oracle_fix_noread",
+    "h": "rrsi_noread",
+    "estimate": 0.003906249999999986,
+    "ci95": [
+     -0.009758525169618709,
+     0.01757102516961868
+    ],
+    "p_perm": 0.5337466253374663,
+    "se": 0.005778836368749828,
+    "state_diffs": [
+     0.004166666666666652,
+     -0.01874999999999999,
+     -5.551115123125783e-17,
+     0.004166666666666652,
+     0.033333333333333326,
+     0.014583333333333337,
+     0.008333333333333304,
+     -0.014583333333333337
+    ],
+    "ci90": [
+     -0.007042212028669694,
+     0.014854712028669666
+    ],
+    "equivalent_within_2.5pp": true,
+    "by_run": {
+     "g": "oracle_fix_noread",
+     "h": "rrsi_noread",
+     "estimate_pp": 0.39,
+     "states": {
+      "ci95": [
+       -0.98,
+       1.76
+      ],
+      "ci90": [
+       -0.7,
+       1.49
+      ],
+      "eq_margin": 1.49
+     },
+     "runs": {
+      "ci95": [
+       -1.82,
+       2.6
+      ],
+      "ci90": [
+       -1.25,
+       2.03
+      ],
+      "eq_margin": 2.03,
+      "diffs": [
+       -0.73,
+       0.21,
+       2.4,
+       -0.31
+      ]
+     },
+     "checkpoint_corr": 0.64
+    }
+   },
+   {
+    "g": "rrsi_noread",
+    "h": "rrsi",
+    "estimate": -0.0005208333333333245,
+    "ci95": [
+     -0.013140721722920013,
+     0.012099055056253364
+    ],
+    "p_perm": 0.9654034596540346,
+    "se": 0.005336953523937289,
+    "state_diffs": [
+     -0.0020833333333332704,
+     -0.004166666666666652,
+     0.0,
+     -0.016666666666666663,
+     0.008333333333333304,
+     -0.006249999999999978,
+     -0.014583333333333337,
+     0.03125
+    ],
+    "ci90": [
+     -0.010632113403760909,
+     0.00959044673709426
+    ],
+    "equivalent_within_2.5pp": true,
+    "by_run": {
+     "g": "rrsi_noread",
+     "h": "rrsi",
+     "estimate_pp": -0.05,
+     "states": {
+      "ci95": [
+       -1.31,
+       1.21
+      ],
+      "ci90": [
+       -1.06,
+       0.96
+      ],
+      "eq_margin": 1.06
+     },
+     "runs": {
+      "ci95": [
+       -1.17,
+       1.07
+      ],
+      "ci90": [
+       -0.88,
+       0.78
+      ],
+      "eq_margin": 0.88,
+      "diffs": [
+       -0.31,
+       -0.83,
+       0.1,
+       0.83
+      ]
+     },
+     "checkpoint_corr": -0.83
+    }
+   },
+   {
+    "g": "oracle_fix_noread",
+    "h": "oracle",
+    "estimate": 0.00390625,
+    "ci95": [
+     -0.00781221779033048,
+     0.01562471779033048
+    ],
+    "p_perm": 0.6124387561243876,
+    "se": 0.004955742557941761,
+    "state_diffs": [
+     0.004166666666666652,
+     0.022916666666666696,
+     0.006249999999999922,
+     -0.016666666666666607,
+     0.014583333333333282,
+     0.016666666666666663,
+     -0.006249999999999978,
+     -0.01041666666666663
+    ],
+    "ci90": [
+     -0.005482795779682744,
+     0.013295295779682744
+    ],
+    "equivalent_within_2.5pp": true,
+    "by_run": {
+     "g": "oracle_fix_noread",
+     "h": "oracle",
+     "estimate_pp": 0.39,
+     "states": {
+      "ci95": [
+       -0.78,
+       1.56
+      ],
+      "ci90": [
+       -0.55,
+       1.33
+      ],
+      "eq_margin": 1.33
+     },
+     "runs": {
+      "ci95": [
+       -1.59,
+       2.37
+      ],
+      "ci90": [
+       -1.07,
+       1.85
+      ],
+      "eq_margin": 1.85,
+      "diffs": [
+       1.35,
+       -0.52,
+       1.56,
+       -0.83
+      ]
+     },
+     "checkpoint_corr": 0.48
+    }
+   },
+   {
+    "g": "oracle_fix_noread",
+    "h": "rrsi",
+    "estimate": 0.0033854166666666616,
+    "ci95": [
+     -0.013083712833693101,
+     0.019854546167026425
+    ],
+    "p_perm": 0.6247375262473752,
+    "se": 0.006964798420535258,
+    "state_diffs": [
+     0.0020833333333333814,
+     -0.02291666666666664,
+     -5.551115123125783e-17,
+     -0.012500000000000011,
+     0.04166666666666663,
+     0.00833333333333336,
+     -0.006250000000000033,
+     0.016666666666666663
+    ],
+    "ci90": [
+     -0.009809944160112606,
+     0.016580777493445928
+    ],
+    "equivalent_within_2.5pp": true,
+    "by_run": {
+     "g": "oracle_fix_noread",
+     "h": "rrsi",
+     "estimate_pp": 0.34,
+     "states": {
+      "ci95": [
+       -1.31,
+       1.99
+      ],
+      "ci90": [
+       -0.98,
+       1.66
+      ],
+      "eq_margin": 1.66
+     },
+     "runs": {
+      "ci95": [
+       -2.18,
+       2.86
+      ],
+      "ci90": [
+       -1.53,
+       2.2
+      ],
+      "eq_margin": 2.2,
+      "diffs": [
+       -1.04,
+       -0.63,
+       2.5,
+       0.52
+      ]
+     },
+     "checkpoint_corr": 0.24
+    }
+   },
+   {
+    "g": "rrsi_noread",
+    "h": "none",
+    "estimate": 0.03984375000000001,
+    "ci95": [
+     -0.06770168390556652,
+     0.14738918390556655
+    ],
+    "p_perm": 0.819018098190181,
+    "se": 0.04548098721215996,
+    "state_diffs": [
+     -0.006249999999999978,
+     0.006249999999999978,
+     0.0,
+     -0.01874999999999999,
+     0.35625,
+     -0.002083333333333326,
+     -0.031249999999999944,
+     0.014583333333333337
+    ],
+    "ci90": [
+     -0.04632357327142679,
+     0.1260110732714268
+    ],
+    "equivalent_within_2.5pp": false,
+    "by_run": {
+     "g": "rrsi_noread",
+     "h": "none",
+     "estimate_pp": 3.98,
+     "states": {
+      "ci95": [
+       -6.77,
+       14.74
+      ],
+      "ci90": [
+       -4.63,
+       12.6
+      ],
+      "eq_margin": 12.6
+     },
+     "runs": {
+      "ci95": [
+       -10.59,
+       18.56
+      ],
+      "ci90": [
+       -6.79,
+       14.76
+      ],
+      "eq_margin": 14.76,
+      "diffs": [
+       0.0,
+       -0.94,
+       17.71,
+       -0.83
+      ]
+     },
+     "checkpoint_corr": -0.16
+    }
+   },
+   {
+    "g": "oracle_fix_noread",
+    "h": "none",
+    "estimate": 0.04375,
+    "ci95": [
+     -0.07342820598695268,
+     0.16092820598695268
+    ],
+    "p_perm": 0.6196380361963804,
+    "se": 0.04955468860459535,
+    "state_diffs": [
+     -0.002083333333333326,
+     -0.012500000000000011,
+     -5.551115123125783e-17,
+     -0.014583333333333337,
+     0.38958333333333334,
+     0.012500000000000011,
+     -0.02291666666666664,
+     0.0
+    ],
+    "ci90": [
+     -0.050135272381805665,
+     0.13763527238180567
+    ],
+    "equivalent_within_2.5pp": false,
+    "by_run": {
+     "g": "oracle_fix_noread",
+     "h": "none",
+     "estimate_pp": 4.38,
+     "states": {
+      "ci95": [
+       -7.34,
+       16.09
+      ],
+      "ci90": [
+       -5.01,
+       13.76
+      ],
+      "eq_margin": 13.76
+     },
+     "runs": {
+      "ci95": [
+       -12.31,
+       21.06
+      ],
+      "ci90": [
+       -7.97,
+       16.72
+      ],
+      "eq_margin": 16.72,
+      "diffs": [
+       -0.73,
+       -0.73,
+       20.1,
+       -1.15
+      ]
+     },
+     "checkpoint_corr": 0.83
+    }
+   }
+  ],
+  "round_level": [
+   {
+    "g": "oracle_fix_noread",
+    "h": "rrsi_noread",
+    "estimate": 0.0015624999999999944,
+    "ci95": [
+     -0.014447974999999998,
+     0.017572974999999987
+    ],
+    "p_perm": null,
+    "se": 0.00677083333333333,
+    "state_diffs": [
+     0.0,
+     0.0,
+     0.0,
+     0.03749999999999998,
+     0.008333333333333304,
+     0.0,
+     0.0,
+     -0.033333333333333326
+    ],
+    "ci90": [
+     -0.011265378645833332,
+     0.014390378645833321
+    ],
+    "equivalent_within_2.5pp": true,
+    "p_signflip": 0.75
+   },
+   {
+    "g": "rrsi_noread",
+    "h": "rrsi",
+    "estimate": 0.0005208333333333315,
+    "ci95": [
+     -0.015543685617822763,
+     0.016585352284489426
+    ],
+    "p_perm": null,
+    "se": 0.006793688531942539,
+    "state_diffs": [
+     0.0,
+     0.0,
+     0.0,
+     -0.03749999999999998,
+     0.0,
+     0.0,
+     0.008333333333333304,
+     0.033333333333333326
+    ],
+    "ci90": [
+     -0.01235034629182583,
+     0.013392012958492494
+    ],
+    "equivalent_within_2.5pp": true,
+    "p_signflip": 1.0
+   },
+   {
+    "g": "oracle_fix_noread",
+    "h": "oracle",
+    "estimate": -0.0015624999999999944,
+    "ci95": [
+     -0.008513771894710781,
+     0.005388771894710791
+    ],
+    "p_perm": null,
+    "se": 0.0029396943846932053,
+    "state_diffs": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.008333333333333304,
+     0.0,
+     0.0,
+     -0.02083333333333326
+    ],
+    "ci90": [
+     -0.007131983247657662,
+     0.0040069832476576734
+    ],
+    "equivalent_within_2.5pp": true,
+    "p_signflip": 1.0
+   },
+   {
+    "g": "oracle_fix_noread",
+    "h": "rrsi",
+    "estimate": 0.002083333333333326,
+    "ci95": [
+     -0.0011416870446753703,
+     0.005308353711342022
+    ],
+    "p_perm": null,
+    "se": 0.0013638618139749474,
+    "state_diffs": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.008333333333333304,
+     0.0,
+     0.008333333333333304,
+     0.0
+    ],
+    "ci90": [
+     -0.0005006106183255161,
+     0.004667277284992168
+    ],
+    "equivalent_within_2.5pp": true,
+    "p_signflip": 0.5
+   },
+   {
+    "g": "rrsi_noread",
+    "h": "none",
+    "estimate": 0.0005208333333333315,
+    "ci95": [
+     -0.013467169758624612,
+     0.014508836425291275
+    ],
+    "p_perm": null,
+    "se": 0.005915529526875285,
+    "state_diffs": [
+     0.0,
+     0.0,
+     0.0,
+     -0.029166666666666674,
+     0.0,
+     0.0,
+     0.0,
+     0.033333333333333326
+    ],
+    "ci90": [
+     -0.010686604682164518,
+     0.011728271348831181
+    ],
+    "equivalent_within_2.5pp": true,
+    "p_signflip": 1.0
+   },
+   {
+    "g": "oracle_fix_noread",
+    "h": "none",
+    "estimate": 0.002083333333333326,
+    "ci95": [
+     -0.0011416870446753703,
+     0.005308353711342022
+    ],
+    "p_perm": null,
+    "se": 0.0013638618139749474,
+    "state_diffs": [
+     0.0,
+     0.0,
+     0.0,
+     0.008333333333333304,
+     0.008333333333333304,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "ci90": [
+     -0.0005006106183255161,
+     0.004667277284992168
+    ],
+    "equivalent_within_2.5pp": true,
+    "p_signflip": 0.5
+   }
+  ],
+  "round_level_means": {
+   "none": -0.001041666666666663,
+   "rrsi": -0.001041666666666663,
+   "first_write": 0.004687499999999997,
+   "binary_search": 0.0,
+   "cf_search": 0.0015624999999999944,
+   "oracle": 0.0026041666666666574,
+   "rrsi_noread": -0.0005208333333333315,
+   "oracle_fix_noread": 0.001041666666666663
+  },
+  "reads": {
+   "rrsi_noread": {
+    "drafts": 16,
+    "failing_read_attempts_per_draft": 1.5,
+    "success_reads_per_draft": 2.31
+   },
+   "oracle_fix_noread": {
+    "drafts": 16,
+    "failing_read_attempts_per_draft": 2.0,
+    "success_reads_per_draft": 3.5
+   },
+   "rrsi": {
+    "drafts": 16,
+    "failing_read_attempts_per_draft": 12.75,
+    "success_reads_per_draft": 0.31
+   },
+   "oracle": {
+    "drafts": 16,
+    "failing_read_attempts_per_draft": 18.44,
+    "success_reads_per_draft": 0.5
+   }
+  },
+  "slots": [
+   {
+    "group": "rrsi_noread",
+    "state": "r2_tau2_retail_t5",
+    "variant": "A",
+    "commit": "802852b",
+    "gate": null,
+    "evolve_S": 0.8986486486486487,
+    "evolve_C": 76566.8581081081,
+    "error_rate": 0.0,
+    "accepted": false,
+    "G": 0.0
+   },
+   {
+    "group": "rrsi_noread",
+    "state": "r2_tau2_retail_t5",
+    "variant": "B",
+    "commit": "944d60c",
+    "gate": null,
+    "evolve_S": 0.918918918918919,
+    "evolve_C": 82488.32432432432,
+    "error_rate": 0.0,
+    "accepted": false,
+    "G": 0.0
+   },
+   {
+    "group": "oracle_fix_noread",
+    "state": "r2_tau2_retail_t5",
+    "variant": "A",
+    "commit": "1b214c3",
+    "gate": null,
+    "evolve_S": 0.8783783783783784,
+    "evolve_C": 75728.25,
+    "error_rate": 0.0,
+    "accepted": false,
+    "G": 0.008333333333333304
+   },
+   {
+    "group": "oracle_fix_noread",
+    "state": "r2_tau2_retail_t5",
+    "variant": "B",
+    "commit": null,
+    "gate": "no_proposal",
+    "accepted": false,
+    "G": 0.0
+   },
+   {
+    "group": "rrsi_noread",
+    "state": "r2_tau2_retail_t15",
+    "variant": "A",
+    "commit": "4266aec",
+    "gate": null,
+    "evolve_S": 0.918918918918919,
+    "evolve_C": 75808.99324324324,
+    "error_rate": 0.0,
+    "accepted": false,
+    "G": -0.004166666666666652
+   },
+   {
+    "group": "rrsi_noread",
+    "state": "r2_tau2_retail_t15",
+    "variant": "B",
+    "commit": null,
+    "gate": "critic_reject",
+    "accepted": false,
+    "G": 0.0
+   },
+   {
+    "group": "oracle_fix_noread",
+    "state": "r2_tau2_retail_t15",
+    "variant": "A",
+    "commit": "f42cc26",
+    "gate": null,
+    "evolve_S": 0.8378378378378378,
+    "evolve_C": 85949.9054054054,
+    "error_rate": 0.0,
+    "accepted": false,
+    "G": -0.04166666666666663
+   },
+   {
+    "group": "oracle_fix_noread",
+    "state": "r2_tau2_retail_t15",
+    "variant": "B",
+    "commit": null,
+    "gate": "critic_reject",
+    "accepted": false,
+    "G": 0.0
+   },
+   {
+    "group": "rrsi_noread",
+    "state": "r2_tau2_airline_t5",
+    "variant": "A",
+    "commit": "660a654",
+    "gate": null,
+    "evolve_S": 0.7666666666666667,
+    "evolve_C": 66348.4,
+    "error_rate": 0.0,
+    "accepted": false,
+    "G": 0.0
+   },
+   {
+    "group": "rrsi_noread",
+    "state": "r2_tau2_airline_t5",
+    "variant": "B",
+    "commit": "b9283a5",
+    "gate": null,
+    "evolve_S": 0.75,
+    "evolve_C": 65027.05,
+    "error_rate": 0.0,
+    "accepted": false,
+    "G": 0.02083333333333337
+   },
+   {
+    "group": "oracle_fix_noread",
+    "state": "r2_tau2_airline_t5",
+    "variant": "A",
+    "commit": "28c032c",
+    "gate": null,
+    "evolve_S": 0.8166666666666667,
+    "evolve_C": 68673.06666666667,
+    "error_rate": 0.0,
+    "accepted": false,
+    "G": 0.012499999999999956
+   },
+   {
+    "group": "oracle_fix_noread",
+    "state": "r2_tau2_airline_t5",
+    "variant": "B",
+    "commit": "26ddb03",
+    "gate": null,
+    "evolve_S": 0.8166666666666667,
+    "evolve_C": 79527.31666666667,
+    "error_rate": 0.0,
+    "accepted": false,
+    "G": 0.008333333333333304
+   },
+   {
+    "group": "rrsi_noread",
+    "state": "r2_tau2_airline_t15",
+    "variant": "A",
+    "commit": "cc322ea",
+    "gate": null,
+    "evolve_S": 0.7666666666666667,
+    "evolve_C": 70019.73333333334,
+    "error_rate": 0.0,
+    "accepted": false,
+    "G": -0.008333333333333304
+   },
+   {
+    "group": "rrsi_noread",
+    "state": "r2_tau2_airline_t15",
+    "variant": "B",
+    "commit": "5da66b1",
+    "gate": null,
+    "evolve_S": 0.8333333333333334,
+    "evolve_C": 64986.933333333334,
+    "error_rate": 0.0,
+    "accepted": true,
+    "G": -0.03749999999999998
+   },
+   {
+    "group": "oracle_fix_noread",
+    "state": "r2_tau2_airline_t15",
+    "variant": "A",
+    "commit": "1631691",
+    "gate": null,
+    "evolve_S": 0.85,
+    "evolve_C": 69084.63333333333,
+    "error_rate": 0.0,
+    "accepted": false,
+    "G": 0.0
+   },
+   {
+    "group": "oracle_fix_noread",
+    "state": "r2_tau2_airline_t15",
+    "variant": "B",
+    "commit": "37a952d",
+    "gate": null,
+    "evolve_S": 0.8166666666666667,
+    "evolve_C": 83727.61666666667,
+    "error_rate": 0.0,
+    "accepted": false,
+    "G": -0.03749999999999998
+   },
+   {
+    "group": "rrsi_noread",
+    "state": "r3_tau2_retail_t5",
+    "variant": "A",
+    "commit": "aef4485",
+    "gate": null,
+    "evolve_S": 0.8716216216216216,
+    "evolve_C": 76227.21621621621,
+    "error_rate": 0.0,
+    "accepted": false,
+    "G": -0.029166666666666674
+   },
+   {
+    "group": "rrsi_noread",
+    "state": "r3_tau2_retail_t5",
+    "variant": "B",
+    "commit": "a6d2548",
+    "gate": null,
+    "evolve_S": 0.8783783783783784,
+    "evolve_C": 74833.98648648648,
+    "error_rate": 0.0,
+    "accepted": false,
+    "G": -0.012500000000000067
+   },
+   {
+    "group": "oracle_fix_noread",
+    "state": "r3_tau2_retail_t5",
+    "variant": "A",
+    "commit": "c04c90f",
+    "gate": null,
+    "evolve_S": 0.9459459459459459,
+    "evolve_C": 76444.1081081081,
+    "error_rate": 0.0,
+    "accepted": true,
+    "G": 0.008333333333333304
+   },
+   {
+    "group": "oracle_fix_noread",
+    "state": "r3_tau2_retail_t5",
+    "variant": "B",
+    "commit": "ab769e8",
+    "gate": null,
+    "evolve_S": 0.8986486486486487,
+    "evolve_C": 75579.70945945945,
+    "error_rate": 0.0,
+    "accepted": false,
+    "G": 0.016666666666666607
+   },
+   {
+    "group": "rrsi_noread",
+    "state": "r3_tau2_retail_t15",
+    "variant": "A",
+    "commit": "91d616b",
+    "gate": null,
+    "evolve_S": 0.8986486486486487,
+    "evolve_C": 76848.8581081081,
+    "error_rate": 0.0,
+    "accepted": false,
+    "G": 0.012500000000000067
+   },
+   {
+    "group": "rrsi_noread",
+    "state": "r3_tau2_retail_t15",
+    "variant": "B",
+    "commit": null,
+    "gate": "critic_reject",
+    "accepted": false,
+    "G": 0.0
+   },
+   {
+    "group": "oracle_fix_noread",
+    "state": "r3_tau2_retail_t15",
+    "variant": "A",
+    "commit": "ad67925",
+    "gate": null,
+    "evolve_S": 0.8851351351351351,
+    "evolve_C": 79739.18243243243,
+    "error_rate": 0.0,
+    "accepted": false,
+    "G": 0.04166666666666674
+   },
+   {
+    "group": "oracle_fix_noread",
+    "state": "r3_tau2_retail_t15",
+    "variant": "B",
+    "commit": null,
+    "gate": "critic_reject",
+    "accepted": false,
+    "G": 0.0
+   },
+   {
+    "group": "rrsi_noread",
+    "state": "r3_tau2_airline_t5",
+    "variant": "A",
+    "commit": "8e25330",
+    "gate": null,
+    "evolve_S": 0.7166666666666667,
+    "evolve_C": 61599.75,
+    "error_rate": 0.0,
+    "accepted": false,
+    "G": -0.02083333333333326
+   },
+   {
+    "group": "rrsi_noread",
+    "state": "r3_tau2_airline_t5",
+    "variant": "B",
+    "commit": "c49377e",
+    "gate": null,
+    "evolve_S": 0.65,
+    "evolve_C": 66757.38333333333,
+    "error_rate": 0.0,
+    "accepted": false,
+    "G": -0.012499999999999956
+   },
+   {
+    "group": "oracle_fix_noread",
+    "state": "r3_tau2_airline_t5",
+    "variant": "A",
+    "commit": "2ab7f93",
+    "gate": null,
+    "evolve_S": 0.6,
+    "evolve_C": 84060.06666666667,
+    "error_rate": 0.0,
+    "accepted": false,
+    "G": -0.016666666666666607
+   },
+   {
+    "group": "oracle_fix_noread",
+    "state": "r3_tau2_airline_t5",
+    "variant": "B",
+    "commit": null,
+    "gate": "critic_reject",
+    "accepted": false,
+    "G": 0.0
+   },
+   {
+    "group": "rrsi_noread",
+    "state": "r3_tau2_airline_t15",
+    "variant": "A",
+    "commit": "8f532b7",
+    "gate": null,
+    "evolve_S": 0.7,
+    "evolve_C": 59883.95,
+    "error_rate": 0.0,
+    "accepted": true,
+    "G": 0.033333333333333326
+   },
+   {
+    "group": "rrsi_noread",
+    "state": "r3_tau2_airline_t15",
+    "variant": "B",
+    "commit": "d879391",
+    "gate": null,
+    "evolve_S": 0.7166666666666667,
+    "evolve_C": 63515.46666666667,
+    "error_rate": 0.0,
+    "accepted": false,
+    "G": -0.004166666666666652
+   },
+   {
+    "group": "oracle_fix_noread",
+    "state": "r3_tau2_airline_t15",
+    "variant": "A",
+    "commit": null,
+    "gate": "smoke_fail",
+    "accepted": false,
+    "G": 0.0
+   },
+   {
+    "group": "oracle_fix_noread",
+    "state": "r3_tau2_airline_t15",
+    "variant": "B",
+    "commit": null,
+    "gate": "smoke_fail",
+    "accepted": false,
+    "G": 0.0
+   }
+  ]
+ }
+}

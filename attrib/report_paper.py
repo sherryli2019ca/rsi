@@ -16,7 +16,8 @@ truth and traces for the kinds of decisive step. Writes:
                (attrib/phaseb_analyze.py); R-hat of each group's pointers on Phase
                B's own failures (phaseB_accuracy.json, attrib/phaseb_accuracy.py)
                and the post hoc oracle-pointer group (phaseB_oracle.json,
-               attrib/phaseb_oracle.py) when present
+               attrib/phaseb_oracle.py) and no-reading groups (phaseB_review3.json,
+               attrib/phaseb_review3.py --noread) when present
   robustness.tex, nullpos.tex  the ranking under other ground-truth choices and
                null-replay success by step position, from
                results/attrib/phaseA_robustness.json (attrib/robustness.py)
@@ -60,6 +61,7 @@ PB_GROUPS = [("none", "No attribution"), ("rrsi", "RRSI analysis"), ("first_writ
 PB_DEFAULT = Path(__file__).resolve().parents[1] / "results" / "attrib" / "phaseB_analysis.json"
 PB_ACC_DEFAULT = PB_DEFAULT.with_name("phaseB_accuracy.json")
 PB_ORACLE_DEFAULT = PB_DEFAULT.with_name("phaseB_oracle.json")
+PB_R3_DEFAULT = PB_DEFAULT.with_name("phaseB_review3.json")
 ROB_DEFAULT = Path(__file__).resolve().parents[1] / "results" / "attrib" / "phaseA_robustness.json"
 ROB_ROWS = [("main", "Registered"), ("K=2", "$K=2$"), ("K=1", "$K=1$"),
             ("threshold 0.25", "$\\theta=0.25$"), ("threshold 0.375", "$\\theta=0.375$"),
@@ -70,6 +72,15 @@ GOLD_DEFAULT = ROB_DEFAULT.with_name("phaseA_gold_rule.json")
 REVIEW2_DEFAULT = ROB_DEFAULT.with_name("phaseA_review2.json")
 ORIG_DEFAULT = ROB_DEFAULT.with_name("phaseA_orig_control.json")
 SECOND_DEFAULT = ROB_DEFAULT.with_name("phaseA_second_oracle.json")
+ADMISS_DEFAULT = ROB_DEFAULT.with_name("phaseA_admissibility.json")
+FACTORIAL_DEFAULT = ROB_DEFAULT.with_name("phaseA_factorial.json")
+POSTHOC_ROWS = [("all_at_once_gain_pro", "All-at-once, gain", "Pro"),
+                ("binary_search_gain_pro", "Binary search, gain", "Pro"),
+                ("all_at_once_blind_pro", "All-at-once, no grading", "Pro"),
+                ("binary_search_blind_pro", "Binary search, no grading", "Pro"),
+                ("search@0", "CF search@0", "Pro"),
+                ("search_inf@0", "CF search@0, grading", "Pro"),
+                ("search_inf@40", "CF search@40, grading", "Pro, replays")]
 VARIANT_ROWS = [("all_at_once_flash", "All-at-once, Flash", ("rescue", "gain")),
                 ("all_at_once_pro", "All-at-once, Pro", ("rescue", "gain", "blind")),
                 ("binary_search_pro", "Binary search, Pro", ("rescue", "gain", "blind"))]
@@ -77,7 +88,13 @@ GOLD_ROWS = [("gold_deviation", "Gold deviation (rule)"), ("first_write", "First
              ("all_at_once_pro", "All-at-once, Pro"), ("binary_search_pro", "Binary search, Pro"),
              ("search@40", "Counterfactual search@40")]
 PB_X = {g: i + 1 for i, (g, _) in enumerate([("none", 0), ("rrsi", 0), ("first_write", 0),
-                                             ("binary_search", 0), ("cf_search", 0), ("oracle", 0)])}
+                                             ("binary_search", 0), ("cf_search", 0), ("oracle", 0),
+                                             ("rrsi_noread", 0), ("oracle_fix_noread", 0)])}
+PB_NOREAD = [("rrsi_noread", "RRSI analysis, no reading", "rrsi"),
+             ("oracle_fix_noread", "Oracle fix, no reading", "oracle")]   # post hoc, like the oracle group
+PB_NOREAD_CONTRASTS = [("oracle_fix_noread", "rrsi_noread", "Oracle fix $-$ RRSI, no reading"),
+                       ("rrsi_noread", "rrsi", "RRSI: no reading $-$ reading"),
+                       ("oracle_fix_noread", "oracle", "Oracle fix, no reading $-$ oracle step")]
 PB_CLIP = -0.25
 T975_DF7 = 2.364624
 
@@ -154,7 +171,7 @@ def _state_contrast(rows: list[dict], g: str, h: str) -> dict:
 
 
 def robustness_tables(path: Path, out: Path, review2: Path | None = None, orig: Path | None = None,
-                      second: Path | None = None) -> dict:
+                      second: Path | None = None, admiss: Path | None = None) -> dict:
     R = json.loads(path.read_text())
     V = {v["variant"]: v for v in R["variants"]}
     short = {m: (name if model in ("rule", "Pro", "Pro, replays") else f"{name}, {model}")
@@ -183,6 +200,25 @@ def robustness_tables(path: Path, out: Path, review2: Path | None = None, orig: 
             lines.append(" & ".join([label, f"{sum(v['n_rescuable'].values())}", _f(v["mean"]["first_write"]),
                                      f"{short[v['best_llm']]} {_f(v['mean'][v['best_llm']])}",
                                      f"{v['first_write_rank']}", _f(v["kendall_tau_vs_registered"])]) + " \\\\")
+    if admiss is not None and admiss.exists():
+        A = json.loads(admiss.read_text())
+        v = A["rescored"]["unseen_id_or_expanded"]
+        lines.append(" & ".join(["Flagged corrections dropped", f"{sum(v['n_rescuable'].values())}",
+                                 _f(v["mean"]["first_write"]), f"{short[v['best_llm']]} {_f(v['mean'][v['best_llm']])}",
+                                 f"{v['first_write_rank']}", _f(v["kendall_tau_vs_registered"])]) + " \\\\")
+        rl = []
+        for d in DOMAINS:
+            r = A["rates"][d]
+            c = A["calls"][d]
+            rl.append(" & ".join([DNAME[d], f"{r['n']:,}".replace(",", "{,}"), f"{100 * r['unseen_id']:.1f}",
+                                  f"{100 * r['unseen_any']:.1f}", f"{100 * r['expanded']:.1f}",
+                                  f"{100 * r['strict']:.1f}", f"{c['obs_mean']:.2f} / {c['corr_mean']:.2f}"]) + " \\\\")
+        r = A["rates_decisive_step"]
+        rl.append("\\midrule")
+        rl.append(" & ".join(["At best rescue steps", f"{r['n']}", f"{100 * r['unseen_id']:.1f}",
+                              f"{100 * r['unseen_any']:.1f}", f"{100 * r['expanded']:.1f}",
+                              f"{100 * r['strict']:.1f}", ""]) + " \\\\")
+        (out / "admissibility.tex").write_text("\n".join(rl) + "\n")
     (out / "robustness.tex").write_text("\n".join(lines) + "\n")
     names = {"tau2_retail": "Retail", "tau2_airline": "Airline", "appworld": "AppWorld"}
     marks = {"tau2_retail": "*", "tau2_airline": "square*", "appworld": "triangle*"}
@@ -262,7 +298,7 @@ def decomp_tables(path: Path, out: Path) -> dict:
         v = D["named"][m]
         lines.append(" & ".join([name, model, _f(v["proposal_share"]), _f(v["conditional_gain"]), _f(v["R"])]) + " \\\\")
     v = D["named"]["decisive"]
-    lines += ["\\midrule", " & ".join(["Decisive step", "", _f(v["proposal_share"]), _f(v["conditional_gain"]),
+    lines += ["\\midrule", " & ".join(["Best rescue step", "", _f(v["proposal_share"]), _f(v["conditional_gain"]),
                                         _f(v["R"])]) + " \\\\"]
     (out / "decomp.tex").write_text("\n".join(lines) + "\n")
     order = {"tau2_retail": ["utterance", "read", "write"], "tau2_airline": ["utterance", "read", "write"],
@@ -277,16 +313,21 @@ def decomp_tables(path: Path, out: Path) -> dict:
     return D
 
 
-def phaseb_tables(path: Path, out: Path, accuracy: Path | None = None, oracle: Path | None = None) -> dict:
+def phaseb_tables(path: Path, out: Path, accuracy: Path | None = None, oracle: Path | None = None,
+                  review3: Path | None = None) -> dict:
     """accuracy: attrib.phaseb_accuracy output (R-hat of each group's pointers on
     Phase B's own rescuable failures); oracle: attrib.phaseb_oracle output (the
-    post hoc oracle-pointer group), added below a rule when present."""
+    post hoc oracle-pointer group), added below a rule when present; review3:
+    attrib.phaseb_review3 --noread output (the post hoc no-reading groups), added
+    after the oracle group when it holds them."""
     B = json.loads(path.read_text())
+    R3 = json.loads(review3.read_text()) if review3 is not None and review3.exists() else {}
+    NR = R3.get("noread")
     S = B["secondary"]
     acc, rl = S["S7_phase_a_accuracy"], S["S4_round_level_means"]
     own = json.loads(accuracy.read_text())["groups"] if accuracy is not None and accuracy.exists() else None
     O = json.loads(oracle.read_text()) if oracle is not None and oracle.exists() else None
-    groups = list(PB_GROUPS) + ([("oracle", "Oracle step (post hoc)")] if O else [])
+    groups = list(PB_GROUPS) + ([("oracle", "Oracle step")] if O else [])
     lines = []
     for g, name in groups:
         v = (O["groups"] if g == "oracle" else B["groups"])[g]
@@ -306,6 +347,16 @@ def phaseb_tables(path: Path, out: Path, accuracy: Path | None = None, oracle: P
         if g == "oracle":
             lines.append("\\midrule")
         lines.append(" & ".join(cells) + " \\\\")
+    for g, name, ptr in (PB_NOREAD if NR else []):
+        v = NR["groups"][g]
+        pa = " / ".join(_f(own[ptr]["R"][d]) for d in ("tau2_retail", "tau2_airline")) if own is not None else "--"
+        dep = v["mean_G_deployable"]
+        cells = [name, pa, f"{v['deployable']}/{v['slots']}", _pp(v["mean_G"]),
+                 _pp(v["by_domain"]["tau2_retail"]), _pp(v["by_domain"]["tau2_airline"]),
+                 _pp(dep) if dep is not None else "--",
+                 f"{v['share_positive_deployable']:.0%}".replace("%", "\\%") if dep is not None else "--",
+                 str(v["accepted_by_rrsi"]), _pp(NR["round_level_means"][g])]
+        lines.append(" & ".join(cells) + " \\\\")
     (out / "phaseb_groups.tex").write_text("\n".join(lines) + "\n")
 
     name = {**dict(PB_GROUPS), "cf_search": "CF search@40", "none": "none", "rrsi": "RRSI"}
@@ -322,13 +373,24 @@ def phaseb_tables(path: Path, out: Path, accuracy: Path | None = None, oracle: P
         lines.append(" & ".join(cells) + " \\\\")
     if O:
         lines.append("\\midrule")
-        for h, label in (("rrsi", "Oracle $-$ RRSI"), ("none", "Oracle $-$ none"), ("steps", "Oracle $-$ step groups")):
+        for h, label in (("rrsi", "Oracle $-$ RRSI"), ("steps", "Oracle $-$ step groups")) if NR else \
+                (("rrsi", "Oracle $-$ RRSI"), ("none", "Oracle $-$ none"), ("steps", "Oracle $-$ step groups")):
             c = O["slot_level_vs_step_groups"] if h == "steps" else O["slot_level"][h]
             r = O["round_level"].get(h)
-            cells = [label + " (post hoc)",
+            cells = [label,
                      f"{_pp(c['estimate'])} {{\\scriptsize [{_pp(c['ci95'][0])}, {_pp(c['ci95'][1])}]}}",
                      f"{c['p_perm']:.2f}", "--", "yes" if c["equivalent_within_2.5pp"] else "no",
                      f"{_pp(r['estimate'])} {{\\scriptsize [{_pp(r['ci95'][0])}, {_pp(r['ci95'][1])}]}}" if r else "--"]
+            lines.append(" & ".join(cells) + " \\\\")
+    if NR:
+        sl = {(c["g"], c["h"]): c for c in NR["slot_level"]}
+        rl3 = {(c["g"], c["h"]): c for c in NR["round_level"]}
+        for g, h, label in PB_NOREAD_CONTRASTS:
+            c, r = sl[(g, h)], rl3[(g, h)]
+            cells = [label,
+                     f"{_pp(c['estimate'])} {{\\scriptsize [{_pp(c['ci95'][0])}, {_pp(c['ci95'][1])}]}}",
+                     f"{c['p_perm']:.2f}", "--", "yes" if c["equivalent_within_2.5pp"] else "no",
+                     f"{_pp(r['estimate'])} {{\\scriptsize [{_pp(r['ci95'][0])}, {_pp(r['ci95'][1])}]}}"]
             lines.append(" & ".join(cells) + " \\\\")
     (out / "phaseb_contrasts.tex").write_text("\n".join(lines) + "\n")
 
@@ -337,7 +399,8 @@ def phaseb_tables(path: Path, out: Path, accuracy: Path | None = None, oracle: P
     for acc, style in ((False, "mark=o, gray"), (True, "mark=*, black")):
         pts = []
         states = sorted({x["state"] for x in B["slots"]})
-        for r in (x for x in B["slots"] + (O["slots"] if O else []) if x["gate"] is None and x["accepted"] == acc):
+        extra = (O["slots"] if O else []) + (NR["slots"] if NR else [])
+        for r in (x for x in B["slots"] + extra if x["gate"] is None and x["accepted"] == acc):
             jit = (2 * states.index(r["state"]) + (r["variant"] == "B") - 7.5) * 0.025
             pts.append(f"({PB_X[r['group']] + jit:.2f},{max(r['G'], PB_CLIP) * 100:.2f})")
         lines.append(f"\\addplot[only marks, {style}, mark size=1.5pt] coordinates {{{' '.join(pts)}}};")
@@ -369,21 +432,26 @@ def main():
     ap.add_argument("--phaseb", default=str(PB_DEFAULT))
     ap.add_argument("--phaseb-accuracy", default=str(PB_ACC_DEFAULT))
     ap.add_argument("--phaseb-oracle", default=str(PB_ORACLE_DEFAULT))
+    ap.add_argument("--phaseb-review3", default=str(PB_R3_DEFAULT))
     ap.add_argument("--robustness", default=str(ROB_DEFAULT))
     ap.add_argument("--rescue-prompt", default=str(RESCUE_DEFAULT))
     ap.add_argument("--gold-rule", default=str(GOLD_DEFAULT))
     ap.add_argument("--review2", default=str(REVIEW2_DEFAULT))
     ap.add_argument("--orig-control", default=str(ORIG_DEFAULT))
     ap.add_argument("--second-oracle", default=str(SECOND_DEFAULT))
+    ap.add_argument("--factorial", default=str(FACTORIAL_DEFAULT))
+    ap.add_argument("--admissibility", default=str(ADMISS_DEFAULT))
     ap.add_argument("--out", default=str(Path(__file__).resolve().parents[1] / "paper2" / "tables"))
     ap.add_argument("--whowhen", default="/mnt/project-files/results/attrib/whowhen_scores.json")
     args = ap.parse_args()
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
-    pb = phaseb_tables(Path(args.phaseb), out, Path(args.phaseb_accuracy), Path(args.phaseb_oracle)) \
+    pb = phaseb_tables(Path(args.phaseb), out, Path(args.phaseb_accuracy), Path(args.phaseb_oracle),
+                       Path(args.phaseb_review3)) \
         if Path(args.phaseb).exists() else None
     rob = robustness_tables(Path(args.robustness), out, Path(args.review2), Path(args.orig_control),
-                            Path(args.second_oracle)) if Path(args.robustness).exists() else None
+                            Path(args.second_oracle), Path(args.admissibility)) \
+        if Path(args.robustness).exists() else None
     var = variant_tables(Path(args.rescue_prompt), Path(args.gold_rule), out)
     var["decomposition"] = decomp_tables(Path(args.review2), out)
     if not args.main:
@@ -404,6 +472,15 @@ def main():
         cells += [_ci(P["methods"][m]["R_rescuable"]), _f(P["methods"][m]["exact"][0]),
                   f"{sum(A[d]['methods'][m]['dollars_per_failure'] for d in DOMAINS) / 3:.4f}"]
         lines.append(" & ".join(cells) + " \\\\")
+    fac = Path(args.factorial)
+    if fac.exists():
+        F = json.loads(fac.read_text())["methods"]
+        lines += ["\\midrule", "\\multicolumn{8}{l}{\\emph{Post hoc variants}} \\\\"]
+        for m, name, model in POSTHOC_ROWS:
+            cells = [name, model] + [_ci(F[m]["R"][d]) for d in DOMAINS]
+            cells += [_ci(F[m]["R"]["pooled"]), _f(F[m]["exact"]), f"{F[m]['dollars_per_failure']:.4f}"]
+            lines.append(" & ".join(cells) + " \\\\")
+        summary["posthoc_rows"] = {m: F[m] for m, _, _ in POSTHOC_ROWS}
     (out / "main.tex").write_text("\n".join(lines) + "\n")
     summary["methods"] = {m: {"pooled": P["methods"][m]["R_rescuable"], "exact": P["methods"][m]["exact"],
                               **{d: A[d]["methods"][m]["R_rescuable"] for d in DOMAINS},

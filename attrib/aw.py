@@ -193,23 +193,29 @@ def first_write(rec, model=None):
 
 
 # ------------------------------------------------------------------ search --
-def search_system(n_suspects: int, comp_text: str) -> str:
-    return """An autonomous code agent on AppWorld failed its task: the supervisor's task was \
-not done as its unit tests require. You see what the agent is, the rules of its prompt, the \
-apps' APIs and the agent's steps; you do not know what the correct outcome was.
+def search_system(n_suspects: int, comp_text: str, informed: bool = False) -> str:
+    seen = ("the apps' APIs, the agent's steps and the task's grading (every unit test must pass; "
+            "the failed tests show the expected values), so you know what the correct outcome was"
+            if informed else "the apps' APIs and the agent's steps; you do not know what the correct "
+            "outcome was")
+    rule = ("using only what the agent knew at that point: use the grading only to know what the "
+            "right outcome is, never to supply ids, values or answers the agent had not yet learned"
+            if informed else "using only what the agent knew at that point")
+    return (("""An autonomous code agent on AppWorld failed its task: the supervisor's task was \
+not done as its unit tests require. You see what the agent is, the rules of its prompt, """ + seen + """.
 
 Name the steps where the agent most likely went wrong, most suspect first (at most %d). For \
 each, give the single action a careful agent would have taken at that step instead (one \
-assistant turn: a short thought and the python code to run, using only what the agent knew \
-at that point) and the harness component most likely at fault.
+assistant turn: a short thought and the python code to run, """ + rule + """) and the harness \
+component most likely at fault.
 
 Harness components:
 %s
 
 Answer with JSON:
 {"suspects": [{"step": <int>, "why": "<one sentence>", "component": "<component>",
-  "action": {"thought": "<one or two sentences>", "code": "<the python code, without markdown fences>"}}]}""" % (
-        n_suspects, comp_text)
+  "action": {"thought": "<one or two sentences>", "code": "<the python code, without markdown fences>"}}]}""") % (
+        n_suspects, comp_text))
 
 
 def search_prompt(rec: dict) -> str:

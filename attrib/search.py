@@ -24,6 +24,14 @@ With --domain appworld (Addendum 2 of attrib/PREREGISTRATION.md): the suspect
 call sees attrib.aw's context and the failed episode without its grading, an
 action is one assistant turn with a python block, replays use the AppWorld
 driver; the search itself is unchanged.
+
+With --informed (post hoc, third review of paper 2): the suspect call also sees
+what the judges see (tau2: the customer's hidden instructions and the grading,
+i.e. attrib.methods.view; AppWorld: the grading, attrib.aw.view), with the
+oracle's rule that the grading may only say what the right outcome is, never
+supply ids or values the agent had not learned; replays and the search are
+unchanged. With search@0 (the first suspect) this completes a 2x2 of replays x
+grading information.
 """
 from __future__ import annotations
 
@@ -63,6 +71,32 @@ Answer with JSON:
     SUSPECTS, COMP_TEXT)
 
 
+SYSTEM_INFORMED = """A customer-service agent on tau2-bench failed its task: the customer's request \
+was not resolved as the domain policy requires. You see the domain policy, the agent's tools, the \
+customer's hidden instructions, the conversation and the grading (the gold actions and the \
+information the agent had to give), so you know what the correct outcome was.
+
+Name the steps where the agent most likely went wrong, most suspect first (at most %d). For \
+each, give the single action a careful agent would have taken at that step instead (one \
+assistant turn: a message to the user or one or more tool calls, using only what the agent \
+knew at that point: use the grading only to know what the right outcome is, never to supply \
+ids, amounts or facts the agent had not yet learned) and the harness component most likely at \
+fault.
+
+Harness components:
+%s
+
+Answer with JSON:
+{"suspects": [{"step": <int>, "why": "<one sentence>", "component": "<component>",
+  "action": {"message": "<text>"} | {"tool_calls": [{"name": "<tool>", "arguments": {...}}]}}]}""" % (
+    SUSPECTS, COMP_TEXT)
+
+
+def prompt_informed(rec: dict) -> str:
+    from attrib.methods import view
+    return "=== FAILED CONVERSATION WITH ITS GRADING ===\n" + view(rec)
+
+
 def prompt(rec: dict) -> str:
     conv = [f"user (opening): {rec['opening']}"]
     for st in rec["steps"]:
@@ -70,15 +104,18 @@ def prompt(rec: dict) -> str:
     return "=== FAILED CONVERSATION ===\n" + "\n".join(conv)
 
 
-def suspects(fails: list, sdir: Path, m, workers: int) -> None:
+def suspects(fails: list, sdir: Path, m, workers: int, informed: bool = False) -> None:
     """m: the tau2 environment module, or None for AppWorld (attrib.aw)."""
     from rrsi.llm import generate
     if m is None:
         from attrib import aw
         ctx, comps, make_prompt, force_of = aw.context(), aw.COMPONENTS, aw.search_prompt, aw.to_force
-        system = aw.search_system(SUSPECTS, "\n".join(f"- {k}: {v}" for k, v in comps.items()))
+        system = aw.search_system(SUSPECTS, "\n".join(f"- {k}: {v}" for k, v in comps.items()), informed)
+        if informed:
+            make_prompt = lambda rec: "=== FAILED EPISODE WITH ITS GRADING ===\n" + aw.view(rec)  # noqa: E731
     else:
-        ctx, comps, make_prompt, system = _context(m), COMPONENTS, prompt, SYSTEM
+        ctx, comps = _context(m), COMPONENTS
+        make_prompt, system = (prompt_informed, SYSTEM_INFORMED) if informed else (prompt, SYSTEM)
         names = {t["name"] for t in m.tool_defs(m.BASE_COMPONENTS)}
         force_of = lambda action: to_blocks(action, names)  # noqa: E731
 
@@ -177,9 +214,9 @@ def answer_at(sus: list, log: list, budget: int) -> dict:
 
 
 def run(fails: list, out: Path, dom: str, m, budget: int, workers: int,
-        replay_workers: int | None = None) -> None:
+        replay_workers: int | None = None, informed: bool = False) -> None:
     sdir, rdir = out / "suspects", out / "replays"
-    suspects(fails, sdir, m, workers)
+    suspects(fails, sdir, m, workers, informed)
     if dom == "appworld":
         from attrib.aw import drive
     else:
@@ -207,6 +244,8 @@ def main():
     ap.add_argument("--budget", type=int, default=BUDGET)
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--replay-workers", type=int, default=None)
+    ap.add_argument("--informed", action="store_true",
+                    help="the suspect call also sees the hidden instructions and grading (post hoc)")
     args = ap.parse_args()
     if args.domain == "appworld":
         dom, m = "appworld", None
@@ -218,7 +257,7 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     os.environ.setdefault("RRSI_USAGE_LOG", str(out / "usage.jsonl"))
     run(json.loads(Path(args.failures).read_text()), out, dom, m, args.budget, args.workers,
-        args.replay_workers)
+        args.replay_workers, args.informed)
 
 
 if __name__ == "__main__":
