@@ -392,15 +392,19 @@ def audit_sample(rows: list[dict], data: dict, n_per_domain: int, seed: int) -> 
 
 def write_audit(sample: list[dict], data: dict, adir: Path) -> None:
     adir.mkdir(parents=True, exist_ok=True)
-    md = ["# Audit of oracle corrections (paper 2, review 3)", "",
+    md = ["# Audit of oracle corrections (paper 2)", "",
           "For each item: the task, the conversation or episode before the step (last steps only), "
-          "the agent's observed action, and the oracle's correction. Answer in audit_sheet.csv:",
+          "the agent's observed action, and the oracle's correction. Answer in audit_sheet.csv. Answer Q2 "
+          "before reading the oracle's reason, which may mention the grading.",
           "",
           "- **Q1 information**: does the correction use any id, value or fact the agent had not seen "
           "before this step and could not get from the policy or the tool/API documentation? (yes/no)",
-          "- **Q2 scope**: does the correction do substantially more than one careful step, for example "
+          "- **Q2 justified by what the agent could see**: without knowing how the task is graded, would a "
+          "careful agent have good reason, from the conversation or episode so far and the policy, to take "
+          "this action rather than the observed one? (yes/no/unclear)",
+          "- **Q3 scope**: does the correction do substantially more than one careful step, for example "
           "several actions the agent would normally take over several turns? (yes/no)",
-          "- **Q3 valid**: is the correction a step a careful agent following the policy could take here? (yes/no)",
+          "- **Q4 policy**: is the correction a step a careful agent following the policy could take here? (yes/no)",
           "", "The mechanical flags are hidden here so that they do not prime the audit.", ""]
     sheet = []
     for n, r in enumerate(sample, 1):
@@ -413,7 +417,8 @@ def write_audit(sample: list[dict], data: dict, adir: Path) -> None:
                "", "**Oracle's correction**", "", "```", str(corr), "```", "",
                f"Oracle's reason: {r['why']}", ""]
         sheet.append({"item": item, "domain": d, "fid": r["fid"], "step": r["k"], "sample": r["i"],
-                      "Q1_unavailable_info": "", "Q2_too_much_work": "", "Q3_valid_step": "", "note": ""})
+                      "Q1_unavailable_info": "", "Q2_justified_by_visible_prefix": "", "Q3_too_much_work": "",
+                      "Q4_policy_valid": "", "note": ""})
     (adir / "audit_items.md").write_text("\n".join(md))
     with open(adir / "audit_sheet.csv", "w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=list(sheet[0]))

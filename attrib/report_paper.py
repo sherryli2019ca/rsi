@@ -191,7 +191,7 @@ def robustness_tables(path: Path, out: Path, review2: Path | None = None, orig: 
                                  f"{sp['first_write_rank']:.0f}", _f(sp["kendall_tau_vs_main"])]) + " \\\\")
     if orig is not None and orig.exists():
         o = json.loads(orig.read_text())
-        lines.append(" & ".join(["Observed action as control", f"{o['n_failures']}", _f(o["mean"]["first_write"]),
+        lines.append(" & ".join(["Observed action as control", f"{o['n_failures']}$^\\dagger$", _f(o["mean"]["first_write"]),
                                  f"{short[o['best_llm']]} {_f(o['mean'][o['best_llm']])}",
                                  f"{o['first_write_rank']}", _f(o["kendall_tau_vs_main"])]) + " \\\\")
     if second is not None and second.exists():
@@ -223,7 +223,7 @@ def robustness_tables(path: Path, out: Path, review2: Path | None = None, orig: 
     if review4 is not None and review4.exists() and "blind" in json.loads(review4.read_text()):
         B = json.loads(review4.read_text())["blind"]
         best = B["best_llm_reg10"]
-        lines.append(" & ".join(["Oracle without grading", f"{B['n']}", _f(B["mean"]["first_write"]),
+        lines.append(" & ".join(["Oracle without grading", f"{B['n']}$^\\dagger$", _f(B["mean"]["first_write"]),
                                  f"{short[best]} {_f(B['mean'][best])}", f"{B['rank_first_write_reg10']}",
                                  _f(B["kendall_reg10_vs_registered"])]) + " \\\\")
     (out / "robustness.tex").write_text("\n".join(lines) + "\n")
