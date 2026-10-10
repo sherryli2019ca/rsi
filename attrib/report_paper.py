@@ -6,7 +6,9 @@ Reads <main>/analysis_<domain>.json for tau2_retail, tau2_airline and appworld
 and <main>/analysis_pooled3.json (attrib/analyze.py with --out), and the ground
 truth and traces for the kinds of decisive step. Writes:
   main.tex     per method: R(k-hat) on rescuable failures by domain [95%] and
-               pooled, exact accuracy pooled, dollars per failure
+               pooled, exact accuracy pooled, dollars per failure; post hoc rows
+               include the random-step and second-to-last-step baselines
+               (results/attrib/baselines.json, attrib.baselines)
   kinds_tau2.tex, kinds_aw.tex  the kind of action at every step and at decisive steps
   search.tex   counterfactual search by budget, by domain
   secondary.tex  pooled secondary metrics per method
@@ -642,6 +644,7 @@ def main():
     ap.add_argument("--review4", default=str(REVIEW4_DEFAULT))
     ap.add_argument("--rescore", default="results/attrib/audit_rescore.json")
     ap.add_argument("--review5", default=str(REVIEW5_DEFAULT))
+    ap.add_argument("--baselines", default="results/attrib/baselines.json")
     ap.add_argument("--out", default=str(Path(__file__).resolve().parents[1] / "paper2" / "tables"))
     ap.add_argument("--whowhen", default="/mnt/project-files/results/attrib/whowhen_scores.json")
     args = ap.parse_args()
@@ -682,6 +685,13 @@ def main():
     if fac.exists():
         F = json.loads(fac.read_text())["methods"]
         lines += ["\\midrule", "\\multicolumn{8}{l}{\\emph{Post hoc variants}} \\\\"]
+        bl = Path(args.baselines)
+        if bl.exists():
+            B = json.loads(bl.read_text())["scores"]
+            for m, name, model in (("random", "Random step", "chance"), ("second_to_last", "Second-to-last step", "rule")):
+                lines.append(" & ".join([name, model] + [_ci(B[m][d]) for d in DOMAINS] +
+                                        [_ci(B[m]["pooled"]), _f(B[m]["exact"]), "0"]) + " \\\\")
+            summary["baselines"] = {m: B[m] for m in ("random", "second_to_last")}
         for m, name, model in POSTHOC_ROWS:
             cells = [name, model] + [_ci(F[m]["R"][d]) for d in DOMAINS]
             cells += [_ci(F[m]["R"]["pooled"]), _f(F[m]["exact"]), _usd(F[m]["dollars_per_failure"])]
