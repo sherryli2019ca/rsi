@@ -300,3 +300,8 @@ any episode.
   At 14:43Z they were resumed with the same scripts (`run_bk_loop.sh` in each
   unfinished lineage, `run_bk_all.sh`), which skip finished work. No result
   was inspected.
+- 2026-10-10, about 16:45Z (last log line) to 19:44Z: the container restarted
+  again, during rounds 7-9 of b3 and b4 (b3_root had finished its rounds).
+  At 19:45Z the eight unfinished lineages were resumed with
+  `run_bk_loop.sh` and the block scripts with `run_bk_all.sh`; interrupted
+  rounds resume from their recorded episodes. No result was inspected.
