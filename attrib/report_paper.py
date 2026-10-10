@@ -232,7 +232,8 @@ def robustness_tables(path: Path, out: Path, review2: Path | None = None, orig: 
                                  _f(B["kendall_reg10_vs_registered"])]) + " \\\\")
     if rescore is not None and rescore.exists():
         S = json.loads(rescore.read_text())
-        for key, label in (("tau2_conflicts", "Conflicting $\\tau^2$ writes dropped"),
+        for key, label in (("tau2_replaced", "Replaced $\\tau^2$ writes dropped"),
+                           ("tau2_conflicts", "Replaced or multi-call $\\tau^2$ writes dropped"),
                            ("tau2_writes", "All $\\tau^2$ writes dropped"), ("all_writes", "All writes dropped")):
             if key not in S:
                 continue

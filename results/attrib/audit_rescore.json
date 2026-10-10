@@ -201,6 +201,107 @@
    "kendall_tau_vs_registered": 0.378
   }
  },
+ "tau2_replaced": {
+  "counts": {
+   "tau2_retail": {
+    "effective": 1554,
+    "dropped": 186
+   },
+   "tau2_airline": {
+    "effective": 1549,
+    "dropped": 144
+   },
+   "appworld": {
+    "effective": 1692,
+    "dropped": 0
+   }
+  },
+  "pooled": {
+   "n_rescuable": {
+    "tau2_retail": 39,
+    "tau2_airline": 32,
+    "appworld": 55
+   },
+   "mean": {
+    "first_write": 0.2589,
+    "last_step": 0.252,
+    "all_at_once_flash": 0.2946,
+    "all_at_once_pro": 0.2996,
+    "all_at_once_pro_think": 0.3363,
+    "step_by_step_pro": 0.2019,
+    "binary_search_pro": 0.2842,
+    "study1_pro": 0.2847,
+    "rrsi_digest_pro": 0.2599,
+    "search@40": 0.2941
+   },
+   "by_domain": {
+    "first_write": {
+     "tau2_retail": 0.1426,
+     "tau2_airline": 0.1758,
+     "appworld": 0.3898
+    },
+    "last_step": {
+     "tau2_retail": 0.1795,
+     "tau2_airline": 0.1484,
+     "appworld": 0.3636
+    },
+    "all_at_once_flash": {
+     "tau2_retail": 0.2885,
+     "tau2_airline": 0.3711,
+     "appworld": 0.2545
+    },
+    "all_at_once_pro": {
+     "tau2_retail": 0.3462,
+     "tau2_airline": 0.3125,
+     "appworld": 0.2591
+    },
+    "all_at_once_pro_think": {
+     "tau2_retail": 0.3365,
+     "tau2_airline": 0.4258,
+     "appworld": 0.2841
+    },
+    "step_by_step_pro": {
+     "tau2_retail": 0.117,
+     "tau2_airline": 0.1562,
+     "appworld": 0.2886
+    },
+    "binary_search_pro": {
+     "tau2_retail": 0.2292,
+     "tau2_airline": 0.2422,
+     "appworld": 0.3477
+    },
+    "study1_pro": {
+     "tau2_retail": 0.3157,
+     "tau2_airline": 0.3633,
+     "appworld": 0.217
+    },
+    "rrsi_digest_pro": {
+     "tau2_retail": 0.266,
+     "tau2_airline": 0.375,
+     "appworld": 0.1886
+    },
+    "search@40": {
+     "tau2_retail": 0.2708,
+     "tau2_airline": 0.3398,
+     "appworld": 0.2841
+    }
+   },
+   "decisive": 0.7321,
+   "first_write_rank": 8,
+   "best_llm": "all_at_once_pro_think",
+   "first_write_minus_binary_search": [
+    -0.0253,
+    -0.1013,
+    0.0533
+   ],
+   "first_write_minus_best_llm": [
+    -0.0774,
+    -0.1788,
+    0.0266
+   ],
+   "kendall_tau_vs_registered": 0.378
+  }
+ },
  "all_writes": {
   "counts": {
    "tau2_retail": {
@@ -334,8 +435,8 @@
    "auditor2": {
     "kept_valid": 0,
     "kept_invalid": 0,
-    "dropped_valid": 6,
-    "dropped_invalid": 11
+    "dropped_valid": 10,
+    "dropped_invalid": 7
    }
   },
   "tau2_conflicts": {
@@ -363,8 +464,33 @@
    "auditor2": {
     "kept_valid": 6,
     "kept_invalid": 0,
+    "dropped_valid": 4,
+    "dropped_invalid": 7
+   }
+  },
+  "tau2_replaced": {
+   "n": 17,
+   "dropped": 7,
+   "dropped_items": [
+    "A05",
+    "A06",
+    "A08",
+    "A11",
+    "A19",
+    "A28",
+    "A31"
+   ],
+   "auditor1": {
+    "kept_valid": 3,
+    "kept_invalid": 7,
     "dropped_valid": 0,
-    "dropped_invalid": 11
+    "dropped_invalid": 7
+   },
+   "auditor2": {
+    "kept_valid": 8,
+    "kept_invalid": 2,
+    "dropped_valid": 2,
+    "dropped_invalid": 5
    }
   }
  }

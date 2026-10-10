@@ -1,10 +1,11 @@
 """Re-score the methods without the oracle's state-changing corrections
 (post hoc, after the human audit of 60 corrections).
 
-Both auditors judged most audited tau2 corrections that change state invalid
-(they replaced the item, payment or baggage count the user had last confirmed,
-made several calls in one turn, or broke the policy otherwise). Three rules
-drop corrections, counting them as not proposed: R'_k = (1/K) sum_i c_ki g_ki
+The auditors disagreed on many audited tau2 corrections that change state:
+both rejected ones that replaced the item, option or reason the user had last
+confirmed; the first also rejected several calls in one turn (the policy allows
+one at a time), which the second counted as one step when the calls were of the
+same kind. Four rules drop corrections, counting them as not proposed: R'_k = (1/K) sum_i c_ki g_ki
 with c_ki = 0 for dropped corrections; rescuable = max R' >= 0.5. Methods are
 scored as in attrib.second_oracle.
 
@@ -16,6 +17,9 @@ scored as in attrib.second_oracle.
                    state differently from the write the agent made at that step
                    (another tool or other arguments; the policy has the agent
                    confirm a write with the user before making it)
+  tau2_replaced    only tau2 corrections that change state differently from the
+                   write the agent made at that step (the lenient reading:
+                   several calls in one turn are kept)
   all_writes       tau2_writes plus every AppWorld correction that calls a
                    state-changing API (attrib.aw.is_write, the submission
                    included)
@@ -38,7 +42,7 @@ from attrib.robustness import METHODS, kendall
 from attrib.second_oracle import _ranking
 from domains.tau2.common import READ_PREFIXES
 
-RULES = ("tau2_writes", "tau2_conflicts", "all_writes")
+RULES = ("tau2_writes", "tau2_conflicts", "tau2_replaced", "all_writes")
 AUDIT = Path("/mnt/project-files/reviews/paper2-audit/audit_key_mechanical.json")
 
 
@@ -94,6 +98,8 @@ def dropped(d: str, f: dict, rule: str) -> bool:
         return False
     if rule == "tau2_writes":
         return f["write"]
+    if rule == "tau2_replaced":
+        return f["write"] and f["conflict"]
     return f["write"] and (f["multi"] or f["conflict"])
 
 
@@ -122,7 +128,7 @@ def audit_check(fl: dict, sheets: dict, key_path: Path) -> dict:
     key = json.loads(key_path.read_text())
     labs = {name: {r["id"]: r["Q3_valid"] == "yes" for r in rows} for name, rows in sheets.items()}
     out = {}
-    for rule in ("tau2_writes", "tau2_conflicts"):
+    for rule in ("tau2_writes", "tau2_conflicts", "tau2_replaced"):
         rows = []
         for x in key:
             if x["domain"] == "appworld":
