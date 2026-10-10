@@ -75,6 +75,7 @@ SECOND_DEFAULT = ROB_DEFAULT.with_name("phaseA_second_oracle.json")
 ADMISS_DEFAULT = ROB_DEFAULT.with_name("phaseA_admissibility.json")
 FACTORIAL_DEFAULT = ROB_DEFAULT.with_name("phaseA_factorial.json")
 REVIEW4_DEFAULT = ROB_DEFAULT.with_name("phaseAB_review4.json")
+REVIEW5_DEFAULT = ROB_DEFAULT.with_name("phaseAB_review5.json")
 POSTHOC_ROWS = [("all_at_once_gain_pro", "All-at-once, gain", "Pro"),
                 ("binary_search_gain_pro", "Binary search, gain", "Pro"),
                 ("all_at_once_blind_pro", "All-at-once, no grading", "Pro"),
@@ -191,7 +192,7 @@ def robustness_tables(path: Path, out: Path, review2: Path | None = None, orig: 
                                  f"{sp['first_write_rank']:.0f}", _f(sp["kendall_tau_vs_main"])]) + " \\\\")
     if orig is not None and orig.exists():
         o = json.loads(orig.read_text())
-        lines.append(" & ".join(["Observed action as control", f"{o['n_failures']}", _f(o["mean"]["first_write"]),
+        lines.append(" & ".join(["Observed action as control", f"{o['n_failures']}$^\\dagger$", _f(o["mean"]["first_write"]),
                                  f"{short[o['best_llm']]} {_f(o['mean'][o['best_llm']])}",
                                  f"{o['first_write_rank']}", _f(o["kendall_tau_vs_main"])]) + " \\\\")
     if second is not None and second.exists():
@@ -223,7 +224,7 @@ def robustness_tables(path: Path, out: Path, review2: Path | None = None, orig: 
     if review4 is not None and review4.exists() and "blind" in json.loads(review4.read_text()):
         B = json.loads(review4.read_text())["blind"]
         best = B["best_llm_reg10"]
-        lines.append(" & ".join(["Oracle without grading", f"{B['n']}", _f(B["mean"]["first_write"]),
+        lines.append(" & ".join(["Oracle without grading", f"{B['n']}$^\\dagger$", _f(B["mean"]["first_write"]),
                                  f"{short[best]} {_f(B['mean'][best])}", f"{B['rank_first_write_reg10']}",
                                  _f(B["kendall_reg10_vs_registered"])]) + " \\\\")
     (out / "robustness.tex").write_text("\n".join(lines) + "\n")
@@ -252,6 +253,38 @@ R4_BLIND_ROWS = ROWS + POSTHOC_ROWS
 
 def _pm(x, d=2):
     return f"${'+' if x >= 0 else '-'}{abs(x):.{d}f}$"
+
+
+def review5_tables(path: Path, out: Path) -> dict:
+    """Post hoc tables for the fifth review: full profiles without grading on a
+    random 100 failures (blindfull.tex) and search with the metric's selection
+    rule (maxgain.tex)."""
+    R = json.loads(path.read_text())
+    res = {}
+    B = R.get("blindfull") or {}
+    if B.get("n"):
+        lines = []
+        for i, (m, name, model) in enumerate(R4_BLIND_ROWS):
+            if i in MIDRULES or i == len(ROWS):
+                lines.append("\\midrule")
+            lines.append(" & ".join([name, model, _f(B["scores_reg_rescuable_registered"][m]),
+                                     _f(B["scores_all_registered"][m]), _f(B["scores_blind_rescuable"][m]),
+                                     _f(B["scores_all_blind"][m])]) + " \\\\")
+        (out / "blindfull.tex").write_text("\n".join(lines) + "\n")
+        res["blindfull"] = {k: v for k, v in B.items() if k != "_rows"}
+    M = R.get("maxgain") or {}
+    if M.get("scores"):
+        S = M["scores"]
+        lines = []
+        for v, name in (("search", "Registered call"), ("search_informed", "With grading info."),
+                        ("aligned", "With grading info., gain")):
+            if f"{v}:maxgain" not in S:
+                continue
+            lines.append(" & ".join([name, _f(S[f"{v}:first_flip"]["mean"]), _f(S[f"{v}:maxgain"]["mean"]),
+                                     f"{S[f'{v}:replays']['mean']:.1f}"]) + " \\\\")
+        (out / "maxgain.tex").write_text("\n".join(lines) + "\n")
+        res["maxgain"] = {"scores": S, "diffs": M.get("diffs")}
+    return res
 
 
 def review4_tables(path: Path, out: Path) -> dict:
@@ -537,6 +570,7 @@ def main():
     ap.add_argument("--factorial", default=str(FACTORIAL_DEFAULT))
     ap.add_argument("--admissibility", default=str(ADMISS_DEFAULT))
     ap.add_argument("--review4", default=str(REVIEW4_DEFAULT))
+    ap.add_argument("--review5", default=str(REVIEW5_DEFAULT))
     ap.add_argument("--out", default=str(Path(__file__).resolve().parents[1] / "paper2" / "tables"))
     ap.add_argument("--whowhen", default="/mnt/project-files/results/attrib/whowhen_scores.json")
     args = ap.parse_args()
@@ -550,6 +584,8 @@ def main():
         if Path(args.robustness).exists() else None
     if Path(args.review4).exists():
         rob = {**(rob or {}), "review4": review4_tables(Path(args.review4), out)}
+    if Path(args.review5).exists():
+        rob = {**(rob or {}), "review5": review5_tables(Path(args.review5), out)}
     var = variant_tables(Path(args.rescue_prompt), Path(args.gold_rule), out)
     var["decomposition"] = decomp_tables(Path(args.review2), out)
     if not args.main:

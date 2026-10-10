@@ -56,7 +56,7 @@ Give (1) a one-sentence root cause describing the cause, not the symptom;
 Answer with JSON: {"root_cause": "...", "step": <int>, "component": "<component id>"}
 \end{Verbatim}
 
-\paragraph{Oracle (system prompt)}
+\paragraph{Oracle (system prompt)} As run; its opening sentence predates our terminology, and the profile it builds is the oracle-dependent reference of \S\ref{sec:gt}, not a ground truth about where a failure began.
 \begin{Verbatim}[fontsize=\scriptsize, breaklines, breakanywhere]
 You construct ground truth for failure attribution. A customer-service agent failed a task of tau2-bench. You see the domain policy, the agent's tools, the task's grading criteria (the database must end as if exactly the gold actions were executed, and the agent must tell the user every required piece of information), and the conversation up to one step of the agent.
 
