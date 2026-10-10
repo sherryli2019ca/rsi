@@ -1,22 +1,133 @@
 {
- "flip": [
-  "A03",
-  "A08",
-  "A11",
-  "A15",
-  "A20",
-  "A23",
-  "A29",
-  "A34",
-  "A37",
-  "A41",
-  "A45",
-  "A47",
-  "A51",
-  "A57",
-  "A59"
- ],
- "as_filled": {
+ "auditor1": {
+  "all": {
+   "n": 60,
+   "info": 4,
+   "scope": 14,
+   "valid": 29,
+   "clean": 27
+  },
+  "by_domain": {
+   "appworld": {
+    "n": 20,
+    "info": 0,
+    "scope": 5,
+    "valid": 13,
+    "clean": 11
+   },
+   "tau2_airline": {
+    "n": 20,
+    "info": 4,
+    "scope": 7,
+    "valid": 7,
+    "clean": 7
+   },
+   "tau2_retail": {
+    "n": 20,
+    "info": 0,
+    "scope": 2,
+    "valid": 9,
+    "clean": 9
+   }
+  },
+  "by_flagged": {
+   "False": {
+    "n": 41,
+    "info": 0,
+    "scope": 5,
+    "valid": 24,
+    "clean": 24
+   },
+   "True": {
+    "n": 19,
+    "info": 4,
+    "scope": 9,
+    "valid": 5,
+    "clean": 3
+   }
+  },
+  "by_tau2_write": {
+   "False": {
+    "n": 43,
+    "info": 4,
+    "scope": 9,
+    "valid": 26,
+    "clean": 24
+   },
+   "True": {
+    "n": 17,
+    "info": 0,
+    "scope": 5,
+    "valid": 3,
+    "clean": 3
+   }
+  }
+ },
+ "auditor2": {
+  "all": {
+   "n": 60,
+   "info": 4,
+   "scope": 12,
+   "valid": 34,
+   "clean": 32
+  },
+  "by_domain": {
+   "appworld": {
+    "n": 20,
+    "info": 0,
+    "scope": 3,
+    "valid": 12,
+    "clean": 10
+   },
+   "tau2_airline": {
+    "n": 20,
+    "info": 3,
+    "scope": 7,
+    "valid": 11,
+    "clean": 11
+   },
+   "tau2_retail": {
+    "n": 20,
+    "info": 1,
+    "scope": 2,
+    "valid": 11,
+    "clean": 11
+   }
+  },
+  "by_flagged": {
+   "False": {
+    "n": 41,
+    "info": 2,
+    "scope": 4,
+    "valid": 26,
+    "clean": 26
+   },
+   "True": {
+    "n": 19,
+    "info": 2,
+    "scope": 8,
+    "valid": 8,
+    "clean": 6
+   }
+  },
+  "by_tau2_write": {
+   "False": {
+    "n": 43,
+    "info": 2,
+    "scope": 7,
+    "valid": 28,
+    "clean": 26
+   },
+   "True": {
+    "n": 17,
+    "info": 2,
+    "scope": 5,
+    "valid": 6,
+    "clean": 6
+   }
+  }
+ },
+ "auditor1_filed": {
   "all": {
    "n": 60,
    "info": 4,
@@ -78,55 +189,98 @@
     "valid": 9,
     "clean": 8
    }
-  },
-  "tau2_write_items": [
-   "A05",
-   "A06",
-   "A08",
-   "A11",
-   "A13",
-   "A19",
-   "A23",
-   "A28",
-   "A31",
-   "A33",
-   "A42",
-   "A43",
-   "A45",
-   "A46",
-   "A47",
-   "A57",
-   "A58"
-  ]
+  }
  },
- "reasons": {
+ "tau2_write_items": [
+  "A05",
+  "A06",
+  "A08",
+  "A11",
+  "A13",
+  "A19",
+  "A23",
+  "A28",
+  "A31",
+  "A33",
+  "A42",
+  "A43",
+  "A45",
+  "A46",
+  "A47",
+  "A57",
+  "A58"
+ ],
+ "agreement": {
+  "pair": [
+   "auditor1",
+   "auditor2"
+  ],
+  "info": {
+   "agreement": 0.9,
+   "kappa": 0.1964,
+   "disagree": [
+    "A22",
+    "A29",
+    "A31",
+    "A45",
+    "A49",
+    "A59"
+   ]
+  },
+  "scope": {
+   "agreement": 0.9667,
+   "kappa": 0.902,
+   "disagree": [
+    "A15",
+    "A20"
+   ]
+  },
+  "valid": {
+   "agreement": 0.8167,
+   "kappa": 0.635,
+   "disagree": [
+    "A15",
+    "A17",
+    "A27",
+    "A29",
+    "A34",
+    "A40",
+    "A46",
+    "A49",
+    "A57",
+    "A58",
+    "A59"
+   ]
+  }
+ },
+ "valid_both": {
   "all": {
    "n": 60,
    "info": 4,
-   "scope": 6,
-   "valid": 29,
-   "clean": 29
+   "scope": 14,
+   "valid": 26,
+   "clean": 27
   },
   "by_domain": {
    "appworld": {
     "n": 20,
     "info": 0,
-    "scope": 2,
-    "valid": 13,
-    "clean": 13
+    "scope": 5,
+    "valid": 11,
+    "clean": 11
    },
    "tau2_airline": {
     "n": 20,
     "info": 4,
-    "scope": 4,
+    "scope": 7,
     "valid": 7,
     "clean": 7
    },
    "tau2_retail": {
     "n": 20,
     "info": 0,
-    "scope": 0,
-    "valid": 9,
+    "scope": 2,
+    "valid": 8,
     "clean": 9
    }
   },
@@ -134,52 +288,97 @@
    "False": {
     "n": 41,
     "info": 0,
-    "scope": 2,
-    "valid": 24,
+    "scope": 5,
+    "valid": 22,
     "clean": 24
    },
    "True": {
     "n": 19,
     "info": 4,
-    "scope": 4,
-    "valid": 5,
-    "clean": 5
+    "scope": 9,
+    "valid": 4,
+    "clean": 3
    }
   },
   "by_tau2_write": {
    "False": {
     "n": 43,
     "info": 4,
-    "scope": 3,
-    "valid": 26,
-    "clean": 26
+    "scope": 9,
+    "valid": 23,
+    "clean": 24
    },
    "True": {
     "n": 17,
     "info": 0,
-    "scope": 3,
+    "scope": 5,
     "valid": 3,
     "clean": 3
    }
+  }
+ },
+ "valid_either": {
+  "all": {
+   "n": 60,
+   "info": 4,
+   "scope": 14,
+   "valid": 37,
+   "clean": 27
   },
-  "tau2_write_items": [
-   "A05",
-   "A06",
-   "A08",
-   "A11",
-   "A13",
-   "A19",
-   "A23",
-   "A28",
-   "A31",
-   "A33",
-   "A42",
-   "A43",
-   "A45",
-   "A46",
-   "A47",
-   "A57",
-   "A58"
-  ]
+  "by_domain": {
+   "appworld": {
+    "n": 20,
+    "info": 0,
+    "scope": 5,
+    "valid": 14,
+    "clean": 11
+   },
+   "tau2_airline": {
+    "n": 20,
+    "info": 4,
+    "scope": 7,
+    "valid": 11,
+    "clean": 7
+   },
+   "tau2_retail": {
+    "n": 20,
+    "info": 0,
+    "scope": 2,
+    "valid": 12,
+    "clean": 9
+   }
+  },
+  "by_flagged": {
+   "False": {
+    "n": 41,
+    "info": 0,
+    "scope": 5,
+    "valid": 28,
+    "clean": 24
+   },
+   "True": {
+    "n": 19,
+    "info": 4,
+    "scope": 9,
+    "valid": 9,
+    "clean": 3
+   }
+  },
+  "by_tau2_write": {
+   "False": {
+    "n": 43,
+    "info": 4,
+    "scope": 9,
+    "valid": 31,
+    "clean": 24
+   },
+   "True": {
+    "n": 17,
+    "info": 0,
+    "scope": 5,
+    "valid": 6,
+    "clean": 3
+   }
+  }
  }
 }

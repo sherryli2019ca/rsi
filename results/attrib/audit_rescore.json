@@ -1,0 +1,101 @@
+{
+ "counts": {
+  "tau2_retail": {
+   "effective": 1554,
+   "dropped": 518
+  },
+  "tau2_airline": {
+   "effective": 1549,
+   "dropped": 432
+  },
+  "appworld": {
+   "effective": 1692,
+   "dropped": 0
+  }
+ },
+ "pooled": {
+  "n_rescuable": {
+   "tau2_retail": 24,
+   "tau2_airline": 26,
+   "appworld": 55
+  },
+  "mean": {
+   "first_write": 0.2667,
+   "last_step": 0.2321,
+   "all_at_once_flash": 0.2839,
+   "all_at_once_pro": 0.2857,
+   "all_at_once_pro_think": 0.3417,
+   "step_by_step_pro": 0.2244,
+   "binary_search_pro": 0.269,
+   "study1_pro": 0.2726,
+   "rrsi_digest_pro": 0.2262,
+   "search@40": 0.275
+  },
+  "by_domain": {
+   "first_write": {
+    "tau2_retail": 0.1172,
+    "tau2_airline": 0.1442,
+    "appworld": 0.3898
+   },
+   "last_step": {
+    "tau2_retail": 0.1198,
+    "tau2_airline": 0.0577,
+    "appworld": 0.3636
+   },
+   "all_at_once_flash": {
+    "tau2_retail": 0.3229,
+    "tau2_airline": 0.3101,
+    "appworld": 0.2545
+   },
+   "all_at_once_pro": {
+    "tau2_retail": 0.3359,
+    "tau2_airline": 0.2957,
+    "appworld": 0.2591
+   },
+   "all_at_once_pro_think": {
+    "tau2_retail": 0.3646,
+    "tau2_airline": 0.4423,
+    "appworld": 0.2841
+   },
+   "step_by_step_pro": {
+    "tau2_retail": 0.1745,
+    "tau2_airline": 0.1346,
+    "appworld": 0.2886
+   },
+   "binary_search_pro": {
+    "tau2_retail": 0.2083,
+    "tau2_airline": 0.1587,
+    "appworld": 0.3477
+   },
+   "study1_pro": {
+    "tau2_retail": 0.3125,
+    "tau2_airline": 0.3534,
+    "appworld": 0.217
+   },
+   "rrsi_digest_pro": {
+    "tau2_retail": 0.2734,
+    "tau2_airline": 0.262,
+    "appworld": 0.1886
+   },
+   "search@40": {
+    "tau2_retail": 0.2526,
+    "tau2_airline": 0.2764,
+    "appworld": 0.2841
+   }
+  },
+  "decisive": 0.7149,
+  "first_write_rank": 7,
+  "best_llm": "all_at_once_pro_think",
+  "first_write_minus_binary_search": [
+   -0.0024,
+   -0.0789,
+   0.0744
+  ],
+  "first_write_minus_best_llm": [
+   -0.075,
+   -0.182,
+   0.0375
+  ],
+  "kendall_tau_vs_registered": 0.378
+ }
+}
