@@ -1,14 +1,15 @@
 # Pre-registration: blocked loops with shared calibration: the cost-aware stopping rule and what sequential evaluation changes in an RRSI loop (experiment BK)
 
-DRAFT, not yet approved. Dr Cao chose the five-arm experiment (option 1 of
+Approved. Dr Cao chose the five-arm experiment (option 1 of
 `/mnt/project-files/reviews/review11-plan.md`, decision card, 2026-10-10
 00:49Z) and then asked whether an equivalent experiment could cost less. The
 coupled design below was offered in its place (decision card 00:58Z,
 recommended; about 60 instead of 80 dollars) together with the original
-design of independent loops (`DESIGN = "five_arms"` in `verify/bk.py`, whose
-code is unchanged). When Dr Cao has chosen, `DESIGN` is set to the chosen
-design, this file is committed with the code before any episode of BK runs,
-and the approval is recorded here.
+design of independent loops. On 2026-10-10 at 10:00:53Z Dr Cao chose the
+coupled design (decision card re-posted after the twelfth review, whose
+questions 1-3 ask for the same comparisons). `DESIGN = "five_arms_coupled"`
+in `verify/bk.py`; this file is committed with the code before any episode
+of BK runs, and that commit is the registered one.
 
 The eleventh review asks for a comparison with shared or balanced
 calibration and for a live test of the cost-aware stopping rule that the
@@ -72,6 +73,11 @@ arms of the block, so the comparison is balanced on delta by design.
   - Under a simulated null, the lineage model's 90% intervals covered 0 in
     90% (pairwise contrasts) to 94% (admission, history, interaction) of
     4000 replications.
+- The twelfth review of paper 1 (2026-10-10 09:41Z) and its zero-cost
+  analysis (`verify/posthoc_r12.py`, `results/r12/report.json`): offline,
+  letting the final success and cost changes correlate moves the cost-aware
+  rule's recall of full evaluation's acceptances by at most two points.
+  Nothing in BK changes because of it.
 
 ## Design
 
