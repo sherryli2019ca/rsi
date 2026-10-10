@@ -673,29 +673,28 @@ def _additive(Y: dict, arms) -> tuple[dict, float, int]:
 
 def _lineage_se(Y: dict, c: dict) -> tuple[float, float]:
     """Coupled design: standard error and Satterthwaite df of a contrast over the
-    arm means. a and s share their rounds with f and h until their states first
-    differ, so arm a = f + d_a and s = h + d_s per block. The contrast is split
-    into a part over the means of f, h and c, whose residual variance comes from
-    the additive model over those three arms (df 2(B - 1)), and a part over the
-    mean differences d_a and d_s, whose variances come from their spread over
-    blocks (df B - 1 each); the two parts are treated as independent."""
+    arm means. Under the additive model's own assumption (every arm's loop has
+    the same residual variance s^2 around block + arm) the loops of different
+    lineages are independent, while a shares f's rounds and s shares h's until
+    their states first differ, so cov(a, f) = s^2 - v_a / 2 with
+    v_a = var(a - f), and likewise for s and h. s^2 comes from the additive
+    model over f, h and c (each always in a lineage of its own; df 2(B - 1)),
+    v_a and v_s from the spread of a - f and s - h over blocks (df B - 1). If
+    the estimated variance is not positive, the contrast's own spread over
+    blocks is used (df B - 1)."""
     nb = len(BLOCKS)
-    w = {a: 0.0 for a in IND}
-    wd = {}
-    for a, x in c.items():
-        if a in PAIRED:
-            w[PAIRED[a]] += x
-            wd[a] = wd.get(a, 0.0) + x
-        else:
-            w[a] += x
     _, s2, df = _additive(Y, IND)
-    parts = [(s2 * sum(x * x for x in w.values()) / nb, df)]
-    for a, x in wd.items():
-        d = [Y[(b, a)] - Y[(b, PAIRED[a])] for b in BLOCKS]
-        parts.append((x * x * float(np.var(d, ddof=1)) / nb, nb - 1))
-    var = sum(v for v, _ in parts)
-    den = sum(v * v / k for v, k in parts if v > 0)
-    return math.sqrt(var), (var * var / den if den > 0 else float("inf"))
+    w = {a: c.get(a, 0.0) for a in ARMS}
+    v = {a: float(np.var([Y[(b, a)] - Y[(b, p)] for b in BLOCKS], ddof=1)) for a, p in PAIRED.items()}
+    k_s2 = sum(x * x for x in w.values()) + 2 * sum(w[a] * w[p] for a, p in PAIRED.items())
+    terms = [(k_s2 * s2 / nb, df)] + [(-w[a] * w[p] * v[a] / nb, nb - 1) for a, p in PAIRED.items()]
+    var = sum(x for x, _ in terms)
+    if var <= 1e-12:
+        per = [_contrast({a: Y[(b, a)] for a in c}, c) for b in BLOCKS]
+        var, terms = float(np.var(per, ddof=1)) / nb, None
+        return math.sqrt(var), (nb - 1 if var > 0 else float("inf"))
+    den = sum(x * x / d for x, d in terms if x != 0)
+    return math.sqrt(var), var * var / den
 
 
 def cmd_analyze(js: Path, B: int = 4000, seed: int = 13) -> dict:
