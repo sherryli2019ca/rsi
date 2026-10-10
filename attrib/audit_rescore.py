@@ -1,14 +1,20 @@
 """Re-score the methods without the oracle's state-changing corrections
 (post hoc, after the human audit of 60 corrections).
 
-The auditors disagreed on many audited tau2 corrections that change state:
-both rejected ones that replaced the item, option or reason the user had last
-confirmed; the first also rejected several calls in one turn (the policy allows
-one at a time), which the second counted as one step when the calls were of the
-same kind. Four rules drop corrections, counting them as not proposed: R'_k = (1/K) sum_i c_ki g_ki
-with c_ki = 0 for dropped corrections; rescuable = max R' >= 0.5. Methods are
-scored as in attrib.second_oracle.
+Both auditors rejected most audited tau2 corrections that replaced the item,
+option or reason the user had last confirmed, and both judged several calls in
+one turn by their content. Five rules drop corrections, counting them as not
+proposed: R'_k = (1/K) sum_i c_ki g_ki with c_ki = 0 for dropped corrections;
+rescuable = max R' >= 0.5. Methods are scored as in attrib.second_oracle, on the
+failures rescuable under each rule and on the registered rescuable failures kept
+as a fixed cohort (as are the profiles without null replays).
 
+  tau2_confirmed   only tau2 corrections that change a write the agent made at
+                   that step (another tool or other arguments) and drop a value
+                   of it (an identifier, option or reason, as text) that the
+                   user wrote or the agent showed in the exchange the user
+                   answered last before the step: the direct reading of
+                   overriding the user's confirmed choice
   tau2_writes      every tau2 correction that calls a state-changing tool (any
                    call outside domains.tau2.common.READ_PREFIXES and
                    transfers); an upper bound, as it also drops valid ones
@@ -37,12 +43,13 @@ import random
 from pathlib import Path
 
 from attrib.admissibility import DOMAINS, EXTRA, K
-from attrib.analyze import _mean, load
-from attrib.robustness import METHODS, kendall
+from attrib.analyze import _boot, _mean, load
+from attrib.robustness import LLM, METHODS, kendall
+from attrib.robustness import profile as rprofile
 from attrib.second_oracle import _ranking
 from domains.tau2.common import READ_PREFIXES
 
-RULES = ("tau2_writes", "tau2_conflicts", "tau2_replaced", "all_writes")
+RULES = ("tau2_confirmed", "tau2_replaced", "tau2_conflicts", "tau2_writes", "all_writes")
 AUDIT = Path("/mnt/project-files/reviews/paper2-audit/audit_key_mechanical.json")
 
 
@@ -50,13 +57,37 @@ def _is_write(name: str) -> bool:
     return not name.startswith(READ_PREFIXES) and not name.startswith("transfer")
 
 
-def tau2_flags(action: dict, observed: dict) -> dict:
+def _leaves(x):
+    if isinstance(x, dict):
+        for v in x.values():
+            yield from _leaves(v)
+    elif isinstance(x, list):
+        for v in x:
+            yield from _leaves(v)
+    else:
+        yield x
+
+
+def exchange(rec: dict, k: int) -> str:
+    """The user's last message before step k and the agent's text since the user's previous one."""
+    us = [j for j in range(k) if rec["steps"][j].get("user")]
+    if not us:
+        return str(rec.get("opening") or "")
+    j, i0 = us[-1], (us[-2] + 1 if len(us) > 1 else 0)
+    agent = " ".join(b.get("text", "") for s in rec["steps"][i0:j + 1] for b in s["assistant"] if b["type"] == "text")
+    return rec["steps"][j]["user"] + " " + agent
+
+
+def tau2_flags(action: dict, observed: dict, shown: str = "") -> dict:
     calls = [(c["name"], c.get("arguments")) for c in action.get("tool_calls") or []]
     writes = [c for c in calls if _is_write(c[0])]
     obs = [(b["name"], b.get("input")) for b in observed["assistant"]
            if b["type"] == "tool_use" and _is_write(b["name"])]
-    return {"write": bool(writes), "multi": len(calls) >= 2,
-            "conflict": bool(obs) and any(w not in obs for w in writes)}
+    conflict = bool(obs) and any(w not in obs for w in writes)
+    kept = {json.dumps(x) for w in writes for x in _leaves(w[1])}
+    lost = [x for o in obs for x in _leaves(o[1]) if isinstance(x, str) and len(x) >= 3 and json.dumps(x) not in kept]
+    return {"write": bool(writes), "multi": len(calls) >= 2, "conflict": conflict,
+            "confirmed": conflict and bool(writes) and any(x.lower() in shown.lower() for x in lost)}
 
 
 def aw_write(o: dict) -> bool:
@@ -85,9 +116,11 @@ def flags(main: Path, d: str, v: dict, traces: Path | None) -> dict:
                     continue
                 o = json.loads((odir / f"{fid}_k{st['k']}_o{i}.json").read_text())
                 if d == "appworld":
-                    out[(fid, st["k"], i)] = {"write": aw_write(o), "multi": False, "conflict": False}
+                    out[(fid, st["k"], i)] = {"write": aw_write(o), "multi": False, "conflict": False,
+                                              "confirmed": False}
                 else:
-                    out[(fid, st["k"], i)] = tau2_flags(o.get("action") or {}, rec["steps"][st["k"]])
+                    out[(fid, st["k"], i)] = tau2_flags(o.get("action") or {}, rec["steps"][st["k"]],
+                                                        exchange(rec, st["k"]))
     return out
 
 
@@ -98,6 +131,8 @@ def dropped(d: str, f: dict, rule: str) -> bool:
         return False
     if rule == "tau2_writes":
         return f["write"]
+    if rule == "tau2_confirmed":
+        return f["write"] and f["confirmed"]
     if rule == "tau2_replaced":
         return f["write"] and f["conflict"]
     return f["write"] and (f["multi"] or f["conflict"])
@@ -123,12 +158,21 @@ def profiles(v: dict, d: str, fl: dict, rule: str) -> tuple[dict, dict]:
     return prof, n
 
 
-def audit_check(fl: dict, sheets: dict, key_path: Path) -> dict:
-    """The rules against the auditors on the audited tau2 corrections that change state."""
+def audit_check(fl: dict, sheets: dict, key_path: Path, main: Path | None = None) -> dict:
+    """The rules against the auditors on the audited tau2 corrections that change state (with
+    main, also over distinct corrections: samples of one step can propose the same action)."""
     key = json.loads(key_path.read_text())
+    seen, dup = {}, set()
+    if main is not None:
+        for x in key:
+            o = json.loads((main / x["domain"] / "gt" / "a" / "oracle" / f"{x['fid']}_k{x['k']}_o{x['i']}.json").read_text())
+            sig = (x["domain"], x["fid"], x["k"], json.dumps(o.get("action"), sort_keys=True))
+            if sig in seen:
+                dup.add(x["item"])
+            seen.setdefault(sig, x["item"])
     labs = {name: {r["id"]: r["Q3_valid"] == "yes" for r in rows} for name, rows in sheets.items()}
     out = {}
-    for rule in ("tau2_writes", "tau2_conflicts", "tau2_replaced"):
+    for rule in ("tau2_confirmed", "tau2_replaced", "tau2_conflicts", "tau2_writes"):
         rows = []
         for x in key:
             if x["domain"] == "appworld":
@@ -145,8 +189,38 @@ def audit_check(fl: dict, sheets: dict, key_path: Path) -> dict:
                       "kept_invalid": sum(not r["dropped"] and not r[n] for r in rows),
                       "dropped_valid": sum(r["dropped"] and r[n] for r in rows),
                       "dropped_invalid": sum(r["dropped"] and not r[n] for r in rows)}
+        if main is not None:
+            dr = [r for r in rows if r["item"] not in dup]
+            res["distinct"] = {"n": len(dr), "dropped": sum(r["dropped"] for r in dr),
+                               **{n: {"agree": sum(r["dropped"] != r[n] for r in dr)} for n in labs}}
         out[rule] = res
     return out
+
+
+def fixed_cohort(data: dict, prof: dict, methods: list, reg: dict, rng) -> dict:
+    """Score on the registered rescuable failures, whatever the profile says is rescuable."""
+    rows = []
+    for d, v in data.items():
+        for f, g in v["gt"].items():
+            if g["decisive"] is None:
+                continue
+            R = prof[d][f]
+            r = {"cluster": f"{d}/{v['fails'][f]['task_id']}"}
+            for m in methods:
+                k = v["picks"][m].get(f)
+                r[m] = R[k] if isinstance(k, int) and 0 <= k < len(R) else 0.0
+            rows.append(r)
+    mean = {m: round(_mean([r[m] for r in rows]), 4) for m in methods}
+    best = max(LLM, key=lambda m: mean[m])
+
+    def diff(a, b):
+        return _boot([{"d": r[a] - r[b], "cluster": r["cluster"]} for r in rows],
+                     lambda xs: _mean([x["d"] for x in xs]), rng)
+    return {"n": len(rows), "mean": mean, "best_llm": best,
+            "first_write_rank": 1 + sum(mean[x] > mean["first_write"] for x in METHODS if x != "first_write"),
+            "first_write_minus_best_llm": diff("first_write", best),
+            "first_write_minus_binary_search": diff("first_write", "binary_search_pro"),
+            "kendall_tau_vs_registered": round(kendall({m: mean[m] for m in METHODS}, reg), 3)}
 
 
 def main():
@@ -167,7 +241,14 @@ def main():
                      else 0.0 for v in data.values() for f in v["gt"] if v["gt"][f]["decisive"] is not None])
            for m in METHODS}
     fl = {d: flags(main_dir, d, data[d], traces) for d in DOMAINS}
-    res = {}
+    res = {"fixed_cohort": {}}
+    for name, use_null in (("registered", True), ("no_null", False)):
+        prof = {d: {f: rprofile(g, use_null=use_null) for f, g in v["gt"].items()} for d, v in data.items()}
+        res["fixed_cohort"][name] = fixed_cohort(data, prof, methods, reg, random.Random(0))
+        if not use_null:
+            r = _ranking(data, prof, random.Random(0), methods)
+            r["kendall_tau_vs_registered"] = round(kendall({m: r["mean"][m] for m in METHODS}, reg), 3)
+            res["no_null"] = {"pooled": r}
     for rule in RULES:
         prof, counts = {}, {}
         for d in DOMAINS:
@@ -175,6 +256,7 @@ def main():
         r = _ranking(data, prof, random.Random(0), methods)
         r["kendall_tau_vs_registered"] = round(kendall({m: r["mean"][m] for m in METHODS}, reg), 3)
         res[rule] = {"counts": counts, "pooled": r}
+        res["fixed_cohort"][rule] = fixed_cohort(data, prof, methods, reg, random.Random(0))
         print(rule, json.dumps(counts))
         print("  ", r["n_rescuable"], "fw", r["mean"]["first_write"], "rank", r["first_write_rank"], "best",
               r["best_llm"], r["mean"][r["best_llm"]], "fw-best", r.get("first_write_minus_best_llm"),
@@ -185,8 +267,11 @@ def main():
         name, path = s.split("=", 1)
         with open(path, newline="", encoding="utf-8-sig") as fh:
             sheets[name] = list(csv.DictReader(fh))
-    res["audit_check"] = audit_check(fl, sheets, Path(a.key))
+    res["audit_check"] = audit_check(fl, sheets, Path(a.key), main_dir)
     print(json.dumps(res["audit_check"], indent=1))
+    for name, r in res["fixed_cohort"].items():
+        print("fixed", name, r["n"], "fw", r["mean"]["first_write"], "rank", r["first_write_rank"], "best",
+              r["best_llm"], r["mean"][r["best_llm"]], r["first_write_minus_best_llm"], "tau", r["kendall_tau_vs_registered"])
     if a.out:
         Path(a.out).write_text(json.dumps(res, indent=1))
 

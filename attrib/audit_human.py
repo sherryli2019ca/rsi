@@ -6,11 +6,16 @@ given what the agent could see and the policy). Auditor 2 never saw auditor 1's
 sheet. Reports each sheet's shares overall, by domain, by
 mechanical-flag stratum and for tau2 corrections that change state, and the
 agreement (Cohen's kappa) of the first two sheets. The released labels omit
-the auditors' free-text notes.
+the auditors' free-text notes; relaxed_reading marks the labels an auditor gave
+under the lenient reading adopted during the audit (several calls of one kind in
+one turn as one step; validity judged on a correction's content). The sample
+repeats some corrections (samples of one step that proposed the same action), so
+the shares and agreement are also given over distinct corrections; with --main,
+also for the corrections at the steps the first-write rule names.
 
     python -m attrib.audit_human --sheets auditor1=attrib/audit/auditor1.csv \
         auditor2=attrib/audit/auditor2.csv \
-        --key KEY --items ITEMS --out results/attrib/audit_human.json
+        --key KEY --items ITEMS [--main /home/user/attrib_runs/main] --out results/attrib/audit_human.json
 """
 from __future__ import annotations
 
@@ -66,6 +71,9 @@ def label_rows(sheet: list[dict], key: dict, corr: dict) -> dict:
             assert int(s["step"]) == k["k"] and s["domain"] == k["domain"], sid
         info, scope, valid = (s[q] == "yes" for q in ("Q1_information", "Q2_scope", "Q3_valid"))
         rows[sid] = {"id": sid, "domain": k["domain"], "kind": k["kind"],
+                     "relaxed": s.get("relaxed_reading") == "yes",
+                     "correction": (k["domain"], k["fid"], k["k"],
+                                    re.sub(r"Oracle's reason:.*", "", corr[sid]).strip()),
                      "flagged": k["flags"]["unseen_id_or_expanded"],
                      "tau2_write": k["domain"] != "appworld" and bool(TAU2_WRITES.search(corr[sid])),
                      "info": info, "scope": scope, "valid": valid,
@@ -90,6 +98,7 @@ def main():
     ap.add_argument("--sheets", nargs="+", required=True, help="name=path; the first two are compared")
     ap.add_argument("--key", required=True)
     ap.add_argument("--items", required=True)
+    ap.add_argument("--main", help="run directory, for the steps the first-write rule names")
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
     key = {k["item"]: k for k in json.load(open(a.key))}
@@ -113,10 +122,47 @@ def main():
         res["agreement"] = {"pair": names[:2], **agree}
         res["valid_both"] = summary(both)
         res["valid_either"] = summary(either)
+    first = labs[names[0]]
+    groups = defaultdict(list)
+    for i in sorted(first):
+        groups[first[i]["correction"]].append(i)
+    reps = [g[0] for g in groups.values()]
+    res["distinct"] = {"n": len(reps), "repeated": [g for g in groups.values() if len(g) > 1],
+                       **{name: summary([labs[name][i] for i in reps]) for name in names}}
+    for name in names:
+        res[name]["relaxed"] = sum(x["relaxed"] for x in labs[name].values())
+    if len(names) >= 2:
+        x, y = labs[names[0]], labs[names[1]]
+        res["distinct"]["agreement"] = {q: dict(zip(("agreement", "kappa"), _kappa([x[i][q] for i in reps],
+                                                                                  [y[i][q] for i in reps])))
+                                        for q in ("info", "scope", "valid")}
+        res["distinct"]["valid_both"] = sum(x[i]["valid"] and y[i]["valid"] for i in reps)
+        res["distinct"]["valid_either"] = sum(x[i]["valid"] or y[i]["valid"] for i in reps)
+    if a.main:
+        from attrib.analyze import load
+        picks = {d: load(Path(a.main) / d)["picks"]["first_write"] for d in {k["domain"] for k in key.values()}}
+        at = [i for i in sorted(first) if picks[key[i]["domain"]].get(key[i]["fid"]) == key[i]["k"]]
+        dist = sorted({first[i]["correction"]: i for i in reversed(at)}.values())
+        res["first_write_steps"] = {"items": at, "distinct": dist,
+                                    **{name: {"valid_items": sum(labs[name][i]["valid"] for i in at),
+                                              "valid_distinct": sum(labs[name][i]["valid"] for i in dist),
+                                              "tau2_distinct": sum(key[i]["domain"] != "appworld" for i in dist),
+                                              "tau2_valid_distinct": sum(labs[name][i]["valid"] for i in dist
+                                                                         if key[i]["domain"] != "appworld")}
+                                       for name in names}}
+    for name in names:
+        for x in labs[name].values():
+            x.pop("correction")
     Path(a.out).write_text(json.dumps(res, indent=1))
     for name in names:
         print(name, res[name]["all"], "unflagged", res[name]["by_flagged"]["False"],
               "tau2_write", res[name]["by_tau2_write"]["True"])
+    print("distinct", {k: v for k, v in res["distinct"].items() if k not in names})
+    for name in names:
+        print("  ", name, res["distinct"][name]["all"], "tau2_write", res["distinct"][name]["by_tau2_write"].get("True"),
+              "relaxed", res[name]["relaxed"])
+    if "first_write_steps" in res:
+        print("first-write steps", res["first_write_steps"])
     if "agreement" in res:
         print({q: (v["agreement"], v["kappa"]) for q, v in res["agreement"].items() if q != "pair"})
         print("both", res["valid_both"]["all"]["valid"], "either", res["valid_either"]["all"]["valid"],

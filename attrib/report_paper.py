@@ -69,6 +69,10 @@ ROB_ROWS = [("main", "Registered"), ("K=2", "$K=2$"), ("K=1", "$K=1$"),
             ("threshold 0.25", "$\\theta=0.25$"), ("threshold 0.375", "$\\theta=0.375$"),
             ("threshold 0.625", "$\\theta=0.625$"), ("threshold 0.75", "$\\theta=0.75$"),
             ("unique rescuing step", "One rescuing step"), ("no null", "No null replays")]
+RESCORE_ROWS = [("tau2_confirmed", "Confirmed $\\tau^2$ choices changed, dropped"),
+                ("tau2_replaced", "Replaced $\\tau^2$ writes dropped"),
+                ("tau2_conflicts", "Replaced or multi-call $\\tau^2$ writes dropped"),
+                ("tau2_writes", "All $\\tau^2$ writes dropped"), ("all_writes", "All writes dropped")]
 RESCUE_DEFAULT = ROB_DEFAULT.with_name("phaseA_rescue_prompt.json")
 GOLD_DEFAULT = ROB_DEFAULT.with_name("phaseA_gold_rule.json")
 REVIEW2_DEFAULT = ROB_DEFAULT.with_name("phaseA_review2.json")
@@ -174,6 +178,43 @@ def _state_contrast(rows: list[dict], g: str, h: str) -> dict:
     return {"estimate": float(d.mean()), "ci95": [float(d.mean() - T975_DF7 * se), float(d.mean() + T975_DF7 * se)]}
 
 
+def _d(t, d=2) -> str:
+    """Signed difference with its interval, without leading zeros: +.08 [-.02, +.18]."""
+    s = [f"{x:+.{d}f}".replace("0.", ".") for x in t[:3]]
+    return f"${s[0]}$ $[{s[1]},{s[2]}]$"
+
+
+def choices_table(S: dict, review4: Path | None, out: Path) -> None:
+    """Main-text table (choices.tex): the first write's rank and its difference from the best
+    LLM method under each evaluation choice, on the failures rescuable under that choice and on
+    the registered rescuable failures kept fixed."""
+    FX = S["fixed_cohort"]
+    rows = []
+
+    def resel(v):
+        return [f"{sum(v['n_rescuable'].values())}", f"{v['first_write_rank']}", _d(v["first_write_minus_best_llm"])]
+
+    reg = FX["registered"]
+    rows.append(["Registered", f"{reg['n']}", f"{reg['first_write_rank']}", _d(reg["first_write_minus_best_llm"]),
+                 "", ""])
+    r5 = REVIEW5_DEFAULT
+    if r5.exists():
+        dd = json.loads(r5.read_text())["maxgain"]["diffs"]["aligned:maxgain - first_write"]
+        neg = [-dd["mean"], -dd["ci95"][1], -dd["ci95"][0]]
+        rows.append(["Judges, search aligned$^*$", f"{reg['n']}", "1", _d(neg), "", ""])
+    rows.append(["No null replays"] + resel(S["no_null"]["pooled"]) +
+                [f"{FX['no_null']['first_write_rank']}", _d(FX["no_null"]["first_write_minus_best_llm"])])
+    if review4 is not None and review4.exists():
+        B = json.loads(review4.read_text())["blind"]
+        rows.append(["Oracle without grading", "", "", "", f"{B['rank_first_write_reg10']}",
+                     _d(B["first_write_minus"]["search@40"])])
+    for key, label in (("tau2_confirmed", "Confirmed choices changed$^\\ddagger$"),
+                       ("tau2_replaced", "Replaced writes$^\\ddagger$"), ("all_writes", "All writes$^\\ddagger$")):
+        rows.append([label] + resel(S[key]["pooled"]) +
+                    [f"{FX[key]['first_write_rank']}", _d(FX[key]["first_write_minus_best_llm"])])
+    (out / "choices.tex").write_text("\n".join(" & ".join(r) + " \\\\" for r in rows) + "\n")
+
+
 def robustness_tables(path: Path, out: Path, review2: Path | None = None, orig: Path | None = None,
                       second: Path | None = None, admiss: Path | None = None, review4: Path | None = None,
                       rescore: Path | None = None) -> dict:
@@ -182,12 +223,22 @@ def robustness_tables(path: Path, out: Path, review2: Path | None = None, orig: 
     short = {m: (name if model in ("rule", "Pro", "Pro, replays") else f"{name}, {model}")
              for m, name, model in ROWS}
     short["all_at_once_pro_think"] = "Judge, thinking"
+    S = json.loads(rescore.read_text()) if rescore is not None and rescore.exists() else {}
+    FX = S.get("fixed_cohort", {})
+
+    def fixed_row(label, key):
+        v = FX[key]
+        return " & ".join([label, f"{v['n']}$^\\dagger$", _f(v["mean"]["first_write"]),
+                           f"{short[v['best_llm']]} {_f(v['mean'][v['best_llm']])}",
+                           f"{v['first_write_rank']}", _f(v["kendall_tau_vs_registered"])]) + " \\\\"
     lines = []
     for key, label in ROB_ROWS:
         v = V[key]
         lines.append(" & ".join([label, f"{v['n_rescuable']:.0f}", _f(v["mean"]["first_write"]),
                                  f"{short[v['best_llm']]} {_f(v['best_llm_R'])}",
                                  f"{v['first_write_rank']:.0f}", _f(v["kendall_tau_vs_main"])]) + " \\\\")
+        if key == "no null" and "no_null" in FX:
+            lines.append(fixed_row(label, "no_null"))
     if review2 is not None and review2.exists():
         sp = json.loads(review2.read_text())["split_sample"]
         lines.append(" & ".join(["Split samples", f"{sp['n_rescuable']:.0f}", _f(sp["mean"]["first_write"]),
@@ -230,17 +281,17 @@ def robustness_tables(path: Path, out: Path, review2: Path | None = None, orig: 
         lines.append(" & ".join(["Oracle without grading", f"{B['n']}$^\\dagger$", _f(B["mean"]["first_write"]),
                                  f"{short[best]} {_f(B['mean'][best])}", f"{B['rank_first_write_reg10']}",
                                  _f(B["kendall_reg10_vs_registered"])]) + " \\\\")
-    if rescore is not None and rescore.exists():
-        S = json.loads(rescore.read_text())
-        for key, label in (("tau2_replaced", "Replaced $\\tau^2$ writes dropped"),
-                           ("tau2_conflicts", "Replaced or multi-call $\\tau^2$ writes dropped"),
-                           ("tau2_writes", "All $\\tau^2$ writes dropped"), ("all_writes", "All writes dropped")):
+    if S:
+        for key, label in RESCORE_ROWS:
             if key not in S:
                 continue
             v = S[key]["pooled"]
             lines.append(" & ".join([label, f"{sum(v['n_rescuable'].values())}", _f(v["mean"]["first_write"]),
                                      f"{short[v['best_llm']]} {_f(v['mean'][v['best_llm']])}",
                                      f"{v['first_write_rank']}", _f(v["kendall_tau_vs_registered"])]) + " \\\\")
+            if key in ("tau2_confirmed", "tau2_replaced", "all_writes") and key in FX:
+                lines.append(fixed_row(label, key))
+        choices_table(S, review4, out)
     (out / "robustness.tex").write_text("\n".join(lines) + "\n")
     names = {"tau2_retail": "Retail", "tau2_airline": "Airline", "appworld": "AppWorld"}
     marks = {"tau2_retail": "*", "tau2_airline": "square*", "appworld": "triangle*"}
@@ -631,6 +682,20 @@ def main():
             cells += [_ci(F[m]["R"]["pooled"]), _f(F[m]["exact"]), f"{F[m]['dollars_per_failure']:.4f}"]
             lines.append(" & ".join(cells) + " \\\\")
         summary["posthoc_rows"] = {m: F[m] for m, _, _ in POSTHOC_ROWS}
+        r5 = Path(args.review5)
+        raw = json.loads(r5.read_text())["maxgain"].get("_raw", {}).get("aligned:maxgain") if r5.exists() else None
+        if raw:
+            import random
+            from attrib.analyze import _boot, _mean, load
+            task = {d: {f: x["task_id"] for f, x in load(main_dir / d)["fails"].items()} for d in DOMAINS}
+            pts = [{"R": v, "cluster": k.split("/")[0] + "/" + task[k.split("/")[0]][k.split("/", 1)[1]],
+                    "d": k.split("/")[0]} for k, v in raw.items()]
+            ci = {d: _boot([p for p in pts if p["d"] == d], lambda xs: _mean([x["R"] for x in xs]), random.Random(0))
+                  for d in DOMAINS}
+            ci["pooled"] = _boot(pts, lambda xs: _mean([x["R"] for x in xs]), random.Random(0))
+            lines.append(" & ".join(["CF search@40, aligned", "Pro, replays"] + [_ci(ci[d]) for d in DOMAINS] +
+                                    [_ci(ci["pooled"]), "--", "$\\approx$0.03"]) + " \\\\")
+            summary["aligned_search"] = ci
     (out / "main.tex").write_text("\n".join(lines) + "\n")
     summary["methods"] = {m: {"pooled": P["methods"][m]["R_rescuable"], "exact": P["methods"][m]["exact"],
                               **{d: A[d]["methods"][m]["R_rescuable"] for d in DOMAINS},

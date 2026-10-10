@@ -61,7 +61,8 @@
     "valid": 6,
     "clean": 4
    }
-  }
+  },
+  "relaxed": 11
  },
  "auditor2": {
   "all": {
@@ -125,7 +126,8 @@
     "valid": 10,
     "clean": 10
    }
-  }
+  },
+  "relaxed": 12
  },
  "tau2_write_items": [
   "A05",
@@ -319,6 +321,220 @@
     "valid": 10,
     "clean": 4
    }
+  }
+ },
+ "distinct": {
+  "n": 52,
+  "repeated": [
+   [
+    "A11",
+    "A19"
+   ],
+   [
+    "A13",
+    "A33",
+    "A43"
+   ],
+   [
+    "A29",
+    "A49",
+    "A59"
+   ],
+   [
+    "A39",
+    "A51"
+   ],
+   [
+    "A42",
+    "A47"
+   ],
+   [
+    "A46",
+    "A58"
+   ]
+  ],
+  "auditor1": {
+   "all": {
+    "n": 52,
+    "info": 2,
+    "scope": 5,
+    "valid": 34,
+    "clean": 31
+   },
+   "by_domain": {
+    "appworld": {
+     "n": 20,
+     "info": 0,
+     "scope": 1,
+     "valid": 13,
+     "clean": 12
+    },
+    "tau2_airline": {
+     "n": 14,
+     "info": 2,
+     "scope": 3,
+     "valid": 10,
+     "clean": 8
+    },
+    "tau2_retail": {
+     "n": 18,
+     "info": 0,
+     "scope": 1,
+     "valid": 11,
+     "clean": 11
+    }
+   },
+   "by_flagged": {
+    "False": {
+     "n": 37,
+     "info": 0,
+     "scope": 2,
+     "valid": 26,
+     "clean": 26
+    },
+    "True": {
+     "n": 15,
+     "info": 2,
+     "scope": 3,
+     "valid": 8,
+     "clean": 5
+    }
+   },
+   "by_tau2_write": {
+    "False": {
+     "n": 40,
+     "info": 2,
+     "scope": 1,
+     "valid": 31,
+     "clean": 29
+    },
+    "True": {
+     "n": 12,
+     "info": 0,
+     "scope": 4,
+     "valid": 3,
+     "clean": 2
+    }
+   }
+  },
+  "auditor2": {
+   "all": {
+    "n": 52,
+    "info": 4,
+    "scope": 3,
+    "valid": 37,
+    "clean": 35
+   },
+   "by_domain": {
+    "appworld": {
+     "n": 20,
+     "info": 0,
+     "scope": 2,
+     "valid": 14,
+     "clean": 12
+    },
+    "tau2_airline": {
+     "n": 14,
+     "info": 3,
+     "scope": 0,
+     "valid": 11,
+     "clean": 11
+    },
+    "tau2_retail": {
+     "n": 18,
+     "info": 1,
+     "scope": 1,
+     "valid": 12,
+     "clean": 12
+    }
+   },
+   "by_flagged": {
+    "False": {
+     "n": 37,
+     "info": 2,
+     "scope": 1,
+     "valid": 27,
+     "clean": 27
+    },
+    "True": {
+     "n": 15,
+     "info": 2,
+     "scope": 2,
+     "valid": 10,
+     "clean": 8
+    }
+   },
+   "by_tau2_write": {
+    "False": {
+     "n": 40,
+     "info": 2,
+     "scope": 2,
+     "valid": 31,
+     "clean": 29
+    },
+    "True": {
+     "n": 12,
+     "info": 2,
+     "scope": 1,
+     "valid": 6,
+     "clean": 6
+    }
+   }
+  },
+  "agreement": {
+   "info": {
+    "agreement": 0.9231,
+    "kappa": 0.2973
+   },
+   "scope": {
+    "agreement": 0.9231,
+    "kappa": 0.4611
+   },
+   "valid": {
+    "agreement": 0.7885,
+    "kappa": 0.5136
+   }
+  },
+  "valid_both": 30,
+  "valid_either": 41
+ },
+ "first_write_steps": {
+  "items": [
+   "A05",
+   "A06",
+   "A08",
+   "A11",
+   "A12",
+   "A13",
+   "A19",
+   "A23",
+   "A28",
+   "A33",
+   "A43",
+   "A53"
+  ],
+  "distinct": [
+   "A05",
+   "A06",
+   "A08",
+   "A11",
+   "A12",
+   "A13",
+   "A23",
+   "A28",
+   "A53"
+  ],
+  "auditor1": {
+   "valid_items": 5,
+   "valid_distinct": 3,
+   "tau2_distinct": 7,
+   "tau2_valid_distinct": 1
+  },
+  "auditor2": {
+   "valid_items": 7,
+   "valid_distinct": 5,
+   "tau2_distinct": 7,
+   "tau2_valid_distinct": 3
   }
  }
 }
