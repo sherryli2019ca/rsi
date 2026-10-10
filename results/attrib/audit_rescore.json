@@ -429,8 +429,8 @@
    "auditor1": {
     "kept_valid": 0,
     "kept_invalid": 0,
-    "dropped_valid": 3,
-    "dropped_invalid": 14
+    "dropped_valid": 6,
+    "dropped_invalid": 11
    },
    "auditor2": {
     "kept_valid": 0,
@@ -456,10 +456,10 @@
     "A47"
    ],
    "auditor1": {
-    "kept_valid": 3,
-    "kept_invalid": 3,
-    "dropped_valid": 0,
-    "dropped_invalid": 11
+    "kept_valid": 4,
+    "kept_invalid": 2,
+    "dropped_valid": 2,
+    "dropped_invalid": 9
    },
    "auditor2": {
     "kept_valid": 6,
@@ -481,8 +481,8 @@
     "A31"
    ],
    "auditor1": {
-    "kept_valid": 3,
-    "kept_invalid": 7,
+    "kept_valid": 6,
+    "kept_invalid": 4,
     "dropped_valid": 0,
     "dropped_invalid": 7
    },
