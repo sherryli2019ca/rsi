@@ -1,8 +1,8 @@
 #!/bin/bash
 # Experiment BK (verify/PREREGISTRATION_BK.md): one block. Calibrates the noise
 # band once (baseline and two repeated base evaluations, as in run_il.sh),
-# seeds the block's four loops with it (full, seqfull, seqhist, seqadm), starts
-# them, and deploys the block's base on the held-out tasks.
+# seeds the block's loops with it (one per arm of verify/bk.py's DESIGN),
+# starts them, and deploys the block's base on the held-out tasks.
 # Usage: BLOCK=b1 bash verify/run_bk.sh   (from /home/user/bk_<block>_cal, a
 # detached checkout of the registered commit). Resume-safe: rerun the same command.
 set -u
@@ -29,17 +29,17 @@ done
   $PY rrsi.py $A calibrate --jobs base,heldout_base2,heldout_base3 > runs/rrsi/$D/logs/calibrate.log 2>&1
 grep -q heldout_base3 runs/rrsi/$D/calibration.json || exit 1
 touch runs/cal.done
-declare -A SEL=([f]=full [s]=seqfull [h]=seqhist [a]=seqadm)
-for a in f s h a; do
-  W=/home/user/bk_${B}_$a
+ARMS=$($PY -m verify.bk arms) || exit 1          # e.g. "f=full s=seqfull c=seqcost ..."
+for x in $ARMS; do
+  a=${x%%=*}; W=/home/user/bk_${B}_$a
   [ -d "$W" ] || git worktree add --detach "$W" "$COMMIT" > /dev/null 2>&1 || exit 1
   [ "$(git -C "$W" rev-parse HEAD)" = "$COMMIT" ] || { echo "$W is not at $COMMIT"; exit 1; }
-  $PY -m verify.bk seed --cal "$HERE" --run "$W" --ns bk_${B}_$a --selection ${SEL[$a]} || exit 1
+  $PY -m verify.bk seed --cal "$HERE" --run "$W" --ns bk_${B}_$a --selection ${x#*=} || exit 1
 done
-for a in f s h a; do
-  W=/home/user/bk_${B}_$a
+for x in $ARMS; do
+  a=${x%%=*}; W=/home/user/bk_${B}_$a
   [ -f "$W/runs/bk.done" ] && continue
-  (cd "$W" && NS=bk_${B}_$a SEL=${SEL[$a]} setsid nohup bash verify/run_bk_loop.sh \
+  (cd "$W" && NS=bk_${B}_$a SEL=${x#*=} setsid nohup bash verify/run_bk_loop.sh \
      >> runs/bk.out 2>&1 < /dev/null &)
 done
 [ -f runs/verify/$D/deploy_base.done ] || \

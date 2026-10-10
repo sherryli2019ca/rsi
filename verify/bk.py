@@ -1,25 +1,29 @@
-"""Experiment BK (verify/PREREGISTRATION_BK.md): a blocked 2x2 that separates
-the two things sequential evaluation changes in an RRSI loop on tau2 airline,
+"""Experiment BK (verify/PREREGISTRATION_BK.md): independent RRSI loops on tau2
+airline in blocks that share one noise-band calibration, comparing selection
+rules and separating the two things sequential evaluation changes in a loop:
 which candidates can be accepted (admission) and what the proposer's history
 records for the candidates the rule stops (history).
 
-  arm  selection  admission    history
-  f    full       full         full evaluation
-  s    seqfull    sequential   early-stopped estimates
-  h    seqhist    full         early-stopped estimates
-  a    seqadm     sequential   full evaluation
+  arm  selection  admission                   history of stopped candidates
+  f    full       full evaluation             full evaluation
+  s    seqfull    sequential (registered)     early-stopped estimates
+  c    seqcost    sequential (cost-aware)     early-stopped estimates
+  h    seqhist    full evaluation             early-stopped estimates (seqfull's)
+  a    seqadm     sequential (seqfull's)      full evaluation
 
-Each block calibrates the noise band once (baseline plus two repeated base
-evaluations, in /home/user/bk_<block>_cal) and seeds its four loops with that
-calibration, so the arms of a block start from the same state and the same
-delta. The base is deployed on the held-out tasks once per block.
+DESIGN picks the blocks and arms (fixed at registration). Each block
+calibrates the noise band once (baseline plus two repeated base evaluations,
+in /home/user/bk_<block>_cal) and seeds its loops with that calibration, so
+the arms of a block start from the same state and the same delta. The base is
+deployed on the held-out tasks once per block.
 
+  python -m verify.bk arms                    the design's arms as "letter=selection" words
   python -m verify.bk seed    --cal DIR --run DIR --ns NS --selection SEL
   python -m verify.bk deploy  --run DIR       final incumbent on the held-out tasks
   python -m verify.bk deploy-base --run CAL   the block's base on the held-out tasks
-  python -m verify.bk replay  --run DIR       (full arm) where seqfull would have stopped
-                                              each candidate, and the choice it would make
-  python -m verify.bk missed  --run DIR ...   (IL seqfull loops) held-out deployments of the
+  python -m verify.bk replay  --run DIR       (full arm) where seqfull and seqcost would have
+                                              stopped each candidate, and what they would choose
+  python -m verify.bk missed  [--run DIR ...] (IL seqfull loops) held-out deployments of the
                                               stopped candidates full evaluation would have chosen
   python -m verify.bk spend   [--limit USD]   spend of every BK loop (exit 3 above the limit)
   python -m verify.bk status                  progress (no held-out S)
@@ -52,14 +56,22 @@ D = cl.D
 T_LAST = cl.T_LAST
 K_HELDOUT = cl.K_HELDOUT
 HOME = Path("/home/user")
-BLOCKS = ("b1", "b2", "b3", "b4")
-ARMS = {"f": "full", "s": "seqfull", "h": "seqhist", "a": "seqadm"}
+SELECTION = {"f": "full", "s": "seqfull", "c": "seqcost", "h": "seqhist", "a": "seqadm"}
+DESIGNS = {
+    "five_arms": {"blocks": ("b1", "b2", "b3", "b4"), "arms": ("f", "s", "c", "h", "a")},
+    "rule_fix": {"blocks": ("b1", "b2", "b3", "b4", "b5", "b6"), "arms": ("f", "s", "c")},
+}
+DESIGN = "five_arms"                              # set when the experiment is registered
+BLOCKS = DESIGNS[DESIGN]["blocks"]
+ARMS = {a: SELECTION[a] for a in DESIGNS[DESIGN]["arms"]}
 ADM = {"f": 0, "h": 0, "s": 1, "a": 1}          # 1 = sequential admission
 HIST = {"f": 0, "a": 0, "s": 1, "h": 1}         # 1 = early-stopped history
 CAL_JOBS = ("base", "heldout_base2", "heldout_base3")
-# contrasts over the arm means (f, s, h, a)
+# contrasts over the arm means; those whose arms the design lacks are skipped
 CONTRASTS = {
     "seq_minus_full": {"s": 1, "f": -1},
+    "cost_minus_full": {"c": 1, "f": -1},
+    "cost_minus_seq": {"c": 1, "s": -1},
     "admission": {"s": .5, "a": .5, "f": -.5, "h": -.5},
     "history": {"s": .5, "h": .5, "f": -.5, "a": -.5},
     "interaction": {"s": 1, "a": -1, "h": -1, "f": 1},   # (s - a) - (h - f)
@@ -161,9 +173,10 @@ def _state(run: Path, t: int, dom, cfg):
 
 
 def cmd_replay(run: Path) -> None:
-    """Full arm: for each round, where seqfull would have stopped each candidate
-    (the rule replayed on the candidate's own episodes, in seqfull's order) and
-    which candidate seqfull would then have chosen. Runs no episode."""
+    """Full arm: for each round, where seqfull (and the cost-aware seqcost) would
+    have stopped each candidate (the rule replayed on the candidate's own
+    episodes, in seqfull's order) and which candidate each would then have
+    chosen. Runs no episode."""
     from rrsi.components import novelty
 
     from .live import _seq_candidate
@@ -178,24 +191,29 @@ def cmd_replay(run: Path) -> None:
     rows = []
     for t in range(T_LAST + 1):
         inc_ev, S_star, delta, cands, counts = _state(run, t, dom, cfg)
-        sdir = rr.parent.parent / "verify" / D / "replay" / f"r{t}"
-        sdir.mkdir(parents=True, exist_ok=True)
-        recs, full = {}, {}
-        for c, x in cands:
-            recs[c.variant] = _seq_candidate(fake, t, c, inc_ev, S_star, delta,
-                                             novelty(c.components, counts), sdir, execute=False)
-            full[c.variant] = {"S": x["S"], "admissible": bool(x["admissible"])}
+        full = {c.variant: {"S": x["S"], "admissible": bool(x["admissible"])} for c, x in cands}
         adm = {v: f for v, f in full.items() if f["admissible"]}
-        alive = {v: f for v, f in adm.items() if not recs[v]["dropped"]}
-        rows.append({"t": t, "full_choice": max(adm, key=lambda v: adm[v]["S"]) if adm else None,
-                     "seq_choice": max(alive, key=lambda v: alive[v]["S"]) if alive else None,
-                     "stopped": sorted(v for v, r in recs.items() if r["dropped"]),
-                     "candidates": {v: {**full[v], "n_seq": recs[v]["n"], "m_seq": recs[v]["m"],
-                                        "dropped": recs[v]["dropped"]} for v in recs}})
+        row = {"t": t, "full_choice": max(adm, key=lambda v: adm[v]["S"]) if adm else None,
+               "candidates": {v: dict(f) for v, f in full.items()}}
+        for rule, key in (("seqfull", "seq"), ("seqcost", "seqcost")):
+            sdir = rr.parent.parent / "verify" / D / "replay" / f"r{t}" / rule
+            sdir.mkdir(parents=True, exist_ok=True)
+            recs = {c.variant: _seq_candidate(fake, t, c, inc_ev, S_star, delta,
+                                              novelty(c.components, counts), sdir,
+                                              execute=False, rule=rule) for c, _ in cands}
+            alive = {v: f for v, f in adm.items() if not recs[v]["dropped"]}
+            row[f"{key}_choice"] = max(alive, key=lambda v: alive[v]["S"]) if alive else None
+            row["stopped" if rule == "seqfull" else "stopped_seqcost"] = sorted(
+                v for v, r in recs.items() if r["dropped"])
+            for v, r in recs.items():
+                row["candidates"][v].update({f"n_{key}": r["n"], f"m_{key}": r["m"],
+                                             f"dropped_{key}": r["dropped"]})
+        rows.append(row)
     out = rr.parent.parent / "verify" / D / "replay.json"
     out.write_text(json.dumps(rows, indent=1))
     print(f"{run.name}: seqfull would differ in "
-          f"{sum(r['full_choice'] != r['seq_choice'] for r in rows)} of {len(rows)} rounds")
+          f"{sum(r['full_choice'] != r['seq_choice'] for r in rows)} of {len(rows)} rounds, seqcost in "
+          f"{sum(r['full_choice'] != r['seqcost_choice'] for r in rows)}")
 
 
 def _rows(arm: str, run: Path) -> list:
@@ -203,7 +221,7 @@ def _rows(arm: str, run: Path) -> list:
     from the source each arm has (shadow, replay or the arm's own record)."""
     rr = cl._rrsi(run)
     v = rr.parent.parent / "verify" / D
-    if arm == "s":
+    if arm in ("s", "c"):
         rows = json.loads((v / "shadow.json").read_text())
         return [{"t": r["t"], "full_choice": r["full_choice"], "seq_choice": r["seq_choice"],
                  "stopped": sorted(k for k, c in r["candidates"].items() if c.get("completed"))}
@@ -373,7 +391,7 @@ def cmd_analyze(js: Path, B: int = 4000, seed: int = 13) -> dict:
         return float(np.mean([f[t] - base[t] for t in ts]))
     Y = {(b, a): y(b, a, tasks) for b in BLOCKS for a in ARMS}
     means = {a: float(np.mean([Y[(b, a)] for b in BLOCKS])) for a in ARMS}
-    # two-way additive model (block + arm): residual variance with (4-1)(4-1) = 9 df
+    # two-way additive model (block + arm): residual df (blocks - 1)(arms - 1)
     grand = float(np.mean(list(Y.values())))
     bm = {b: float(np.mean([Y[(b, a)] for a in ARMS])) for b in BLOCKS}
     resid = [Y[(b, a)] - bm[b] - means[a] + grand for b in BLOCKS for a in ARMS]
@@ -382,24 +400,25 @@ def cmd_analyze(js: Path, B: int = 4000, seed: int = 13) -> dict:
     from scipy.stats import t as tdist
     q = float(tdist.ppf(0.95, df))
     rng = np.random.default_rng(seed)
-    boots = {k: [] for k in CONTRASTS}
+    contrasts = {k: c for k, c in CONTRASTS.items() if all(a in ARMS for a in c)}
+    boots = {k: [] for k in contrasts}
     for _ in range(B):
         bs = list(rng.choice(BLOCKS, len(BLOCKS)))
         ts = list(rng.choice(tasks, len(tasks)))
         m = {a: float(np.mean([y(b, a, ts) for b in bs])) for a in ARMS}
-        for k, c in CONTRASTS.items():
+        for k, c in contrasts.items():
             boots[k].append(_contrast(m, c))
     res = {"transfer": {f"{b}_{a}": Y[(b, a)] for b in BLOCKS for a in ARMS},
            "arm_means": means, "resid_sd": math.sqrt(s2), "df": df, "contrasts": {}}
-    for k, c in CONTRASTS.items():
+    for k, c in contrasts.items():
         est = _contrast(means, c)
         se = math.sqrt(s2 * sum(w * w for w in c.values()) / len(BLOCKS))
         p = float(2 * tdist.sf(abs(est) / se, df)) if se > 0 else None
         res["contrasts"][k] = {"est": est, "se": se, "ci90_t": [est - q * se, est + q * se], "p": p,
                                "ci90_boot": [float(np.percentile(boots[k], 5)),
                                              float(np.percentile(boots[k], 95))],
-                               "per_block": ([Y[(b, "s")] - Y[(b, "f")] for b in BLOCKS]
-                                             if k == "seq_minus_full" else None)}
+                               "per_block": ([_contrast({a: Y[(b, a)] for a in c}, c) for b in BLOCKS]
+                                             if len(c) == 2 else None)}
     # what each arm did (descriptive)
     desc = {}
     for b in BLOCKS:
@@ -459,21 +478,27 @@ def cmd_analyze(js: Path, B: int = 4000, seed: int = 13) -> dict:
 def cmd_tables(js: Path, out: Path) -> None:
     res = json.loads(Path(js).read_text())
     pp = lambda x: f"{100 * x:+.1f}"
-    names = {"f": "Full", "s": "Sequential", "h": "History only", "a": "Admission only"}
+    names = {"f": ("Full", "full", "full"), "s": ("Sequential", "seq.", "early"),
+             "c": ("Cost-aware seq.", "cost-aware", "early"), "h": ("History only", "full", "early"),
+             "a": ("Admission only", "seq.", "full")}
     rows = []
-    for a in ("f", "s", "h", "a"):
+    for a in ARMS:
         loops = [res["loops"][f"{b}_{a}"] for b in BLOCKS]
-        rows.append(f"{names[a]} & {'seq.' if ADM[a] else 'full'} & {'early' if HIST[a] else 'full'} & "
+        n, adm, hist = names[a]
+        rows.append(f"{n} & {adm} & {hist} & "
                     + " & ".join(f"${pp(res['transfer'][f'{b}_{a}'])}$" for b in BLOCKS)
                     + f" & ${pp(res['arm_means'][a])}$ & {sum(x['accepted'] for x in loops)} \\\\")
     rows.append("\\midrule")
-    lab = {"seq_minus_full": "Sequential $-$ full", "admission": "Admission (main effect)",
+    lab = {"seq_minus_full": "Sequential $-$ full", "cost_minus_full": "Cost-aware $-$ full",
+           "cost_minus_seq": "Cost-aware $-$ sequential", "admission": "Admission (main effect)",
            "history": "History (main effect)", "interaction": "Interaction"}
+    nb = len(BLOCKS)
     for k, x in res["contrasts"].items():
-        rows.append(f"\\multicolumn{{3}}{{l}}{{{lab[k]}}} & \\multicolumn{{4}}{{l}}"
+        rows.append(f"\\multicolumn{{3}}{{l}}{{{lab[k]}}} & \\multicolumn{{{nb}}}{{l}}"
                     f"{{90\\% $[{pp(x['ci90_t'][0])},{pp(x['ci90_t'][1])}]$}} & ${pp(x['est'])}$ & \\\\")
-    tex = ("\\begin{tabular}{lllrrrrrr}\n\\toprule\n"
-           "Arm & Admission & History & B1 & B2 & B3 & B4 & Mean & Accepted \\\\\n\\midrule\n"
+    tex = ("\\begin{tabular}{lll" + "r" * (nb + 2) + "}\n\\toprule\n"
+           "Arm & Admission & History & " + " & ".join(b.upper() for b in BLOCKS)
+           + " & Mean & Accepted \\\\\n\\midrule\n"
            + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n")
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(tex)
@@ -482,7 +507,7 @@ def cmd_tables(js: Path, out: Path) -> None:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=("seed", "deploy", "deploy-base", "replay", "missed", "spend",
+    ap.add_argument("cmd", choices=("arms", "seed", "deploy", "deploy-base", "replay", "missed", "spend",
                                     "status", "analyze", "tables"))
     ap.add_argument("--run", nargs="*", default=[])
     ap.add_argument("--cal")
@@ -492,7 +517,9 @@ def main():
     ap.add_argument("--json", default="results/bk/analysis.json")
     ap.add_argument("--tex", default="paper/tables/bk.tex")
     a = ap.parse_args()
-    if a.cmd == "seed":
+    if a.cmd == "arms":
+        print(" ".join(f"{k}={v}" for k, v in ARMS.items()))
+    elif a.cmd == "seed":
         cmd_seed(Path(a.cal), Path(a.run[0]), a.ns, a.selection)
     elif a.cmd == "deploy":
         cmd_deploy(Path(a.run[0]))

@@ -1,8 +1,8 @@
 #!/bin/bash
 # Experiment BK (verify/PREREGISTRATION_BK.md): one loop of a block, rounds 0..9
 # from the block's seeded calibration, then the held-out deployment of the
-# final incumbent and, by arm, the shadow evaluation (seqfull) or the replay
-# of the sequential rule (full). Started by verify/run_bk.sh.
+# final incumbent and, by arm, the shadow evaluation (seqfull, seqcost) or the
+# replay of the sequential rules (full). Started by verify/run_bk.sh.
 # Usage: NS=bk_b1_s SEL=seqfull verify/run_bk_loop.sh   (from the loop's checkout)
 # Resume-safe; a second copy started while one runs exits at once.
 set -u
@@ -11,8 +11,8 @@ HERE=$(cd "$(dirname "$0")/.." && pwd)
 cd "$HERE"
 PY=/home/user/venv-tau2/bin/python
 NS=${NS:?set NS, e.g. bk_b1_s}
-SEL=${SEL:?set SEL=full, seqfull, seqhist or seqadm}
-LIMIT=${LIMIT:-100}
+SEL=${SEL:?set SEL=full, seqfull, seqcost, seqhist or seqadm}
+LIMIT=${LIMIT:-120}
 mkdir -p runs/rrsi/$D/logs runs/verify/$D
 exec 9> runs/bk.lock
 flock -n 9 || { echo "[bk:$NS] already running"; exit 0; }
@@ -33,7 +33,7 @@ done
 touch runs/bk_loop.done
 $PY -m verify.bk deploy --run "$HERE" > runs/verify/$D/deploy.log 2>&1 || exit 1
 case "$SEL" in
-  seqfull) $PY -m verify.cl shadow --run "$HERE" > runs/verify/$D/shadow.log 2>&1 || exit 1 ;;
+  seqfull|seqcost) $PY -m verify.cl shadow --run "$HERE" > runs/verify/$D/shadow.log 2>&1 || exit 1 ;;
   full)    $PY -m verify.bk replay --run "$HERE" > runs/verify/$D/replay.log 2>&1 || exit 1 ;;
 esac
 touch runs/bk.done

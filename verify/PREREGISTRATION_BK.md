@@ -1,9 +1,17 @@
-# Pre-registration: a blocked 2x2 of what sequential evaluation changes in an RRSI loop (experiment BK)
+# Pre-registration: blocked loops with shared calibration: the cost-aware stopping rule and what sequential evaluation changes in an RRSI loop (experiment BK)
 
-DRAFT, not yet approved: Dr Cao has been offered this experiment (option B of
-`/mnt/project-files/reviews/review10-plan.md`) and has not chosen yet. If it is
-approved, this file is committed with the code below before any episode of BK
-runs, and the approval is recorded here.
+DRAFT, not yet approved: Dr Cao has been offered this experiment (option 1,
+"five arms", of `/mnt/project-files/reviews/review11-plan.md`, which replaces
+option B of review10-plan.md; option 2, "rule_fix", keeps arms f, s and c in
+six blocks) and has not chosen yet. If it is approved, `DESIGN` in
+`verify/bk.py` is set to the chosen design, this file is committed with the
+code below before any episode of BK runs, and the approval is recorded here.
+
+The eleventh review asks for a comparison with shared or balanced
+calibration and for a live test of the cost-aware stopping rule that the
+tenth review's revision tested only offline ("Running it in independent loops
+would help establish whether correcting the identified approximation also
+reduces the deployment loss").
 
 The tenth review of paper 1 accepts the gap between recorded decisions and
 live loops (experiment IL: sequential loops 4.4 points below full-evaluation
@@ -34,21 +42,25 @@ four arms of the block, so the comparison is balanced on delta by design.
 - Replaying the sequential rule on the full-evaluation IL loops' own episodes
   (`verify/bk.py replay`, no new episodes): in their states the rule would
   have changed the decision in 3 of 40 rounds (f2 r1, f3 r3, f4 r9).
+- The cost-aware rule replayed on the same loops changes the decision in 1 of
+  40 rounds and uses 82% of the candidate-evaluation episodes (the registered
+  rule 73%).
 - The new selection modes were checked on the finished IL loops without
-  running any episode: on the full loops they reproduce every recorded full
-  decision and winner (40 rounds), and replaying the rule on the seqfull loops'
-  own episodes reproduces all 54 recorded stopping records exactly.
+  running any episode: on the full loops seqhist and seqadm reproduce every
+  recorded full decision and winner (40 rounds), seqcost's choices equal the
+  replay's in all 40 rounds, and replaying the registered rule on the seqfull
+  loops' own episodes reproduces all 54 recorded stopping records exactly.
 
 ## Design
 
 - Domain tau2 airline; rounds t = 0..9 with T = 20; loop, models,
   temperatures, tasks, prompts, m = 2, k = 2 and the noise-band calibration
   (baseline plus two repeated base evaluations, z = 2) are those of IL.
-- Four blocks b1..b4. In each block a calibration checkout
-  `/home/user/bk_<block>_cal` calibrates the noise band once; `verify/bk.py
-  seed` then copies the frontier, the calibration, the history and the three
-  base evaluations into the block's four loop checkouts and puts each loop's
-  branch at the same base commit. Every checkout is detached at the commit
+- Four blocks b1..b4 (design five_arms). In each block a calibration
+  checkout `/home/user/bk_<block>_cal` calibrates the noise band once;
+  `verify/bk.py seed` then copies the frontier, the calibration, the history
+  and the three base evaluations into the block's five loop checkouts and puts
+  each loop's branch at the same base commit. Every checkout is detached at the commit
   that adds this file; RRSI's branches live under `evolve/bk_*/` and are
   never pushed.
 - Arms (selection modes in `verify/live.py`):
@@ -57,8 +69,16 @@ four arms of the block, so the comparison is balanced on delta by design.
   |---|---|---|---|
   | f | full | full evaluation | full evaluation |
   | s | seqfull (gamma 0.05, batches of 10, as in IL) | sequential | early-stopped |
-  | h | seqhist | full evaluation | early-stopped |
-  | a | seqadm | sequential | full evaluation |
+  | c | seqcost (cost-aware rule, gamma 0.05) | sequential, cost-aware | early-stopped |
+  | h | seqhist | full evaluation | early-stopped (seqfull's) |
+  | a | seqadm | sequential (seqfull's) | full evaluation |
+
+  seqcost is seqfull with the predictive probability of
+  `verify/posthoc_r10.p_cost`: it integrates over the final cost change,
+  normal around the running estimate with variance
+  ((N-n)/N)^2 s_c^2 (1/n + 1/(N-n)), instead of holding the cost change at
+  its running estimate (offline: recall of full evaluation's acceptances 88%
+  instead of 74% on r2+r3).
 
   In h and a every screened candidate is evaluated in full and the
   sequential rule is replayed on its episodes in seqfull's order to find
@@ -68,16 +88,16 @@ four arms of the block, so the comparison is balanced on delta by design.
   accepts what seqfull would accept; every candidate is recorded with its full
   evaluation, and a stopped candidate that full evaluation admits is recorded
   as "not admitted: the sequential rule stopped it" with its full scores.
-- The four loops of a block run concurrently. Blocks run in two waves (b1
-  and b2, then b3 and b4), eight loops at a time as in IL
+- The loops of a block run concurrently. Blocks run in two waves (b1 and
+  b2, then b3 and b4), ten loops at a time
   (`verify/run_bk_all.sh` -> `verify/run_bk.sh` -> `verify/run_bk_loop.sh`).
 - Held-out deployment, 20 test tasks x 12 trials, with IL's deployment code:
   each block's base once (in its calibration checkout) and every loop's
   incumbent after round 9.
-- What full evaluation and seqfull would have chosen in every round: s loops
-  by the shadow evaluation (`verify/cl.py shadow`, as in IL), f loops by the
-  replay (`verify/bk.py replay`, no episodes), h and a loops from their own
-  round records.
+- What full evaluation and the sequential rule would have chosen in every
+  round: s and c loops by the shadow evaluation (`verify/cl.py shadow`, as in
+  IL), f loops by the replay (`verify/bk.py replay`, no episodes; both rules),
+  h and a loops from their own round records.
 - IL's missed acceptances (option A of the plan, `verify/bk.py missed`):
   held-out deployments of the four stopped candidates that full evaluation
   would have chosen in IL's sequential loops (s2 r5 A, s3 r9 B, s4 r0 A,
@@ -97,10 +117,12 @@ arm, residual df 9, t intervals); a bootstrap over blocks and held-out tasks
 
 1. Replication: s minus f, averaged over blocks (the IL comparison with the
    noise band balanced and both arms concurrent).
-2. Admission main effect: (s + a - f - h) / 2.
-3. History main effect: (s + h - f - a) / 2.
+2. The corrected rule: c minus f, and c minus s.
+3. Admission main effect: (s + a - f - h) / 2.
+4. History main effect: (s + h - f - a) / 2.
 
-Secondary: the interaction (s - a) - (h - f); s minus f pooled with IL (s:
+The residual variance comes from the additive model over all five arms
+(df 12). Secondary: the interaction (s - a) - (h - f); s minus f pooled with IL (s:
 cl1, cl2, s1..s4 and the four BK s loops; f: r2, r3, f1..f4 and the four BK
 f loops), OLS with arm, centred delta and a BK indicator; the held-out gains
 of IL's four missed acceptances (and CL's two) over their incumbents.
@@ -116,6 +138,10 @@ have chosen; delta; the loop's dollar cost and candidate-evaluation episodes
 - The IL loss is "replicated with a balanced noise band" if the 90% interval
   of s - f lies below 0, and "not replicated" otherwise; the paper reports the
   point estimate and interval either way, with the pooled estimate.
+- The corrected rule "reduces the loss" if the 90% interval of c - s lies
+  above 0; "loses to full evaluation" if that of c - f lies below 0. If
+  neither, the paper reports both estimates and says the loops cannot tell.
+  Its candidate-evaluation episodes and loop cost are reported with it.
 - A mechanism is "supported" if its main effect's 90% interval lies below 0.
   If neither interval excludes 0, the paper says that the experiment could not
   separate the two mechanisms and keeps the present (softened) wording.
@@ -127,18 +153,19 @@ Power, stated before the runs: IL's between-loop SD was 4.6 (sequential) and
 3.1 (full) points, including the base deployment's noise and the delta
 differences, both of which cancel within a block. For a residual SD of 3 to
 4.5 points, a main effect has a standard error of 1.5 to 2.3 points (80%
-power at two-sided 10% for effects of about 4 to 6 points) and s - f one of
-2.1 to 3.2 points (about 6 to 9 points). The experiment can therefore show a
+power at two-sided 10% for effects of about 4 to 6 points) and a difference
+of two arms (s - f, c - f, c - s) one of 2.1 to 3.2 points (about 6 to 8
+points). The experiment can therefore show a
 mechanism that carries most of a 4-point loss only if the residual SD is near
 the low end; if the two mechanisms carry about 2 points each, the most likely
 outcome is that neither interval excludes 0.
 
 ## Cost and stopping
 
-Quote: about 65 dollars (16 ten-round loops at 3 to 3.8 dollars, four block
-calibrations, 20 held-out deployments, the shadow evaluations, and about 2
-dollars for IL's missed acceptances). Stop line 100 dollars:
-`verify/bk.py spend --limit 100` runs before every round of every loop, and a
+Quote: about 80 dollars (20 ten-round loops at 2.9 to 3.4 dollars, four
+block calibrations, 24 held-out deployments at about 0.3 dollars, the shadow
+evaluations, and about 1.2 dollars for IL's missed acceptances). Stop line 120
+dollars: `verify/bk.py spend --limit 120` runs before every round of every loop, and a
 loop that would start a round above the limit stops; Dr Cao is then asked
 before anything else runs.
 
