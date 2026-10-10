@@ -305,3 +305,7 @@ any episode.
   At 19:45Z the eight unfinished lineages were resumed with
   `run_bk_loop.sh` and the block scripts with `run_bk_all.sh`; interrupted
   rounds resume from their recorded episodes. No result was inspected.
+- 2026-10-10 20:31Z: every lineage and deployment finished (spend $51.98,
+  stop line not reached). The registered analysis (`verify/bk.py analyze`,
+  `tables`, code unchanged since 7b2aae2) was run at 20:33Z; this was the
+  first look at any held-out result of BK or of IL's missed acceptances.

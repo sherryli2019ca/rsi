@@ -1,0 +1,18 @@
+\begin{tabular}{lllrrrrrr}
+\toprule
+Arm & Admission & History & B1 & B2 & B3 & B4 & Mean & Accepted \\
+\midrule
+Full & full & full & $+6.7$ & $+9.6$ & $+11.2$ & $+7.5$ & $+8.8$ & 12 \\
+History only & full & early & $+4.6$ & $+10.4$ & $+14.2$ & $+10.8$ & $+10.0$ & 12 \\
+Cost-aware seq. & cost-aware & early & $+7.1$ & $+8.3$ & $+13.3$ & $+10.0$ & $+9.7$ & 11 \\
+Admission only & seq. & full & $+7.1$ & $+5.0$ & $+11.2$ & $+7.5$ & $+7.7$ & 11 \\
+Sequential & seq. & early & $+4.6$ & $+8.3$ & $+10.8$ & $+7.9$ & $+7.9$ & 10 \\
+\midrule
+\multicolumn{3}{l}{Sequential $-$ full} & \multicolumn{4}{l}{90\% $[-2.9,+1.2]$} & $-0.8$ & \\
+\multicolumn{3}{l}{Cost-aware $-$ full} & \multicolumn{4}{l}{90\% $[-1.1,+3.0]$} & $+0.9$ & \\
+\multicolumn{3}{l}{Cost-aware $-$ sequential} & \multicolumn{4}{l}{90\% $[-0.2,+3.8]$} & $+1.8$ & \\
+\multicolumn{3}{l}{Admission (main effect)} & \multicolumn{4}{l}{90\% $[-3.0,-0.2]$} & $-1.6$ & \\
+\multicolumn{3}{l}{History (main effect)} & \multicolumn{4}{l}{90\% $[-2.2,+3.7]$} & $+0.7$ & \\
+\multicolumn{3}{l}{Interaction} & \multicolumn{4}{l}{90\% $[-3.9,+1.8]$} & $-1.0$ & \\
+\bottomrule
+\end{tabular}

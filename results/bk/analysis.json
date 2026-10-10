@@ -1,0 +1,537 @@
+{
+ "design": "five_arms_coupled",
+ "model": "lineage model: additive over f, h, c plus the coupled differences a - f, s - h",
+ "transfer": {
+  "b1_f": 0.06666666666666668,
+  "b1_h": 0.04583333333333333,
+  "b1_c": 0.07083333333333333,
+  "b1_a": 0.07083333333333332,
+  "b1_s": 0.04583333333333333,
+  "b2_f": 0.09583333333333335,
+  "b2_h": 0.10416666666666667,
+  "b2_c": 0.08333333333333334,
+  "b2_a": 0.04999999999999999,
+  "b2_s": 0.08333333333333333,
+  "b3_f": 0.1125,
+  "b3_h": 0.14166666666666666,
+  "b3_c": 0.13333333333333336,
+  "b3_a": 0.1125,
+  "b3_s": 0.10833333333333335,
+  "b4_f": 0.075,
+  "b4_h": 0.10833333333333332,
+  "b4_c": 0.1,
+  "b4_a": 0.075,
+  "b4_s": 0.07916666666666665
+ },
+ "arm_means": {
+  "f": 0.08750000000000001,
+  "h": 0.09999999999999999,
+  "c": 0.09687500000000002,
+  "a": 0.07708333333333332,
+  "s": 0.07916666666666666
+ },
+ "resid_sd": 0.014682204522129153,
+ "df": 6,
+ "contrasts": {
+  "seq_minus_full": {
+   "est": -0.008333333333333345,
+   "se": 0.010381886380365317,
+   "df": 6.0,
+   "ci90_t": [
+    -0.028507210222209638,
+    0.011840543555542947
+   ],
+   "p": 0.45277314713459305,
+   "ci90_boot": [
+    -0.036458333333333336,
+    0.017708333333333326
+   ],
+   "per_block": [
+    -0.02083333333333335,
+    -0.012500000000000025,
+    -0.004166666666666652,
+    0.004166666666666652
+   ]
+  },
+  "cost_minus_full": {
+   "est": 0.009375000000000008,
+   "se": 0.010381886380365317,
+   "df": 6.0,
+   "ci90_t": [
+    -0.010798876888876284,
+    0.0295488768888763
+   ],
+   "p": 0.40131567105269383,
+   "ci90_boot": [
+    -0.01874999999999999,
+    0.03854166666666666
+   ],
+   "per_block": [
+    0.004166666666666652,
+    -0.012500000000000011,
+    0.020833333333333356,
+    0.02500000000000001
+   ]
+  },
+  "cost_minus_seq": {
+   "est": 0.017708333333333354,
+   "se": 0.010381886380365317,
+   "df": 6.0,
+   "ci90_t": [
+    -0.0024655435555429386,
+    0.037882210222209646
+   ],
+   "p": 0.1389427985091087,
+   "ci90_boot": [
+    -0.00416666666666668,
+    0.04062500000000001
+   ],
+   "per_block": [
+    0.025,
+    1.3877787807814457e-17,
+    0.02500000000000001,
+    0.020833333333333356
+   ]
+  },
+  "admission": {
+   "est": -0.015625000000000007,
+   "se": 0.006987712429686844,
+   "df": 5.037777573021282,
+   "ci90_t": [
+    -0.029682287800752598,
+    -0.0015677121992474143
+   ],
+   "p": 0.07518564104024822,
+   "ci90_boot": [
+    -0.03385416666666667,
+    -0.002083333333333333
+   ],
+   "per_block": [
+    0.002083333333333319,
+    -0.033333333333333354,
+    -0.016666666666666656,
+    -0.014583333333333337
+   ]
+  },
+  "history": {
+   "est": 0.007291666666666662,
+   "se": 0.0076782445789916635,
+   "df": 1.4425300877748626,
+   "ci90_t": [
+    -0.022314481424193018,
+    0.03689781475752634
+   ],
+   "p": 0.47379472097299113,
+   "ci90_boot": [
+    -0.020833333333333315,
+    0.034895833333333334
+   ],
+   "per_block": [
+    -0.02291666666666667,
+    0.02083333333333333,
+    0.012500000000000004,
+    0.01874999999999999
+   ]
+  },
+  "interaction": {
+   "est": -0.010416666666666644,
+   "se": 0.013975424859373689,
+   "df": 5.037777573021282,
+   "ci90_t": [
+    -0.038531242268171825,
+    0.01769790893483854
+   ],
+   "p": 0.48935013121973236,
+   "ci90_boot": [
+    -0.04479166666666666,
+    0.01874999999999996
+   ],
+   "per_block": [
+    -0.004166666666666638,
+    0.025000000000000022,
+    -0.03333333333333331,
+    -0.029166666666666674
+   ]
+  }
+ },
+ "forks": {
+  "b1_f": null,
+  "b1_h": 0,
+  "b1_c": 0,
+  "b1_a": 8,
+  "b1_s": 0,
+  "b2_f": null,
+  "b2_h": 0,
+  "b2_c": 0,
+  "b2_a": 0,
+  "b2_s": 7,
+  "b3_f": null,
+  "b3_h": 0,
+  "b3_c": 0,
+  "b3_a": null,
+  "b3_s": 4,
+  "b4_f": null,
+  "b4_h": 1,
+  "b4_c": 1,
+  "b4_a": null,
+  "b4_s": 2
+ },
+ "loops": {
+  "b1_f": {
+   "accepted": 5,
+   "rounds_full_would_accept": 5,
+   "rounds_seq_differs": 1,
+   "stopped_full_choice": 1,
+   "stopped": 10,
+   "delta": 0.054433,
+   "cost": {
+    "llm": 2.1693356832,
+    "eval": 1.261053444,
+    "smoke": 0.027745902800000003,
+    "calibration": 0.22075788000000002,
+    "total": 3.6788929099999996,
+    "eval_episodes": 960
+   }
+  },
+  "b1_h": {
+   "accepted": 2,
+   "rounds_full_would_accept": 2,
+   "rounds_seq_differs": 0,
+   "stopped_full_choice": 0,
+   "stopped": 6,
+   "delta": 0.054433,
+   "cost": {
+    "llm": 1.9838077038000006,
+    "eval": 0.9089275104,
+    "smoke": 0.017695493200000002,
+    "calibration": 0.22075788000000002,
+    "total": 3.1311885874000005,
+    "eval_episodes": 720
+   }
+  },
+  "b1_c": {
+   "accepted": 5,
+   "rounds_full_would_accept": 5,
+   "rounds_seq_differs": 0,
+   "stopped_full_choice": 0,
+   "stopped": 3,
+   "delta": 0.054433,
+   "cost": {
+    "llm": 2.217359085600001,
+    "eval": 1.0738585928,
+    "smoke": 0.0156322208,
+    "calibration": 0.22075788000000002,
+    "total": 3.5276077792000007,
+    "eval_episodes": 830
+   }
+  },
+  "b1_a": {
+   "accepted": 4,
+   "rounds_full_would_accept": 5,
+   "rounds_seq_differs": 1,
+   "stopped_full_choice": 1,
+   "stopped": 10,
+   "delta": 0.054433,
+   "cost": {
+    "llm": 2.136205419,
+    "eval": 1.2289678968,
+    "smoke": 0.028714954800000005,
+    "calibration": 0.22075788000000002,
+    "total": 3.6146461505999996,
+    "eval_episodes": 960
+   }
+  },
+  "b1_s": {
+   "accepted": 2,
+   "rounds_full_would_accept": 2,
+   "rounds_seq_differs": 0,
+   "stopped_full_choice": 0,
+   "stopped": 6,
+   "delta": 0.054433,
+   "cost": {
+    "llm": 1.9838077038000006,
+    "eval": 0.6895902972000001,
+    "smoke": 0.017695493200000002,
+    "calibration": 0.22075788000000002,
+    "total": 2.9118513742000007,
+    "eval_episodes": 550
+   }
+  },
+  "b2_f": {
+   "accepted": 3,
+   "rounds_full_would_accept": 3,
+   "rounds_seq_differs": 0,
+   "stopped_full_choice": 0,
+   "stopped": 7,
+   "delta": 0.072008,
+   "cost": {
+    "llm": 2.0327909172000003,
+    "eval": 0.9081643451999999,
+    "smoke": 0.01706152,
+    "calibration": 0.22089756640000002,
+    "total": 3.1789143488000002,
+    "eval_episodes": 720
+   }
+  },
+  "b2_h": {
+   "accepted": 3,
+   "rounds_full_would_accept": 3,
+   "rounds_seq_differs": 1,
+   "stopped_full_choice": 1,
+   "stopped": 9,
+   "delta": 0.072008,
+   "cost": {
+    "llm": 2.1248202095999997,
+    "eval": 1.2163942363999998,
+    "smoke": 0.021713692000000003,
+    "calibration": 0.22089756640000002,
+    "total": 3.5838257043999997,
+    "eval_episodes": 900
+   }
+  },
+  "b2_c": {
+   "accepted": 2,
+   "rounds_full_would_accept": 2,
+   "rounds_seq_differs": 0,
+   "stopped_full_choice": 0,
+   "stopped": 4,
+   "delta": 0.072008,
+   "cost": {
+    "llm": 2.2196014385999994,
+    "eval": 0.8108120272,
+    "smoke": 0.013157897200000003,
+    "calibration": 0.22089756640000002,
+    "total": 3.2644689293999996,
+    "eval_episodes": 630
+   }
+  },
+  "b2_a": {
+   "accepted": 3,
+   "rounds_full_would_accept": 4,
+   "rounds_seq_differs": 1,
+   "stopped_full_choice": 1,
+   "stopped": 11,
+   "delta": 0.072008,
+   "cost": {
+    "llm": 2.1988616304,
+    "eval": 1.1663037539999999,
+    "smoke": 0.024002395200000002,
+    "calibration": 0.22089756640000002,
+    "total": 3.6100653460000003,
+    "eval_episodes": 900
+   }
+  },
+  "b2_s": {
+   "accepted": 3,
+   "rounds_full_would_accept": 4,
+   "rounds_seq_differs": 1,
+   "stopped_full_choice": 1,
+   "stopped": 9,
+   "delta": 0.072008,
+   "cost": {
+    "llm": 2.2333749174,
+    "eval": 0.6562551856,
+    "smoke": 0.0179158168,
+    "calibration": 0.22089756640000002,
+    "total": 3.1284434862,
+    "eval_episodes": 510
+   }
+  },
+  "b3_f": {
+   "accepted": 2,
+   "rounds_full_would_accept": 2,
+   "rounds_seq_differs": 0,
+   "stopped_full_choice": 0,
+   "stopped": 8,
+   "delta": 0.054433,
+   "cost": {
+    "llm": 1.8891813281999996,
+    "eval": 1.0859273656,
+    "smoke": 0.019933592,
+    "calibration": 0.21883357160000003,
+    "total": 3.2138758573999993,
+    "eval_episodes": 840
+   }
+  },
+  "b3_h": {
+   "accepted": 4,
+   "rounds_full_would_accept": 4,
+   "rounds_seq_differs": 1,
+   "stopped_full_choice": 1,
+   "stopped": 12,
+   "delta": 0.054433,
+   "cost": {
+    "llm": 2.18577303,
+    "eval": 1.3979774816000003,
+    "smoke": 0.022866953200000005,
+    "calibration": 0.21883357160000003,
+    "total": 3.8254510364,
+    "eval_episodes": 1080
+   }
+  },
+  "b3_c": {
+   "accepted": 2,
+   "rounds_full_would_accept": 2,
+   "rounds_seq_differs": 0,
+   "stopped_full_choice": 0,
+   "stopped": 7,
+   "delta": 0.054433,
+   "cost": {
+    "llm": 2.1671514156,
+    "eval": 0.9146104156,
+    "smoke": 0.020516171200000002,
+    "calibration": 0.21883357160000003,
+    "total": 3.3211115739999997,
+    "eval_episodes": 720
+   }
+  },
+  "b3_a": {
+   "accepted": 2,
+   "rounds_full_would_accept": 2,
+   "rounds_seq_differs": 0,
+   "stopped_full_choice": 0,
+   "stopped": 8,
+   "delta": 0.054433,
+   "cost": {
+    "llm": 1.8891813281999996,
+    "eval": 1.0859273656,
+    "smoke": 0.019933592,
+    "calibration": 0.21883357160000003,
+    "total": 3.2138758573999993,
+    "eval_episodes": 840
+   }
+  },
+  "b3_s": {
+   "accepted": 3,
+   "rounds_full_would_accept": 4,
+   "rounds_seq_differs": 1,
+   "stopped_full_choice": 1,
+   "stopped": 11,
+   "delta": 0.054433,
+   "cost": {
+    "llm": 1.9731673680000001,
+    "eval": 0.8087704548000001,
+    "smoke": 0.0186087832,
+    "calibration": 0.21883357160000003,
+    "total": 3.0193801776,
+    "eval_episodes": 660
+   }
+  },
+  "b4_f": {
+   "accepted": 2,
+   "rounds_full_would_accept": 2,
+   "rounds_seq_differs": 0,
+   "stopped_full_choice": 0,
+   "stopped": 13,
+   "delta": 0.08165,
+   "cost": {
+    "llm": 2.1401425212,
+    "eval": 1.1405752708,
+    "smoke": 0.022373864800000004,
+    "calibration": 0.21444768520000002,
+    "total": 3.517539342,
+    "eval_episodes": 900
+   }
+  },
+  "b4_h": {
+   "accepted": 3,
+   "rounds_full_would_accept": 3,
+   "rounds_seq_differs": 2,
+   "stopped_full_choice": 2,
+   "stopped": 12,
+   "delta": 0.08165,
+   "cost": {
+    "llm": 2.4695962524,
+    "eval": 1.1561874380000001,
+    "smoke": 0.0201812716,
+    "calibration": 0.21444768520000002,
+    "total": 3.8604126472000004,
+    "eval_episodes": 900
+   }
+  },
+  "b4_c": {
+   "accepted": 2,
+   "rounds_full_would_accept": 2,
+   "rounds_seq_differs": 0,
+   "stopped_full_choice": 0,
+   "stopped": 8,
+   "delta": 0.08165,
+   "cost": {
+    "llm": 2.1843812124,
+    "eval": 0.7177361016,
+    "smoke": 0.0225954904,
+    "calibration": 0.21444768520000002,
+    "total": 3.1391604896,
+    "eval_episodes": 560
+   }
+  },
+  "b4_a": {
+   "accepted": 2,
+   "rounds_full_would_accept": 2,
+   "rounds_seq_differs": 0,
+   "stopped_full_choice": 0,
+   "stopped": 13,
+   "delta": 0.08165,
+   "cost": {
+    "llm": 2.1401425212,
+    "eval": 1.1405752708,
+    "smoke": 0.022373864800000004,
+    "calibration": 0.21444768520000002,
+    "total": 3.517539342,
+    "eval_episodes": 900
+   }
+  },
+  "b4_s": {
+   "accepted": 2,
+   "rounds_full_would_accept": 6,
+   "rounds_seq_differs": 5,
+   "stopped_full_choice": 5,
+   "stopped": 11,
+   "delta": 0.08165,
+   "cost": {
+    "llm": 2.1557723358,
+    "eval": 0.5431478864,
+    "smoke": 0.016015804,
+    "calibration": 0.21444768520000002,
+    "total": 2.9293837114,
+    "eval_episodes": 420
+   }
+  }
+ },
+ "pooled_with_il": {
+  "n_seq": 10,
+  "n_full": 10,
+  "seq_minus_full_delta_adjusted": -0.016583306075410302,
+  "ci90": [
+   -0.04120355412122234,
+   0.00803694197040174
+  ],
+  "df": 16
+ },
+ "missed_il": [
+  {
+   "loop": "s2",
+   "t": 5,
+   "variant": "A",
+   "gain": 0.03333333333333331
+  },
+  {
+   "loop": "s3",
+   "t": 9,
+   "variant": "B",
+   "gain": -0.008333333333333335
+  },
+  {
+   "loop": "s4",
+   "t": 0,
+   "variant": "A",
+   "gain": 0.029166666666666674
+  },
+  {
+   "loop": "s4",
+   "t": 1,
+   "variant": "B",
+   "gain": 0.07916666666666668
+  }
+ ]
+}
