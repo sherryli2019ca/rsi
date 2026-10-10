@@ -5,9 +5,11 @@ Q3 valid), the hidden mechanical flags and the audit items, and reports the
 shares overall, by domain, by mechanical-flag stratum and for tau2
 corrections that change state. `--flip` lists items whose Q3 answer is read
 as "no" because the auditor's own written reason says the correction is not
-valid (the sheet's raw answers are always reported too).
+valid (the sheet's raw answers are always reported too). The released
+labels (attrib/audit/audit_labels.csv) omit the auditor's free-text reasons;
+the flipped items are those listed in results/attrib/audit_human.json.
 
-    python -m attrib.audit_human --sheet SHEET --key KEY --items ITEMS \
+    python -m attrib.audit_human --sheet attrib/audit/audit_labels.csv --key KEY --items ITEMS \
         [--flip A03,A08,...] --out results/attrib/audit_human.json
 """
 from __future__ import annotations
