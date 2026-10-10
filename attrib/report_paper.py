@@ -74,6 +74,7 @@ ORIG_DEFAULT = ROB_DEFAULT.with_name("phaseA_orig_control.json")
 SECOND_DEFAULT = ROB_DEFAULT.with_name("phaseA_second_oracle.json")
 ADMISS_DEFAULT = ROB_DEFAULT.with_name("phaseA_admissibility.json")
 FACTORIAL_DEFAULT = ROB_DEFAULT.with_name("phaseA_factorial.json")
+REVIEW4_DEFAULT = ROB_DEFAULT.with_name("phaseAB_review4.json")
 POSTHOC_ROWS = [("all_at_once_gain_pro", "All-at-once, gain", "Pro"),
                 ("binary_search_gain_pro", "Binary search, gain", "Pro"),
                 ("all_at_once_blind_pro", "All-at-once, no grading", "Pro"),
@@ -171,7 +172,7 @@ def _state_contrast(rows: list[dict], g: str, h: str) -> dict:
 
 
 def robustness_tables(path: Path, out: Path, review2: Path | None = None, orig: Path | None = None,
-                      second: Path | None = None, admiss: Path | None = None) -> dict:
+                      second: Path | None = None, admiss: Path | None = None, review4: Path | None = None) -> dict:
     R = json.loads(path.read_text())
     V = {v["variant"]: v for v in R["variants"]}
     short = {m: (name if model in ("rule", "Pro", "Pro, replays") else f"{name}, {model}")
@@ -219,6 +220,12 @@ def robustness_tables(path: Path, out: Path, review2: Path | None = None, orig: 
                               f"{100 * r['unseen_any']:.1f}", f"{100 * r['expanded']:.1f}",
                               f"{100 * r['strict']:.1f}", ""]) + " \\\\")
         (out / "admissibility.tex").write_text("\n".join(rl) + "\n")
+    if review4 is not None and review4.exists() and "blind" in json.loads(review4.read_text()):
+        B = json.loads(review4.read_text())["blind"]
+        best = B["best_llm_reg10"]
+        lines.append(" & ".join(["Oracle without grading", f"{B['n']}", _f(B["mean"]["first_write"]),
+                                 f"{short[best]} {_f(B['mean'][best])}", f"{B['rank_first_write_reg10']}",
+                                 _f(B["kendall_reg10_vs_registered"])]) + " \\\\")
     (out / "robustness.tex").write_text("\n".join(lines) + "\n")
     names = {"tau2_retail": "Retail", "tau2_airline": "Airline", "appworld": "AppWorld"}
     marks = {"tau2_retail": "*", "tau2_airline": "square*", "appworld": "triangle*"}
@@ -230,6 +237,94 @@ def robustness_tables(path: Path, out: Path, review2: Path | None = None, orig: 
     (out / "nullpos.tex").write_text("\n".join(lines) + "\n")
     return {"variants": {k: V[k] for k, _ in ROB_ROWS}, "rescuable_by_domain": R["rescuable_by_domain"],
             "null_by_position": R["null_by_position"], "named_relative_position": R["named_relative_position"]}
+
+
+R4_GROUPS = [("none", "No attribution"), ("rrsi", "RRSI analysis"), ("first_write", "First write"),
+             ("binary_search", "Binary search"), ("cf_search", "Counterfactual search@40"),
+             ("oracle", "Oracle step"), ("rrsi_noread", "RRSI analysis, no reading"),
+             ("oracle_fix_noread", "Oracle fix, no reading")]
+R4_STRATA_M = ["first_write", "all_at_once_pro", "binary_search_pro", "search@40", "all_at_once_gain_pro",
+               "binary_search_gain_pro", "search_inf@40"]
+R4_KIND = {"write": "write", "utterance": "utterance", "submit": "submission", "read": "read", "other": "other code",
+           "docs": "docs"}
+R4_BLIND_ROWS = ROWS + POSTHOC_ROWS
+
+
+def _pm(x, d=2):
+    return f"${'+' if x >= 0 else '-'}{abs(x):.{d}f}$"
+
+
+def review4_tables(path: Path, out: Path) -> dict:
+    """Tables for the accepted rounds, the kinds of best rescue step, the
+    grading-blind oracle and the fresh replays (attrib/review4.py)."""
+    R = json.loads(path.read_text())
+    res = {}
+    if "accepted" in R:
+        A = R["accepted"]
+        con = {(c["g"], c["h"]): c for c in A["contrasts"]}
+        lines = []
+        for g, name in R4_GROUPS:
+            v = A["groups"][g]
+            gains = ", ".join(_pm(x, 1) for x in v["accepted_gains"]) or "--"
+            c = con.get((g, "rrsi"))
+            cells = [name, f"{v['accepted']}/{v['rounds']}", gains, _pm(v["round_gain"])]
+            if c:
+                s, r = c["states"]["ci95"], c["runs"]["ci95"]
+                cells += [_pm(c["estimate_pp"]), f"[{_pm(s[0])}, {_pm(s[1])}]", f"[{_pm(r[0])}, {_pm(r[1])}]",
+                          f"{c['runs']['p_signflip']:.2f}"]
+            else:
+                cells += ["", "", "", ""]
+            lines.append(" & ".join(cells) + " \\\\")
+        lines.append("\\midrule")
+        for g, h, name in (("first_write+binary_search+cf_search+oracle", "rrsi", "Any step pointer $-$ RRSI"),
+                           ("oracle+oracle_fix_noread", "rrsi+rrsi_noread", "Oracle evidence $-$ RRSI, pooled"),
+                           ("oracle_fix_noread", "rrsi_noread", "Oracle fix $-$ RRSI, no reading")):
+            c = con[(g, h)]
+            s, r = c["states"]["ci95"], c["runs"]["ci95"]
+            lines.append(" & ".join([name, "", "", "", _pm(c["estimate_pp"]), f"[{_pm(s[0])}, {_pm(s[1])}]",
+                                     f"[{_pm(r[0])}, {_pm(r[1])}]", f"{c['runs']['p_signflip']:.2f}"]) + " \\\\")
+        (out / "accepted.tex").write_text("\n".join(lines) + "\n")
+        res["accepted"] = A
+    if "strata" in R:
+        S = R["strata"]
+        lines = []
+        for d in DOMAINS:
+            for cell, v in S["by_cell"].items():
+                dd, k = cell.split("/")
+                if dd != d or v["n"] < 5:
+                    continue
+                lines.append(" & ".join([f"{DNAME[d]}, {R4_KIND.get(k, k)}", str(v["n"])] +
+                                        [_f(v[m]) for m in R4_STRATA_M]) + " \\\\")
+        lines.append("\\midrule")
+        for key, name in (("state_changing", "Best step changes state"), ("other", "Other best steps")):
+            v = S["split"][key]
+            lines.append(" & ".join([name, str(v["n"])] + [_f(v["mean"][m]) for m in R4_STRATA_M]) + " \\\\")
+        v = S["kind_balanced"]
+        lines.append(" & ".join([f"Cells weighted equally", str(v["cells"])] +
+                                [_f(v["mean"][m]) for m in R4_STRATA_M]) + " \\\\")
+        (out / "strata.tex").write_text("\n".join(lines) + "\n")
+        res["strata"] = {k: S[k] for k in ("split", "kind_balanced",
+                                           "first_write_score_share_from_state_changing_best_steps")}
+    if "blind" in R:
+        B = R["blind"]
+        lines = []
+        for i, (m, name, model) in enumerate(R4_BLIND_ROWS):
+            if i in MIDRULES or i == len(ROWS):
+                lines.append("\\midrule")
+            lines.append(" & ".join([name, model, _f(B["registered_same_failures"][m]), _f(B["mean"][m])] +
+                                    [_f(B["by_domain"][d]["mean"][m]) for d in DOMAINS]) + " \\\\")
+        (out / "blind.tex").write_text("\n".join(lines) + "\n")
+        res["blind"] = {k: v for k, v in B.items() if k not in ("steps_by_domain_kind",)}
+    if "fresh" in R:
+        F = R["fresh"]
+        lines = []
+        for g, name in (("oracle", "Oracle step"), ("first_write", "First write"), ("binary_search", "Binary search"),
+                        ("cf_search", "CF search@40"), ("rrsi", "RRSI (earliest cited)")):
+            a, r = F["all"][g], F["rescuable"][g]
+            lines.append(" & ".join([name, _f(a["reg"]), _f(a["fresh"]), _f(r["reg"]), _f(r["fresh"])]) + " \\\\")
+        (out / "fresh.tex").write_text("\n".join(lines) + "\n")
+        res["fresh"] = F
+    return res
 
 
 def variant_tables(rescue: Path, gold: Path, out: Path) -> dict:
@@ -441,6 +536,7 @@ def main():
     ap.add_argument("--second-oracle", default=str(SECOND_DEFAULT))
     ap.add_argument("--factorial", default=str(FACTORIAL_DEFAULT))
     ap.add_argument("--admissibility", default=str(ADMISS_DEFAULT))
+    ap.add_argument("--review4", default=str(REVIEW4_DEFAULT))
     ap.add_argument("--out", default=str(Path(__file__).resolve().parents[1] / "paper2" / "tables"))
     ap.add_argument("--whowhen", default="/mnt/project-files/results/attrib/whowhen_scores.json")
     args = ap.parse_args()
@@ -450,8 +546,10 @@ def main():
                        Path(args.phaseb_review3)) \
         if Path(args.phaseb).exists() else None
     rob = robustness_tables(Path(args.robustness), out, Path(args.review2), Path(args.orig_control),
-                            Path(args.second_oracle), Path(args.admissibility)) \
+                            Path(args.second_oracle), Path(args.admissibility), Path(args.review4)) \
         if Path(args.robustness).exists() else None
+    if Path(args.review4).exists():
+        rob = {**(rob or {}), "review4": review4_tables(Path(args.review4), out)}
     var = variant_tables(Path(args.rescue_prompt), Path(args.gold_rule), out)
     var["decomposition"] = decomp_tables(Path(args.review2), out)
     if not args.main:
