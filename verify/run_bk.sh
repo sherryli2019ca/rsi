@@ -1,8 +1,9 @@
 #!/bin/bash
 # Experiment BK (verify/PREREGISTRATION_BK.md): one block. Calibrates the noise
 # band once (baseline and two repeated base evaluations, as in run_il.sh),
-# seeds the block's loops with it (one per arm of verify/bk.py's DESIGN),
-# starts them, and deploys the block's base on the held-out tasks.
+# seeds the block's starting loops with it (verify/bk.py starts: one lineage
+# holding every arm in the coupled design, one loop per arm otherwise), starts
+# them, and deploys the block's base on the held-out tasks.
 # Usage: BLOCK=b1 bash verify/run_bk.sh   (from /home/user/bk_<block>_cal, a
 # detached checkout of the registered commit). Resume-safe: rerun the same command.
 set -u
@@ -29,18 +30,15 @@ done
   $PY rrsi.py $A calibrate --jobs base,heldout_base2,heldout_base3 > runs/rrsi/$D/logs/calibrate.log 2>&1
 grep -q heldout_base3 runs/rrsi/$D/calibration.json || exit 1
 touch runs/cal.done
-ARMS=$($PY -m verify.bk arms) || exit 1          # e.g. "f=full s=seqfull c=seqcost ..."
-for x in $ARMS; do
-  a=${x%%=*}; W=/home/user/bk_${B}_$a
+STARTS=$($PY -m verify.bk starts --block "$B") || exit 1   # "checkout arms" per line
+while read -r W ARMS; do
   [ -d "$W" ] || git worktree add --detach "$W" "$COMMIT" > /dev/null 2>&1 || exit 1
   [ "$(git -C "$W" rev-parse HEAD)" = "$COMMIT" ] || { echo "$W is not at $COMMIT"; exit 1; }
-  $PY -m verify.bk seed --cal "$HERE" --run "$W" --ns bk_${B}_$a --selection ${x#*=} || exit 1
-done
-for x in $ARMS; do
-  a=${x%%=*}; W=/home/user/bk_${B}_$a
+  $PY -m verify.bk seed --cal "$HERE" --run "$W" --arms "$ARMS" || exit 1
+done <<< "$STARTS"
+while read -r W ARMS; do
   [ -f "$W/runs/bk.done" ] && continue
-  (cd "$W" && NS=bk_${B}_$a SEL=${x#*=} setsid nohup bash verify/run_bk_loop.sh \
-     >> runs/bk.out 2>&1 < /dev/null &)
-done
+  (cd "$W" && setsid nohup bash verify/run_bk_loop.sh >> runs/bk.out 2>&1 < /dev/null &)
+done <<< "$STARTS"
 [ -f runs/verify/$D/deploy_base.done ] || \
   $PY -m verify.bk deploy-base --run "$HERE" > runs/verify/$D/deploy_base.log 2>&1

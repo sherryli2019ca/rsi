@@ -61,6 +61,13 @@ seqadm        which cross what the sequential rule changes in a loop: which
               its full evaluation, and a stopped candidate that full evaluation
               admits is recorded as not admitted by the sequential rule.
 
+group:<arms>  Coupled lineages of experiment BK: arms (f full, h seqhist, c
+              seqcost, a seqadm, s seqfull) that are in the same state share a
+              round; every candidate is evaluated in full and each arm's round is
+              computed from those episodes as its own mode records it. Arms
+              whose rounds differ are forked into their own checkouts
+              (select_group, verify/bk.py).
+
 f = failed trials / trials of H_t's evaluation. A missing replay (infrastructure)
 is left out, as in the offline analysis; a missing fresh episode scores 0, as in
 RRSI's Evaluate.
@@ -75,6 +82,7 @@ rrsi/llm.py (RRSI_USAGE_LOG) and are the same machinery in every mode.
 """
 from __future__ import annotations
 
+import copy
 import json
 import math
 import random
@@ -102,7 +110,10 @@ MIN_B = {"sample": 1, "replay": 1, "replaynull": 2, "net": 4}
 
 
 def parse_mode(mode: str) -> tuple[str, int]:
-    """'net@40' -> ('net', 40); 'judge' -> ('judge', 0)."""
+    """'net@40' -> ('net', 40); 'judge' -> ('judge', 0); 'group:f,a' -> ('group', 0)."""
+    if str(mode).startswith("group:"):
+        group_members(mode)
+        return "group", 0
     rule, _, b = str(mode).strip().partition("@")
     if rule not in RULES:
         raise SystemExit(f"unknown selection {mode!r}: use full, none, judge, sample@b, "
@@ -317,6 +328,8 @@ def select_with_evidence(run, t: int, cands: list, inc_ev: EvalResult, rdir: Pat
         return select_sequential(run, t, cands, inc_ev, rdir, ids, counts)
     if rule in ("seqhist", "seqadm"):
         return select_mechanism(run, t, cands, inc_ev, rdir, ids, counts)
+    if rule == "group":
+        return select_group(run, t, cands, inc_ev, rdir, ids, counts)
     z = float(cfg.delta_z)
     edir = rdir / "evidence"
     edir.mkdir(exist_ok=True)
@@ -578,6 +591,68 @@ def select_sequential(run, t: int, cands: list, inc_ev: EvalResult, rdir: Path, 
     return winner, decisions
 
 
+def _mech_outcome(rule: str, cands: list, by_v: dict, full_winner, seq: dict, inc_ev: EvalResult):
+    """seqhist or seqadm in one state, from complete evaluations: (winner variant,
+    decisions in cands order, variants recorded without attribution, seqfull's
+    choice). by_v: RRSI's decisions on every evaluated candidate; full_winner:
+    full evaluation's choice; seq: seqfull's records replayed on the episodes."""
+    stopped = {v for v, r in seq.items() if r["dropped"]}
+    alive_adm = [v for v in by_v if v not in stopped and by_v[v].admissible]
+    seq_winner = max(alive_adm, key=lambda v: by_v[v].S) if alive_adm else None
+    winner = full_winner if rule == "seqhist" else seq_winner
+    decisions, no_attr = [], set()
+    for c in cands:
+        if c.gate_failure is not None or c.variant not in by_v:
+            decisions.append(Decision(c.variant, False, c.gate_failure))
+            continue
+        x, r = copy.copy(by_v[c.variant]), seq[c.variant]
+        if c.variant not in stopped or (rule == "seqhist" and c.variant == winner):
+            if rule == "seqhist":                 # as seqfull records a completed candidate
+                x.reason = f"[seqfull: all {r['N']} episodes] {x.reason}"
+            decisions.append(x)
+        elif rule == "seqadm":
+            if x.admissible:
+                x.admissible = False
+                x.reason = (f"not admitted: the sequential rule stopped it after {r['n']} of "
+                            f"{r['N']} evolve episodes (full evaluation: {x.reason})")
+            decisions.append(x)
+        else:                                     # seqhist: exactly seqfull's record
+            decisions.append(_stopped_decision("seqfull", c.variant, r, inc_ev))
+            no_attr.add(c.variant)
+    return winner, decisions, no_attr, seq_winner
+
+
+def _stopped_decision(rule: str, variant: str, r: dict, inc_ev: EvalResult) -> Decision:
+    return Decision(variant, False,
+                    f"[{rule}] stopped after {r['n']} of {r['N']} evolve episodes: {r['why']}; "
+                    f"early-stopped estimate dS {r['m']:+.4f}",
+                    S=inc_ev.S + r["m"], C=None, delta_S=r["m"], delta_C=r["dC"], novelty=r["nu"])
+
+
+def _seq_outcome(rule: str, cands: list, by_v: dict, seq: dict, inc_ev: EvalResult):
+    """seqfull or seqcost in one state, from complete evaluations: what
+    select_sequential records when every episode it asks for is on disk (its
+    rule replayed in its order; the candidates it does not stop are decided by
+    RRSI's select_round, whose decision on a candidate does not depend on the
+    others)."""
+    alive_adm = [v for v in by_v if not seq[v]["dropped"] and by_v[v].admissible]
+    winner = max(alive_adm, key=lambda v: by_v[v].S) if alive_adm else None
+    decisions, no_attr = [], set()
+    for c in cands:
+        if c.gate_failure is not None or c.variant not in by_v:
+            decisions.append(Decision(c.variant, False, c.gate_failure))
+            continue
+        r = seq[c.variant]
+        if r["dropped"]:
+            decisions.append(_stopped_decision(rule, c.variant, r, inc_ev))
+            no_attr.add(c.variant)
+        else:
+            x = copy.copy(by_v[c.variant])
+            x.reason = f"[{rule}: all {r['N']} episodes] {x.reason}"
+            decisions.append(x)
+    return winner, decisions, no_attr
+
+
 def select_mechanism(run, t: int, cands: list, inc_ev: EvalResult, rdir: Path, ids: list,
                      counts: dict):
     """Steps 5-6 for the mechanism arms seqhist and seqadm (see the module
@@ -601,44 +676,162 @@ def select_mechanism(run, t: int, cands: list, inc_ev: EvalResult, rdir: Path, i
     full_winner, full_dec = select_round(ok, inc_ev, S_star, delta, cfg, counts,
                                          guard_fn=d.guards)
     by_v = {c.variant: x for c, x in zip(ok, full_dec)}
-    alive_adm = [c for c in ok if c.variant not in stopped and by_v[c.variant].admissible]
-    seq_winner = max(alive_adm, key=lambda c: by_v[c.variant].S) if alive_adm else None
-    winner = full_winner if rule == "seqhist" else seq_winner
+    fw = None if full_winner is None else full_winner.variant
     full_rec = {c.variant: {"S": x.S, "dS": x.delta_S, "dC": x.delta_C, "admissible": x.admissible,
                             "reason": x.reason} for c, x in zip(ok, full_dec)}
-    decisions = []
+    w, decisions, no_attr, sw = _mech_outcome(rule, cands, by_v, fw, seq, inc_ev)
     for c in cands:
-        if c.gate_failure is not None:
-            decisions.append(Decision(c.variant, False, c.gate_failure))
-            continue
-        x, r = by_v[c.variant], seq[c.variant]
-        if c.variant not in stopped or (rule == "seqhist" and c is winner):
-            if rule == "seqhist":                 # as seqfull records a completed candidate
-                x.reason = f"[seqfull: all {r['N']} episodes] {x.reason}"
-            decisions.append(x)
-        elif rule == "seqadm":
-            if x.admissible:
-                x.admissible = False
-                x.reason = (f"not admitted: the sequential rule stopped it after {r['n']} of "
-                            f"{r['N']} evolve episodes (full evaluation: {x.reason})")
-            decisions.append(x)
-        else:                                     # seqhist: exactly seqfull's record
-            decisions.append(Decision(
-                c.variant, False,
-                f"[seqfull] stopped after {r['n']} of {r['N']} evolve episodes: {r['why']}; "
-                f"early-stopped estimate dS {r['m']:+.4f}",
-                S=inc_ev.S + r["m"], C=None, delta_S=r["m"], delta_C=r["dC"], novelty=r["nu"]))
+        if c.variant in no_attr:
             c.ev = None                           # no attribution, as in seqfull
-    name = lambda c: None if c is None else c.variant
+    winner = next((c for c in cands if c.variant == w), None)
     ep = sum(r["N"] for r in seq.values())
     out = {"t": t, "selection": cfg.selection, "rule": rule, "gamma": SEQ_GAMMA,
            "batch": SEQ_BATCH, "S_star": S_star, "delta": delta, "S_inc": inc_ev.S,
            "candidates": seq, "stopped": sorted(stopped),
            "full": full_rec,
-           "winner": name(winner), "full_choice": name(full_winner), "seq_choice": name(seq_winner),
+           "winner": w, "full_choice": fw, "seq_choice": sw,
            "cost": {"selection_episodes": ep, "planned_episodes": ep,
                     "seq_episodes": sum(r["n"] for r in seq.values()),
                     "selection_replays": 0, "selection_episode_equivalents": float(ep),
                     "judge_llm": {}, "refresh_episodes": 0, "refresh_tokens": 0}}
     (rdir / "selection.json").write_text(json.dumps(out, indent=1))
     return winner, decisions
+
+
+# ------------------------------------------------------------------ group --
+GROUP_ARMS = {"f": "full", "h": "seqhist", "c": "seqcost", "a": "seqadm", "s": "seqfull"}
+GROUP_ORDER = ("f", "h", "c", "a", "s")
+
+
+def group_members(mode: str) -> list:
+    arms = str(mode).partition(":")[2].split(",")
+    if len(arms) < 2 or len(set(arms)) != len(arms) or any(a not in GROUP_ARMS for a in arms):
+        raise SystemExit(f"selection {mode!r}: group:<two or more of f,h,c,a,s>")
+    return sorted(arms, key=GROUP_ORDER.index)
+
+
+def _state_key(cands: list, winner, decisions: list, no_attr: set) -> tuple:
+    """Everything a round adds to a loop's state, as the round records it: the
+    history rows (verify: rrsi/loop.py Run.round and History.append_candidate,
+    the values rounded as stored), which candidates are attributed, and the
+    winner (the next incumbent)."""
+    r6 = lambda v: None if v is None else round(v, 6)
+    rows = []
+    for c, x in zip(cands, decisions):
+        if c.gate_failure is not None:
+            rows.append((c.variant, c.gate_failure))
+            continue
+        out = "ACCEPTED" if c.variant == winner else ("LOST" if x.admissible else "REJECTED")
+        rows.append((c.variant, out, r6(x.delta_S), r6(x.delta_C), r6(x.S),
+                     None if x.C is None else round(x.C, 1), (x.reason or "")[:600],
+                     c.variant not in no_attr))
+    return winner, tuple(rows)
+
+
+def group_outcomes(run, t: int, cands: list, n_live: int, inc_ev: EvalResult, S_star: float,
+                   delta: float, counts: dict, members: list, rdir: Path):
+    """Each member arm's round from complete evaluations of the screened
+    candidates (c.ev set, or c.gate_failure), the groups of arms whose rounds
+    add the same thing to the state (first group: the one holding members[0]),
+    the r<t>/group.json record, and the replayed sequential records."""
+    from rrsi.selection import select_round
+    d, cfg = run.domain, run.cfg
+    ok = [c for c in cands if c.gate_failure is None]          # eval_invalid drops out here
+    full_winner, full_dec = select_round(ok, inc_ev, S_star, delta, cfg, counts,
+                                         guard_fn=d.guards)
+    by_v = {c.variant: x for c, x in zip(ok, full_dec)}
+    fw = None if full_winner is None else full_winner.variant
+    nus = {c.variant: novelty(c.components, counts) for c in ok}
+    seq = {}
+    for rule in ("seqfull", "seqcost"):
+        sdir = rdir / f"group_{rule}"
+        sdir.mkdir(parents=True, exist_ok=True)
+        seq[rule] = {c.variant: _seq_candidate(run, t, c, inc_ev, S_star, delta, nus[c.variant],
+                                               sdir, execute=False, rule=rule) for c in ok}
+    choice = {}
+    for rule in ("seqfull", "seqcost"):
+        adm = [v for v in by_v if not seq[rule][v]["dropped"] and by_v[v].admissible]
+        choice[rule] = max(adm, key=lambda v: by_v[v].S) if adm else None
+    out = {}
+    for a in members:
+        mode = GROUP_ARMS[a]
+        if mode == "full":
+            w, decs, na = fw, [Decision(c.variant, False, c.gate_failure)
+                               if c.gate_failure is not None or c.variant not in by_v
+                               else copy.copy(by_v[c.variant]) for c in cands], set()
+        elif mode in ("seqfull", "seqcost"):
+            w, decs, na = _seq_outcome(mode, cands, by_v, seq[mode], inc_ev)
+        else:
+            w, decs, na, _ = _mech_outcome(mode, cands, by_v, fw, seq["seqfull"], inc_ev)
+        key = _state_key(cands, w, decs, na)
+        if mode in ("seqfull", "seqcost") and len(ok) < n_live:
+            key = ("eval_invalid", a)             # natively it would differ: recompute alone
+        rule = "seqcost" if a == "c" else "seqfull"
+        n_ep = {v: (seq[rule][v]["n"] if mode in ("seqfull", "seqcost") else seq[rule][v]["N"])
+                for v in by_v}
+        out[a] = {"w": w, "decs": decs, "no_attr": na, "key": key,
+                  "rec": {"mode": mode, "winner": w, "full_choice": fw, "seq_choice": choice[rule],
+                          "stopped": sorted(v for v, r in seq[rule].items() if r["dropped"]),
+                          "episodes": n_ep, "state": key}}
+    parts = []
+    for a in members:
+        for p in parts:
+            if out[p[0]]["key"] == out[a]["key"]:
+                p.append(a)
+                break
+        else:
+            parts.append([a])
+    rec = {"t": t, "selection": cfg.selection, "members": members, "parts": parts,
+           "S_star": S_star, "delta": delta, "S_inc": inc_ev.S, "full_choice": fw,
+           "seqfull_choice": choice["seqfull"], "seqcost_choice": choice["seqcost"],
+           "candidates": {v: {"S": by_v[v].S, "admissible": by_v[v].admissible,
+                              **{f"{k}_{rule}": seq[rule][v][k] for rule in seq
+                                 for k in ("n", "m", "dropped")}} for v in by_v},
+           "arms": {a: out[a]["rec"] for a in members}}
+    return out, parts, rec, seq
+
+
+def select_group(run, t: int, cands: list, inc_ev: EvalResult, rdir: Path, ids: list,
+                 counts: dict):
+    """Steps 5-6 for a lineage of experiment BK's coupled design
+    (verify/PREREGISTRATION_BK.md): several arms that are in the same state.
+    Every screened candidate is evaluated in full and each member arm's round
+    is computed from those episodes exactly as its own selection mode records it
+    (full: RRSI's select_round; seqfull, seqcost: the rule replayed in its order;
+    seqhist, seqadm: as select_mechanism). Arms whose rounds add the same thing
+    to the state stay together. Each other group of arms is forked into its own
+    checkout (verify/bk.py fork_lineage), which reruns this round from its
+    checkpoints in its own mode and continues from there; this checkout keeps
+    the group of its first arm (order f, h, c, a, s). r<t>/group.json records
+    every arm's round."""
+    cfg = run.cfg
+    members = group_members(cfg.selection)
+    fr = run.frontier()
+    S_star, delta = fr["S_star"], run.delta()
+    live = [c for c in cands if c.gate_failure is None]
+    with ThreadPoolExecutor(max_workers=max(1, cfg.eval_parallel)) as ex:
+        list(ex.map(lambda c: run._evaluate(t, c, rdir, ids), live))
+    out, parts, rec, seq = group_outcomes(run, t, cands, len(live), inc_ev, S_star, delta, counts,
+                                          members, rdir)
+    (rdir / "group.json").write_text(json.dumps(rec, indent=1))
+    if len(parts) > 1:
+        from .bk import fork_lineage, set_members
+        for p in parts[1:]:
+            fork_lineage(run, t, p)
+        set_members(run.repo, parts[0])
+    keep = out[parts[0][0]]
+    for c in cands:
+        if c.variant in keep["no_attr"]:
+            c.ev = None                           # no attribution, as in seqfull
+    winner = next((c for c in cands if c.variant == keep["w"]), None)
+    ep = sum(r["N"] for r in seq["seqfull"].values())
+    sel = {"t": t, "selection": cfg.selection, "rule": "group", "members": parts[0],
+           "S_star": S_star, "delta": delta, "S_inc": inc_ev.S,
+           "candidates": {v: {"dropped": False, "N": r["N"], "n": r["N"]}
+                          for v, r in seq["seqfull"].items()},
+           "winner": keep["w"], "full_choice": rec["full_choice"], "seq_choice": rec["seqfull_choice"],
+           "cost": {"selection_episodes": ep, "planned_episodes": ep,
+                    "selection_replays": 0, "selection_episode_equivalents": float(ep),
+                    "judge_llm": {}, "refresh_episodes": 0, "refresh_tokens": 0}}
+    (rdir / "selection.json").write_text(json.dumps(sel, indent=1))
+    return winner, keep["decs"]

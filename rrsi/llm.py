@@ -37,7 +37,8 @@ Two backends:
 `cache_prefix` sends a large stable leading block (constitution + harness
 source) as its own ephemeral-cached content block so repeated turns pay to read
 it once. Token usage is accumulated per model (usage()) and, when RRSI_USAGE_LOG
-is set, appended to that JSONL file one line per call.
+is set, appended to that JSONL file one line per call (with the round when
+RRSI_ROUND is set).
 
 Modified from google-research/rrsi (be50316): DeepSeek backend, usage
 accounting, model-name mapping.
@@ -118,7 +119,9 @@ def _record(model: str, resp, role: str | None) -> None:
         path = os.environ.get("RRSI_USAGE_LOG")
         if path:
             with open(path, "a") as f:
-                f.write(json.dumps({**row, "role": role, "t": time.time()}) + "\n")
+                tag = ({"round": int(os.environ["RRSI_ROUND"])}
+                       if os.environ.get("RRSI_ROUND", "").isdigit() else {})
+                f.write(json.dumps({**row, "role": role, "t": time.time(), **tag}) + "\n")
 
 
 def usage() -> dict:
