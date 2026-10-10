@@ -1,0 +1,613 @@
+{
+ "counts": {
+  "fixes": 60,
+  "messages": 25,
+  "writes": 21,
+  "writes_replacing_agent_write": 15,
+  "writes_changing_confirmed_choice": 6,
+  "several_calls": 8,
+  "replaced_or_several_calls": 17
+ },
+ "rows": [
+  {
+   "state": "r2_tau2_airline_t15",
+   "task": "1",
+   "k": 2,
+   "message": false,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r2_tau2_airline_t15",
+   "task": "21",
+   "k": 8,
+   "message": false,
+   "write": true,
+   "multi": false,
+   "conflict": true,
+   "confirmed": true
+  },
+  {
+   "state": "r2_tau2_airline_t15",
+   "task": "23",
+   "k": 3,
+   "message": true,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r2_tau2_airline_t15",
+   "task": "39",
+   "k": 4,
+   "message": false,
+   "write": true,
+   "multi": true,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r2_tau2_airline_t15",
+   "task": "42",
+   "k": 4,
+   "message": false,
+   "write": false,
+   "multi": true,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r2_tau2_airline_t5",
+   "task": "14",
+   "k": 5,
+   "message": false,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r2_tau2_airline_t5",
+   "task": "17",
+   "k": 4,
+   "message": true,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r2_tau2_airline_t5",
+   "task": "23",
+   "k": 14,
+   "message": false,
+   "write": true,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r2_tau2_airline_t5",
+   "task": "39",
+   "k": 4,
+   "message": true,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r2_tau2_airline_t5",
+   "task": "42",
+   "k": 3,
+   "message": true,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r2_tau2_airline_t5",
+   "task": "9",
+   "k": 7,
+   "message": false,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r2_tau2_retail_t15",
+   "task": "22",
+   "k": 10,
+   "message": true,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r2_tau2_retail_t5",
+   "task": "10",
+   "k": 5,
+   "message": false,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r2_tau2_retail_t5",
+   "task": "110",
+   "k": 4,
+   "message": false,
+   "write": true,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r2_tau2_retail_t5",
+   "task": "20",
+   "k": 7,
+   "message": false,
+   "write": true,
+   "multi": false,
+   "conflict": true,
+   "confirmed": false
+  },
+  {
+   "state": "r2_tau2_retail_t5",
+   "task": "34",
+   "k": 5,
+   "message": true,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r2_tau2_retail_t5",
+   "task": "41",
+   "k": 9,
+   "message": true,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r2_tau2_retail_t5",
+   "task": "59",
+   "k": 6,
+   "message": false,
+   "write": true,
+   "multi": true,
+   "conflict": true,
+   "confirmed": false
+  },
+  {
+   "state": "r2_tau2_retail_t5",
+   "task": "76",
+   "k": 7,
+   "message": false,
+   "write": true,
+   "multi": true,
+   "conflict": true,
+   "confirmed": false
+  },
+  {
+   "state": "r2_tau2_retail_t5",
+   "task": "7",
+   "k": 9,
+   "message": false,
+   "write": true,
+   "multi": false,
+   "conflict": true,
+   "confirmed": true
+  },
+  {
+   "state": "r2_tau2_retail_t5",
+   "task": "99",
+   "k": 2,
+   "message": false,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_airline_t15",
+   "task": "11",
+   "k": 7,
+   "message": true,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_airline_t15",
+   "task": "14",
+   "k": 12,
+   "message": false,
+   "write": true,
+   "multi": false,
+   "conflict": true,
+   "confirmed": true
+  },
+  {
+   "state": "r3_tau2_airline_t15",
+   "task": "1",
+   "k": 3,
+   "message": false,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_airline_t15",
+   "task": "20",
+   "k": 9,
+   "message": true,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_airline_t15",
+   "task": "21",
+   "k": 11,
+   "message": false,
+   "write": true,
+   "multi": false,
+   "conflict": true,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_airline_t15",
+   "task": "33",
+   "k": 10,
+   "message": false,
+   "write": true,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_airline_t15",
+   "task": "39",
+   "k": 4,
+   "message": true,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_airline_t15",
+   "task": "42",
+   "k": 4,
+   "message": true,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_airline_t5",
+   "task": "10",
+   "k": 8,
+   "message": true,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_airline_t5",
+   "task": "14",
+   "k": 13,
+   "message": false,
+   "write": true,
+   "multi": false,
+   "conflict": true,
+   "confirmed": true
+  },
+  {
+   "state": "r3_tau2_airline_t5",
+   "task": "15",
+   "k": 7,
+   "message": true,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_airline_t5",
+   "task": "17",
+   "k": 4,
+   "message": true,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_airline_t5",
+   "task": "1",
+   "k": 3,
+   "message": false,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_airline_t5",
+   "task": "20",
+   "k": 13,
+   "message": false,
+   "write": true,
+   "multi": false,
+   "conflict": true,
+   "confirmed": true
+  },
+  {
+   "state": "r3_tau2_airline_t5",
+   "task": "21",
+   "k": 15,
+   "message": false,
+   "write": true,
+   "multi": false,
+   "conflict": true,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_airline_t5",
+   "task": "42",
+   "k": 2,
+   "message": false,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_airline_t5",
+   "task": "7",
+   "k": 9,
+   "message": true,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_airline_t5",
+   "task": "9",
+   "k": 6,
+   "message": false,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_retail_t15",
+   "task": "110",
+   "k": 4,
+   "message": true,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_retail_t15",
+   "task": "22",
+   "k": 7,
+   "message": false,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_retail_t15",
+   "task": "34",
+   "k": 5,
+   "message": true,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_retail_t15",
+   "task": "41",
+   "k": 7,
+   "message": false,
+   "write": true,
+   "multi": false,
+   "conflict": true,
+   "confirmed": true
+  },
+  {
+   "state": "r3_tau2_retail_t15",
+   "task": "46",
+   "k": 6,
+   "message": true,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_retail_t15",
+   "task": "59",
+   "k": 5,
+   "message": false,
+   "write": true,
+   "multi": true,
+   "conflict": true,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_retail_t15",
+   "task": "8",
+   "k": 10,
+   "message": false,
+   "write": true,
+   "multi": false,
+   "conflict": true,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_retail_t15",
+   "task": "91",
+   "k": 2,
+   "message": false,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_retail_t15",
+   "task": "98",
+   "k": 7,
+   "message": true,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_retail_t5",
+   "task": "104",
+   "k": 17,
+   "message": true,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_retail_t5",
+   "task": "105",
+   "k": 8,
+   "message": true,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_retail_t5",
+   "task": "110",
+   "k": 8,
+   "message": false,
+   "write": true,
+   "multi": true,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_retail_t5",
+   "task": "14",
+   "k": 8,
+   "message": false,
+   "write": true,
+   "multi": true,
+   "conflict": true,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_retail_t5",
+   "task": "19",
+   "k": 3,
+   "message": false,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_retail_t5",
+   "task": "22",
+   "k": 0,
+   "message": false,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_retail_t5",
+   "task": "34",
+   "k": 6,
+   "message": true,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_retail_t5",
+   "task": "41",
+   "k": 5,
+   "message": true,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_retail_t5",
+   "task": "59",
+   "k": 5,
+   "message": false,
+   "write": true,
+   "multi": true,
+   "conflict": true,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_retail_t5",
+   "task": "75",
+   "k": 8,
+   "message": false,
+   "write": true,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_retail_t5",
+   "task": "76",
+   "k": 5,
+   "message": true,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  },
+  {
+   "state": "r3_tau2_retail_t5",
+   "task": "99",
+   "k": 5,
+   "message": true,
+   "write": false,
+   "multi": false,
+   "conflict": false,
+   "confirmed": false
+  }
+ ]
+}
