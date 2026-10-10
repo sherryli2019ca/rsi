@@ -2,16 +2,15 @@
 
 Two auditors labelled the same 60 corrections independently (three questions:
 Q1 information the agent had not seen, Q2 more than one careful step, Q3 valid
-given what the agent could see and the policy). Auditor 1 first filed labels
-that contradicted their own written reasons on 15 rows and then made every
-label follow its reason (auditor1_filed, auditor1); auditor 2 never saw
-auditor 1's sheet. Reports each sheet's shares overall, by domain, by
+given what the agent could see and the policy). Auditor 1 corrected 15 entry
+errors (labels that contradicted their own written reasons); auditor 2 never
+saw auditor 1's sheet. Reports each sheet's shares overall, by domain, by
 mechanical-flag stratum and for tau2 corrections that change state, and the
 agreement (Cohen's kappa) of the first two sheets. The released labels omit
 the auditors' free-text notes.
 
     python -m attrib.audit_human --sheets auditor1=attrib/audit/auditor1.csv \
-        auditor2=attrib/audit/auditor2.csv auditor1_filed=attrib/audit/auditor1_filed.csv \
+        auditor2=attrib/audit/auditor2.csv \
         --key KEY --items ITEMS --out results/attrib/audit_human.json
 """
 from __future__ import annotations
