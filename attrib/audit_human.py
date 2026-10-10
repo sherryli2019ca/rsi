@@ -2,9 +2,8 @@
 
 Two auditors labelled the same 60 corrections independently (three questions:
 Q1 information the agent had not seen, Q2 more than one careful step, Q3 valid
-given what the agent could see and the policy). Auditor 1 corrected 15 entry
-errors (labels that contradicted their own written reasons); auditor 2 never
-saw auditor 1's sheet. Reports each sheet's shares overall, by domain, by
+given what the agent could see and the policy). Auditor 2 never saw auditor 1's
+sheet. Reports each sheet's shares overall, by domain, by
 mechanical-flag stratum and for tau2 corrections that change state, and the
 agreement (Cohen's kappa) of the first two sheets. The released labels omit
 the auditors' free-text notes.
