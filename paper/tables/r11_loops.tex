@@ -1,0 +1,12 @@
+\begin{tabular}{@{}lcrrrrcc@{}}
+\toprule
+ & Loops & Sequential & Full & Difference [90\%] & $\delta$-adjusted [90\%] & Accepted & Mean $\delta$ \\
+\midrule
+Recorded rounds 0--9, offline & 3 & +5.8 & +6.8 & $-$1.0 [$-$3.7, +0.8] & -- & -- & 10.9 \\
+Live, all (registered) & 6+6 & +4.2 & +8.7 & $-$4.4 [$-$9.4, $-$0.1] & $-$2.1 [$-$6.2, +1.9] & 14/23 & 9.8/6.7 \\
+\quad historical & 2+2 & +6.2 & +5.8 & +0.4 & -- & 6/7 & 9.8/7.4 \\
+\quad concurrent & 4+4 & +3.2 & +10.1 & $-$6.9 [$-$11.7, $-$2.6] & $-$5.8 [$-$9.4, $-$2.2] & 8/16 & 9.7/6.4 \\
+\midrule
+Live minus recorded & & & & $-$3.4 [$-$8.3, +1.8] & -- & -- & -- \\
+\bottomrule
+\end{tabular}

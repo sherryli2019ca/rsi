@@ -1,6 +1,26 @@
 """Zero-cost analyses for the eleventh review of paper 1 (post hoc, not registered).
 
   python -m verify.posthoc_r11 joint --traj r1=DIR r2=DIR r3=DIR [--json results/r11/report.json]
+  python -m verify.posthoc_r11 table [--json results/r11/report.json] [--out paper/tables]
+
+table: paper/tables/r10_loops.tex (verify/posthoc_r10.py) with a row for the
+joint live-minus-offline contrast, written to r11_loops.tex.
+
+  python -m verify.posthoc_r11 primary --report /home/user/e1r2/runs/verify/e1r_report.json [--out paper/tables]
+
+primary: the main-text table of the primary analysis (r2+r3), rows selected
+from the appendix tables e1r_rules.tex (decision value, episodes, Agree),
+r8_accept.tex (recall of full evaluation's acceptances) and r7_margins.tex
+(keeping the incumbent at the registered margin), with the registered Holm p
+values of the two non-inferiority families from the registered report.
+Written to r11_primary.tex.
+
+  python -m verify.posthoc_r11 replay --run /home/user/il_f1 ... [--json results/r11/replay.json]
+
+replay: summary of `python -m verify.bk replay` on the four concurrent
+full-evaluation loops: rounds in which seqfull or the cost-aware seqcost would
+choose differently from full evaluation, and their episodes as a share of full
+evaluation's (60 per measured candidate).
 
 joint: the live-minus-offline contrast of verify/posthoc_r10.py (live: the IL
 comparison, seqfull minus full transfer at round 10, 6 v 6 loops; offline: the
@@ -20,6 +40,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 import numpy as np
@@ -88,15 +109,94 @@ def joint(trajs: dict, js: Path | None, B: int = 4000, seed: int = 21) -> dict:
     return res
 
 
+def table(js: Path, out: Path) -> None:
+    res = json.loads(js.read_text())
+    lo, hi = res["joint"]["difference_ci90"]
+    row = (rf"Live minus recorded & & & & {res['difference']:+.1f} [{lo:+.1f}, {hi:+.1f}] "
+           r"& -- & -- & -- \\").replace("-", "$-$").replace("$-$$-$", "--")
+    lines = (out / "r10_loops.tex").read_text().splitlines()
+    i = lines.index(r"\bottomrule")
+    (out / "r11_loops.tex").write_text("\n".join(lines[:i] + [r"\midrule", row] + lines[i:]) + "\n")
+    print((out / "r11_loops.tex").read_text())
+
+
+def _rows(path: Path) -> list[list[str]]:
+    return [[c.strip() for c in l.rstrip().removesuffix("\\\\").split("&")]
+            for l in path.read_text().splitlines() if "&" in l]
+
+
+def primary(report: Path, out: Path) -> None:
+    ni = json.loads(report.read_text())["primary"]
+    pv = {**{k: v["p_holm"] for k, v in ni["ni_primary"].items()},
+          **{k: v["p_holm"] for k, v in ni["ni_sequential"].items()}}
+    e1r = {(r[0], r[1]): r for r in _rows(out / "e1r_rules.tex")}
+    acc = {r[0]: r[1].split("{")[0].strip() for r in _rows(out / "r8_accept.tex")}
+    keep_p = next(r for r in _rows(out / "r7_margins.tex") if r[0] == "Keep incumbent")[5]
+    sel = [("Full (RRSI)", ("Full (RRSI)", "all"), None, None),
+           ("Keep incumbent", ("Keep incumbent", "0"), "Keep incumbent", "keep"),
+           ("None", ("None", "0"), "None", None),
+           ("LLM judge", ("LLM judge", "0"), "LLM judge", None),
+           ("Sample@40", ("Sample", "40"), "Sample@40", "sample@40"),
+           ("Net@40", ("Net", "40"), "Net@40", "net@40"),
+           (r"Replay$-$null@40", (r"Replay$-$null", "40"), r"Replay$-$null@40", "replaynull@40"),
+           ("Seq.\\ full", ("Sequential full", r"$\le$all"), "Sequential full", "seqfull"),
+           ("Seq.\\ sample", ("Sequential sample", r"$\le$80"), "Sequential sample@80", "seqsample@80")]
+    fmt = lambda x: "$<$0.001" if x < 0.001 else f"{x:.3f}".rstrip("0") if x < 0.1 else f"{x:.2f}"
+    rows = []
+    for lab, ek, ak, pk in sel:
+        r = e1r[ek]
+        p = "--" if pk is None else rf"{keep_p}$^\dagger$" if pk == "keep" else fmt(pv[pk])
+        rec = "1.00" if ak is None else acc[ak]
+        d = "0" if pk == "keep" else re.sub(r"\\textbf\{([^}]*)\}", r"\1", r[3])
+        rows.append(f"{lab} & {r[7]} & {d} & {p} & {r[6]} & {rec} \\\\")
+        if lab in ("LLM judge", r"Replay$-$null@40"):
+            rows.append(r"\midrule")
+    (out / "r11_primary.tex").write_text("\n".join(rows) + "\n")
+    print((out / "r11_primary.tex").read_text())
+
+
+def replay(runs: list[Path], js: Path) -> dict:
+    res = {}
+    for key, ch in (("seqfull", "seq"), ("seqcost", "seqcost")):
+        diff = n = full = 0
+        for run in runs:
+            for r in json.loads((run / "runs/verify/tau2_airline/replay.json").read_text()):
+                diff += r["full_choice"] != r[f"{ch}_choice"]
+                for c in r["candidates"].values():
+                    n += c[f"n_{ch}"]
+                    full += 60
+        res[key] = {"rounds_different": diff, "episode_share": n / full, "full_episodes": full}
+    res["rounds"] = 10 * len(runs)
+    js.parent.mkdir(parents=True, exist_ok=True)
+    js.write_text(json.dumps(res, indent=1))
+    print(json.dumps(res, indent=1))
+    return res
+
+
 def main():
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
     j = sub.add_parser("joint")
     j.add_argument("--traj", nargs="+", required=True)
     j.add_argument("--json", default="results/r11/report.json")
+    t = sub.add_parser("table")
+    t.add_argument("--json", default="results/r11/report.json")
+    t.add_argument("--out", default="paper/tables")
+    q = sub.add_parser("primary")
+    q.add_argument("--report", required=True)
+    q.add_argument("--out", default="paper/tables")
+    r = sub.add_parser("replay")
+    r.add_argument("--run", nargs="+", required=True)
+    r.add_argument("--json", default="results/r11/replay.json")
     a = ap.parse_args()
     if a.cmd == "joint":
         joint(dict(x.split("=", 1) for x in a.traj), Path(a.json))
+    elif a.cmd == "table":
+        table(Path(a.json), Path(a.out))
+    elif a.cmd == "primary":
+        primary(Path(a.report), Path(a.out))
+    else:
+        replay([Path(x) for x in a.run], Path(a.json))
 
 
 if __name__ == "__main__":

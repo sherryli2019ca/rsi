@@ -1,0 +1,13 @@
+{
+ "seqfull": {
+  "rounds_different": 3,
+  "episode_share": 0.7277777777777777,
+  "full_episodes": 3600
+ },
+ "seqcost": {
+  "rounds_different": 1,
+  "episode_share": 0.8194444444444444,
+  "full_episodes": 3600
+ },
+ "rounds": 40
+}
