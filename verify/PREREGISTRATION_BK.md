@@ -291,3 +291,12 @@ any episode.
 ## Operations log
 
 (changes after registration are recorded here)
+
+- 2026-10-10 10:02Z: blocks b1 and b2 and IL's missed acceptances launched
+  from the registered commit 7b2aae2.
+- 2026-10-10, between 12:36Z and 14:42Z: the container restarted. All ten
+  lineages of b1 and b2 had finished their rounds; the held-out deployments of
+  three (b1_c, b2_c, b2_s) and the calibration of b3 and b4 were interrupted.
+  At 14:43Z they were resumed with the same scripts (`run_bk_loop.sh` in each
+  unfinished lineage, `run_bk_all.sh`), which skip finished work. No result
+  was inspected.
