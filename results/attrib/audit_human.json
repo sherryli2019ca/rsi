@@ -1,0 +1,185 @@
+{
+ "flip": [
+  "A03",
+  "A08",
+  "A11",
+  "A15",
+  "A20",
+  "A23",
+  "A29",
+  "A34",
+  "A37",
+  "A41",
+  "A45",
+  "A47",
+  "A51",
+  "A57",
+  "A59"
+ ],
+ "as_filled": {
+  "all": {
+   "n": 60,
+   "info": 4,
+   "scope": 6,
+   "valid": 44,
+   "clean": 39
+  },
+  "by_domain": {
+   "appworld": {
+    "n": 20,
+    "info": 0,
+    "scope": 2,
+    "valid": 18,
+    "clean": 16
+   },
+   "tau2_airline": {
+    "n": 20,
+    "info": 4,
+    "scope": 4,
+    "valid": 13,
+    "clean": 10
+   },
+   "tau2_retail": {
+    "n": 20,
+    "info": 0,
+    "scope": 0,
+    "valid": 13,
+    "clean": 13
+   }
+  },
+  "by_flagged": {
+   "False": {
+    "n": 41,
+    "info": 0,
+    "scope": 2,
+    "valid": 32,
+    "clean": 31
+   },
+   "True": {
+    "n": 19,
+    "info": 4,
+    "scope": 4,
+    "valid": 12,
+    "clean": 8
+   }
+  },
+  "by_tau2_write": {
+   "False": {
+    "n": 43,
+    "info": 4,
+    "scope": 3,
+    "valid": 35,
+    "clean": 31
+   },
+   "True": {
+    "n": 17,
+    "info": 0,
+    "scope": 3,
+    "valid": 9,
+    "clean": 8
+   }
+  },
+  "tau2_write_items": [
+   "A05",
+   "A06",
+   "A08",
+   "A11",
+   "A13",
+   "A19",
+   "A23",
+   "A28",
+   "A31",
+   "A33",
+   "A42",
+   "A43",
+   "A45",
+   "A46",
+   "A47",
+   "A57",
+   "A58"
+  ]
+ },
+ "reasons": {
+  "all": {
+   "n": 60,
+   "info": 4,
+   "scope": 6,
+   "valid": 29,
+   "clean": 29
+  },
+  "by_domain": {
+   "appworld": {
+    "n": 20,
+    "info": 0,
+    "scope": 2,
+    "valid": 13,
+    "clean": 13
+   },
+   "tau2_airline": {
+    "n": 20,
+    "info": 4,
+    "scope": 4,
+    "valid": 7,
+    "clean": 7
+   },
+   "tau2_retail": {
+    "n": 20,
+    "info": 0,
+    "scope": 0,
+    "valid": 9,
+    "clean": 9
+   }
+  },
+  "by_flagged": {
+   "False": {
+    "n": 41,
+    "info": 0,
+    "scope": 2,
+    "valid": 24,
+    "clean": 24
+   },
+   "True": {
+    "n": 19,
+    "info": 4,
+    "scope": 4,
+    "valid": 5,
+    "clean": 5
+   }
+  },
+  "by_tau2_write": {
+   "False": {
+    "n": 43,
+    "info": 4,
+    "scope": 3,
+    "valid": 26,
+    "clean": 26
+   },
+   "True": {
+    "n": 17,
+    "info": 0,
+    "scope": 3,
+    "valid": 3,
+    "clean": 3
+   }
+  },
+  "tau2_write_items": [
+   "A05",
+   "A06",
+   "A08",
+   "A11",
+   "A13",
+   "A19",
+   "A23",
+   "A28",
+   "A31",
+   "A33",
+   "A42",
+   "A43",
+   "A45",
+   "A46",
+   "A47",
+   "A57",
+   "A58"
+  ]
+ }
+}
