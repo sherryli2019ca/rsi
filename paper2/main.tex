@@ -586,6 +586,39 @@ Pointer & Profile & Fresh & Profile & Fresh \\
 
 \paragraph{Fresh replays in the repair experiment.} The oracle pointers lost $0.12$ $[0.06,0.17]$ of their gain on fresh replays across all 81 traces (0.39 to 0.27) but stayed above RRSI's evidence ($+0.18$ $[+0.11,+0.27]$) and binary search's ($+0.06$ $[-0.01,+0.14]$; on rescuable failures $+0.17$ $[+0.01,+0.34]$); pointers chosen without the profile moved by $-0.02$ to $+0.02$ on all traces. The correction given to the oracle-fix group, replayed 8 more times at its step against 8 new null replays, succeeded in 0.80 of replays against 0.95 in the profile, with null success 0.15 against 0.10: its gain fell from 0.85 to 0.65 ($-0.19$ $[-0.27,-0.11]$), stayed at least 0.5 on 70\% of the 60 traces and above 0 on 83\%.
 
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{2.5pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{llcccc}
+\toprule
+ & & \multicolumn{2}{c}{Registered oracle} & \multicolumn{2}{c}{Without grading} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}
+Method & Model & Rescuable & All & Rescuable & All \\
+\midrule
+\csname @@input\endcsname tables/blindfull.tex
+\bottomrule
+\end{tabular}}
+\caption{Full profiles on a random 100 of the 300 failures (34 retail, 33 airline, 33 AppWorld; post hoc): mean $\Rhat$ under the registered oracle and under the oracle without grading, on the failures each finds rescuable (BLINDRESC) and on all 100. Lower block: post hoc variants of Table~\ref{tab:main}.}
+\label{tab:blindfull}
+\end{table}
+
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lccc}
+\toprule
+Suspects from & First flip & Largest gain & Replays \\
+\midrule
+\csname @@input\endcsname tables/maxgain.tex
+\bottomrule
+\end{tabular}
+\caption{Counterfactual search with every suspect tested (4 corrected and 4 null replays each, at most 40) on the 157 rescuable failures (post hoc): mean $\Rhat$ when it answers the first suspect that beats null by two successes (the registered rule, first suspect if none) or the suspect with the largest estimated gain, and replays per failure.}
+\label{tab:maxgain}
+\end{table}
+
 \paragraph{Supplementary material.} The supplement holds both registrations with their addenda and a timeline of commit dates, every replay's outcome (failure, step, sample, kind of replay, success, whether the correction was applied), the profiles, every method's named steps, the repair experiment's rounds and deployments, and the code that computes every table from them.
 
 \section{Registration and Deviations}
