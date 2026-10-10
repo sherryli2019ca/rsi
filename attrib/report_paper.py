@@ -32,6 +32,8 @@ truth and traces for the kinds of decisive step. Writes:
   robustness.tex also gets rows for the observed action as control and the
                second oracle (phaseA_orig_control.json, attrib/orig_control.py;
                phaseA_second_oracle.json, attrib/second_oracle.py)
+  robustness.tex also gets rows for the re-scorings without state-changing
+               corrections (results/attrib/audit_rescore.json, attrib/audit_rescore.py)
   decomp.tex, decomp_kinds.tex  proposal share and gain of a proposed
                correction at each method's step and by kind of step, and a
                split-sample row of robustness.tex (results/attrib/phaseA_review2.json,
@@ -173,7 +175,8 @@ def _state_contrast(rows: list[dict], g: str, h: str) -> dict:
 
 
 def robustness_tables(path: Path, out: Path, review2: Path | None = None, orig: Path | None = None,
-                      second: Path | None = None, admiss: Path | None = None, review4: Path | None = None) -> dict:
+                      second: Path | None = None, admiss: Path | None = None, review4: Path | None = None,
+                      rescore: Path | None = None) -> dict:
     R = json.loads(path.read_text())
     V = {v["variant"]: v for v in R["variants"]}
     short = {m: (name if model in ("rule", "Pro", "Pro, replays") else f"{name}, {model}")
@@ -227,6 +230,16 @@ def robustness_tables(path: Path, out: Path, review2: Path | None = None, orig: 
         lines.append(" & ".join(["Oracle without grading", f"{B['n']}$^\\dagger$", _f(B["mean"]["first_write"]),
                                  f"{short[best]} {_f(B['mean'][best])}", f"{B['rank_first_write_reg10']}",
                                  _f(B["kendall_reg10_vs_registered"])]) + " \\\\")
+    if rescore is not None and rescore.exists():
+        S = json.loads(rescore.read_text())
+        for key, label in (("tau2_conflicts", "Conflicting $\\tau^2$ writes dropped"),
+                           ("tau2_writes", "All $\\tau^2$ writes dropped"), ("all_writes", "All writes dropped")):
+            if key not in S:
+                continue
+            v = S[key]["pooled"]
+            lines.append(" & ".join([label, f"{sum(v['n_rescuable'].values())}", _f(v["mean"]["first_write"]),
+                                     f"{short[v['best_llm']]} {_f(v['mean'][v['best_llm']])}",
+                                     f"{v['first_write_rank']}", _f(v["kendall_tau_vs_registered"])]) + " \\\\")
     (out / "robustness.tex").write_text("\n".join(lines) + "\n")
     names = {"tau2_retail": "Retail", "tau2_airline": "Airline", "appworld": "AppWorld"}
     marks = {"tau2_retail": "*", "tau2_airline": "square*", "appworld": "triangle*"}
@@ -570,6 +583,7 @@ def main():
     ap.add_argument("--factorial", default=str(FACTORIAL_DEFAULT))
     ap.add_argument("--admissibility", default=str(ADMISS_DEFAULT))
     ap.add_argument("--review4", default=str(REVIEW4_DEFAULT))
+    ap.add_argument("--rescore", default="results/attrib/audit_rescore.json")
     ap.add_argument("--review5", default=str(REVIEW5_DEFAULT))
     ap.add_argument("--out", default=str(Path(__file__).resolve().parents[1] / "paper2" / "tables"))
     ap.add_argument("--whowhen", default="/mnt/project-files/results/attrib/whowhen_scores.json")
@@ -580,7 +594,8 @@ def main():
                        Path(args.phaseb_review3)) \
         if Path(args.phaseb).exists() else None
     rob = robustness_tables(Path(args.robustness), out, Path(args.review2), Path(args.orig_control),
-                            Path(args.second_oracle), Path(args.admissibility), Path(args.review4)) \
+                            Path(args.second_oracle), Path(args.admissibility), Path(args.review4),
+                            Path(args.rescore)) \
         if Path(args.robustness).exists() else None
     if Path(args.review4).exists():
         rob = {**(rob or {}), "review4": review4_tables(Path(args.review4), out)}
