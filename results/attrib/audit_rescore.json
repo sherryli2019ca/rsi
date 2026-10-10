@@ -789,6 +789,14 @@
    "kendall_tau_vs_registered": 0.2
   }
  },
+ "first_write_steps": {
+  "tau2_corrections": 265,
+  "tau2_confirmed": 129,
+  "tau2_replaced": 166,
+  "tau2_conflicts": 175,
+  "tau2_writes": 215,
+  "all_writes": 215
+ },
  "audit_check": {
   "tau2_confirmed": {
    "n": 17,

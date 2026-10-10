@@ -178,6 +178,11 @@ def _state_contrast(rows: list[dict], g: str, h: str) -> dict:
     return {"estimate": float(d.mean()), "ci95": [float(d.mean() - T975_DF7 * se), float(d.mean() + T975_DF7 * se)]}
 
 
+def _usd(x: float) -> str:
+    """Dollars per failure; a free rule is 0."""
+    return "0" if x == 0 else f"{x:.4f}"
+
+
 def _d(t, d=2) -> str:
     """Signed difference with its interval, without leading zeros: +.08 [-.02, +.18]."""
     s = [f"{x:+.{d}f}".replace("0.", ".") for x in t[:3]]
@@ -671,7 +676,7 @@ def main():
             lines.append("\\midrule")
         cells = [name, model] + [_ci(A[d]["methods"][m]["R_rescuable"]) for d in DOMAINS]
         cells += [_ci(P["methods"][m]["R_rescuable"]), _f(P["methods"][m]["exact"][0]),
-                  f"{sum(A[d]['methods'][m]['dollars_per_failure'] for d in DOMAINS) / 3:.4f}"]
+                  _usd(sum(A[d]['methods'][m]['dollars_per_failure'] for d in DOMAINS) / 3)]
         lines.append(" & ".join(cells) + " \\\\")
     fac = Path(args.factorial)
     if fac.exists():
@@ -679,7 +684,7 @@ def main():
         lines += ["\\midrule", "\\multicolumn{8}{l}{\\emph{Post hoc variants}} \\\\"]
         for m, name, model in POSTHOC_ROWS:
             cells = [name, model] + [_ci(F[m]["R"][d]) for d in DOMAINS]
-            cells += [_ci(F[m]["R"]["pooled"]), _f(F[m]["exact"]), f"{F[m]['dollars_per_failure']:.4f}"]
+            cells += [_ci(F[m]["R"]["pooled"]), _f(F[m]["exact"]), _usd(F[m]["dollars_per_failure"])]
             lines.append(" & ".join(cells) + " \\\\")
         summary["posthoc_rows"] = {m: F[m] for m, _, _ in POSTHOC_ROWS}
         r5 = Path(args.review5)
@@ -693,8 +698,11 @@ def main():
             ci = {d: _boot([p for p in pts if p["d"] == d], lambda xs: _mean([x["R"] for x in xs]), random.Random(0))
                   for d in DOMAINS}
             ci["pooled"] = _boot(pts, lambda xs: _mean([x["R"] for x in xs]), random.Random(0))
+            st = Path(args.review5).parent / "aligned_search_stats.json"
+            st = json.loads(st.read_text()) if st.exists() else {}
             lines.append(" & ".join(["CF search@40, aligned", "Pro, replays"] + [_ci(ci[d]) for d in DOMAINS] +
-                                    [_ci(ci["pooled"]), "--", "$\\approx$0.03"]) + " \\\\")
+                                    [_ci(ci["pooled"]), _f(st["exact"]) if st else "--",
+                                     _usd(st["dollars_per_failure"]) if st else "--"]) + " \\\\")
             summary["aligned_search"] = ci
     (out / "main.tex").write_text("\n".join(lines) + "\n")
     summary["methods"] = {m: {"pooled": P["methods"][m]["R_rescuable"], "exact": P["methods"][m]["exact"],

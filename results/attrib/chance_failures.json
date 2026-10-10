@@ -1,0 +1,42 @@
+{
+ "cut": 0.5,
+ "counts": {
+  "tau2_retail": {
+   "rescuable": 65,
+   "chance": 48
+  },
+  "tau2_airline": {
+   "rescuable": 37,
+   "chance": 22
+  },
+  "appworld": {
+   "rescuable": 55,
+   "chance": 21
+  }
+ },
+ "chance": 91,
+ "n": 157,
+ "reliable": {
+  "n": 66,
+  "mean": {
+   "first_write": 0.4148,
+   "last_step": 0.2292,
+   "all_at_once_flash": 0.357,
+   "all_at_once_pro": 0.3551,
+   "all_at_once_pro_think": 0.3835,
+   "step_by_step_pro": 0.2794,
+   "binary_search_pro": 0.3561,
+   "study1_pro": 0.3419,
+   "rrsi_digest_pro": 0.2812,
+   "search@40": 0.3239
+  },
+  "best_llm": "all_at_once_pro_think",
+  "first_write_rank": 1,
+  "first_write_minus_best_llm": [
+   0.0312,
+   -0.0871,
+   0.1495
+  ],
+  "kendall_tau_vs_registered": 0.867
+ }
+}

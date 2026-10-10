@@ -262,6 +262,13 @@ def main():
               r["best_llm"], r["mean"][r["best_llm"]], "fw-best", r.get("first_write_minus_best_llm"),
               "fw-bs", r["first_write_minus_binary_search"], "tau", r["kendall_tau_vs_registered"])
         print("  ", {m: r["mean"][m] for m in methods})
+    # share of tau2 corrections at the first write's steps (registered rescuable failures) each rule drops
+    at_fw = [(d, f) for d in DOMAINS if d != "appworld"
+             for (fid, k, _), f in fl[d].items()
+             if data[d]["gt"][fid]["decisive"] is not None and data[d]["picks"]["first_write"].get(fid) == k]
+    res["first_write_steps"] = {"tau2_corrections": len(at_fw),
+                                **{rule: sum(dropped(d, f, rule) for d, f in at_fw) for rule in RULES}}
+    print("first-write steps", res["first_write_steps"])
     sheets = {}
     for s in a.sheets:
         name, path = s.split("=", 1)

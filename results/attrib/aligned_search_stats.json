@@ -1,0 +1,10 @@
+{
+ "n": 157,
+ "exact": 0.3949,
+ "dollars_per_failure": 0.02751,
+ "dollars_by_domain": {
+  "tau2_retail": 0.02114,
+  "tau2_airline": 0.02564,
+  "appworld": 0.03575
+ }
+}
