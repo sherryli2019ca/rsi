@@ -196,6 +196,13 @@ def maxgain(main: Path, data: dict, rng) -> dict:
                 x = res.get(f)
                 if x:
                     scores.setdefault(f"{var}:replays", {})[(d, f)] = x["replays"]
+        # reference methods on the same failures
+        for m in ("first_write", "binary_search_gain_pro", "all_at_once_gain_pro"):
+            for f, r in R.items():
+                k = v["picks"][m].get(f)
+                if isinstance(k, dict):
+                    k = k.get("step")
+                scores.setdefault(m, {})[(d, f)] = r[k] if isinstance(k, int) and 0 <= k < len(r) else 0.0
         # registered runs alone: the largest gain among tested suspects
         for var in ("search", "search_informed"):
             p = main / d / var / "result.json"
@@ -217,7 +224,8 @@ def maxgain(main: Path, data: dict, rng) -> dict:
     # paired differences
     pairs = [("search:maxgain", "search:first_flip"), ("search_informed:maxgain", "search_informed:first_flip"),
              ("aligned:maxgain", "aligned:first_flip"), ("aligned:maxgain", "search_informed:first_flip"),
-             ("aligned:maxgain", "search:first_flip")]
+             ("aligned:maxgain", "search:first_flip"), ("aligned:maxgain", "first_write"),
+             ("aligned:maxgain", "binary_search_gain_pro"), ("search_informed:maxgain", "first_write")]
     diffs = {}
     for a, b in pairs:
         if a in scores and b in scores:

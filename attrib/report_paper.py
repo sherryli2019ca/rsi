@@ -276,8 +276,8 @@ def review5_tables(path: Path, out: Path) -> dict:
     if M.get("scores"):
         S = M["scores"]
         lines = []
-        for v, name in (("search", "Registered suspects"), ("search_informed", "With grading information"),
-                        ("aligned", "With grading, asked for the largest gain")):
+        for v, name in (("search", "Registered call"), ("search_informed", "With grading info."),
+                        ("aligned", "With grading info., gain")):
             if f"{v}:maxgain" not in S:
                 continue
             lines.append(" & ".join([name, _f(S[f"{v}:first_flip"]["mean"]), _f(S[f"{v}:maxgain"]["mean"]),

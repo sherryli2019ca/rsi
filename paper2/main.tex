@@ -610,12 +610,12 @@ Method & Model & Rescuable & All & Rescuable & All \\
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{lccc}
 \toprule
-Suspects from & First flip & Largest gain & Replays \\
+Suspect call & First flip & Largest gain & Replays \\
 \midrule
 \csname @@input\endcsname tables/maxgain.tex
 \bottomrule
 \end{tabular}
-\caption{Counterfactual search with every suspect tested (4 corrected and 4 null replays each, at most 40) on the 157 rescuable failures (post hoc): mean $\Rhat$ when it answers the first suspect that beats null by two successes (the registered rule, first suspect if none) or the suspect with the largest estimated gain, and replays per failure.}
+\caption{Counterfactual search with every suspect tested (4 corrected and 4 null replays each, at most 40) on the 157 rescuable failures (post hoc): mean $\Rhat$ when it answers the first suspect that beats null by two successes (the registered rule, first suspect if none) or the suspect with the largest estimated gain, and replays per failure. Suspect calls: registered (no grading information), with the judges' grading information, and with it asked for the steps of largest gain over letting the agent act again. For comparison, the first write scored 0.42 and binary search asked for the largest gain 0.40 (Table~\ref{tab:main}).}
 \label{tab:maxgain}
 \end{table}
 
