@@ -1,0 +1,61 @@
+{
+ "slots": 80,
+ "no_proposal": {
+  "none": 3,
+  "rrsi": 0,
+  "first_write": 4,
+  "binary_search": 2,
+  "cf_search": 3
+ },
+ "drafts": 68,
+ "contrasts": {
+  "first_write-none": {
+   "states": 8,
+   "estimate_pp": 4.56,
+   "ci95_pp": [
+    -5.69,
+    14.8
+   ]
+  },
+  "binary_search-none": {
+   "states": 8,
+   "estimate_pp": 4.3,
+   "ci95_pp": [
+    -6.94,
+    15.53
+   ]
+  },
+  "cf_search-none": {
+   "states": 8,
+   "estimate_pp": -0.34,
+   "ci95_pp": [
+    -14.78,
+    14.1
+   ]
+  },
+  "first_write-rrsi": {
+   "states": 8,
+   "estimate_pp": 0.55,
+   "ci95_pp": [
+    -0.53,
+    1.62
+   ]
+  },
+  "binary_search-rrsi": {
+   "states": 8,
+   "estimate_pp": 0.29,
+   "ci95_pp": [
+    -0.82,
+    1.39
+   ]
+  },
+  "cf_search-rrsi": {
+   "states": 8,
+   "estimate_pp": -4.35,
+   "ci95_pp": [
+    -11.64,
+    2.95
+   ]
+  }
+ }
+}
