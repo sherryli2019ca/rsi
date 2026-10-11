@@ -8,6 +8,7 @@ attrib/PREREGISTRATION_V.md.
    search:  attrib.search_maxgain run --variant aligned --main R)
   python -m attrib.validity oracle  --domain tau2_retail|tau2_airline [--root R] [--workers 8]
   python -m attrib.validity sheet   [--root R]
+  python -m attrib.validity fullsheet [--root R]
   python -m attrib.validity analyze --labels <adjudicated.csv> [--auditors a1.csv a2.csv] [--root R] [--out <json>]
 
 sample   draws the fresh failures (R/<domain>/failures.json; failures_rescuable.json
@@ -262,10 +263,43 @@ def sheet(args) -> None:
           f"({sum(items[k][0]['domain'] == 'tau2_retail' for k in keys)} retail)")
 
 
+def fullsheet(args) -> None:
+    """items_full.md: the items whose tool results `sheet` cut at RESULT_CAP characters (the oracle's
+    view), with every tool result in full, as the agent saw it (deviation of 2026-10-11)."""
+    import attrib.groundtruth as gtm
+    from attrib.review4_runs import blind_prompt_tau2
+    root = Path(args.root)
+    key = json.loads((root / "audit" / "key.json").read_text())
+    fails = {d: {f["fid"]: f for f in json.loads((root / d / "failures.json").read_text())} for d in DOMAINS}
+    act = {(c["fid"], c["k"], c["i"]): c["action"] for c in corrections(root)}
+    cap, out, n = gtm.RESULT_CAP, [], 0
+    try:
+        for iid in sorted(key):
+            v = key[iid]
+            rec = json.loads(Path(fails[v["domain"]][v["fid"]]["trace"]).read_text())
+            gtm.RESULT_CAP = cap
+            short = blind_prompt_tau2(rec, v["k"])
+            gtm.RESULT_CAP = 10 ** 9
+            full = blind_prompt_tau2(rec, v["k"])
+            if short == full:
+                continue
+            n += 1
+            out += [f"## {iid}（{'零售 retail' if v['domain'] == 'tau2_retail' else '航空 airline'}，第 {v['k']} 步）", "",
+                    "```", full.rstrip(), "", f"=== CORRECTED ACTION AT STEP {v['k']} ===",
+                    _action_text(act[(v["fid"], v["k"], v["samples"][0])]), "```", ""]
+    finally:
+        gtm.RESULT_CAP = cap
+    head = [f"# 工具结果完整版：{n} 条被截断条目", "",
+            f"原 items.md 把超过 {cap:,} 字符的工具结果截断了（标为 ...[truncated]），但 agent 当时看到的是完整结果。"
+            f"下面是这 {n} 条的完整版本，编号与 items.md 相同；其余 {len(key) - n} 条没有截断，不在此列。", ""]
+    (root / "audit" / f"items_full_{n}.md").write_text("\n".join(head + out))
+    print(f"{n} of {len(key)} items had a truncated tool result")
+
+
 # ----------------------------------------------------------------- analyze --
 def _labels(path: Path) -> dict:
     out = {}
-    with path.open() as fh:
+    with path.open(encoding="utf-8-sig") as fh:
         for row in csv.DictReader(fh):
             ans = {c: (row.get(c) or "").strip().lower() for c in CRITERIA}
             if not all(a in ("yes", "no") for a in ans.values()):
@@ -370,7 +404,7 @@ def analyze(args) -> None:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=("sample", "harness", "oracle", "sheet", "analyze"))
+    ap.add_argument("cmd", choices=("sample", "harness", "oracle", "sheet", "fullsheet", "analyze"))
     ap.add_argument("--root", default=str(VROOT))
     ap.add_argument("--runs", nargs="+", default=["/home/user/e1r2", "/home/user/e1r3"])
     ap.add_argument("--bundle", default="/mnt/project-files/archive/rsi-local-branches.bundle")
@@ -383,7 +417,8 @@ def main():
     ap.add_argument("--auditors", nargs=2)
     ap.add_argument("--out")
     a = ap.parse_args()
-    {"sample": sample, "harness": harness, "oracle": oracle, "sheet": sheet, "analyze": analyze}[a.cmd](a)
+    {"sample": sample, "harness": harness, "oracle": oracle, "sheet": sheet, "fullsheet": fullsheet,
+     "analyze": analyze}[a.cmd](a)
 
 
 if __name__ == "__main__":
