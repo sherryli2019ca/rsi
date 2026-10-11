@@ -299,7 +299,7 @@ def fullsheet(args) -> None:
 # ----------------------------------------------------------------- analyze --
 def _labels(path: Path) -> dict:
     out = {}
-    with path.open() as fh:
+    with path.open(encoding="utf-8-sig") as fh:
         for row in csv.DictReader(fh):
             ans = {c: (row.get(c) or "").strip().lower() for c in CRITERIA}
             if not all(a in ("yes", "no") for a in ans.values()):

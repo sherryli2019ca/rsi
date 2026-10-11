@@ -154,6 +154,14 @@ Any change after this commit is logged below with its date and reason.
   noted the cut on 8 items. `fullsheet` writes the 98 items with full tool
   results (audit/items_full_98.md). How the labels are corrected is for Dr
   Cao to decide; the labels as first returned are kept.
+- 2026-10-11 08:23Z, Dr Cao: no recheck; the labels are used as first
+  returned (nothing relabelled with the full tool results). The 10 items
+  whose valid labels differ are not adjudicated, against "v from the
+  adjudicated labels" above. Every score is instead reported twice, with
+  those items counted invalid (strict: valid only if both files accept) and
+  valid (lenient: either accepts); any adjudication lies between the two.
+  Results: results/attrib/validity_analysis.json (`analyze` once per bound;
+  each file's own labels as auditor1 and auditor2).
 
 ## Operations log
 - 2026-10-11 02:00Z, before this file was committed: a dry run of `sample`
@@ -194,3 +202,12 @@ Any change after this commit is logged below with its date and reason.
   (0; one file answers no 17 times, the other never). Valid: 128 and 132.
   10 items to adjudicate (audit/adjudication.csv). No method score has been
   computed with these labels.
+- 2026-10-11 08:23Z onward: `analyze` failed on the returned files' byte
+  order mark; `_labels` now reads them as utf-8-sig (no value changes).
+  Scores computed for both bounds (deviation above), then written into the
+  paper (Table tab:validity, abstract, section 5, conclusion, limitations,
+  registration appendix). Over all 80 failures: first write raw 0.241,
+  valid 0.128 (strict) and 0.134 (lenient); validity rate of its
+  outcome-changing corrections .57 and .59, other methods .59 to .90; first
+  write minus aligned search on valid score -0.027 [-0.093, +0.037] (strict)
+  and -0.025 [-0.089, +0.036] (lenient).

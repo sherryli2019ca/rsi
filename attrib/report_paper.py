@@ -87,6 +87,7 @@ REVIEW4_DEFAULT = ROB_DEFAULT.with_name("phaseAB_review4.json")
 REVIEW5_DEFAULT = ROB_DEFAULT.with_name("phaseAB_review5.json")
 DID_DEFAULT = ROB_DEFAULT.with_name("did.json")
 GAINP_DEFAULT = ROB_DEFAULT.with_name("phaseA_gain_prompt.json")
+VALID_DEFAULT = ROB_DEFAULT.with_name("validity_analysis.json")
 POSTHOC_ROWS = [("all_at_once_gain_pro", "All-at-once, gain", "Pro"),
                 ("binary_search_gain_pro", "Binary search, gain", "Pro"),
                 ("all_at_once_blind_pro", "All-at-once, no grading", "Pro"),
@@ -192,6 +193,25 @@ def _d(t, d=2) -> str:
     """Signed difference with its interval, without leading zeros: +.08 [-.02, +.18]."""
     s = [f"{x:+.{d}f}".replace("0.", ".") for x in t[:3]]
     return f"${s[0]}$ $[{s[1]},{s[2]}]$"
+
+
+def validity_table(path: Path, out: Path) -> None:
+    """validity.tex: the registered check on 80 fresh tau2 failures (attrib/validity.py): raw and
+    valid rescue gain per method over all failures, share of its outcome-changing corrections
+    judged valid, and the first write's difference in valid gain; the 10 unadjudicated items
+    counted invalid ("strict"; results/attrib/validity_analysis.json also has "lenient")."""
+    V = json.loads(path.read_text())
+    S = V["strict"]["all"]
+    names = [("first_write", "First write"), ("second_to_last", "Second-to-last"),
+             ("all_at_once_gain_pro", "All-at-once, gain"), ("binary_search_gain_pro", "Binary search, gain"),
+             ("aligned_search", "Search, aligned")]
+    rows = []
+    for m, label in names:
+        x = S["methods"][m]
+        d = _d(S["first_write_minus"][m]["valid"]) if m != "first_write" else "--"
+        rows.append(" & ".join([label, _f(x["raw"][0]), _f(x["valid"][0]), f"{x['validity_rate']:.2f}".replace("0.", "."),
+                                d]) + " \\\\")
+    (out / "validity.tex").write_text("\n".join(rows) + "\n")
 
 
 def choices_table(S: dict, review4: Path | None, out: Path) -> None:
@@ -343,6 +363,8 @@ def robustness_tables(path: Path, out: Path, review2: Path | None = None, orig: 
             if key in ("tau2_confirmed", "tau2_replaced", "all_writes") and key in FX:
                 lines.append(fixed_row(label, key))
         choices_table(S, review4, out)
+        if VALID_DEFAULT.exists():
+            validity_table(VALID_DEFAULT, out)
     (out / "robustness.tex").write_text("\n".join(lines) + "\n")
     names = {"tau2_retail": "Retail", "tau2_airline": "Airline", "appworld": "AppWorld"}
     marks = {"tau2_retail": "*", "tau2_airline": "square*", "appworld": "triangle*"}
