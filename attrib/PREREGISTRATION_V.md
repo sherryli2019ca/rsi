@@ -163,6 +163,62 @@ Any change after this commit is logged below with its date and reason.
   Results: results/attrib/validity_analysis.json (`analyze` once per bound;
   each file's own labels as auditor1 and auditor2).
 
+## Addendum 1 (2026-10-11, before any rerun): replays with a faithful restoration
+
+Approved by Dr Cao at 13:41Z ("重跑"), after external review 9 and the
+restoration diagnosis in the operations log (~13:50Z entry). Written and
+committed before anything below is run.
+
+Cause. Restoring a failure's prefix re-runs each recorded call through the
+harness that produced it. Ten harnesses ask an LLM to check writes in
+before_tool; asked again, the check can decide differently from the
+recording, and the driver then went live before the replayed step. In this
+study the harness is always the recording's own, so the recorded decision is
+the right one.
+
+Fix. domains/tau2/driver.py, opt-in environment flag
+TAU2_REPLAY_RECORDED_CHECKS=1 (off by default, so paper 1's replays under
+changed harnesses are unaffected). For each recorded prefix call, before_tool
+still runs (harness state), but the recorded decision is kept: a call the
+recording blocked is not executed; any other call is executed on the fresh
+database (render_result runs) and the recorded observation is shown. The
+episode goes live early only if an executed call returns a different raw
+result than the recording ("state" divergence, kept in replay.diverged).
+Replays whose restoration did not diverge are unchanged by construction
+(same prefix, same observations, same live start) and are not rerun.
+
+Scope (retail only; airline and the main set had no or negligible
+divergence and are not rerun):
+- the gt replays whose replay.diverged is non-empty: 130 corrected and 80
+  null replays (tau2_retail/gt/replays);
+- aligned search's test replays whose replay.diverged is non-empty: 328 of
+  1,800 (tau2_retail/search_maxgain/aligned/replays).
+Before the rerun the whole run directory is archived
+(archive/attrib-validity-runs-run1.tar.gz) and the result files of the first
+run are kept beside the new ones; the diverged replays are moved, not
+deleted, to a superseded/ folder next to each replays folder. The same
+commands then run with the flag set: `search_maxgain.run` (aligned, retail)
+re-runs the moved tests and recomputes its picks; `validity.oracle` (retail)
+runs the oracle at any union step that is new, and every missing replay
+(the moved ones and those at new steps), then rewrites gt/result.json.
+Nothing else changes: same failures, methods, oracle prompt, K, R_C, N_NULL,
+seeds and temperature.
+
+Labels. An outcome-changing correction whose item (domain, failure, step,
+normalized action; item_key in attrib/validity.py) was already labelled
+keeps both auditors' labels. New items go to the same two auditors, shuffled
+and with the same blinding, with every tool result in full, as a separate
+sheet (audit/items_add.md, labels_template_add.csv; key_add.json withheld).
+Until those labels return, each score is reported with the new items counted
+invalid and counted valid, within the strict and lenient bounds above; after,
+the strict and lenient bounds as above.
+
+Reporting. The rerun is the primary result for the validity check; the first
+run's numbers are kept and reported beside it. Same analysis as above, and the
+post hoc analyses of attrib/validity_posthoc.py, whichever way they come out.
+
+Budget. About 1 to 3 dollars; stop at 5.
+
 ## Operations log
 - 2026-10-11 02:00Z, before this file was committed: a dry run of `sample`
   (deterministic, seed 0; it reads only the traces' rewards and step counts)

@@ -27,7 +27,9 @@ not have shown, so the episode goes live from step i + 1 instead of `start`
 (recorded as start_effective, with the steps that diverged). Changes to the
 system prompt or tool descriptions do not move the start: as in all replays of
 this project, they act from the replayed step on. observe_prefix lets the
-harness rebuild per-episode state from the recorded steps.
+harness rebuild per-episode state from the recorded steps. Replays under the
+recording's own harness (attrib/) set TAU2_REPLAY_RECORDED_CHECKS=1 to keep the
+recorded before_tool decisions instead (see RECORDED_CHECKS below).
 
   python -m domains.tau2.driver --harness <dir> --domain retail --out <dir> \
       --ids 0,1,2 --k 2 [--replay refs.json] [--workers 8] [--temperature 0]
@@ -129,6 +131,16 @@ def _normalize(blocks):
     return out or [{"type": "text", "text": "..."}]
 
 
+# Attribution replays restore a failure under the harness that produced it. Some
+# harnesses ask an LLM to check each write in before_tool, and re-asking it on a
+# recorded call can change the decision. With TAU2_REPLAY_RECORDED_CHECKS=1 a
+# recorded step whose trace has per-call raw results keeps the recorded decision
+# and observation (before_tool and render_result still run, for harness state); the
+# episode goes live early only if a re-executed call returns a different result.
+# Off by default: replays under a changed harness (paper 1) re-check every call.
+RECORDED_CHECKS = os.environ.get("TAU2_REPLAY_RECORDED_CHECKS") == "1"
+
+
 def _h(fn, *a):
     try:
         return fn(*a)
@@ -177,11 +189,26 @@ def episode(m, Agent, pm: PolicyModel, task, prefix: dict | None = None, start: 
         uses = [b for b in blocks if b["type"] == "tool_use"]
         if uses:
             old = {r["tool_use_id"]: str(r["content"]) for r in st.get("tool_results") or []}
-            for b in uses:
+            old_raw = st.get("raw")
+            same = RECORDED_CHECKS and isinstance(old_raw, list) and len(old_raw) == len(uses)
+            for j, b in enumerate(uses):
                 g = _h(agent.before_tool, copy.deepcopy(b))
-                raw = None if g is not None else m._call(env, b["name"], b["input"])
-                obs = str(g) if g is not None else str(_h(agent.render_result, copy.deepcopy(b), raw))
-                if g is not None or obs != old.get(b["id"]):
+                if same:
+                    # same harness as the recording: keep its recorded check decision
+                    # and observation; diverge only if the database answers differently
+                    if old_raw[j] is None:
+                        raw = None
+                    else:
+                        raw = m._call(env, b["name"], b["input"])
+                        _h(agent.render_result, copy.deepcopy(b), raw)
+                    obs = old.get(b["id"], "")
+                    if raw is not None and str(raw) != str(old_raw[j]):
+                        diverged.append({"step": i, "call": b["name"], "kind": "state"})
+                        live_from = min(live_from, i + 1)
+                else:
+                    raw = None if g is not None else m._call(env, b["name"], b["input"])
+                    obs = str(g) if g is not None else str(_h(agent.render_result, copy.deepcopy(b), raw))
+                if not same and (g is not None or obs != old.get(b["id"])):
                     diverged.append({"step": i, "call": b["name"],
                                      "kind": "blocked" if g is not None else "rendered"})
                     live_from = min(live_from, i + 1)
@@ -249,7 +276,8 @@ def episode(m, Agent, pm: PolicyModel, task, prefix: dict | None = None, start: 
                        "user": user_tok},
             "calls": {"agent": acc["calls"]}, "seconds": round(time.time() - t0, 2),
             "replay": ({"start_requested": start, "start_effective": live_from,
-                        "diverged": diverged, "forced": force is None and forced} if prefix else None)}
+                        "diverged": diverged, "forced": force is None and forced,
+                        **({"recorded_checks": True} if RECORDED_CHECKS else {})} if prefix else None)}
 
 
 def run_jobs(m, Agent, pm, jobs, workers):
