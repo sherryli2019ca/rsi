@@ -341,16 +341,16 @@ def tables(js: Path, tex: Path):
     for s_, ks in order.items():
         if s_ not in res:
             continue
-        rows.append(f"\\multicolumn{{7}}{{l}}{{\\emph{{{lab[s_]}}}}} \\\\")
+        rows.append(f"\\multicolumn{{8}}{{l}}{{\\emph{{{lab[s_]}}}}} \\\\")
         for k in ks:
             c = res[s_][k]
             rec = c["recall"][0]
             gd = c["gain_dropped"][0]
             rows.append(f"{name[k]} & {c['rounds']} & {c['full_accepts']} & {ci(c['D_full'])} & "
                         f"{ci(c['seq_minus_full'])} & {'--' if rec is None else f'{100 * rec:.0f}'} & "
-                        f"{'--' if gd is None or c['dropped'] < 0.5 else pp(gd)} \\\\")
-    out = ("\\begin{tabular}{@{}lrrllrr@{}}\n\\toprule\n"
-           "Rounds & $n$ & Acc. & $D$(full) [90\\%] & seq.$-$full [90\\%] & Recall & Dropped \\\\\n\\midrule\n"
+                        f"{c['dropped']:.1f} & {'--' if gd is None or c['dropped'] < 0.5 else pp(gd)} \\\\")
+    out = ("\\begin{tabular}{@{}lrrllrrr@{}}\n\\toprule\n"
+           "Rounds & $n$ & Acc. & $D$(full) [90\\%] & seq.$-$full [90\\%] & Recall & Drop. & Gain \\\\\n\\midrule\n"
            + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n")
     tex.write_text(out)
     print(out)

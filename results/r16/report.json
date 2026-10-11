@@ -1,0 +1,2702 @@
+{
+ "resolution": {
+  "rows": [
+   {
+    "traj": "r1",
+    "domain": "tau2_retail",
+    "t": 0,
+    "variant": "A",
+    "gain": 0.8333333333333331,
+    "ci95": [
+     -3.75,
+     5.0
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_retail",
+    "t": 0,
+    "variant": "B",
+    "gain": 2.083333333333333,
+    "ci95": [
+     -1.2500000000000002,
+     5.416666666666666
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_retail",
+    "t": 1,
+    "variant": "A",
+    "gain": 2.5000000000000013,
+    "ci95": [
+     -0.4166666666666663,
+     5.833333333333333
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_retail",
+    "t": 1,
+    "variant": "B",
+    "gain": -0.8333333333333328,
+    "ci95": [
+     -5.0,
+     2.9166666666666665
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_retail",
+    "t": 2,
+    "variant": "A",
+    "gain": -1.6666666666666667,
+    "ci95": [
+     -7.500000000000001,
+     4.583333333333333
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_retail",
+    "t": 2,
+    "variant": "B",
+    "gain": -0.8333333333333329,
+    "ci95": [
+     -4.166666666666666,
+     1.6666666666666674
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_retail",
+    "t": 3,
+    "variant": "A",
+    "gain": 0.4166666666666671,
+    "ci95": [
+     -3.75,
+     4.583333333333334
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_retail",
+    "t": 3,
+    "variant": "B",
+    "gain": -2.5,
+    "ci95": [
+     -6.25,
+     0.8333333333333331
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_retail",
+    "t": 4,
+    "variant": "A",
+    "gain": -2.0833333333333335,
+    "ci95": [
+     -5.416666666666668,
+     1.2499999999999998
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_retail",
+    "t": 5,
+    "variant": "B",
+    "gain": -2.4999999999999996,
+    "ci95": [
+     -7.916666666666666,
+     2.9166666666666674
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_retail",
+    "t": 6,
+    "variant": "A",
+    "gain": -51.66666666666667,
+    "ci95": [
+     -65.83333333333333,
+     -37.5
+    ],
+    "n_tasks": 40,
+    "class": "negative"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_retail",
+    "t": 8,
+    "variant": "A",
+    "gain": -2.5,
+    "ci95": [
+     -7.916666666666668,
+     2.9166666666666665
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_retail",
+    "t": 9,
+    "variant": "A",
+    "gain": -1.2500000000000002,
+    "ci95": [
+     -5.416666666666668,
+     2.5
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_retail",
+    "t": 10,
+    "variant": "A",
+    "gain": 1.2500000000000002,
+    "ci95": [
+     -2.5,
+     5.833333333333333
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_retail",
+    "t": 10,
+    "variant": "B",
+    "gain": -1.25,
+    "ci95": [
+     -5.0,
+     2.5
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_retail",
+    "t": 11,
+    "variant": "A",
+    "gain": 2.0816681711721685e-16,
+    "ci95": [
+     -4.583333333333334,
+     4.583333333333333
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_retail",
+    "t": 12,
+    "variant": "A",
+    "gain": -2.4999999999999996,
+    "ci95": [
+     -6.666666666666665,
+     1.2500000000000002
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_retail",
+    "t": 14,
+    "variant": "A",
+    "gain": 2.7755575615628914e-16,
+    "ci95": [
+     -2.9166666666666665,
+     2.9166666666666674
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_retail",
+    "t": 15,
+    "variant": "A",
+    "gain": -1.2499999999999998,
+    "ci95": [
+     -4.583333333333332,
+     1.666666666666667
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_retail",
+    "t": 15,
+    "variant": "B",
+    "gain": 0.0,
+    "ci95": [
+     -4.166666666666667,
+     4.166666666666666
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_retail",
+    "t": 16,
+    "variant": "A",
+    "gain": -3.333333333333334,
+    "ci95": [
+     -7.083333333333333,
+     0.0
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_retail",
+    "t": 17,
+    "variant": "A",
+    "gain": 0.8333333333333337,
+    "ci95": [
+     -4.166666666666666,
+     6.25
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_retail",
+    "t": 18,
+    "variant": "A",
+    "gain": 1.2500000000000007,
+    "ci95": [
+     -2.083333333333333,
+     5.0
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_retail",
+    "t": 19,
+    "variant": "A",
+    "gain": 0.41666666666666685,
+    "ci95": [
+     -2.5,
+     3.333333333333334
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_airline",
+    "t": 0,
+    "variant": "A",
+    "gain": 5.833333333333333,
+    "ci95": [
+     -0.4270833333333318,
+     13.333333333333334
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_airline",
+    "t": 0,
+    "variant": "B",
+    "gain": 2.0833333333333335,
+    "ci95": [
+     -0.8333333333333335,
+     5.010416666666707
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_airline",
+    "t": 1,
+    "variant": "A",
+    "gain": 4.166666666666666,
+    "ci95": [
+     1.249999999999999,
+     7.5
+    ],
+    "n_tasks": 20,
+    "class": "positive"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_airline",
+    "t": 2,
+    "variant": "A",
+    "gain": 1.666666666666667,
+    "ci95": [
+     -1.6770833333333308,
+     5.416666666666666
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_airline",
+    "t": 2,
+    "variant": "B",
+    "gain": 0.4166666666666663,
+    "ci95": [
+     -2.9166666666666665,
+     3.749999999999999
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_airline",
+    "t": 3,
+    "variant": "A",
+    "gain": 0.8333333333333331,
+    "ci95": [
+     -1.6666666666666652,
+     2.9166666666666665
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_airline",
+    "t": 4,
+    "variant": "A",
+    "gain": 2.083333333333333,
+    "ci95": [
+     0.4166666666666655,
+     4.166666666666666
+    ],
+    "n_tasks": 20,
+    "class": "positive"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_airline",
+    "t": 4,
+    "variant": "B",
+    "gain": -2.5,
+    "ci95": [
+     -10.833333333333332,
+     3.749999999999999
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_airline",
+    "t": 6,
+    "variant": "A",
+    "gain": -3.75,
+    "ci95": [
+     -9.583333333333336,
+     1.2500000000000007
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_airline",
+    "t": 6,
+    "variant": "B",
+    "gain": -1.25,
+    "ci95": [
+     -5.833333333333335,
+     2.9166666666666683
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_airline",
+    "t": 7,
+    "variant": "A",
+    "gain": -0.4166666666666661,
+    "ci95": [
+     -5.0,
+     4.166666666666667
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_airline",
+    "t": 8,
+    "variant": "A",
+    "gain": -1.666666666666667,
+    "ci95": [
+     -4.583333333333333,
+     1.2499999999999998
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_airline",
+    "t": 9,
+    "variant": "A",
+    "gain": -0.41666666666666685,
+    "ci95": [
+     -4.166666666666667,
+     3.749999999999999
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_airline",
+    "t": 10,
+    "variant": "A",
+    "gain": -1.2499999999999998,
+    "ci95": [
+     -6.666666666666668,
+     3.333333333333334
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_airline",
+    "t": 11,
+    "variant": "A",
+    "gain": -4.166666666666666,
+    "ci95": [
+     -8.75,
+     -0.4166666666666663
+    ],
+    "n_tasks": 20,
+    "class": "negative"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_airline",
+    "t": 12,
+    "variant": "A",
+    "gain": -3.7500000000000004,
+    "ci95": [
+     -8.333333333333332,
+     0.4270833333333714
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_airline",
+    "t": 14,
+    "variant": "A",
+    "gain": -2.5000000000000013,
+    "ci95": [
+     -11.250000000000002,
+     4.583333333333332
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_airline",
+    "t": 15,
+    "variant": "A",
+    "gain": -2.0833333333333335,
+    "ci95": [
+     -8.333333333333334,
+     3.75
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_airline",
+    "t": 16,
+    "variant": "A",
+    "gain": -3.75,
+    "ci95": [
+     -8.75,
+     0.8333333333333346
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_airline",
+    "t": 17,
+    "variant": "A",
+    "gain": -2.7755575615628914e-16,
+    "ci95": [
+     -4.166666666666667,
+     4.583333333333334
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_airline",
+    "t": 18,
+    "variant": "A",
+    "gain": 1.25,
+    "ci95": [
+     -2.5,
+     5.416666666666666
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_airline",
+    "t": 19,
+    "variant": "A",
+    "gain": 1.6666666666666663,
+    "ci95": [
+     -4.166666666666667,
+     7.916666666666668
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r1",
+    "domain": "tau2_airline",
+    "t": 19,
+    "variant": "B",
+    "gain": -0.4166666666666663,
+    "ci95": [
+     -5.833333333333333,
+     4.583333333333334
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 0,
+    "variant": "A",
+    "gain": -1.25,
+    "ci95": [
+     -6.666666666666667,
+     3.75
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 0,
+    "variant": "B",
+    "gain": -0.41666666666666685,
+    "ci95": [
+     -4.583333333333333,
+     2.9166666666666665
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 1,
+    "variant": "A",
+    "gain": -1.2500000000000002,
+    "ci95": [
+     -5.000000000000001,
+     2.5
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 1,
+    "variant": "B",
+    "gain": -3.333333333333334,
+    "ci95": [
+     -8.75,
+     1.666666666666667
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 2,
+    "variant": "A",
+    "gain": -2.5000000000000004,
+    "ci95": [
+     -6.666666666666668,
+     1.2499999999999996
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 2,
+    "variant": "B",
+    "gain": -1.25,
+    "ci95": [
+     -6.666666666666668,
+     3.75
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 3,
+    "variant": "A",
+    "gain": -1.666666666666667,
+    "ci95": [
+     -6.25,
+     2.5
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 3,
+    "variant": "B",
+    "gain": -2.0833333333333335,
+    "ci95": [
+     -7.5,
+     2.5000000000000004
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 4,
+    "variant": "A",
+    "gain": -3.75,
+    "ci95": [
+     -8.333333333333334,
+     0.41666666666666685
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 4,
+    "variant": "B",
+    "gain": -7.5,
+    "ci95": [
+     -13.750000000000002,
+     -1.666666666666667
+    ],
+    "n_tasks": 40,
+    "class": "negative"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 5,
+    "variant": "B",
+    "gain": -2.0833333333333335,
+    "ci95": [
+     -5.833333333333333,
+     1.6666666666666663
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 6,
+    "variant": "A",
+    "gain": -2.0833333333333335,
+    "ci95": [
+     -6.666666666666667,
+     2.083333333333333
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 7,
+    "variant": "A",
+    "gain": -2.9166666666666674,
+    "ci95": [
+     -8.75,
+     2.9166666666666665
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 8,
+    "variant": "A",
+    "gain": -2.5,
+    "ci95": [
+     -7.916666666666668,
+     2.9166666666666665
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 9,
+    "variant": "A",
+    "gain": 2.083333333333333,
+    "ci95": [
+     -2.5,
+     7.5
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 9,
+    "variant": "B",
+    "gain": -2.0833333333333335,
+    "ci95": [
+     -8.333333333333334,
+     3.749999999999999
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 10,
+    "variant": "A",
+    "gain": -3.75,
+    "ci95": [
+     -9.583333333333334,
+     1.666666666666667
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 10,
+    "variant": "B",
+    "gain": -2.5000000000000004,
+    "ci95": [
+     -7.083333333333333,
+     2.083333333333333
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 11,
+    "variant": "A",
+    "gain": -1.2499999999999996,
+    "ci95": [
+     -5.833333333333333,
+     3.333333333333334
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 12,
+    "variant": "A",
+    "gain": -3.75,
+    "ci95": [
+     -10.833333333333332,
+     2.9166666666666665
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 13,
+    "variant": "A",
+    "gain": -3.333333333333334,
+    "ci95": [
+     -9.166666666666666,
+     2.0833333333333335
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 14,
+    "variant": "A",
+    "gain": -3.333333333333334,
+    "ci95": [
+     -8.75,
+     2.0833333333333335
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 14,
+    "variant": "B",
+    "gain": -1.666666666666667,
+    "ci95": [
+     -5.416666666666666,
+     1.2500000000000002
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 15,
+    "variant": "A",
+    "gain": -3.75,
+    "ci95": [
+     -8.333333333333332,
+     1.2500000000000007
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 17,
+    "variant": "A",
+    "gain": -1.666666666666667,
+    "ci95": [
+     -5.833333333333333,
+     2.5
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 18,
+    "variant": "A",
+    "gain": 1.6666666666666667,
+    "ci95": [
+     -2.083333333333333,
+     5.833333333333333
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_retail",
+    "t": 19,
+    "variant": "A",
+    "gain": -4.583333333333333,
+    "ci95": [
+     -9.166666666666664,
+     -0.8333333333333334
+    ],
+    "n_tasks": 40,
+    "class": "negative"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 0,
+    "variant": "B",
+    "gain": 7.916666666666668,
+    "ci95": [
+     1.666666666666667,
+     15.416666666666668
+    ],
+    "n_tasks": 20,
+    "class": "positive"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 2,
+    "variant": "A",
+    "gain": 2.7755575615628914e-16,
+    "ci95": [
+     -4.166666666666666,
+     4.166666666666667
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 2,
+    "variant": "B",
+    "gain": 8.75,
+    "ci95": [
+     2.5,
+     15.833333333333336
+    ],
+    "n_tasks": 20,
+    "class": "positive"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 3,
+    "variant": "A",
+    "gain": -1.25,
+    "ci95": [
+     -5.0,
+     1.666666666666667
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 3,
+    "variant": "B",
+    "gain": -1.2499999999999998,
+    "ci95": [
+     -3.7500000000000004,
+     1.2500000000000007
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 4,
+    "variant": "A",
+    "gain": 1.2499999999999993,
+    "ci95": [
+     -2.5000000000000013,
+     5.83333333333333
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 4,
+    "variant": "B",
+    "gain": -0.4166666666666673,
+    "ci95": [
+     -5.000000000000001,
+     4.583333333333332
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 5,
+    "variant": "A",
+    "gain": -2.9166666666666665,
+    "ci95": [
+     -7.916666666666668,
+     2.0833333333333335
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 5,
+    "variant": "B",
+    "gain": -0.4166666666666661,
+    "ci95": [
+     -3.3333333333333335,
+     4.166666666666666
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 6,
+    "variant": "A",
+    "gain": -0.41666666666666585,
+    "ci95": [
+     -3.749999999999999,
+     2.9166666666666683
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 7,
+    "variant": "A",
+    "gain": -3.3333333333333335,
+    "ci95": [
+     -8.333333333333334,
+     1.25
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 7,
+    "variant": "B",
+    "gain": -0.41666666666666624,
+    "ci95": [
+     -4.166666666666666,
+     4.166666666666667
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 8,
+    "variant": "A",
+    "gain": -7.916666666666665,
+    "ci95": [
+     -19.58333333333333,
+     1.6666666666666663
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 8,
+    "variant": "B",
+    "gain": 1.666666666666667,
+    "ci95": [
+     -3.3333333333333326,
+     7.083333333333333
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 9,
+    "variant": "A",
+    "gain": 1.6666666666666674,
+    "ci95": [
+     -1.666666666666667,
+     5.416666666666668
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 11,
+    "variant": "A",
+    "gain": -3.75,
+    "ci95": [
+     -9.166666666666668,
+     0.8333333333333346
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 11,
+    "variant": "B",
+    "gain": 0.8333333333333341,
+    "ci95": [
+     -2.9166666666666665,
+     5.416666666666668
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 12,
+    "variant": "A",
+    "gain": -6.666666666666667,
+    "ci95": [
+     -18.749999999999996,
+     0.8333333333333331
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 12,
+    "variant": "B",
+    "gain": -1.6666666666666667,
+    "ci95": [
+     -5.416666666666668,
+     2.083333333333333
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 13,
+    "variant": "A",
+    "gain": 0.41666666666666685,
+    "ci95": [
+     -4.583333333333334,
+     5.833333333333333
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 13,
+    "variant": "B",
+    "gain": 2.5000000000000004,
+    "ci95": [
+     -1.25,
+     7.083333333333335
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 14,
+    "variant": "A",
+    "gain": -2.9166666666666665,
+    "ci95": [
+     -6.666666666666665,
+     -3.469446951953614e-16
+    ],
+    "n_tasks": 20,
+    "class": "negative"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 14,
+    "variant": "B",
+    "gain": 2.083333333333333,
+    "ci95": [
+     -1.6666666666666676,
+     7.5
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 15,
+    "variant": "A",
+    "gain": 1.25,
+    "ci95": [
+     -2.083333333333333,
+     5.416666666666668
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 15,
+    "variant": "B",
+    "gain": -2.9166666666666665,
+    "ci95": [
+     -5.833333333333333,
+     -0.4166666666666661
+    ],
+    "n_tasks": 20,
+    "class": "negative"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 16,
+    "variant": "A",
+    "gain": -7.083333333333333,
+    "ci95": [
+     -17.083333333333332,
+     -0.833333333333334
+    ],
+    "n_tasks": 20,
+    "class": "negative"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 17,
+    "variant": "A",
+    "gain": 0.833333333333334,
+    "ci95": [
+     -2.5104166666666634,
+     4.583333333333335
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 18,
+    "variant": "A",
+    "gain": 1.6666666666666663,
+    "ci95": [
+     -2.5,
+     7.916666666666665
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r2",
+    "domain": "tau2_airline",
+    "t": 19,
+    "variant": "A",
+    "gain": 5.000000000000001,
+    "ci95": [
+     -2.4999999999999996,
+     15.833333333333336
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 0,
+    "variant": "A",
+    "gain": -2.083333333333333,
+    "ci95": [
+     -6.666666666666667,
+     2.083333333333333
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 0,
+    "variant": "B",
+    "gain": -3.3333333333333335,
+    "ci95": [
+     -7.083333333333333,
+     -1.3530843112617833e-16
+    ],
+    "n_tasks": 40,
+    "class": "negative"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 1,
+    "variant": "A",
+    "gain": 1.6666666666666663,
+    "ci95": [
+     -1.666666666666667,
+     5.416666666666666
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 1,
+    "variant": "B",
+    "gain": -1.2500000000000002,
+    "ci95": [
+     -4.583333333333334,
+     2.0833333333333335
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 2,
+    "variant": "A",
+    "gain": -2.083333333333333,
+    "ci95": [
+     -5.833333333333333,
+     1.2500000000000002
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 2,
+    "variant": "B",
+    "gain": -2.5,
+    "ci95": [
+     -7.083333333333333,
+     1.25
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 3,
+    "variant": "A",
+    "gain": -6.938893903907228e-17,
+    "ci95": [
+     -5.833333333333333,
+     6.25
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 3,
+    "variant": "B",
+    "gain": -1.6666666666666663,
+    "ci95": [
+     -6.666666666666667,
+     3.333333333333334
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 4,
+    "variant": "B",
+    "gain": 0.4166666666666664,
+    "ci95": [
+     -2.9166666666666665,
+     3.749999999999999
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 5,
+    "variant": "A",
+    "gain": 5.416666666666666,
+    "ci95": [
+     2.7755575615628914e-16,
+     11.666666666666666
+    ],
+    "n_tasks": 40,
+    "class": "positive"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 5,
+    "variant": "B",
+    "gain": 1.3877787807814457e-16,
+    "ci95": [
+     -5.416666666666668,
+     5.0
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 6,
+    "variant": "A",
+    "gain": 5.833333333333335,
+    "ci95": [
+     2.7755575615628914e-16,
+     12.916666666666671
+    ],
+    "n_tasks": 40,
+    "class": "positive"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 7,
+    "variant": "A",
+    "gain": 2.0833333333333335,
+    "ci95": [
+     -2.499999999999999,
+     7.083333333333333
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 7,
+    "variant": "B",
+    "gain": 1.25,
+    "ci95": [
+     -3.333333333333334,
+     6.666666666666668
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 8,
+    "variant": "A",
+    "gain": 0.41666666666666674,
+    "ci95": [
+     -4.583333333333333,
+     5.0
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 8,
+    "variant": "B",
+    "gain": -1.6666666666666667,
+    "ci95": [
+     -6.666666666666668,
+     2.9166666666666674
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 9,
+    "variant": "A",
+    "gain": 0.4166666666666669,
+    "ci95": [
+     -3.333333333333334,
+     4.583333333333335
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 10,
+    "variant": "A",
+    "gain": 0.8333333333333337,
+    "ci95": [
+     -3.7500000000000004,
+     5.833333333333333
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 10,
+    "variant": "B",
+    "gain": 1.2500000000000002,
+    "ci95": [
+     -2.9166666666666665,
+     5.416666666666668
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 11,
+    "variant": "B",
+    "gain": -12.5,
+    "ci95": [
+     -20.416666666666668,
+     -5.0
+    ],
+    "n_tasks": 40,
+    "class": "negative"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 12,
+    "variant": "A",
+    "gain": 0.0,
+    "ci95": [
+     -5.833333333333333,
+     5.833333333333333
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 12,
+    "variant": "B",
+    "gain": 0.4166666666666663,
+    "ci95": [
+     -4.583333333333333,
+     5.0
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 13,
+    "variant": "A",
+    "gain": -4.583333333333334,
+    "ci95": [
+     -9.166666666666668,
+     -5.533767888365953e-16
+    ],
+    "n_tasks": 40,
+    "class": "negative"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 14,
+    "variant": "A",
+    "gain": 0.8333333333333335,
+    "ci95": [
+     -4.166666666666667,
+     5.833333333333333
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 16,
+    "variant": "A",
+    "gain": 1.25,
+    "ci95": [
+     -2.083333333333333,
+     5.0
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 17,
+    "variant": "A",
+    "gain": 0.8333333333333328,
+    "ci95": [
+     -5.010416666666663,
+     6.25
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 18,
+    "variant": "A",
+    "gain": 2.083333333333333,
+    "ci95": [
+     -2.5000000000000013,
+     7.499999999999998
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_retail",
+    "t": 19,
+    "variant": "A",
+    "gain": -2.9166666666666665,
+    "ci95": [
+     -6.666666666666667,
+     0.4166666666666671
+    ],
+    "n_tasks": 40,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_airline",
+    "t": 0,
+    "variant": "A",
+    "gain": 10.0,
+    "ci95": [
+     4.166666666666667,
+     16.666666666666668
+    ],
+    "n_tasks": 20,
+    "class": "positive"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_airline",
+    "t": 1,
+    "variant": "A",
+    "gain": 0.0,
+    "ci95": [
+     -4.17708333333333,
+     5.000000000000001
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_airline",
+    "t": 1,
+    "variant": "B",
+    "gain": -0.8333333333333328,
+    "ci95": [
+     -4.166666666666667,
+     2.0833333333333344
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_airline",
+    "t": 2,
+    "variant": "A",
+    "gain": 2.0816681711721685e-16,
+    "ci95": [
+     -2.5,
+     2.5
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_airline",
+    "t": 2,
+    "variant": "B",
+    "gain": -0.8333333333333328,
+    "ci95": [
+     -5.0,
+     2.9166666666666665
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_airline",
+    "t": 5,
+    "variant": "A",
+    "gain": -6.938893903907228e-17,
+    "ci95": [
+     -4.166666666666667,
+     4.177083333333371
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_airline",
+    "t": 6,
+    "variant": "A",
+    "gain": -0.41666666666666674,
+    "ci95": [
+     -3.7500000000000004,
+     3.75
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_airline",
+    "t": 6,
+    "variant": "B",
+    "gain": 2.9166666666666665,
+    "ci95": [
+     -1.2500000000000002,
+     8.333333333333332
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_airline",
+    "t": 7,
+    "variant": "A",
+    "gain": 0.41666666666666596,
+    "ci95": [
+     -4.583333333333334,
+     4.583333333333332
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_airline",
+    "t": 7,
+    "variant": "B",
+    "gain": 0.4166666666666661,
+    "ci95": [
+     -2.5000000000000004,
+     3.749999999999999
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_airline",
+    "t": 8,
+    "variant": "A",
+    "gain": -0.4166666666666658,
+    "ci95": [
+     -3.75,
+     2.500000000000002
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_airline",
+    "t": 9,
+    "variant": "A",
+    "gain": -0.8333333333333331,
+    "ci95": [
+     -3.3333333333333335,
+     1.6666666666666659
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_airline",
+    "t": 9,
+    "variant": "B",
+    "gain": 2.5000000000000004,
+    "ci95": [
+     -1.2499999999999993,
+     6.666666666666668
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_airline",
+    "t": 10,
+    "variant": "A",
+    "gain": -1.25,
+    "ci95": [
+     -5.833333333333333,
+     2.9166666666666665
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_airline",
+    "t": 11,
+    "variant": "A",
+    "gain": 0.41666666666666685,
+    "ci95": [
+     -2.5,
+     3.333333333333334
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_airline",
+    "t": 12,
+    "variant": "A",
+    "gain": 1.25,
+    "ci95": [
+     -0.8333333333333331,
+     3.3333333333333335
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_airline",
+    "t": 13,
+    "variant": "A",
+    "gain": 1.666666666666667,
+    "ci95": [
+     -2.9166666666666665,
+     6.666666666666668
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_airline",
+    "t": 15,
+    "variant": "A",
+    "gain": -0.41666666666666685,
+    "ci95": [
+     -3.7500000000000004,
+     3.75
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_airline",
+    "t": 16,
+    "variant": "A",
+    "gain": 1.2500000000000002,
+    "ci95": [
+     -1.666666666666667,
+     4.583333333333335
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_airline",
+    "t": 16,
+    "variant": "B",
+    "gain": -0.4166666666666667,
+    "ci95": [
+     -2.5,
+     1.2500000000000007
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_airline",
+    "t": 17,
+    "variant": "A",
+    "gain": -1.666666666666667,
+    "ci95": [
+     -5.416666666666668,
+     0.8333333333333334
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_airline",
+    "t": 18,
+    "variant": "A",
+    "gain": 6.938893903907228e-16,
+    "ci95": [
+     -2.5,
+     2.5000000000000013
+    ],
+    "n_tasks": 20,
+    "class": "unresolved"
+   },
+   {
+    "traj": "r3",
+    "domain": "tau2_airline",
+    "t": 19,
+    "variant": "A",
+    "gain": 2.9166666666666674,
+    "ci95": [
+     4.163336342344337e-16,
+     6.250000000000002
+    ],
+    "n_tasks": 20,
+    "class": "positive"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 0,
+    "variant": "A",
+    "gain": 2.976190476190476,
+    "ci95": [
+     0.0,
+     5.952380952380952
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 0,
+    "variant": "B",
+    "gain": 1.1904761904761905,
+    "ci95": [
+     -1.488095238095238,
+     3.869047619047619
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 1,
+    "variant": "A",
+    "gain": -0.2976190476190476,
+    "ci95": [
+     -1.7857142857142856,
+     0.8928571428571428
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 1,
+    "variant": "B",
+    "gain": -1.488095238095238,
+    "ci95": [
+     -3.571428571428571,
+     0.5952380952380952
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 2,
+    "variant": "A",
+    "gain": 0.8928571428571428,
+    "ci95": [
+     -1.488095238095238,
+     3.571428571428571
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 2,
+    "variant": "B",
+    "gain": -6.547619047619048,
+    "ci95": [
+     -10.416666666666668,
+     -2.976190476190476
+    ],
+    "n_tasks": 168,
+    "class": "negative"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 3,
+    "variant": "A",
+    "gain": -0.5952380952380952,
+    "ci95": [
+     -2.6785714285714284,
+     1.1904761904761905
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 3,
+    "variant": "B",
+    "gain": -0.8928571428571428,
+    "ci95": [
+     -3.273809523809524,
+     1.1904761904761905
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 4,
+    "variant": "A",
+    "gain": -1.488095238095238,
+    "ci95": [
+     -3.869047619047619,
+     0.5952380952380952
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 4,
+    "variant": "B",
+    "gain": 0.0,
+    "ci95": [
+     -2.6785714285714284,
+     2.6785714285714284
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 5,
+    "variant": "A",
+    "gain": 0.8928571428571428,
+    "ci95": [
+     -1.488095238095238,
+     3.571428571428571
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 6,
+    "variant": "A",
+    "gain": -1.488095238095238,
+    "ci95": [
+     -3.571428571428571,
+     0.2976190476190476
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 6,
+    "variant": "B",
+    "gain": -0.8928571428571428,
+    "ci95": [
+     -3.273809523809524,
+     1.488095238095238
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 7,
+    "variant": "A",
+    "gain": -0.2976190476190476,
+    "ci95": [
+     -2.083333333333333,
+     1.488095238095238
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 7,
+    "variant": "B",
+    "gain": -2.6785714285714284,
+    "ci95": [
+     -5.357142857142857,
+     -0.2976190476190476
+    ],
+    "n_tasks": 168,
+    "class": "negative"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 8,
+    "variant": "A",
+    "gain": -0.2976190476190476,
+    "ci95": [
+     -2.976190476190476,
+     2.380952380952381
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 9,
+    "variant": "A",
+    "gain": 1.488095238095238,
+    "ci95": [
+     -2.083333333333333,
+     5.059523809523809
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 10,
+    "variant": "A",
+    "gain": 0.2976190476190476,
+    "ci95": [
+     -2.083333333333333,
+     2.6785714285714284
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 11,
+    "variant": "A",
+    "gain": 1.1904761904761905,
+    "ci95": [
+     -1.1904761904761905,
+     3.571428571428571
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 12,
+    "variant": "A",
+    "gain": 0.2976190476190476,
+    "ci95": [
+     -2.083333333333333,
+     2.6785714285714284
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 12,
+    "variant": "B",
+    "gain": -0.5952380952380952,
+    "ci95": [
+     -2.6785714285714284,
+     1.1904761904761905
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 14,
+    "variant": "A",
+    "gain": 1.7857142857142856,
+    "ci95": [
+     -1.488095238095238,
+     5.357142857142857
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 15,
+    "variant": "A",
+    "gain": 1.488095238095238,
+    "ci95": [
+     -0.8928571428571428,
+     4.166666666666666
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 16,
+    "variant": "A",
+    "gain": 1.488095238095238,
+    "ci95": [
+     -1.488095238095238,
+     4.761904761904762
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 16,
+    "variant": "B",
+    "gain": -0.2976190476190476,
+    "ci95": [
+     -2.6785714285714284,
+     2.083333333333333
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 17,
+    "variant": "A",
+    "gain": -0.5952380952380952,
+    "ci95": [
+     -2.976190476190476,
+     1.488095238095238
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 18,
+    "variant": "A",
+    "gain": -2.380952380952381,
+    "ci95": [
+     -5.357142857142857,
+     0.5952380952380952
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 18,
+    "variant": "B",
+    "gain": 0.8928571428571428,
+    "ci95": [
+     -1.7857142857142856,
+     3.571428571428571
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   },
+   {
+    "traj": "e3",
+    "domain": "appworld",
+    "t": 19,
+    "variant": "A",
+    "gain": -0.5952380952380952,
+    "ci95": [
+     -3.273809523809524,
+     2.083333333333333
+    ],
+    "n_tasks": 168,
+    "class": "unresolved"
+   }
+  ],
+  "by_set": {
+   "tau2/tau2_retail": {
+    "n": 79,
+    "positive": 2,
+    "negative": 6,
+    "unresolved": 71,
+    "point_positive": 28,
+    "point_nonpositive": 51,
+    "median_ci_width": 8.75
+   },
+   "tau2": {
+    "n": 154,
+    "positive": 8,
+    "negative": 10,
+    "unresolved": 136,
+    "point_positive": 63,
+    "point_nonpositive": 91,
+    "median_ci_width": 8.54687500000002
+   },
+   "all": {
+    "n": 183,
+    "positive": 8,
+    "negative": 12,
+    "unresolved": 163,
+    "point_positive": 75,
+    "point_nonpositive": 108,
+    "median_ci_width": 7.916666666666669
+   },
+   "tau2/tau2_airline": {
+    "n": 75,
+    "positive": 6,
+    "negative": 4,
+    "unresolved": 65,
+    "point_positive": 35,
+    "point_nonpositive": 40,
+    "median_ci_width": 8.333333333333332
+   },
+   "e3": {
+    "n": 29,
+    "positive": 0,
+    "negative": 2,
+    "unresolved": 27,
+    "point_positive": 12,
+    "point_nonpositive": 17,
+    "median_ci_width": 5.059523809523808
+   }
+  }
+ },
+ "shared": {
+  "B=2000": {
+   "registered": {
+    "full": {
+     "est": 0.04166666666666669,
+     "ci90": [
+      -0.3472791438979964,
+      0.42915463007542926
+     ]
+    },
+    "primary": {
+     "sample@40": {
+      "diff": -0.09901041666666667,
+      "ci90": [
+       -0.5738851518054106,
+       0.34994605654761896
+      ],
+      "p_ni": 0.0175,
+      "p_holm": 0.045
+     },
+     "net@40": {
+      "diff": -0.1368359375,
+      "ci90": [
+       -0.5798793232570808,
+       0.2745431544064963
+      ],
+      "p_ni": 0.015,
+      "p_holm": 0.045
+     },
+     "replaynull@40": {
+      "diff": -0.4348046875,
+      "ci90": [
+       -0.942431104052198,
+       0.054610844017093964
+      ],
+      "p_ni": 0.1405,
+      "p_holm": 0.1405
+     }
+    },
+    "sequential": {
+     "seqfull": {
+      "diff": -0.021393229166666684,
+      "ci90": [
+       -0.12192545572916674,
+       0.0712430603999535
+      ],
+      "p_ni": 0.0,
+      "p_holm": 0.0
+     },
+     "seqsample@80": {
+      "diff": 0.025377604166666665,
+      "ci90": [
+       -0.2574633290816327,
+       0.3516529224537035
+      ],
+      "p_ni": 0.0,
+      "p_holm": 0.0
+     }
+    },
+    "keep": {
+     "diff": -0.04166666666666669,
+     "ci90": [
+      -0.4291546300754293,
+      0.34727914389799636
+     ],
+     "p_ni": 0.0045
+    }
+   },
+   "shared_tasks": {
+    "full": {
+     "est": 0.04166666666666669,
+     "ci90": [
+      -0.3629032258064516,
+      0.4206629572118703
+     ]
+    },
+    "primary": {
+     "sample@40": {
+      "diff": -0.09901041666666667,
+      "ci90": [
+       -0.5945484301315463,
+       0.35615575396825383
+      ],
+      "p_ni": 0.0185,
+      "p_holm": 0.055499999999999994
+     },
+     "net@40": {
+      "diff": -0.1368359375,
+      "ci90": [
+       -0.6042094070223025,
+       0.27240247140522883
+      ],
+      "p_ni": 0.0205,
+      "p_holm": 0.055499999999999994
+     },
+     "replaynull@40": {
+      "diff": -0.4348046875,
+      "ci90": [
+       -0.9428298639525369,
+       0.08228863960113941
+      ],
+      "p_ni": 0.139,
+      "p_holm": 0.139
+     }
+    },
+    "sequential": {
+     "seqfull": {
+      "diff": -0.021393229166666684,
+      "ci90": [
+       -0.12104630547506487,
+       0.07162897155825503
+      ],
+      "p_ni": 0.0,
+      "p_holm": 0.0
+     },
+     "seqsample@80": {
+      "diff": 0.025377604166666665,
+      "ci90": [
+       -0.27441832910969666,
+       0.3506052300945999
+      ],
+      "p_ni": 0.0,
+      "p_holm": 0.0
+     }
+    },
+    "keep": {
+     "diff": -0.04166666666666669,
+     "ci90": [
+      -0.4206629572118704,
+      0.3629032258064516
+     ],
+     "p_ni": 0.003
+    }
+   }
+  },
+  "B=10000": {
+   "registered": {
+    "full": {
+     "est": 0.04166666666666669,
+     "ci90": [
+      -0.3663936781609195,
+      0.4118773946360154
+     ]
+    },
+    "primary": {
+     "sample@40": {
+      "diff": -0.09901041666666667,
+      "ci90": [
+       -0.5802018203239082,
+       0.36670434686697806
+      ],
+      "p_ni": 0.0158,
+      "p_holm": 0.047400000000000005
+     },
+     "net@40": {
+      "diff": -0.1368359375,
+      "ci90": [
+       -0.5799002595572059,
+       0.2793952151084006
+      ],
+      "p_ni": 0.0169,
+      "p_holm": 0.047400000000000005
+     },
+     "replaynull@40": {
+      "diff": -0.4348046875,
+      "ci90": [
+       -0.9267660756030961,
+       0.0755845700152205
+      ],
+      "p_ni": 0.1343,
+      "p_holm": 0.1343
+     }
+    },
+    "sequential": {
+     "seqfull": {
+      "diff": -0.021393229166666684,
+      "ci90": [
+       -0.11509906572164956,
+       0.07132754677664788
+      ],
+      "p_ni": 0.0,
+      "p_holm": 0.0
+     },
+     "seqsample@80": {
+      "diff": 0.025377604166666665,
+      "ci90": [
+       -0.257064466885239,
+       0.36131266021278513
+      ],
+      "p_ni": 0.0,
+      "p_holm": 0.0
+     }
+    },
+    "keep": {
+     "diff": -0.04166666666666669,
+     "ci90": [
+      -0.4118773946360154,
+      0.3663936781609193
+     ],
+     "p_ni": 0.0025
+    }
+   },
+   "shared_tasks": {
+    "full": {
+     "est": 0.04166666666666669,
+     "ci90": [
+      -0.36640611597186484,
+      0.41666666666666674
+     ]
+    },
+    "primary": {
+     "sample@40": {
+      "diff": -0.09901041666666667,
+      "ci90": [
+       -0.5924950597479889,
+       0.36890127920889604
+      ],
+      "p_ni": 0.0205,
+      "p_holm": 0.0546
+     },
+     "net@40": {
+      "diff": -0.1368359375,
+      "ci90": [
+       -0.5909411075036077,
+       0.2808779940801455
+      ],
+      "p_ni": 0.0182,
+      "p_holm": 0.0546
+     },
+     "replaynull@40": {
+      "diff": -0.4348046875,
+      "ci90": [
+       -0.9411434844771243,
+       0.0742139694041863
+      ],
+      "p_ni": 0.1406,
+      "p_holm": 0.1406
+     }
+    },
+    "sequential": {
+     "seqfull": {
+      "diff": -0.021393229166666684,
+      "ci90": [
+       -0.11830597864145664,
+       0.07056584458614655
+      ],
+      "p_ni": 0.0,
+      "p_holm": 0.0
+     },
+     "seqsample@80": {
+      "diff": 0.025377604166666665,
+      "ci90": [
+       -0.2725342660501701,
+       0.36623273447058147
+      ],
+      "p_ni": 0.0001,
+      "p_holm": 0.0001
+     }
+    },
+    "keep": {
+     "diff": -0.04166666666666669,
+     "ci90": [
+      -0.41666666666666674,
+      0.36640611597186445
+     ],
+     "p_ni": 0.0038
+    }
+   }
+  }
+ }
+}
