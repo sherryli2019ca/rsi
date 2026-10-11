@@ -1,0 +1,61 @@
+% Overview figure (Figure 1): the loop and the audit, and three main results.
+\begin{tikzpicture}[font=\scriptsize,
+  box/.style={draw,rounded corners=2pt,align=center,inner sep=2pt,minimum height=0.62cm},
+  arr/.style={-{Stealth[length=3.5pt]},semithick},
+  aud/.style={-{Stealth[length=3.5pt]},semithick,densely dashed,orange!70!black},
+  ttl/.style={font=\scriptsize,align=center,anchor=south}]
+\def\ytitle{0.55}
+% (a) the loop and the audit
+\node[ttl] at (1.375,\ytitle) {\textbf{(a)} RRSI's loop and our audit};
+\node[box,text width=1.75cm] (h) at (0,0) {Agent with\\harness $H_t$};
+\node[box,text width=1.75cm] (p) at (2.75,0) {Analyst and\\proposer};
+\node[box,text width=1.75cm] (c) at (2.75,-1.15) {Candidates\\$c_1,c_2$};
+\node[box,text width=1.75cm,fill=blue!7] (e) at (0,-1.15) {Verification\\evidence};
+\draw[arr] (h) -- node[above,font=\tiny]{failures} (p);
+\draw[arr] (p) -- (c);
+\draw[arr] (c) -- (e);
+\draw[arr] (e) -- node[right,font=\tiny,align=left]{admit\\(Eq.~\ref{eq:admit})} (h);
+\node[font=\tiny,align=center] at (1.375,-1.85) {judge, replay, replay$-$null, sample, net,\\full or sequential full evaluation};
+\node[box,align=center,fill=orange!10,draw=orange!70!black,inner sep=3pt] (d) at (1.375,-2.95) {Deploy \emph{every} measured candidate and\\incumbent on held-out tasks; score each\\rule's decisions: $D$, recall, calibration, cost};
+\draw[aud] (c.east) -- ++(0.3,0) |- (d.east);
+% (b) per-candidate resolution
+\begin{axis}[at={(5.0cm,-2.95cm)},anchor=south west,width=2.3cm,height=2.6cm,scale only axis,
+  ybar,bar width=8pt,ymin=0,ymax=14.5,xmin=0.4,xmax=2.6,xtick={1,2},
+  xticklabels={below 0,above 0},ytick={0,4,8,12},
+  tick label style={font=\scriptsize},label style={font=\scriptsize},
+  ylabel={candidates},ylabel style={yshift=-4pt},axis lines*=left,
+  nodes near coords,nodes near coords style={font=\scriptsize}]
+\addplot[fill=red!45,draw=red!60!black] coordinates {(1,12)};
+\addplot[fill=green!45,draw=green!40!black,bar shift=0pt] coordinates {(2,8)};
+\draw[densely dashed,gray] (axis cs:0.4,4.6) -- (axis cs:2.6,4.6);
+\node[font=\tiny,gray,anchor=south] at (axis cs:1.5,4.6) {chance};
+\end{axis}
+\node[ttl] at (6.15,\ytitle) {\textbf{(b)} 183 candidates: 95\% intervals\\excluding zero (163 do not)};
+% (c) recall against evidence episodes
+\begin{axis}[at={(8.45cm,-2.95cm)},anchor=south west,width=2.9cm,height=2.6cm,scale only axis,
+  xmin=-12,xmax=160,ymin=10,ymax=108,xtick={0,50,100,150},ytick={25,50,75,100},
+  tick label style={font=\scriptsize},label style={font=\scriptsize},
+  xlabel={evidence episodes per round},ylabel={recall (\%)},ylabel style={yshift=-4pt},
+  xlabel style={yshift=3pt},axis lines*=left,
+  nodes near coords,point meta=explicit symbolic,
+  nodes near coords style={font=\tiny,anchor=west,xshift=1pt}]
+\addplot[only marks,mark=*,mark size=1.6pt,blue!70!black] coordinates {
+  (141,100)[full] (0,62)[none] (0,48)[judge] (54,55)[sample] (45,23)[replay$-$null]};
+\addplot[only marks,mark=*,mark size=1.6pt,blue!70!black,nodes near coords style={font=\tiny,anchor=north west,xshift=-1pt}] coordinates {(49,54)[net]};
+\addplot[only marks,mark=square*,mark size=1.8pt,orange!80!black,nodes near coords style={font=\tiny,anchor=west,xshift=1pt}] coordinates {(81,74)[sequential full]};
+\end{axis}
+\node[ttl] at (9.9,\ytitle) {\textbf{(c)} recorded decisions:\\recall of full evaluation};
+% (d) loop comparisons
+\begin{axis}[at={(12.75cm,-2.95cm)},anchor=south west,width=2.1cm,height=2.6cm,scale only axis,
+  xmin=-11,xmax=3,ymin=0.4,ymax=2.6,ytick={1,2},yticklabels={BK,IL},xtick={-10,-5,0},
+  tick label style={font=\scriptsize},label style={font=\scriptsize},
+  xlabel={sequential $-$ full},xlabel style={yshift=3pt},axis lines*=left]
+\draw[densely dashed,gray] (axis cs:-5,0.4) -- (axis cs:-5,2.6);
+\draw[densely dotted,gray] (axis cs:0,0.4) -- (axis cs:0,2.6);
+\node[font=\tiny,gray,anchor=north,align=center] at (axis cs:-7.6,2.55) {IL\\margin};
+\draw[line width=1.1pt,orange!80!black] (axis cs:-9.6,2) -- (axis cs:0.7,2);
+\draw[line width=1.1pt,orange!80!black] (axis cs:-3.4,1) -- (axis cs:1.7,1);
+\addplot[only marks,mark=square*,mark size=1.8pt,orange!80!black] coordinates {(-4.4,2) (-0.8,1)};
+\end{axis}
+\node[ttl] at (13.85,\ytitle) {\textbf{(d)} loops: transfer gap,\\points (95\%)};
+\end{tikzpicture}
