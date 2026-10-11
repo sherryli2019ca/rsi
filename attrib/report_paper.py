@@ -85,6 +85,8 @@ ADMISS_DEFAULT = ROB_DEFAULT.with_name("phaseA_admissibility.json")
 FACTORIAL_DEFAULT = ROB_DEFAULT.with_name("phaseA_factorial.json")
 REVIEW4_DEFAULT = ROB_DEFAULT.with_name("phaseAB_review4.json")
 REVIEW5_DEFAULT = ROB_DEFAULT.with_name("phaseAB_review5.json")
+DID_DEFAULT = ROB_DEFAULT.with_name("did.json")
+GAINP_DEFAULT = ROB_DEFAULT.with_name("phaseA_gain_prompt.json")
 POSTHOC_ROWS = [("all_at_once_gain_pro", "All-at-once, gain", "Pro"),
                 ("binary_search_gain_pro", "Binary search, gain", "Pro"),
                 ("all_at_once_blind_pro", "All-at-once, no grading", "Pro"),
@@ -193,34 +195,75 @@ def _d(t, d=2) -> str:
 
 
 def choices_table(S: dict, review4: Path | None, out: Path) -> None:
-    """Main-text table (choices.tex): the first write's rank and its difference from the best
-    LLM method under each evaluation choice, on the failures rescuable under that choice and on
-    the registered rescuable failures kept fixed."""
+    """Main-text table (choices.tex) and figure (forest.tex): the first write's rank and its
+    difference from the best LLM method under each evaluation choice, on the failures rescuable
+    under that choice and on the registered rescuable failures kept fixed, with the change from
+    the registered comparison (results/attrib/did.json, attrib/did.py)."""
     FX = S["fixed_cohort"]
-    rows = []
+    did = {(r["choice"], r["cohort"]): r for r in json.loads(DID_DEFAULT.read_text())["rows"]} \
+        if DID_DEFAULT.exists() else {}
+    rows, pts = [], []
 
-    def resel(v):
-        return [f"{sum(v['n_rescuable'].values())}", f"{v['first_write_rank']}", _d(v["first_write_minus_best_llm"])]
+    def chg(key):
+        return _d(did[key]["change_vs_registered"]) if key in did else ""
+
+    def resel(key, v):
+        return [f"{sum(v['n_rescuable'].values())}", f"{v['first_write_rank']}", _d(v["first_write_minus_best_llm"]),
+                chg((key, "reselected"))]
+
+    def fixed(key, rank, t):
+        return [f"{rank}", _d(t), chg((key, "fixed"))]
 
     reg = FX["registered"]
     rows.append(["Registered", f"{reg['n']}", f"{reg['first_write_rank']}", _d(reg["first_write_minus_best_llm"]),
-                 "", ""])
+                 "", "", "", ""])
+    pts.append(("Registered", reg["first_write_minus_best_llm"], None))
+    if GAINP_DEFAULT.exists():
+        g = json.loads(GAINP_DEFAULT.read_text())["pairs"]["binary_search_gain_pro-binary_search_pro"]
+        t = [-x for x in g["variant_minus_first_write"]]
+        t = [t[0], t[2], t[1]]
+        rows.append(["Judges asked for the gain", f"{reg['n']}", "1", _d(t), chg(("judges_gain", "fixed")),
+                     "", "", ""])
+        pts.append(("Judges asked for gain", t, None))
     r5 = REVIEW5_DEFAULT
     if r5.exists():
         dd = json.loads(r5.read_text())["maxgain"]["diffs"]["aligned:maxgain - first_write"]
         neg = [-dd["mean"], -dd["ci95"][1], -dd["ci95"][0]]
-        rows.append(["Judges, search aligned$^*$", f"{reg['n']}", "1", _d(neg), "", ""])
-    rows.append(["No null replays"] + resel(S["no_null"]["pooled"]) +
-                [f"{FX['no_null']['first_write_rank']}", _d(FX["no_null"]["first_write_minus_best_llm"])])
+        rows.append(["Search aligned", f"{reg['n']}", "1", _d(neg), chg(("aligned_search", "fixed")), "", "", ""])
+        pts.append(("Search aligned", neg, None))
+    rows.append(["No null replays"] + resel("no_null", S["no_null"]["pooled"]) +
+                fixed("no_null", FX["no_null"]["first_write_rank"], FX["no_null"]["first_write_minus_best_llm"]))
+    pts.append(("No null replays", S["no_null"]["pooled"]["first_write_minus_best_llm"],
+                FX["no_null"]["first_write_minus_best_llm"]))
     if review4 is not None and review4.exists():
         B = json.loads(review4.read_text())["blind"]
-        rows.append(["Oracle without grading", "", "", "", f"{B['rank_first_write_reg10']}",
-                     _d(B["first_write_minus"]["search@40"])])
-    for key, label in (("tau2_confirmed", "Confirmed choices changed$^\\ddagger$"),
-                       ("tau2_replaced", "Replaced writes$^\\ddagger$"), ("all_writes", "All writes$^\\ddagger$")):
-        rows.append([label] + resel(S[key]["pooled"]) +
-                    [f"{FX[key]['first_write_rank']}", _d(FX[key]["first_write_minus_best_llm"])])
+        rows.append(["Oracle without grading", "", "", "", ""] +
+                    fixed("blind", B["rank_first_write_reg10"], B["first_write_minus"]["search@40"]))
+        pts.append(("Oracle without grading", None, B["first_write_minus"]["search@40"]))
+    for key, label, short in (("tau2_confirmed", "Confirmed choices$^\\ddagger$", "Confirmed choices"),
+                              ("tau2_replaced", "Replaced writes$^\\ddagger$", "Replaced writes"),
+                              ("all_writes", "All writes$^\\ddagger$", "All writes")):
+        rows.append([label] + resel(key, S[key]["pooled"]) +
+                    fixed(key, FX[key]["first_write_rank"], FX[key]["first_write_minus_best_llm"]))
+        pts.append((short + " dropped", S[key]["pooled"]["first_write_minus_best_llm"],
+                    FX[key]["first_write_minus_best_llm"]))
     (out / "choices.tex").write_text("\n".join(" & ".join(r) + " \\\\" for r in rows) + "\n")
+    # forest plot (labels in main.tex), rows top to bottom: filled = failures rescuable under
+    # the choice, open = the registered 157 kept fixed
+    n, lines = len(pts), []
+    for j, style in ((1, "mark=*, mark size=1.5pt, mark options={fill=black}"),
+                     (2, "mark=o, mark size=1.7pt, mark options={fill=white}")):
+        coords = []
+        for i, p in enumerate(pts):
+            t = p[j]
+            if t is None:
+                continue
+            y = n - i + (0.17 if j == 1 and p[2] is not None else -0.17 if j == 2 and p[1] is not None else 0)
+            coords.append(f"({t[0]:.4f},{y:.2f}) -= ({t[0] - t[1]:.4f},0) += ({t[2] - t[0]:.4f},0)")
+        lines.append(f"\\addplot[black, only marks, {style}, error bars/.cd, x dir=both, x explicit, "
+                     f"error bar style={{line width=0.6pt}}] coordinates {{{' '.join(coords)}}};")
+        lines.append("\\addlegendentry{" + ("Rescuable under the choice" if j == 1 else "Registered 157, fixed") + "}")
+    (out / "forest.tex").write_text("\n".join(lines) + "\n")
 
 
 def robustness_tables(path: Path, out: Path, review2: Path | None = None, orig: Path | None = None,
