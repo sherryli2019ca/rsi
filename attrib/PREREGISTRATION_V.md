@@ -163,6 +163,62 @@ Any change after this commit is logged below with its date and reason.
   Results: results/attrib/validity_analysis.json (`analyze` once per bound;
   each file's own labels as auditor1 and auditor2).
 
+## Addendum 1 (2026-10-11, before any rerun): replays with a faithful restoration
+
+Approved by Dr Cao at 13:41Z ("重跑"), after external review 9 and the
+restoration diagnosis in the operations log (~13:30Z entry). Written and
+committed before anything below is run.
+
+Cause. Restoring a failure's prefix re-runs each recorded call through the
+harness that produced it. Ten harnesses ask an LLM to check writes in
+before_tool; asked again, the check can decide differently from the
+recording, and the driver then went live before the replayed step. In this
+study the harness is always the recording's own, so the recorded decision is
+the right one.
+
+Fix. domains/tau2/driver.py, opt-in environment flag
+TAU2_REPLAY_RECORDED_CHECKS=1 (off by default, so paper 1's replays under
+changed harnesses are unaffected). For each recorded prefix call, before_tool
+still runs (harness state), but the recorded decision is kept: a call the
+recording blocked is not executed; any other call is executed on the fresh
+database (render_result runs) and the recorded observation is shown. The
+episode goes live early only if an executed call returns a different raw
+result than the recording ("state" divergence, kept in replay.diverged).
+Replays whose restoration did not diverge are unchanged by construction
+(same prefix, same observations, same live start) and are not rerun.
+
+Scope (retail only; airline and the main set had no or negligible
+divergence and are not rerun):
+- the gt replays whose replay.diverged is non-empty: 130 corrected and 80
+  null replays (tau2_retail/gt/replays);
+- aligned search's test replays whose replay.diverged is non-empty: 328 of
+  1,800 (tau2_retail/search_maxgain/aligned/replays).
+Before the rerun the whole run directory is archived
+(archive/attrib-validity-runs-run1.tar.gz) and the result files of the first
+run are kept beside the new ones; the diverged replays are moved, not
+deleted, to a superseded/ folder next to each replays folder. The same
+commands then run with the flag set: `search_maxgain.run` (aligned, retail)
+re-runs the moved tests and recomputes its picks; `validity.oracle` (retail)
+runs the oracle at any union step that is new, and every missing replay
+(the moved ones and those at new steps), then rewrites gt/result.json.
+Nothing else changes: same failures, methods, oracle prompt, K, R_C, N_NULL,
+seeds and temperature.
+
+Labels. An outcome-changing correction whose item (domain, failure, step,
+normalized action; item_key in attrib/validity.py) was already labelled
+keeps both auditors' labels. New items go to the same two auditors, shuffled
+and with the same blinding, with every tool result in full, as a separate
+sheet (audit/items_add.md, labels_template_add.csv; key_add.json withheld).
+Until those labels return, each score is reported with the new items counted
+invalid and counted valid, within the strict and lenient bounds above; after,
+the strict and lenient bounds as above.
+
+Reporting. The rerun is the primary result for the validity check; the first
+run's numbers are kept and reported beside it. Same analysis as above, and the
+post hoc analyses of attrib/validity_posthoc.py, whichever way they come out.
+
+Budget. About 1 to 3 dollars; stop at 5.
+
 ## Operations log
 - 2026-10-11 02:00Z, before this file was committed: a dry run of `sample`
   (deterministic, seed 0; it reads only the traces' rewards and step counts)
@@ -211,7 +267,7 @@ Any change after this commit is logged below with its date and reason.
   outcome-changing corrections .57 and .59, other methods .59 to .90; first
   write minus aligned search on valid score -0.027 [-0.093, +0.037] (strict)
   and -0.025 [-0.089, +0.036] (lenient).
-- 2026-10-11 ~13:10Z, after a self-review of the paper: post hoc analyses,
+- 2026-10-11 ~12:55Z, after a self-review of the paper: post hoc analyses,
   not registered, in attrib/validity_posthoc.py (results/attrib/
   validity_posthoc.json): the paired change of (first write - m) from raw to
   valid score, validity-rate differences, valid scores minus the
@@ -221,7 +277,7 @@ Any change after this commit is logged below with its date and reason.
   and aligned search none) with scores without the 13 failures concerned,
   and scores without the scope criterion (unchanged). Written into the
   paper (v22) and marked post hoc there.
-- 2026-10-11 ~13:50Z, after external review 9 asked why the 116 retail
+- 2026-10-11 ~13:30Z, after external review 9 asked why the 116 retail
   corrected replays were not applied: the cause is the replay driver's
   restoration, not the corrections. Nine of the 33 retail harnesses (24 of
   the 60 retail failures) and one airline harness ask an LLM to check each
@@ -239,3 +295,25 @@ Any change after this commit is logged below with its date and reason.
   "*_without_diverged"). Nothing was rerun; a rerun with the recorded check
   decisions replayed would need Dr Cao's approval and labels for any new
   outcome-changing corrections.
+- 2026-10-11 13:47-13:57Z, Addendum 1 (commit ffbfb79 before any rerun):
+  the first run was archived (archive/attrib-validity-runs-run1.tar.gz) and
+  its 130 corrected and 80 null gt replays and 328 aligned-search tests whose
+  restoration diverged moved to superseded/. Smoke test with the flag (one
+  corrected, one null replay of r2_600d0fc_e_103_s1 at step 11, output not
+  used): both restored without divergence, the correction applied. Aligned
+  search, rerun with the flag: all 328 tests restored without divergence;
+  its pick changed on 6 of 60 retail failures. Oracle at the 2 new union
+  steps (173 retail union steps, as before) and every missing replay: 224
+  gt replays rerun, none diverged; no sample is left unapplied (58 in the
+  first run). Gains changed for 24 samples. Outcome-changing corrections:
+  234 samples, 170 distinct items, of which 157 were labelled in the first
+  sheet and 13 (all retail) are new; 2 labelled items no longer change the
+  outcome. The 13 went to the two auditors (audit/add/items_add.md, every
+  tool result in full; key audit/key_add.json withheld). Spend 0.49 dollars
+  (552 replays; oracle 0.001). Results with the 13 counted invalid and
+  valid: results/attrib/validity_rerun.json (attrib/validity_rerun.py). Raw
+  R over all 80 failures: first write 0.241 (unchanged), second-to-last
+  0.245 (0.220 in the first run), all-at-once 0.180 (0.144), binary search
+  0.216 (0.191), aligned search 0.231 (0.207). Valid R, first write minus
+  aligned search: -0.024 [-0.091, +0.039] to -0.051 [-0.125, +0.019] across
+  the bounds.
