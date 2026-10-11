@@ -35,7 +35,9 @@ Position-corrected scores of every method (registered rescuable failures):
 each with the first write's rank among the ten registered methods and its
 difference from the best registered LLM method [95%].
 
-Also: each baseline's score by domain and pooled with
+Also scored over all 300 failures, rescuable or not (all_failures), for every
+method whose picks cover them (search@0 is counterfactual search's first
+suspect). Also: each baseline's score by domain and pooled with
 cluster-bootstrap intervals and its exact agreement with the best rescue step,
 and first write minus each baseline with an interval.
 
@@ -53,6 +55,7 @@ from attrib.analyze import BOOT, _boot, _mean, load
 from attrib.robustness import DOMAINS, LLM, METHODS, kendall
 
 GAIN = {"all_at_once_pro": "all_at_once_gain_pro", "binary_search_pro": "binary_search_gain_pro"}
+BLIND = ("all_at_once_blind_pro", "binary_search_blind_pro")
 
 
 def _at(R: list, k) -> float:
@@ -69,7 +72,7 @@ def main():
     a = ap.parse_args()
     data = {d: load(Path(a.main) / d) for d in DOMAINS}
     for d, v in data.items():
-        for m in GAIN.values():
+        for m in list(GAIN.values()) + list(BLIND):
             if m not in v["picks"] and a.methods_from:
                 v["picks"][m] = {r["fid"]: r.get("step") for r in (json.loads(p.read_text()) for p in
                                  (Path(a.methods_from) / d / "methods" / m).glob("*.json"))}
@@ -195,7 +198,27 @@ def main():
                 out["corrected"][kind][f"first_write_minus_{m}"] = _boot(
                     [{"d": r[f"first_write@{kind}"] - r[f"{m}@{kind}"], "cluster": r["cluster"]} for r in rows],
                     lambda xs: _mean([x["d"] for x in xs]), rng)
+    # every one of the 300 failures, rescuable or not (no selection on the reference)
+    for d, v in data.items():
+        sr = json.loads((Path(a.main) / d / "search" / "result.json").read_text())["failures"]
+        v["picks"]["search@0"] = {x["fid"]: (x["suspects"][0] if x["suspects"] else None) for x in sr}
+    full = [m for m in list(METHODS) + list(GAIN.values()) + list(BLIND) + ["search@0"]
+            if all(len(v["picks"].get(m, {})) == len(v["gt"]) for v in data.values())]
+    allrows = []
+    for d, v in data.items():
+        for f, g in v["gt"].items():
+            R, n = g["R"], g["n_steps"]
+            r = {"domain": d, "cluster": f"{d}/{v['fails'][f]['task_id']}", "random": _mean(R),
+                 "second_to_last": _at(R, max(n - 2, 0))}
+            for m in full:
+                r[m] = _at(R, v["picks"][m].get(f))
+            allrows.append(r)
+    out["all_failures"] = {"n": len(allrows), "scores": {
+        m: {**{d: round(_mean([r[m] for r in allrows if r["domain"] == d]), 4) for d in DOMAINS},
+            "pooled": _boot(allrows, lambda xs, m=m: _mean([x[m] for x in xs]), rng)}
+        for m in ["random", "second_to_last"] + full}}
     print(json.dumps({k: out[k] for k in ("n", "first_write_mean_position", "best_position", "p_first")}))
+    print("all 300:", {m: v["pooled"][0] for m, v in out["all_failures"]["scores"].items()})
     print(json.dumps(out["null_tau"]), out["position_bin_mean_R"])
     for kind, c in out["corrected"].items():
         print(kind, {k: v for k, v in c.items() if k != "mean"})

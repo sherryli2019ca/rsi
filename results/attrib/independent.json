@@ -1,0 +1,237 @@
+{
+ "methods": [
+  "first_write",
+  "last_step",
+  "all_at_once_flash",
+  "all_at_once_pro",
+  "all_at_once_pro_think",
+  "step_by_step_pro",
+  "binary_search_pro",
+  "study1_pro",
+  "rrsi_digest_pro",
+  "search@40",
+  "all_at_once_gain_pro",
+  "binary_search_gain_pro",
+  "all_at_once_blind_pro",
+  "binary_search_blind_pro",
+  "search@0"
+ ],
+ "split": {
+  "splits": 12,
+  "rescuable_on_A": {
+   "n": 193.25,
+   "mean": {
+    "first_write": 0.339,
+    "last_step": 0.1643,
+    "all_at_once_flash": 0.2469,
+    "all_at_once_pro": 0.2386,
+    "all_at_once_pro_think": 0.2435,
+    "step_by_step_pro": 0.162,
+    "binary_search_pro": 0.27,
+    "study1_pro": 0.2134,
+    "rrsi_digest_pro": 0.1763,
+    "search@40": 0.2067,
+    "all_at_once_gain_pro": 0.2877,
+    "binary_search_gain_pro": 0.3279,
+    "all_at_once_blind_pro": 0.1862,
+    "binary_search_blind_pro": 0.1781,
+    "search@0": 0.1725,
+    "second_to_last": 0.2721,
+    "random": 0.0865
+   },
+   "first_write_rank_registered": 1,
+   "first_write_rank_all": 1,
+   "first_write_minus": {
+    "binary_search_pro": [
+     0.0689,
+     -0.0101,
+     0.1516
+    ],
+    "all_at_once_pro": [
+     0.1004,
+     0.013,
+     0.1912
+    ],
+    "binary_search_gain_pro": [
+     0.0111,
+     -0.0598,
+     0.0799
+    ],
+    "all_at_once_gain_pro": [
+     0.0513,
+     -0.0293,
+     0.1327
+    ],
+    "second_to_last": [
+     0.0669,
+     0.0144,
+     0.1205
+    ]
+   }
+  },
+  "all_failures": {
+   "n": 300.0,
+   "mean": {
+    "first_write": 0.2306,
+    "last_step": 0.11,
+    "all_at_once_flash": 0.1877,
+    "all_at_once_pro": 0.1717,
+    "all_at_once_pro_think": 0.1833,
+    "step_by_step_pro": 0.1131,
+    "binary_search_pro": 0.1929,
+    "study1_pro": 0.1594,
+    "rrsi_digest_pro": 0.1369,
+    "search@40": 0.1469,
+    "all_at_once_gain_pro": 0.2075,
+    "binary_search_gain_pro": 0.2304,
+    "all_at_once_blind_pro": 0.1306,
+    "binary_search_blind_pro": 0.1308,
+    "search@0": 0.1196,
+    "second_to_last": 0.1873,
+    "random": 0.0609
+   },
+   "first_write_rank_registered": 1,
+   "first_write_rank_all": 1,
+   "first_write_minus": {
+    "binary_search_pro": [
+     0.0377,
+     -0.0161,
+     0.0993
+    ],
+    "all_at_once_pro": [
+     0.059,
+     -0.0016,
+     0.123
+    ],
+    "binary_search_gain_pro": [
+     0.0002,
+     -0.048,
+     0.0487
+    ],
+    "all_at_once_gain_pro": [
+     0.0231,
+     -0.0337,
+     0.0811
+    ],
+    "second_to_last": [
+     0.0433,
+     0.0069,
+     0.0818
+    ]
+   }
+  },
+  "aligned_subset": {
+   "n": 149.83333333333334,
+   "mean": {
+    "first_write": 0.4239,
+    "binary_search_pro": 0.3304,
+    "binary_search_gain_pro": 0.3968,
+    "aligned_search": 0.4136
+   },
+   "first_write_minus_aligned_search": [
+    0.0104,
+    -0.0854,
+    0.1004
+   ]
+  }
+ },
+ "bootstrap": {
+  "draws": {
+   "n_rescuable": [
+    142.0,
+    204.0,
+    172.3
+   ],
+   "first_write_minus": {
+    "binary_search_pro": [
+     -0.0315,
+     0.175
+    ],
+    "all_at_once_pro": [
+     -0.0145,
+     0.2114
+    ],
+    "binary_search_gain_pro": [
+     -0.0862,
+     0.0958
+    ],
+    "all_at_once_gain_pro": [
+     -0.0641,
+     0.152
+    ],
+    "second_to_last": [
+     0.0048,
+     0.1482
+    ]
+   },
+   "p_first_registered": 0.856,
+   "p_first_with_gain_asked": 0.542
+  },
+  "tasks_only": {
+   "n_rescuable": [
+    131.0,
+    186.0,
+    156.8
+   ],
+   "first_write_minus": {
+    "binary_search_pro": [
+     -0.0125,
+     0.1777
+    ],
+    "all_at_once_pro": [
+     0.0193,
+     0.2274
+    ],
+    "binary_search_gain_pro": [
+     -0.0684,
+     0.0986
+    ],
+    "all_at_once_gain_pro": [
+     -0.0429,
+     0.155
+    ],
+    "second_to_last": [
+     0.0211,
+     0.1492
+    ]
+   },
+   "p_first_registered": 0.935,
+   "p_first_with_gain_asked": 0.635
+  },
+  "fixed157": {
+   "n_rescuable": [
+    131.0,
+    186.0,
+    156.8
+   ],
+   "first_write_minus": {
+    "binary_search_pro": [
+     -0.0241,
+     0.1879
+    ],
+    "all_at_once_pro": [
+     0.0079,
+     0.2367
+    ],
+    "binary_search_gain_pro": [
+     -0.0798,
+     0.1088
+    ],
+    "all_at_once_gain_pro": [
+     -0.0581,
+     0.1647
+    ],
+    "second_to_last": [
+     0.0108,
+     0.1557
+    ],
+    "aligned_search": [
+     -0.0971,
+     0.1108
+    ]
+   },
+   "p_first_registered": 0.91,
+   "p_first_with_gain_asked": 0.62
+  }
+ }
+}

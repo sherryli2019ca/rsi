@@ -6,9 +6,10 @@ Reads <main>/analysis_<domain>.json for tau2_retail, tau2_airline and appworld
 and <main>/analysis_pooled3.json (attrib/analyze.py with --out), and the ground
 truth and traces for the kinds of decisive step. Writes:
   main.tex     per method: R(k-hat) on rescuable failures by domain [95%] and
-               pooled, exact accuracy pooled, dollars per failure; post hoc rows
-               include the random-step and second-to-last-step baselines
-               (results/attrib/baselines.json, attrib.baselines)
+               pooled, mean R(k-hat) over all 300 failures [95%] where the
+               method covers them (results/attrib/baselines.json, all_failures),
+               dollars per failure; post hoc rows include the random-step and
+               second-to-last-step baselines (attrib.baselines)
   kinds_tau2.tex, kinds_aw.tex  the kind of action at every step and at decisive steps
   search.tex   counterfactual search by budget, by domain
   secondary.tex  pooled secondary metrics per method
@@ -674,27 +675,32 @@ def main():
                "variants": var}
 
     lines = []
+    bl = Path(args.baselines)
+    AF = json.loads(bl.read_text()).get("all_failures", {}).get("scores", {}) if bl.exists() else {}
+
+    def all300(m):   # every one of the 300 failures, no selection on the reference
+        return _ci(AF[m]["pooled"]) if m in AF else "--"
+
     for i, (m, name, model) in enumerate(ROWS):
         if i in MIDRULES:
             lines.append("\\midrule")
         cells = [name, model] + [_ci(A[d]["methods"][m]["R_rescuable"]) for d in DOMAINS]
-        cells += [_ci(P["methods"][m]["R_rescuable"]), _f(P["methods"][m]["exact"][0]),
+        cells += [_ci(P["methods"][m]["R_rescuable"]), all300(m),
                   _usd(sum(A[d]['methods'][m]['dollars_per_failure'] for d in DOMAINS) / 3)]
         lines.append(" & ".join(cells) + " \\\\")
     fac = Path(args.factorial)
     if fac.exists():
         F = json.loads(fac.read_text())["methods"]
         lines += ["\\midrule", "\\multicolumn{8}{l}{\\emph{Post hoc variants}} \\\\"]
-        bl = Path(args.baselines)
         if bl.exists():
             B = json.loads(bl.read_text())["scores"]
             for m, name, model in (("random", "Random step", "chance"), ("second_to_last", "Second-to-last step", "rule")):
                 lines.append(" & ".join([name, model] + [_ci(B[m][d]) for d in DOMAINS] +
-                                        [_ci(B[m]["pooled"]), _f(B[m]["exact"]), "0"]) + " \\\\")
+                                        [_ci(B[m]["pooled"]), all300(m), "0"]) + " \\\\")
             summary["baselines"] = {m: B[m] for m in ("random", "second_to_last")}
         for m, name, model in POSTHOC_ROWS:
             cells = [name, model] + [_ci(F[m]["R"][d]) for d in DOMAINS]
-            cells += [_ci(F[m]["R"]["pooled"]), _f(F[m]["exact"]), _usd(F[m]["dollars_per_failure"])]
+            cells += [_ci(F[m]["R"]["pooled"]), all300(m), _usd(F[m]["dollars_per_failure"])]
             lines.append(" & ".join(cells) + " \\\\")
         summary["posthoc_rows"] = {m: F[m] for m, _, _ in POSTHOC_ROWS}
         r5 = Path(args.review5)
@@ -711,7 +717,7 @@ def main():
             st = Path(args.review5).parent / "aligned_search_stats.json"
             st = json.loads(st.read_text()) if st.exists() else {}
             lines.append(" & ".join(["CF search@40, aligned", "Pro, replays"] + [_ci(ci[d]) for d in DOMAINS] +
-                                    [_ci(ci["pooled"]), _f(st["exact"]) if st else "--",
+                                    [_ci(ci["pooled"]), "--",
                                      _usd(st["dollars_per_failure"]) if st else "--"]) + " \\\\")
             summary["aligned_search"] = ci
     (out / "main.tex").write_text("\n".join(lines) + "\n")
