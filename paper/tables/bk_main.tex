@@ -1,0 +1,19 @@
+\begin{tabular}{lllrrrrrrrr}
+\toprule
+Arm & Admission & History & B1 & B2 & B3 & B4 & Mean & Acc. & Cand.\ ep. & Cost (\$) \\
+\midrule
+Full & full & full & $+6.7$ & $+9.6$ & $+11.2$ & $+7.5$ & $+8.8$ & 12 & 855 & 3.40 \\
+History only & full & early & $+4.6$ & $+10.4$ & $+14.2$ & $+10.8$ & $+10.0$ & 12 & 900 ($+5\%$) & 3.60 ($+6.0\%$) \\
+Cost-aware seq. & cost-aware & early & $+7.1$ & $+8.3$ & $+13.3$ & $+10.0$ & $+9.7$ & 11 & 685 ($-20\%$) & 3.31 ($-2.5\%$) \\
+Admission only & seq. & full & $+7.1$ & $+5.0$ & $+11.2$ & $+7.5$ & $+7.7$ & 11 & 900 ($+5\%$) & 3.49 ($+2.7\%$) \\
+Sequential & seq. & early & $+4.6$ & $+8.3$ & $+10.8$ & $+7.9$ & $+7.9$ & 10 & 535 ($-37\%$) & 3.00 ($-11.8\%$) \\
+\midrule
+Contrast & & & \multicolumn{4}{l}{90\% / 95\% interval} & Est. & \multicolumn{3}{l}{Holm $p$ (one-sided)} \\
+\multicolumn{3}{l}{Sequential $-$ full} & \multicolumn{4}{l}{$[-2.9,+1.2]$ / $[-3.4,+1.7]$} & $-0.8$ & \multicolumn{3}{l}{0.68} \\
+\multicolumn{3}{l}{Cost-aware $-$ full} & \multicolumn{4}{l}{$[-1.1,+3.0]$ / $[-1.6,+3.5]$} & $+0.9$ & \multicolumn{3}{l}{1.00} \\
+\multicolumn{3}{l}{Cost-aware $-$ sequential} & \multicolumn{4}{l}{$[-0.2,+3.8]$ / $[-0.8,+4.3]$} & $+1.8$ & \multicolumn{3}{l}{0.28} \\
+\multicolumn{3}{l}{Admission (main effect)} & \multicolumn{4}{l}{$[-3.0,-0.2]$ / $[-3.4,+0.2]$} & $-1.6$ & \multicolumn{3}{l}{0.19} \\
+\multicolumn{3}{l}{History (main effect)} & \multicolumn{4}{l}{$[-2.2,+3.7]$ / $[-4.2,+5.6]$} & $+0.7$ & \multicolumn{3}{l}{1.00} \\
+\multicolumn{3}{l}{Interaction} & \multicolumn{4}{l}{$[-3.9,+1.8]$ / $[-4.6,+2.5]$} & $-1.0$ & \multicolumn{3}{l}{--} \\
+\bottomrule
+\end{tabular}
