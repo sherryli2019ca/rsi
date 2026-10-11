@@ -221,3 +221,21 @@ Any change after this commit is logged below with its date and reason.
   and aligned search none) with scores without the 13 failures concerned,
   and scores without the scope criterion (unchanged). Written into the
   paper (v22) and marked post hoc there.
+- 2026-10-11 ~13:50Z, after external review 9 asked why the 116 retail
+  corrected replays were not applied: the cause is the replay driver's
+  restoration, not the corrections. Nine of the 33 retail harnesses (24 of
+  the 60 retail failures) and one airline harness ask an LLM to check each
+  write in before_tool. Restoring a prefix re-runs this check on every
+  recorded write; domains/tau2/driver.py treats any block or observation that
+  differs from the recording as a divergence and goes live from there. On
+  130 of 736 retail corrected replays and 80 of 488 null replays the check,
+  which had blocked the recorded write, blocked it again with other wording
+  (100 of the 130) or let it through (30); 116 of the corrected replays
+  diverged before their step and were not applied. Aligned search's own
+  tests: 328 of 1,800 retail replays diverged. In the main set: 10 of 3,118
+  retail corrected replays not applied, 12 of 2,516 null replays diverged.
+  Post hoc, without the 14 failures with such a replay at a named step, no
+  conclusion changes (attrib/validity_posthoc.py, "restoration" and
+  "*_without_diverged"). Nothing was rerun; a rerun with the recorded check
+  decisions replayed would need Dr Cao's approval and labels for any new
+  outcome-changing corrections.
