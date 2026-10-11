@@ -211,3 +211,13 @@ Any change after this commit is logged below with its date and reason.
   outcome-changing corrections .57 and .59, other methods .59 to .90; first
   write minus aligned search on valid score -0.027 [-0.093, +0.037] (strict)
   and -0.025 [-0.089, +0.036] (lenient).
+- 2026-10-11 ~13:10Z, after a self-review of the paper: post hoc analyses,
+  not registered, in attrib/validity_posthoc.py (results/attrib/
+  validity_posthoc.json): the paired change of (first write - m) from raw to
+  valid score, validity-rate differences, valid scores minus the
+  second-to-last step's, validity by kind of the observed step, where the 58
+  unapplied samples fall (only at steps after a write: second-to-last 45 of
+  188 samples, all-at-once 21 of 180, binary search 12 of 175, first write
+  and aligned search none) with scores without the 13 failures concerned,
+  and scores without the scope criterion (unchanged). Written into the
+  paper (v22) and marked post hoc there.
