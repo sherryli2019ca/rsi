@@ -1,0 +1,11 @@
+﻿id,domain,step,A_information,A_policy,A_confirmation,A_scope,A_note,C_information,C_policy,C_confirmation,C_scope,C_note,final_information,final_policy,final_confirmation,final_scope,final_note,decided_by
+V006,retail,11,no,no,no,no,9237024510实际为expert，原确认建立在错误说明上；应澄清，不能擅换为1096508426的art款并直接执行。,yes,yes,yes,yes,用户明确确认9237024510,,,,,,
+V024,retail,8,no,no,yes,yes,212.79减201.95实际为10.84，非19.84；PayPal可用，但金额错误。,yes,yes,yes,yes,,,,,,,
+V034,retail,6,no,no,no,no,用户最新已明确确认退至gift_card_3406421；不能因之前解释错误就擅改为PayPal直接执行。,yes,yes,yes,yes,用户最近确认退至gift card,,,,,,
+V064,retail,8,no,no,yes,yes,背包差价算错，应付10.84而非19.84。,yes,yes,yes,yes,,,,,,,
+V078,airline,5,yes,no,yes,yes,certificate不能作为航空改签退款方式。,yes,yes,yes,yes,未执行操作；推荐的PHL方案符合政策,,,,,,
+V089,airline,5,yes,yes,yes,yes,,no,no,yes,yes,用户未选定航班与支付方式即直接改签；所选HAT110+HAT132也非最便宜,,,,,,
+V105,airline,5,yes,yes,yes,yes,,yes,no,yes,yes,用户只问退款金额，未确认即改舱,,,,,,
+V129,retail,8,no,no,yes,yes,背包差价应为10.84，19.84没有依据。,yes,yes,yes,yes,,,,,,,
+V132,retail,4,yes,yes,yes,yes,产品目录被截断，6086499569在可见部分中未显示，待核实。,no,yes,yes,yes,6086499569在对话中无来源（产品列表截断，T-Shirt ID不可见）,,,,,,
+V133,retail,8,no,no,yes,yes,背包差价算错，应付10.84而非19.84；其余确认内容有据。,yes,yes,yes,yes,,,,,,,

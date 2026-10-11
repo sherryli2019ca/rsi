@@ -144,6 +144,17 @@ failures, with whatever result.
 
 Any change after this commit is logged below with its date and reason.
 
+- 2026-10-11 05:55Z, after the labels arrived and before any score was
+  computed with them: the audit sheet (`sheet`) rendered the conversation
+  with the oracle's view, which cuts every tool result at 1,200 characters;
+  this registration says the items show the conversation as the agent had
+  it. 98 of the 159 items had at least one cut tool result. A mechanical
+  check found one correction (V096) that uses a value visible only in the
+  full output (both auditors judged it invalid on confirmation); auditors
+  noted the cut on 8 items. `fullsheet` writes the 98 items with full tool
+  results (audit/items_full_98.md). How the labels are corrected is for Dr
+  Cao to decide; the labels as first returned are kept.
+
 ## Operations log
 - 2026-10-11 02:00Z, before this file was committed: a dry run of `sample`
   (deterministic, seed 0; it reads only the traces' rewards and step counts)
@@ -174,3 +185,12 @@ Any change after this commit is logged below with its date and reason.
   items (114 retail, 45 airline), sent to the auditors with the criteria in
   English and Chinese; the key (audit/key.json) is withheld from them. Runs
   archived as archive/attrib-validity-runs.tar.gz.
+- 2026-10-11 05:43Z: Dr Cao sent two label files as the two independent
+  auditors' results: auditor_codex_lenient_A.csv (md5 19c034b8...) and
+  labels_C.csv (md5 88600d8d...), kept as received in
+  attrib/validity_labels/. Both cover all 159 items with yes/no answers.
+  Agreement before adjudication: valid 149 of 159 (kappa .79);
+  information .93 (.75), policy .89 (.57), confirmation .99 (.94), scope .89
+  (0; one file answers no 17 times, the other never). Valid: 128 and 132.
+  10 items to adjudicate (audit/adjudication.csv). No method score has been
+  computed with these labels.
