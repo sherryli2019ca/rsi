@@ -990,5 +990,406 @@
    }
   }
  },
- "failures_with_unapplied": 13
+ "failures_with_unapplied": 13,
+ "restoration": {
+  "counts": {
+   "tau2_airline|aligned_search_test|diverged": 0,
+   "tau2_airline|aligned_search_test|total": 648,
+   "tau2_airline|corrected|total": 258,
+   "tau2_airline|null|total": 192,
+   "tau2_retail|aligned_search_test|diverged": 328,
+   "tau2_retail|aligned_search_test|total": 1800,
+   "tau2_retail|corrected|blocked|recorded_blocked|replay_blocked": 100,
+   "tau2_retail|corrected|diverged": 130,
+   "tau2_retail|corrected|rendered|recorded_blocked|replay_run": 30,
+   "tau2_retail|corrected|total": 736,
+   "tau2_retail|null|blocked|recorded_blocked|replay_blocked": 56,
+   "tau2_retail|null|diverged": 80,
+   "tau2_retail|null|rendered|recorded_blocked|replay_run": 24,
+   "tau2_retail|null|total": 488
+  },
+  "failures_with_diverged_replay_at_named_step": 14,
+  "harnesses_with_llm_write_check": 10,
+  "harnesses": 98
+ },
+ "strict_without_diverged": {
+  "n": 66,
+  "methods": {
+   "first_write": {
+    "raw": [
+     0.2841,
+     0.1903,
+     0.3885
+    ],
+    "valid": [
+     0.1477,
+     0.0801,
+     0.2254
+    ]
+   },
+   "second_to_last": {
+    "raw": [
+     0.2614,
+     0.1635,
+     0.3661
+    ],
+    "valid": [
+     0.1439,
+     0.0723,
+     0.2254
+    ]
+   },
+   "all_at_once_gain_pro": {
+    "raw": [
+     0.1799,
+     0.1078,
+     0.2598
+    ],
+    "valid": [
+     0.1458,
+     0.083,
+     0.2148
+    ]
+   },
+   "binary_search_gain_pro": {
+    "raw": [
+     0.2348,
+     0.1467,
+     0.3294
+    ],
+    "valid": [
+     0.1752,
+     0.1016,
+     0.2547
+    ]
+   },
+   "aligned_search": {
+    "raw": [
+     0.2443,
+     0.1577,
+     0.3397
+    ],
+    "valid": [
+     0.1809,
+     0.1094,
+     0.2629
+    ]
+   }
+  },
+  "paired_change": {
+   "second_to_last": [
+    -0.0189,
+    -0.0597,
+    0.0143
+   ],
+   "all_at_once_gain_pro": [
+    -0.1023,
+    -0.1746,
+    -0.0404
+   ],
+   "binary_search_gain_pro": [
+    -0.0767,
+    -0.1377,
+    -0.0227
+   ],
+   "aligned_search": [
+    -0.0729,
+    -0.1452,
+    -0.011
+   ]
+  },
+  "validity_rate": {
+   "second_to_last": [
+    -0.0368,
+    -0.1758,
+    0.0865
+   ],
+   "all_at_once_gain_pro": [
+    -0.2824,
+    -0.4866,
+    -0.0916
+   ],
+   "binary_search_gain_pro": [
+    -0.1794,
+    -0.3598,
+    -0.0039
+   ],
+   "aligned_search": [
+    -0.2439,
+    -0.4294,
+    -0.0657
+   ]
+  },
+  "minus_stl": {
+   "first_write": [
+    0.0038,
+    -0.0491,
+    0.054
+   ],
+   "all_at_once_gain_pro": [
+    0.0019,
+    -0.0843,
+    0.0845
+   ],
+   "binary_search_gain_pro": [
+    0.0312,
+    -0.042,
+    0.1028
+   ],
+   "aligned_search": [
+    0.0369,
+    -0.0464,
+    0.1194
+   ]
+  },
+  "first_write_minus": {
+   "second_to_last": {
+    "raw": [
+     0.0227,
+     -0.04,
+     0.084
+    ],
+    "valid": [
+     0.0038,
+     -0.0494,
+     0.0548
+    ]
+   },
+   "all_at_once_gain_pro": {
+    "raw": [
+     0.1042,
+     -0.0087,
+     0.2212
+    ],
+    "valid": [
+     0.0019,
+     -0.0857,
+     0.092
+    ]
+   },
+   "binary_search_gain_pro": {
+    "raw": [
+     0.0492,
+     -0.0381,
+     0.1367
+    ],
+    "valid": [
+     -0.0275,
+     -0.0975,
+     0.036
+    ]
+   },
+   "aligned_search": {
+    "raw": [
+     0.0398,
+     -0.0707,
+     0.1502
+    ],
+    "valid": [
+     -0.0331,
+     -0.1135,
+     0.0453
+    ]
+   }
+  }
+ },
+ "lenient_without_diverged": {
+  "n": 66,
+  "methods": {
+   "first_write": {
+    "raw": [
+     0.2841,
+     0.1875,
+     0.3839
+    ],
+    "valid": [
+     0.1553,
+     0.0837,
+     0.2341
+    ]
+   },
+   "second_to_last": {
+    "raw": [
+     0.2614,
+     0.1623,
+     0.3672
+    ],
+    "valid": [
+     0.1591,
+     0.0859,
+     0.2429
+    ]
+   },
+   "all_at_once_gain_pro": {
+    "raw": [
+     0.1799,
+     0.1067,
+     0.2591
+    ],
+    "valid": [
+     0.1496,
+     0.0859,
+     0.2211
+    ]
+   },
+   "binary_search_gain_pro": {
+    "raw": [
+     0.2348,
+     0.1462,
+     0.3294
+    ],
+    "valid": [
+     0.1752,
+     0.0994,
+     0.2539
+    ]
+   },
+   "aligned_search": {
+    "raw": [
+     0.2443,
+     0.1614,
+     0.3377
+    ],
+    "valid": [
+     0.1866,
+     0.1136,
+     0.2719
+    ]
+   }
+  },
+  "paired_change": {
+   "second_to_last": [
+    -0.0265,
+    -0.0654,
+    0.0
+   ],
+   "all_at_once_gain_pro": [
+    -0.0985,
+    -0.1706,
+    -0.0388
+   ],
+   "binary_search_gain_pro": [
+    -0.0691,
+    -0.1289,
+    -0.0174
+   ],
+   "aligned_search": [
+    -0.071,
+    -0.1394,
+    -0.0109
+   ]
+  },
+  "validity_rate": {
+   "second_to_last": [
+    -0.0655,
+    -0.2021,
+    0.0465
+   ],
+   "all_at_once_gain_pro": [
+    -0.3237,
+    -0.5144,
+    -0.1483
+   ],
+   "binary_search_gain_pro": [
+    -0.1935,
+    -0.3578,
+    -0.042
+   ],
+   "aligned_search": [
+    -0.2421,
+    -0.4246,
+    -0.075
+   ]
+  },
+  "minus_stl": {
+   "first_write": [
+    -0.0038,
+    -0.0599,
+    0.0483
+   ],
+   "all_at_once_gain_pro": [
+    -0.0095,
+    -0.0956,
+    0.074
+   ],
+   "binary_search_gain_pro": [
+    0.0161,
+    -0.056,
+    0.084
+   ],
+   "aligned_search": [
+    0.0275,
+    -0.0521,
+    0.1045
+   ]
+  },
+  "first_write_minus": {
+   "second_to_last": {
+    "raw": [
+     0.0227,
+     -0.0387,
+     0.0849
+    ],
+    "valid": [
+     -0.0038,
+     -0.0615,
+     0.0487
+    ]
+   },
+   "all_at_once_gain_pro": {
+    "raw": [
+     0.1042,
+     -0.0094,
+     0.2207
+    ],
+    "valid": [
+     0.0057,
+     -0.08,
+     0.0928
+    ]
+   },
+   "binary_search_gain_pro": {
+    "raw": [
+     0.0492,
+     -0.0417,
+     0.1394
+    ],
+    "valid": [
+     -0.0199,
+     -0.085,
+     0.0403
+    ]
+   },
+   "aligned_search": {
+    "raw": [
+     0.0398,
+     -0.069,
+     0.1468
+    ],
+    "valid": [
+     -0.0312,
+     -0.1081,
+     0.0441
+    ]
+   }
+  }
+ },
+ "invalid_only": {
+  "tau2_retail": {
+   "failures": 60,
+   "rescuable_at_a_named_step": 24,
+   "rescuable_only_by_invalid_strict": 8,
+   "rescuable_only_by_invalid_lenient": 8,
+   "with_confirmation_override_rescue": 12,
+   "tasks_with_confirmation_override_rescue": 12
+  },
+  "tau2_airline": {
+   "failures": 20,
+   "rescuable_at_a_named_step": 8,
+   "rescuable_only_by_invalid_strict": 2,
+   "rescuable_only_by_invalid_lenient": 2,
+   "with_confirmation_override_rescue": 1,
+   "tasks_with_confirmation_override_rescue": 1
+  }
+ }
 }
