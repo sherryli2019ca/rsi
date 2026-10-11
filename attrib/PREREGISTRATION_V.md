@@ -156,3 +156,11 @@ Any change after this commit is logged below with its date and reason.
   (r2_4101495_e_2_s0, r2_c69d804_e_11_s1); cost 0.10 dollars; its outputs are
   not used. One null replay on a sampled failure (r3_cf3d60d_e_6_s0, step 9)
   checked the replay driver; its output is not used.
+- 2026-10-11 02:03Z: `sample` drew the same 80 failures as the dry run
+  (results/attrib/validity/failures_tau2_*.json) and `harness` restored their
+  49 harnesses. The three methods ran 02:03-02:05Z (0.46 dollars).
+- 02:14Z: to speed up replays, the remaining aligned-search and oracle replays
+  run with several harness groups at once (the same refs, keys and driver as
+  attrib.groundtruth._drive, which runs the groups one after another);
+  nothing about what is run changes. Replays interrupted by the switch had
+  not been written and are run again.

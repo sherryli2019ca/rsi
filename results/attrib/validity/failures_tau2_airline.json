@@ -1,0 +1,222 @@
+[
+ {
+  "commit": "29f9291",
+  "source": "evolve",
+  "job": "r3/r7A",
+  "task_id": "11",
+  "trial": "s0",
+  "trace": "/home/user/e1r3/runs/rrsi/tau2_airline/jobs/r7A/s0/11.json",
+  "n_steps": 10,
+  "fid": "r3_29f9291_e_11_s0",
+  "harness": "/home/user/attrib_runs/validity/wt/29f9291/domains/tau2_airline/harness"
+ },
+ {
+  "commit": "4fb61b6",
+  "source": "evolve",
+  "job": "r3/r1B",
+  "task_id": "40",
+  "trial": "s1",
+  "trace": "/home/user/e1r3/runs/rrsi/tau2_airline/jobs/r1B/s1/40.json",
+  "n_steps": 8,
+  "fid": "r3_4fb61b6_e_40_s1",
+  "harness": "/home/user/attrib_runs/validity/wt/4fb61b6/domains/tau2_airline/harness"
+ },
+ {
+  "commit": "9397267",
+  "source": "evolve",
+  "job": "r2/r5B",
+  "task_id": "15",
+  "trial": "s1",
+  "trace": "/home/user/e1r2/runs/rrsi/tau2_airline/jobs/r5B/s1/15.json",
+  "n_steps": 11,
+  "fid": "r2_9397267_e_15_s1",
+  "harness": "/home/user/attrib_runs/validity/wt/9397267/domains/tau2_airline/harness"
+ },
+ {
+  "commit": "a95d53d",
+  "source": "heldout",
+  "job": "r3/a95d53d",
+  "task_id": "24",
+  "trial": "s7",
+  "trace": "/home/user/e1r3/runs/verify/tau2_airline/jobs/heldout/a95d53d/s7/24.json",
+  "n_steps": 11,
+  "fid": "r3_a95d53d_h_24_s7",
+  "harness": "/home/user/attrib_runs/validity/wt/a95d53d/domains/tau2_airline/harness"
+ },
+ {
+  "commit": "f5d5e0a",
+  "source": "heldout",
+  "job": "r2/f5d5e0a",
+  "task_id": "26",
+  "trial": "s0",
+  "trace": "/home/user/e1r2/runs/verify/tau2_airline/jobs/heldout/f5d5e0a/s0/26.json",
+  "n_steps": 9,
+  "fid": "r2_f5d5e0a_h_26_s0",
+  "harness": "/home/user/attrib_runs/validity/wt/f5d5e0a/domains/tau2_airline/harness"
+ },
+ {
+  "commit": "b04ba74",
+  "source": "evolve",
+  "job": "r2/r2B",
+  "task_id": "5",
+  "trial": "s0",
+  "trace": "/home/user/e1r2/runs/rrsi/tau2_airline/jobs/r2B/s0/5.json",
+  "n_steps": 9,
+  "fid": "r2_b04ba74_e_5_s0",
+  "harness": "/home/user/attrib_runs/validity/wt/b04ba74/domains/tau2_airline/harness"
+ },
+ {
+  "commit": "95a8c25",
+  "source": "evolve",
+  "job": "r3/r16B",
+  "task_id": "34",
+  "trial": "s1",
+  "trace": "/home/user/e1r3/runs/rrsi/tau2_airline/jobs/r16B/s1/34.json",
+  "n_steps": 11,
+  "fid": "r3_95a8c25_e_34_s1",
+  "harness": "/home/user/attrib_runs/validity/wt/95a8c25/domains/tau2_airline/harness"
+ },
+ {
+  "commit": "e4146ac",
+  "source": "heldout",
+  "job": "r2/e4146ac",
+  "task_id": "25",
+  "trial": "s10",
+  "trace": "/home/user/e1r2/runs/verify/tau2_airline/jobs/heldout/e4146ac/s10/25.json",
+  "n_steps": 11,
+  "fid": "r2_e4146ac_h_25_s10",
+  "harness": "/home/user/attrib_runs/validity/wt/e4146ac/domains/tau2_airline/harness"
+ },
+ {
+  "commit": "b9c726a",
+  "source": "heldout",
+  "job": "r2/b9c726a",
+  "task_id": "45",
+  "trial": "s7",
+  "trace": "/home/user/e1r2/runs/verify/tau2_airline/jobs/heldout/b9c726a/s7/45.json",
+  "n_steps": 9,
+  "fid": "r2_b9c726a_h_45_s7",
+  "harness": "/home/user/attrib_runs/validity/wt/b9c726a/domains/tau2_airline/harness"
+ },
+ {
+  "commit": "bf1acaf",
+  "source": "heldout",
+  "job": "r2/bf1acaf",
+  "task_id": "31",
+  "trial": "s11",
+  "trace": "/home/user/e1r2/runs/verify/tau2_airline/jobs/heldout/bf1acaf/s11/31.json",
+  "n_steps": 9,
+  "fid": "r2_bf1acaf_h_31_s11",
+  "harness": "/home/user/attrib_runs/validity/wt/bf1acaf/domains/tau2_airline/harness"
+ },
+ {
+  "commit": "09a0fe7",
+  "source": "evolve",
+  "job": "r2/r14A",
+  "task_id": "38",
+  "trial": "s0",
+  "trace": "/home/user/e1r2/runs/rrsi/tau2_airline/jobs/r14A/s0/38.json",
+  "n_steps": 10,
+  "fid": "r2_09a0fe7_e_38_s0",
+  "harness": "/home/user/attrib_runs/validity/wt/09a0fe7/domains/tau2_airline/harness"
+ },
+ {
+  "commit": "6bd8b35",
+  "source": "evolve",
+  "job": "r3/r5A",
+  "task_id": "12",
+  "trial": "s1",
+  "trace": "/home/user/e1r3/runs/rrsi/tau2_airline/jobs/r5A/s1/12.json",
+  "n_steps": 8,
+  "fid": "r3_6bd8b35_e_12_s1",
+  "harness": "/home/user/attrib_runs/validity/wt/6bd8b35/domains/tau2_airline/harness"
+ },
+ {
+  "commit": "ff36965",
+  "source": "evolve",
+  "job": "r3/r13A",
+  "task_id": "11",
+  "trial": "s1",
+  "trace": "/home/user/e1r3/runs/rrsi/tau2_airline/jobs/r13A/s1/11.json",
+  "n_steps": 9,
+  "fid": "r3_ff36965_e_11_s1",
+  "harness": "/home/user/attrib_runs/validity/wt/ff36965/domains/tau2_airline/harness"
+ },
+ {
+  "commit": "6bd8b35",
+  "source": "evolve",
+  "job": "r3/r5A",
+  "task_id": "40",
+  "trial": "s0",
+  "trace": "/home/user/e1r3/runs/rrsi/tau2_airline/jobs/r5A/s0/40.json",
+  "n_steps": 9,
+  "fid": "r3_6bd8b35_e_40_s0",
+  "harness": "/home/user/attrib_runs/validity/wt/6bd8b35/domains/tau2_airline/harness"
+ },
+ {
+  "commit": "c02b3cd",
+  "source": "evolve",
+  "job": "r3/r8A",
+  "task_id": "15",
+  "trial": "s0",
+  "trace": "/home/user/e1r3/runs/rrsi/tau2_airline/jobs/r8A/s0/15.json",
+  "n_steps": 8,
+  "fid": "r3_c02b3cd_e_15_s0",
+  "harness": "/home/user/attrib_runs/validity/wt/c02b3cd/domains/tau2_airline/harness"
+ },
+ {
+  "commit": "9f2d6a9",
+  "source": "heldout",
+  "job": "r2/9f2d6a9",
+  "task_id": "24",
+  "trial": "s4",
+  "trace": "/home/user/e1r2/runs/verify/tau2_airline/jobs/heldout/9f2d6a9/s4/24.json",
+  "n_steps": 8,
+  "fid": "r2_9f2d6a9_h_24_s4",
+  "harness": "/home/user/attrib_runs/validity/wt/9f2d6a9/domains/tau2_airline/harness"
+ },
+ {
+  "commit": "f5d5e0a",
+  "source": "heldout",
+  "job": "r2/f5d5e0a",
+  "task_id": "26",
+  "trial": "s8",
+  "trace": "/home/user/e1r2/runs/verify/tau2_airline/jobs/heldout/f5d5e0a/s8/26.json",
+  "n_steps": 10,
+  "fid": "r2_f5d5e0a_h_26_s8",
+  "harness": "/home/user/attrib_runs/validity/wt/f5d5e0a/domains/tau2_airline/harness"
+ },
+ {
+  "commit": "2939bbe",
+  "source": "evolve",
+  "job": "r2/r2A",
+  "task_id": "5",
+  "trial": "s0",
+  "trace": "/home/user/e1r2/runs/rrsi/tau2_airline/jobs/r2A/s0/5.json",
+  "n_steps": 10,
+  "fid": "r2_2939bbe_e_5_s0",
+  "harness": "/home/user/attrib_runs/validity/wt/2939bbe/domains/tau2_airline/harness"
+ },
+ {
+  "commit": "4fb61b6",
+  "source": "evolve",
+  "job": "r3/r1B",
+  "task_id": "34",
+  "trial": "s0",
+  "trace": "/home/user/e1r3/runs/rrsi/tau2_airline/jobs/r1B/s0/34.json",
+  "n_steps": 9,
+  "fid": "r3_4fb61b6_e_34_s0",
+  "harness": "/home/user/attrib_runs/validity/wt/4fb61b6/domains/tau2_airline/harness"
+ },
+ {
+  "commit": "e4146ac",
+  "source": "heldout",
+  "job": "r2/e4146ac",
+  "task_id": "25",
+  "trial": "s8",
+  "trace": "/home/user/e1r2/runs/verify/tau2_airline/jobs/heldout/e4146ac/s8/25.json",
+  "n_steps": 11,
+  "fid": "r2_e4146ac_h_25_s8",
+  "harness": "/home/user/attrib_runs/validity/wt/e4146ac/domains/tau2_airline/harness"
+ }
+]
