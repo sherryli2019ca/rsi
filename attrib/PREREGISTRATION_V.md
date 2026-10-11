@@ -317,3 +317,22 @@ Budget. About 1 to 3 dollars; stop at 5.
   0.216 (0.191), aligned search 0.231 (0.207). Valid R, first write minus
   aligned search: -0.024 [-0.091, +0.039] to -0.051 [-0.125, +0.019] across
   the bounds.
+- 2026-10-11 14:36Z: both auditors returned labels for the 13 new items
+  (attrib/validity_labels/labels_add_A.csv, labels_add_C.csv; Dr Cao: two
+  graduate students doing agent research). Valid: A 9 of 13, C 11 of 13; they
+  differ on 2 (V162, V164). Over the rerun's 170 items: agreement on validity
+  158 (kappa .77), valid 136 (A) and 140 (C); 12 items differ, reported as
+  strict and lenient bounds as before. Registered analysis on the rerun
+  (results/attrib/validity_rerun.json, strict / lenient): valid R first
+  write 0.128 / 0.134, second-to-last 0.136 / 0.161, all-at-once 0.138 /
+  0.153, binary search 0.163 / 0.163, aligned search 0.163 / 0.180; first
+  write minus aligned search -0.035 [-0.103, +0.029] / -0.046 [-0.118,
+  +0.022]. Post hoc (results/attrib/validity_rerun_posthoc.json, the analyses
+  of attrib/validity_posthoc.py on the rerun): paired change of the first
+  write's difference from raw to valid, against all-at-once -0.071 [-0.134,
+  -0.012] / -0.080 [-0.137, -0.029], binary search -0.060 [-0.110, -0.015] /
+  -0.054 [-0.102, -0.010], aligned search -0.045 [-0.106, +0.016] / -0.056
+  [-0.114, -0.004], second-to-last -0.003 / -0.022. Written into the paper
+  as the registered result (v24), with the first run's numbers in its
+  registration appendix. validity._summary now rounds validity rates to 4
+  places (was 3; no other change).

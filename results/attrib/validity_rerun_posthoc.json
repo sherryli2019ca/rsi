@@ -1,0 +1,3431 @@
+{
+ "note": "Post hoc analyses of the registered validity check (attrib/PREREGISTRATION_V.md). Auditor A = auditor_codex_lenient_A.csv, C = labels_C.csv.",
+ "items": 170,
+ "items_new": 13,
+ "valid_A": 136,
+ "valid_C": 140,
+ "agreement": {
+  "information": {
+   "agree": 157,
+   "percent": 0.924,
+   "kappa": 0.726
+  },
+  "policy": {
+   "agree": 150,
+   "percent": 0.882,
+   "kappa": 0.554
+  },
+  "confirmation": {
+   "agree": 168,
+   "percent": 0.988,
+   "kappa": 0.938
+  },
+  "scope": {
+   "agree": 151,
+   "percent": 0.888,
+   "kappa": 0.0
+  },
+  "valid": {
+   "agree": 158,
+   "percent": 0.929,
+   "kappa": 0.769
+  }
+ },
+ "secondary": {
+  "strict": {
+   "all": {
+    "n": 80,
+    "methods": {
+     "first_write": {
+      "raw": [
+       0.2406,
+       0.1603,
+       0.3239
+      ],
+      "valid": [
+       0.1281,
+       0.0703,
+       0.1932
+      ],
+      "labelled_corrections": 83,
+      "validity_rate": 0.566
+     },
+     "second_to_last": {
+      "raw": [
+       0.2453,
+       0.163,
+       0.3312
+      ],
+      "valid": [
+       0.1359,
+       0.0728,
+       0.2051
+      ],
+      "labelled_corrections": 91,
+      "validity_rate": 0.615
+     },
+     "all_at_once_gain_pro": {
+      "raw": [
+       0.1797,
+       0.1113,
+       0.2547
+      ],
+      "valid": [
+       0.1383,
+       0.0815,
+       0.2017
+      ],
+      "labelled_corrections": 90,
+      "validity_rate": 0.789
+     },
+     "binary_search_gain_pro": {
+      "raw": [
+       0.2156,
+       0.1378,
+       0.2977
+      ],
+      "valid": [
+       0.1633,
+       0.0967,
+       0.2353
+      ],
+      "labelled_corrections": 85,
+      "validity_rate": 0.741
+     },
+     "aligned_search": {
+      "raw": [
+       0.2313,
+       0.1547,
+       0.314
+      ],
+      "valid": [
+       0.1633,
+       0.1002,
+       0.2338
+      ],
+      "labelled_corrections": 97,
+      "validity_rate": 0.763
+     }
+    },
+    "first_write_minus": {
+     "second_to_last": {
+      "valid": [
+       -0.0078,
+       -0.0551,
+       0.037
+      ],
+      "raw": [
+       -0.0047,
+       -0.0641,
+       0.0539
+      ]
+     },
+     "all_at_once_gain_pro": {
+      "valid": [
+       -0.0102,
+       -0.0862,
+       0.0664
+      ],
+      "raw": [
+       0.0609,
+       -0.0352,
+       0.1566
+      ]
+     },
+     "binary_search_gain_pro": {
+      "valid": [
+       -0.0352,
+       -0.0946,
+       0.0206
+      ],
+      "raw": [
+       0.025,
+       -0.0522,
+       0.0997
+      ]
+     },
+     "aligned_search": {
+      "valid": [
+       -0.0352,
+       -0.1029,
+       0.0292
+      ],
+      "raw": [
+       0.0094,
+       -0.0875,
+       0.1078
+      ]
+     }
+    }
+   },
+   "rescuable_union": {
+    "n": 36,
+    "methods": {
+     "first_write": {
+      "raw": [
+       0.4861,
+       0.3472,
+       0.6179
+      ],
+      "valid": [
+       0.2569,
+       0.1439,
+       0.3715
+      ],
+      "labelled_corrections": 73,
+      "validity_rate": 0.548
+     },
+     "second_to_last": {
+      "raw": [
+       0.5278,
+       0.3919,
+       0.6579
+      ],
+      "valid": [
+       0.2986,
+       0.1838,
+       0.4223
+      ],
+      "labelled_corrections": 80,
+      "validity_rate": 0.588
+     },
+     "all_at_once_gain_pro": {
+      "raw": [
+       0.375,
+       0.2385,
+       0.522
+      ],
+      "valid": [
+       0.2847,
+       0.1667,
+       0.4136
+      ],
+      "labelled_corrections": 69,
+      "validity_rate": 0.812
+     },
+     "binary_search_gain_pro": {
+      "raw": [
+       0.4497,
+       0.3142,
+       0.5875
+      ],
+      "valid": [
+       0.342,
+       0.2206,
+       0.473
+      ],
+      "labelled_corrections": 73,
+      "validity_rate": 0.781
+     },
+     "aligned_search": {
+      "raw": [
+       0.4514,
+       0.3076,
+       0.6103
+      ],
+      "valid": [
+       0.3194,
+       0.1979,
+       0.4571
+      ],
+      "labelled_corrections": 82,
+      "validity_rate": 0.756
+     }
+    },
+    "first_write_minus": {
+     "second_to_last": {
+      "valid": [
+       -0.0417,
+       -0.1429,
+       0.0526
+      ],
+      "raw": [
+       -0.0417,
+       -0.1736,
+       0.0821
+      ]
+     },
+     "all_at_once_gain_pro": {
+      "valid": [
+       -0.0278,
+       -0.1982,
+       0.1332
+      ],
+      "raw": [
+       0.1111,
+       -0.1103,
+       0.3212
+      ]
+     },
+     "binary_search_gain_pro": {
+      "valid": [
+       -0.0851,
+       -0.2179,
+       0.0385
+      ],
+      "raw": [
+       0.0365,
+       -0.136,
+       0.1957
+      ]
+     },
+     "aligned_search": {
+      "valid": [
+       -0.0625,
+       -0.2143,
+       0.076
+      ],
+      "raw": [
+       0.0347,
+       -0.1893,
+       0.2331
+      ]
+     }
+    }
+   },
+   "tau2_retail": {
+    "n": 60,
+    "methods": {
+     "first_write": {
+      "raw": [
+       0.2552,
+       0.1617,
+       0.3528
+      ],
+      "valid": [
+       0.1177,
+       0.053,
+       0.1917
+      ],
+      "labelled_corrections": 66,
+      "validity_rate": 0.5
+     },
+     "second_to_last": {
+      "raw": [
+       0.2812,
+       0.1806,
+       0.3835
+      ],
+      "valid": [
+       0.1437,
+       0.0688,
+       0.2267
+      ],
+      "labelled_corrections": 80,
+      "validity_rate": 0.588
+     },
+     "all_at_once_gain_pro": {
+      "raw": [
+       0.1969,
+       0.1102,
+       0.2906
+      ],
+      "valid": [
+       0.1458,
+       0.0763,
+       0.2267
+      ],
+      "labelled_corrections": 71,
+      "validity_rate": 0.746
+     },
+     "binary_search_gain_pro": {
+      "raw": [
+       0.2417,
+       0.149,
+       0.3453
+      ],
+      "valid": [
+       0.1667,
+       0.085,
+       0.256
+      ],
+      "labelled_corrections": 67,
+      "validity_rate": 0.716
+     },
+     "aligned_search": {
+      "raw": [
+       0.2625,
+       0.1691,
+       0.3656
+      ],
+      "valid": [
+       0.1823,
+       0.1027,
+       0.2708
+      ],
+      "labelled_corrections": 82,
+      "validity_rate": 0.756
+     }
+    },
+    "first_write_minus": {
+     "second_to_last": {
+      "valid": [
+       -0.026,
+       -0.085,
+       0.0268
+      ],
+      "raw": [
+       -0.026,
+       -0.1021,
+       0.0463
+      ]
+     },
+     "all_at_once_gain_pro": {
+      "valid": [
+       -0.0281,
+       -0.1131,
+       0.0529
+      ],
+      "raw": [
+       0.0583,
+       -0.0534,
+       0.1691
+      ]
+     },
+     "binary_search_gain_pro": {
+      "valid": [
+       -0.049,
+       -0.1178,
+       0.0175
+      ],
+      "raw": [
+       0.0135,
+       -0.0754,
+       0.1025
+      ]
+     },
+     "aligned_search": {
+      "valid": [
+       -0.0646,
+       -0.1417,
+       0.0079
+      ],
+      "raw": [
+       -0.0073,
+       -0.1228,
+       0.1052
+      ]
+     }
+    }
+   },
+   "tau2_airline": {
+    "n": 20,
+    "methods": {
+     "first_write": {
+      "raw": [
+       0.1969,
+       0.0559,
+       0.3684
+      ],
+      "valid": [
+       0.1594,
+       0.0395,
+       0.3026
+      ],
+      "labelled_corrections": 17,
+      "validity_rate": 0.824
+     },
+     "second_to_last": {
+      "raw": [
+       0.1375,
+       0.0263,
+       0.2976
+      ],
+      "valid": [
+       0.1125,
+       0.0263,
+       0.225
+      ],
+      "labelled_corrections": 11,
+      "validity_rate": 0.818
+     },
+     "all_at_once_gain_pro": {
+      "raw": [
+       0.1281,
+       0.0281,
+       0.2313
+      ],
+      "valid": [
+       0.1156,
+       0.0278,
+       0.2102
+      ],
+      "labelled_corrections": 19,
+      "validity_rate": 0.947
+     },
+     "binary_search_gain_pro": {
+      "raw": [
+       0.1375,
+       0.0197,
+       0.256
+      ],
+      "valid": [
+       0.1531,
+       0.0486,
+       0.2625
+      ],
+      "labelled_corrections": 18,
+      "validity_rate": 0.833
+     },
+     "aligned_search": {
+      "raw": [
+       0.1375,
+       0.0461,
+       0.2434
+      ],
+      "valid": [
+       0.1062,
+       0.038,
+       0.1845
+      ],
+      "labelled_corrections": 15,
+      "validity_rate": 0.8
+     }
+    },
+    "first_write_minus": {
+     "second_to_last": {
+      "valid": [
+       0.0469,
+       -0.0066,
+       0.128
+      ],
+      "raw": [
+       0.0594,
+       0.0,
+       0.1389
+      ]
+     },
+     "all_at_once_gain_pro": {
+      "valid": [
+       0.0437,
+       -0.1217,
+       0.2292
+      ],
+      "raw": [
+       0.0688,
+       -0.122,
+       0.2844
+      ]
+     },
+     "binary_search_gain_pro": {
+      "valid": [
+       0.0063,
+       -0.122,
+       0.114
+      ],
+      "raw": [
+       0.0594,
+       -0.0893,
+       0.1845
+      ]
+     },
+     "aligned_search": {
+      "valid": [
+       0.0531,
+       -0.0774,
+       0.1906
+      ],
+      "raw": [
+       0.0594,
+       -0.122,
+       0.25
+      ]
+     }
+    }
+   }
+  },
+  "lenient": {
+   "all": {
+    "n": 80,
+    "methods": {
+     "first_write": {
+      "raw": [
+       0.2406,
+       0.1603,
+       0.3239
+      ],
+      "valid": [
+       0.1344,
+       0.0755,
+       0.1995
+      ],
+      "labelled_corrections": 83,
+      "validity_rate": 0.59
+     },
+     "second_to_last": {
+      "raw": [
+       0.2453,
+       0.163,
+       0.3312
+      ],
+      "valid": [
+       0.1609,
+       0.0946,
+       0.2338
+      ],
+      "labelled_corrections": 91,
+      "validity_rate": 0.703
+     },
+     "all_at_once_gain_pro": {
+      "raw": [
+       0.1797,
+       0.1113,
+       0.2547
+      ],
+      "valid": [
+       0.1531,
+       0.0927,
+       0.2221
+      ],
+      "labelled_corrections": 90,
+      "validity_rate": 0.9
+     },
+     "binary_search_gain_pro": {
+      "raw": [
+       0.2156,
+       0.1378,
+       0.2977
+      ],
+      "valid": [
+       0.1633,
+       0.0962,
+       0.2353
+      ],
+      "labelled_corrections": 85,
+      "validity_rate": 0.776
+     },
+     "aligned_search": {
+      "raw": [
+       0.2313,
+       0.1547,
+       0.314
+      ],
+      "valid": [
+       0.1805,
+       0.113,
+       0.2546
+      ],
+      "labelled_corrections": 97,
+      "validity_rate": 0.825
+     }
+    },
+    "first_write_minus": {
+     "second_to_last": {
+      "valid": [
+       -0.0266,
+       -0.0833,
+       0.0247
+      ],
+      "raw": [
+       -0.0047,
+       -0.0641,
+       0.0539
+      ]
+     },
+     "all_at_once_gain_pro": {
+      "valid": [
+       -0.0187,
+       -0.0967,
+       0.0595
+      ],
+      "raw": [
+       0.0609,
+       -0.0352,
+       0.1566
+      ]
+     },
+     "binary_search_gain_pro": {
+      "valid": [
+       -0.0289,
+       -0.0831,
+       0.0239
+      ],
+      "raw": [
+       0.025,
+       -0.0522,
+       0.0997
+      ]
+     },
+     "aligned_search": {
+      "valid": [
+       -0.0461,
+       -0.1177,
+       0.0219
+      ],
+      "raw": [
+       0.0094,
+       -0.0875,
+       0.1078
+      ]
+     }
+    }
+   },
+   "rescuable_union": {
+    "n": 36,
+    "methods": {
+     "first_write": {
+      "raw": [
+       0.4861,
+       0.3472,
+       0.6179
+      ],
+      "valid": [
+       0.2708,
+       0.1571,
+       0.3851
+      ],
+      "labelled_corrections": 73,
+      "validity_rate": 0.575
+     },
+     "second_to_last": {
+      "raw": [
+       0.5278,
+       0.3919,
+       0.6579
+      ],
+      "valid": [
+       0.3542,
+       0.2368,
+       0.4797
+      ],
+      "labelled_corrections": 80,
+      "validity_rate": 0.688
+     },
+     "all_at_once_gain_pro": {
+      "raw": [
+       0.375,
+       0.2385,
+       0.522
+      ],
+      "valid": [
+       0.3194,
+       0.1943,
+       0.4527
+      ],
+      "labelled_corrections": 69,
+      "validity_rate": 0.884
+     },
+     "binary_search_gain_pro": {
+      "raw": [
+       0.4497,
+       0.3142,
+       0.5875
+      ],
+      "valid": [
+       0.3455,
+       0.225,
+       0.4744
+      ],
+      "labelled_corrections": 73,
+      "validity_rate": 0.795
+     },
+     "aligned_search": {
+      "raw": [
+       0.4514,
+       0.3076,
+       0.6103
+      ],
+      "valid": [
+       0.3576,
+       0.2319,
+       0.5035
+      ],
+      "labelled_corrections": 82,
+      "validity_rate": 0.829
+     }
+    },
+    "first_write_minus": {
+     "second_to_last": {
+      "valid": [
+       -0.0833,
+       -0.2022,
+       0.025
+      ],
+      "raw": [
+       -0.0417,
+       -0.1736,
+       0.0821
+      ]
+     },
+     "all_at_once_gain_pro": {
+      "valid": [
+       -0.0486,
+       -0.2279,
+       0.1181
+      ],
+      "raw": [
+       0.1111,
+       -0.1103,
+       0.3212
+      ]
+     },
+     "binary_search_gain_pro": {
+      "valid": [
+       -0.0747,
+       -0.1993,
+       0.0404
+      ],
+      "raw": [
+       0.0365,
+       -0.136,
+       0.1957
+      ]
+     },
+     "aligned_search": {
+      "valid": [
+       -0.0868,
+       -0.2424,
+       0.0592
+      ],
+      "raw": [
+       0.0347,
+       -0.1893,
+       0.2331
+      ]
+     }
+    }
+   },
+   "tau2_retail": {
+    "n": 60,
+    "methods": {
+     "first_write": {
+      "raw": [
+       0.2552,
+       0.1617,
+       0.3528
+      ],
+      "valid": [
+       0.126,
+       0.0595,
+       0.2008
+      ],
+      "labelled_corrections": 66,
+      "validity_rate": 0.53
+     },
+     "second_to_last": {
+      "raw": [
+       0.2812,
+       0.1806,
+       0.3835
+      ],
+      "valid": [
+       0.1771,
+       0.0972,
+       0.2667
+      ],
+      "labelled_corrections": 80,
+      "validity_rate": 0.688
+     },
+     "all_at_once_gain_pro": {
+      "raw": [
+       0.1969,
+       0.1102,
+       0.2906
+      ],
+      "valid": [
+       0.1615,
+       0.0869,
+       0.2469
+      ],
+      "labelled_corrections": 71,
+      "validity_rate": 0.873
+     },
+     "binary_search_gain_pro": {
+      "raw": [
+       0.2417,
+       0.149,
+       0.3453
+      ],
+      "valid": [
+       0.1688,
+       0.0875,
+       0.2582
+      ],
+      "labelled_corrections": 67,
+      "validity_rate": 0.731
+     },
+     "aligned_search": {
+      "raw": [
+       0.2625,
+       0.1691,
+       0.3656
+      ],
+      "valid": [
+       0.201,
+       0.1186,
+       0.292
+      ],
+      "labelled_corrections": 82,
+      "validity_rate": 0.817
+     }
+    },
+    "first_write_minus": {
+     "second_to_last": {
+      "valid": [
+       -0.051,
+       -0.1218,
+       0.0121
+      ],
+      "raw": [
+       -0.026,
+       -0.1021,
+       0.0463
+      ]
+     },
+     "all_at_once_gain_pro": {
+      "valid": [
+       -0.0354,
+       -0.1197,
+       0.0484
+      ],
+      "raw": [
+       0.0583,
+       -0.0534,
+       0.1691
+      ]
+     },
+     "binary_search_gain_pro": {
+      "valid": [
+       -0.0427,
+       -0.1045,
+       0.0188
+      ],
+      "raw": [
+       0.0135,
+       -0.0754,
+       0.1025
+      ]
+     },
+     "aligned_search": {
+      "valid": [
+       -0.075,
+       -0.1541,
+       -0.0011
+      ],
+      "raw": [
+       -0.0073,
+       -0.1228,
+       0.1052
+      ]
+     }
+    }
+   },
+   "tau2_airline": {
+    "n": 20,
+    "methods": {
+     "first_write": {
+      "raw": [
+       0.1969,
+       0.0559,
+       0.3684
+      ],
+      "valid": [
+       0.1594,
+       0.0395,
+       0.3026
+      ],
+      "labelled_corrections": 17,
+      "validity_rate": 0.824
+     },
+     "second_to_last": {
+      "raw": [
+       0.1375,
+       0.0263,
+       0.2976
+      ],
+      "valid": [
+       0.1125,
+       0.0263,
+       0.225
+      ],
+      "labelled_corrections": 11,
+      "validity_rate": 0.818
+     },
+     "all_at_once_gain_pro": {
+      "raw": [
+       0.1281,
+       0.0281,
+       0.2313
+      ],
+      "valid": [
+       0.1281,
+       0.0278,
+       0.231
+      ],
+      "labelled_corrections": 19,
+      "validity_rate": 1.0
+     },
+     "binary_search_gain_pro": {
+      "raw": [
+       0.1375,
+       0.0197,
+       0.256
+      ],
+      "valid": [
+       0.1469,
+       0.0368,
+       0.2614
+      ],
+      "labelled_corrections": 18,
+      "validity_rate": 0.944
+     },
+     "aligned_search": {
+      "raw": [
+       0.1375,
+       0.0461,
+       0.2434
+      ],
+      "valid": [
+       0.1187,
+       0.038,
+       0.2188
+      ],
+      "labelled_corrections": 15,
+      "validity_rate": 0.867
+     }
+    },
+    "first_write_minus": {
+     "second_to_last": {
+      "valid": [
+       0.0469,
+       -0.0066,
+       0.128
+      ],
+      "raw": [
+       0.0594,
+       0.0,
+       0.1389
+      ]
+     },
+     "all_at_once_gain_pro": {
+      "valid": [
+       0.0312,
+       -0.144,
+       0.2243
+      ],
+      "raw": [
+       0.0688,
+       -0.122,
+       0.2844
+      ]
+     },
+     "binary_search_gain_pro": {
+      "valid": [
+       0.0125,
+       -0.1165,
+       0.1187
+      ],
+      "raw": [
+       0.0594,
+       -0.0893,
+       0.1845
+      ]
+     },
+     "aligned_search": {
+      "valid": [
+       0.0406,
+       -0.1086,
+       0.1875
+      ],
+      "raw": [
+       0.0594,
+       -0.122,
+       0.25
+      ]
+     }
+    }
+   }
+  },
+  "auditor_A": {
+   "all": {
+    "n": 80,
+    "methods": {
+     "first_write": {
+      "raw": [
+       0.2406,
+       0.1603,
+       0.3239
+      ],
+      "valid": [
+       0.1281,
+       0.0703,
+       0.1932
+      ],
+      "labelled_corrections": 83,
+      "validity_rate": 0.566
+     },
+     "second_to_last": {
+      "raw": [
+       0.2453,
+       0.163,
+       0.3312
+      ],
+      "valid": [
+       0.1359,
+       0.0728,
+       0.2051
+      ],
+      "labelled_corrections": 91,
+      "validity_rate": 0.615
+     },
+     "all_at_once_gain_pro": {
+      "raw": [
+       0.1797,
+       0.1113,
+       0.2547
+      ],
+      "valid": [
+       0.1406,
+       0.0831,
+       0.2049
+      ],
+      "labelled_corrections": 90,
+      "validity_rate": 0.811
+     },
+     "binary_search_gain_pro": {
+      "raw": [
+       0.2156,
+       0.1378,
+       0.2977
+      ],
+      "valid": [
+       0.1625,
+       0.0953,
+       0.2348
+      ],
+      "labelled_corrections": 85,
+      "validity_rate": 0.765
+     },
+     "aligned_search": {
+      "raw": [
+       0.2313,
+       0.1547,
+       0.314
+      ],
+      "valid": [
+       0.168,
+       0.1036,
+       0.2391
+      ],
+      "labelled_corrections": 97,
+      "validity_rate": 0.784
+     }
+    },
+    "first_write_minus": {
+     "second_to_last": {
+      "valid": [
+       -0.0078,
+       -0.0551,
+       0.037
+      ],
+      "raw": [
+       -0.0047,
+       -0.0641,
+       0.0539
+      ]
+     },
+     "all_at_once_gain_pro": {
+      "valid": [
+       -0.0125,
+       -0.0895,
+       0.0656
+      ],
+      "raw": [
+       0.0609,
+       -0.0352,
+       0.1566
+      ]
+     },
+     "binary_search_gain_pro": {
+      "valid": [
+       -0.0344,
+       -0.0942,
+       0.0216
+      ],
+      "raw": [
+       0.025,
+       -0.0522,
+       0.0997
+      ]
+     },
+     "aligned_search": {
+      "valid": [
+       -0.0398,
+       -0.1102,
+       0.0259
+      ],
+      "raw": [
+       0.0094,
+       -0.0875,
+       0.1078
+      ]
+     }
+    }
+   },
+   "rescuable_union": {
+    "n": 36,
+    "methods": {
+     "first_write": {
+      "raw": [
+       0.4861,
+       0.3472,
+       0.6179
+      ],
+      "valid": [
+       0.2569,
+       0.1439,
+       0.3715
+      ],
+      "labelled_corrections": 73,
+      "validity_rate": 0.548
+     },
+     "second_to_last": {
+      "raw": [
+       0.5278,
+       0.3919,
+       0.6579
+      ],
+      "valid": [
+       0.2986,
+       0.1838,
+       0.4223
+      ],
+      "labelled_corrections": 80,
+      "validity_rate": 0.588
+     },
+     "all_at_once_gain_pro": {
+      "raw": [
+       0.375,
+       0.2385,
+       0.522
+      ],
+      "valid": [
+       0.2917,
+       0.1699,
+       0.4211
+      ],
+      "labelled_corrections": 69,
+      "validity_rate": 0.826
+     },
+     "binary_search_gain_pro": {
+      "raw": [
+       0.4497,
+       0.3142,
+       0.5875
+      ],
+      "valid": [
+       0.3455,
+       0.225,
+       0.4744
+      ],
+      "labelled_corrections": 73,
+      "validity_rate": 0.795
+     },
+     "aligned_search": {
+      "raw": [
+       0.4514,
+       0.3076,
+       0.6103
+      ],
+      "valid": [
+       0.3299,
+       0.2072,
+       0.4679
+      ],
+      "labelled_corrections": 82,
+      "validity_rate": 0.78
+     }
+    },
+    "first_write_minus": {
+     "second_to_last": {
+      "valid": [
+       -0.0417,
+       -0.1429,
+       0.0526
+      ],
+      "raw": [
+       -0.0417,
+       -0.1736,
+       0.0821
+      ]
+     },
+     "all_at_once_gain_pro": {
+      "valid": [
+       -0.0347,
+       -0.2096,
+       0.1268
+      ],
+      "raw": [
+       0.1111,
+       -0.1103,
+       0.3212
+      ]
+     },
+     "binary_search_gain_pro": {
+      "valid": [
+       -0.0885,
+       -0.2224,
+       0.0341
+      ],
+      "raw": [
+       0.0365,
+       -0.136,
+       0.1957
+      ]
+     },
+     "aligned_search": {
+      "valid": [
+       -0.0729,
+       -0.2268,
+       0.0689
+      ],
+      "raw": [
+       0.0347,
+       -0.1893,
+       0.2331
+      ]
+     }
+    }
+   },
+   "tau2_retail": {
+    "n": 60,
+    "methods": {
+     "first_write": {
+      "raw": [
+       0.2552,
+       0.1617,
+       0.3528
+      ],
+      "valid": [
+       0.1177,
+       0.053,
+       0.1917
+      ],
+      "labelled_corrections": 66,
+      "validity_rate": 0.5
+     },
+     "second_to_last": {
+      "raw": [
+       0.2812,
+       0.1806,
+       0.3835
+      ],
+      "valid": [
+       0.1437,
+       0.0688,
+       0.2267
+      ],
+      "labelled_corrections": 80,
+      "validity_rate": 0.588
+     },
+     "all_at_once_gain_pro": {
+      "raw": [
+       0.1969,
+       0.1102,
+       0.2906
+      ],
+      "valid": [
+       0.1448,
+       0.0752,
+       0.2259
+      ],
+      "labelled_corrections": 71,
+      "validity_rate": 0.761
+     },
+     "binary_search_gain_pro": {
+      "raw": [
+       0.2417,
+       0.149,
+       0.3453
+      ],
+      "valid": [
+       0.1688,
+       0.0875,
+       0.2582
+      ],
+      "labelled_corrections": 67,
+      "validity_rate": 0.731
+     },
+     "aligned_search": {
+      "raw": [
+       0.2625,
+       0.1691,
+       0.3656
+      ],
+      "valid": [
+       0.1844,
+       0.1049,
+       0.2722
+      ],
+      "labelled_corrections": 82,
+      "validity_rate": 0.768
+     }
+    },
+    "first_write_minus": {
+     "second_to_last": {
+      "valid": [
+       -0.026,
+       -0.085,
+       0.0268
+      ],
+      "raw": [
+       -0.026,
+       -0.1021,
+       0.0463
+      ]
+     },
+     "all_at_once_gain_pro": {
+      "valid": [
+       -0.0271,
+       -0.1117,
+       0.0542
+      ],
+      "raw": [
+       0.0583,
+       -0.0534,
+       0.1691
+      ]
+     },
+     "binary_search_gain_pro": {
+      "valid": [
+       -0.051,
+       -0.1198,
+       0.0159
+      ],
+      "raw": [
+       0.0135,
+       -0.0754,
+       0.1025
+      ]
+     },
+     "aligned_search": {
+      "valid": [
+       -0.0667,
+       -0.1434,
+       0.006
+      ],
+      "raw": [
+       -0.0073,
+       -0.1228,
+       0.1052
+      ]
+     }
+    }
+   },
+   "tau2_airline": {
+    "n": 20,
+    "methods": {
+     "first_write": {
+      "raw": [
+       0.1969,
+       0.0559,
+       0.3684
+      ],
+      "valid": [
+       0.1594,
+       0.0395,
+       0.3026
+      ],
+      "labelled_corrections": 17,
+      "validity_rate": 0.824
+     },
+     "second_to_last": {
+      "raw": [
+       0.1375,
+       0.0263,
+       0.2976
+      ],
+      "valid": [
+       0.1125,
+       0.0263,
+       0.225
+      ],
+      "labelled_corrections": 11,
+      "validity_rate": 0.818
+     },
+     "all_at_once_gain_pro": {
+      "raw": [
+       0.1281,
+       0.0281,
+       0.2313
+      ],
+      "valid": [
+       0.1281,
+       0.0278,
+       0.231
+      ],
+      "labelled_corrections": 19,
+      "validity_rate": 1.0
+     },
+     "binary_search_gain_pro": {
+      "raw": [
+       0.1375,
+       0.0197,
+       0.256
+      ],
+      "valid": [
+       0.1437,
+       0.0329,
+       0.2562
+      ],
+      "labelled_corrections": 18,
+      "validity_rate": 0.889
+     },
+     "aligned_search": {
+      "raw": [
+       0.1375,
+       0.0461,
+       0.2434
+      ],
+      "valid": [
+       0.1187,
+       0.038,
+       0.2188
+      ],
+      "labelled_corrections": 15,
+      "validity_rate": 0.867
+     }
+    },
+    "first_write_minus": {
+     "second_to_last": {
+      "valid": [
+       0.0469,
+       -0.0066,
+       0.128
+      ],
+      "raw": [
+       0.0594,
+       0.0,
+       0.1389
+      ]
+     },
+     "all_at_once_gain_pro": {
+      "valid": [
+       0.0312,
+       -0.144,
+       0.2243
+      ],
+      "raw": [
+       0.0688,
+       -0.122,
+       0.2844
+      ]
+     },
+     "binary_search_gain_pro": {
+      "valid": [
+       0.0156,
+       -0.1146,
+       0.1217
+      ],
+      "raw": [
+       0.0594,
+       -0.0893,
+       0.1845
+      ]
+     },
+     "aligned_search": {
+      "valid": [
+       0.0406,
+       -0.1086,
+       0.1875
+      ],
+      "raw": [
+       0.0594,
+       -0.122,
+       0.25
+      ]
+     }
+    }
+   }
+  },
+  "auditor_C": {
+   "all": {
+    "n": 80,
+    "methods": {
+     "first_write": {
+      "raw": [
+       0.2406,
+       0.1603,
+       0.3239
+      ],
+      "valid": [
+       0.1344,
+       0.0755,
+       0.1995
+      ],
+      "labelled_corrections": 83,
+      "validity_rate": 0.59
+     },
+     "second_to_last": {
+      "raw": [
+       0.2453,
+       0.163,
+       0.3312
+      ],
+      "valid": [
+       0.1609,
+       0.0946,
+       0.2338
+      ],
+      "labelled_corrections": 91,
+      "validity_rate": 0.703
+     },
+     "all_at_once_gain_pro": {
+      "raw": [
+       0.1797,
+       0.1113,
+       0.2547
+      ],
+      "valid": [
+       0.1508,
+       0.0914,
+       0.2192
+      ],
+      "labelled_corrections": 90,
+      "validity_rate": 0.878
+     },
+     "binary_search_gain_pro": {
+      "raw": [
+       0.2156,
+       0.1378,
+       0.2977
+      ],
+      "valid": [
+       0.1641,
+       0.098,
+       0.2359
+      ],
+      "labelled_corrections": 85,
+      "validity_rate": 0.753
+     },
+     "aligned_search": {
+      "raw": [
+       0.2313,
+       0.1547,
+       0.314
+      ],
+      "valid": [
+       0.1758,
+       0.1094,
+       0.25
+      ],
+      "labelled_corrections": 97,
+      "validity_rate": 0.804
+     }
+    },
+    "first_write_minus": {
+     "second_to_last": {
+      "valid": [
+       -0.0266,
+       -0.0833,
+       0.0247
+      ],
+      "raw": [
+       -0.0047,
+       -0.0641,
+       0.0539
+      ]
+     },
+     "all_at_once_gain_pro": {
+      "valid": [
+       -0.0164,
+       -0.093,
+       0.061
+      ],
+      "raw": [
+       0.0609,
+       -0.0352,
+       0.1566
+      ]
+     },
+     "binary_search_gain_pro": {
+      "valid": [
+       -0.0297,
+       -0.0836,
+       0.0233
+      ],
+      "raw": [
+       0.025,
+       -0.0522,
+       0.0997
+      ]
+     },
+     "aligned_search": {
+      "valid": [
+       -0.0414,
+       -0.1112,
+       0.0248
+      ],
+      "raw": [
+       0.0094,
+       -0.0875,
+       0.1078
+      ]
+     }
+    }
+   },
+   "rescuable_union": {
+    "n": 36,
+    "methods": {
+     "first_write": {
+      "raw": [
+       0.4861,
+       0.3472,
+       0.6179
+      ],
+      "valid": [
+       0.2708,
+       0.1571,
+       0.3851
+      ],
+      "labelled_corrections": 73,
+      "validity_rate": 0.575
+     },
+     "second_to_last": {
+      "raw": [
+       0.5278,
+       0.3919,
+       0.6579
+      ],
+      "valid": [
+       0.3542,
+       0.2368,
+       0.4797
+      ],
+      "labelled_corrections": 80,
+      "validity_rate": 0.688
+     },
+     "all_at_once_gain_pro": {
+      "raw": [
+       0.375,
+       0.2385,
+       0.522
+      ],
+      "valid": [
+       0.3125,
+       0.1893,
+       0.4449
+      ],
+      "labelled_corrections": 69,
+      "validity_rate": 0.87
+     },
+     "binary_search_gain_pro": {
+      "raw": [
+       0.4497,
+       0.3142,
+       0.5875
+      ],
+      "valid": [
+       0.342,
+       0.2206,
+       0.473
+      ],
+      "labelled_corrections": 73,
+      "validity_rate": 0.781
+     },
+     "aligned_search": {
+      "raw": [
+       0.4514,
+       0.3076,
+       0.6103
+      ],
+      "valid": [
+       0.3472,
+       0.2226,
+       0.4916
+      ],
+      "labelled_corrections": 82,
+      "validity_rate": 0.805
+     }
+    },
+    "first_write_minus": {
+     "second_to_last": {
+      "valid": [
+       -0.0833,
+       -0.2022,
+       0.025
+      ],
+      "raw": [
+       -0.0417,
+       -0.1736,
+       0.0821
+      ]
+     },
+     "all_at_once_gain_pro": {
+      "valid": [
+       -0.0417,
+       -0.2169,
+       0.1219
+      ],
+      "raw": [
+       0.1111,
+       -0.1103,
+       0.3212
+      ]
+     },
+     "binary_search_gain_pro": {
+      "valid": [
+       -0.0712,
+       -0.1959,
+       0.0437
+      ],
+      "raw": [
+       0.0365,
+       -0.136,
+       0.1957
+      ]
+     },
+     "aligned_search": {
+      "valid": [
+       -0.0764,
+       -0.2286,
+       0.066
+      ],
+      "raw": [
+       0.0347,
+       -0.1893,
+       0.2331
+      ]
+     }
+    }
+   },
+   "tau2_retail": {
+    "n": 60,
+    "methods": {
+     "first_write": {
+      "raw": [
+       0.2552,
+       0.1617,
+       0.3528
+      ],
+      "valid": [
+       0.126,
+       0.0595,
+       0.2008
+      ],
+      "labelled_corrections": 66,
+      "validity_rate": 0.53
+     },
+     "second_to_last": {
+      "raw": [
+       0.2812,
+       0.1806,
+       0.3835
+      ],
+      "valid": [
+       0.1771,
+       0.0972,
+       0.2667
+      ],
+      "labelled_corrections": 80,
+      "validity_rate": 0.688
+     },
+     "all_at_once_gain_pro": {
+      "raw": [
+       0.1969,
+       0.1102,
+       0.2906
+      ],
+      "valid": [
+       0.1625,
+       0.0882,
+       0.2479
+      ],
+      "labelled_corrections": 71,
+      "validity_rate": 0.859
+     },
+     "binary_search_gain_pro": {
+      "raw": [
+       0.2417,
+       0.149,
+       0.3453
+      ],
+      "valid": [
+       0.1667,
+       0.085,
+       0.256
+      ],
+      "labelled_corrections": 67,
+      "validity_rate": 0.716
+     },
+     "aligned_search": {
+      "raw": [
+       0.2625,
+       0.1691,
+       0.3656
+      ],
+      "valid": [
+       0.199,
+       0.1161,
+       0.29
+      ],
+      "labelled_corrections": 82,
+      "validity_rate": 0.805
+     }
+    },
+    "first_write_minus": {
+     "second_to_last": {
+      "valid": [
+       -0.051,
+       -0.1218,
+       0.0121
+      ],
+      "raw": [
+       -0.026,
+       -0.1021,
+       0.0463
+      ]
+     },
+     "all_at_once_gain_pro": {
+      "valid": [
+       -0.0365,
+       -0.1208,
+       0.0474
+      ],
+      "raw": [
+       0.0583,
+       -0.0534,
+       0.1691
+      ]
+     },
+     "binary_search_gain_pro": {
+      "valid": [
+       -0.0406,
+       -0.1024,
+       0.0208
+      ],
+      "raw": [
+       0.0135,
+       -0.0754,
+       0.1025
+      ]
+     },
+     "aligned_search": {
+      "valid": [
+       -0.0729,
+       -0.1524,
+       0.001
+      ],
+      "raw": [
+       -0.0073,
+       -0.1228,
+       0.1052
+      ]
+     }
+    }
+   },
+   "tau2_airline": {
+    "n": 20,
+    "methods": {
+     "first_write": {
+      "raw": [
+       0.1969,
+       0.0559,
+       0.3684
+      ],
+      "valid": [
+       0.1594,
+       0.0395,
+       0.3026
+      ],
+      "labelled_corrections": 17,
+      "validity_rate": 0.824
+     },
+     "second_to_last": {
+      "raw": [
+       0.1375,
+       0.0263,
+       0.2976
+      ],
+      "valid": [
+       0.1125,
+       0.0263,
+       0.225
+      ],
+      "labelled_corrections": 11,
+      "validity_rate": 0.818
+     },
+     "all_at_once_gain_pro": {
+      "raw": [
+       0.1281,
+       0.0281,
+       0.2313
+      ],
+      "valid": [
+       0.1156,
+       0.0278,
+       0.2102
+      ],
+      "labelled_corrections": 19,
+      "validity_rate": 0.947
+     },
+     "binary_search_gain_pro": {
+      "raw": [
+       0.1375,
+       0.0197,
+       0.256
+      ],
+      "valid": [
+       0.1562,
+       0.0526,
+       0.2642
+      ],
+      "labelled_corrections": 18,
+      "validity_rate": 0.889
+     },
+     "aligned_search": {
+      "raw": [
+       0.1375,
+       0.0461,
+       0.2434
+      ],
+      "valid": [
+       0.1062,
+       0.038,
+       0.1845
+      ],
+      "labelled_corrections": 15,
+      "validity_rate": 0.8
+     }
+    },
+    "first_write_minus": {
+     "second_to_last": {
+      "valid": [
+       0.0469,
+       -0.0066,
+       0.128
+      ],
+      "raw": [
+       0.0594,
+       0.0,
+       0.1389
+      ]
+     },
+     "all_at_once_gain_pro": {
+      "valid": [
+       0.0437,
+       -0.1217,
+       0.2292
+      ],
+      "raw": [
+       0.0688,
+       -0.122,
+       0.2844
+      ]
+     },
+     "binary_search_gain_pro": {
+      "valid": [
+       0.0031,
+       -0.125,
+       0.1118
+      ],
+      "raw": [
+       0.0594,
+       -0.0893,
+       0.1845
+      ]
+     },
+     "aligned_search": {
+      "valid": [
+       0.0531,
+       -0.0774,
+       0.1906
+      ],
+      "raw": [
+       0.0594,
+       -0.122,
+       0.25
+      ]
+     }
+    }
+   }
+  }
+ },
+ "unapplied": {
+  "first_write": {
+   "samples": 167,
+   "not_applied": 0,
+   "failures": 0
+  },
+  "second_to_last": {
+   "samples": 188,
+   "not_applied": 0,
+   "failures": 0
+  },
+  "all_at_once_gain_pro": {
+   "samples": 180,
+   "not_applied": 0,
+   "failures": 0
+  },
+  "binary_search_gain_pro": {
+   "samples": 175,
+   "not_applied": 0,
+   "failures": 0
+  },
+  "aligned_search": {
+   "samples": 155,
+   "not_applied": 0,
+   "failures": 0
+  },
+  "all_union_steps": {
+   "samples": 497,
+   "not_applied": 0
+  }
+ },
+ "by_kind": {
+  "tau2_airline|transfer": {
+   "items": 2,
+   "valid_A": 1,
+   "valid_C": 1
+  },
+  "tau2_airline|utterance": {
+   "items": 31,
+   "valid_A": 27,
+   "valid_C": 26
+  },
+  "tau2_airline|write": {
+   "items": 12,
+   "valid_A": 11,
+   "valid_C": 11
+  },
+  "tau2_retail|read": {
+   "items": 7,
+   "valid_A": 6,
+   "valid_C": 4
+  },
+  "tau2_retail|transfer": {
+   "items": 16,
+   "valid_A": 15,
+   "valid_C": 16
+  },
+  "tau2_retail|utterance": {
+   "items": 78,
+   "valid_A": 67,
+   "valid_C": 71
+  },
+  "tau2_retail|write": {
+   "items": 24,
+   "valid_A": 9,
+   "valid_C": 11
+  }
+ },
+ "invalid_patterns_info_policy_confirmation_scope": {
+  "A": {
+   "nnny": 4,
+   "nnnn": 15,
+   "nnyy": 8,
+   "ynyy": 3,
+   "nnyn": 3,
+   "ynyn": 1
+  },
+  "C": {
+   "nyny": 4,
+   "nnny": 11,
+   "ynny": 2,
+   "nyyy": 8,
+   "nnyy": 4,
+   "ynyy": 1
+  }
+ },
+ "strict": {
+  "n": 80,
+  "methods": {
+   "first_write": {
+    "raw": [
+     0.2406,
+     0.1603,
+     0.3239
+    ],
+    "valid": [
+     0.1281,
+     0.0703,
+     0.1932
+    ]
+   },
+   "second_to_last": {
+    "raw": [
+     0.2453,
+     0.163,
+     0.3312
+    ],
+    "valid": [
+     0.1359,
+     0.0728,
+     0.2051
+    ]
+   },
+   "all_at_once_gain_pro": {
+    "raw": [
+     0.1797,
+     0.1113,
+     0.2547
+    ],
+    "valid": [
+     0.1383,
+     0.0815,
+     0.2017
+    ]
+   },
+   "binary_search_gain_pro": {
+    "raw": [
+     0.2156,
+     0.1378,
+     0.2977
+    ],
+    "valid": [
+     0.1633,
+     0.0967,
+     0.2353
+    ]
+   },
+   "aligned_search": {
+    "raw": [
+     0.2313,
+     0.1547,
+     0.314
+    ],
+    "valid": [
+     0.1633,
+     0.1002,
+     0.2338
+    ]
+   }
+  },
+  "paired_change": {
+   "second_to_last": [
+    -0.0031,
+    -0.0422,
+    0.0375
+   ],
+   "all_at_once_gain_pro": [
+    -0.0711,
+    -0.1343,
+    -0.0123
+   ],
+   "binary_search_gain_pro": [
+    -0.0602,
+    -0.1102,
+    -0.0147
+   ],
+   "aligned_search": [
+    -0.0445,
+    -0.1062,
+    0.0158
+   ]
+  },
+  "validity_rate": {
+   "second_to_last": [
+    -0.0491,
+    -0.1873,
+    0.0773
+   ],
+   "all_at_once_gain_pro": [
+    -0.2226,
+    -0.4231,
+    -0.0222
+   ],
+   "binary_search_gain_pro": [
+    -0.1749,
+    -0.3415,
+    -0.0054
+   ],
+   "aligned_search": [
+    -0.1966,
+    -0.3758,
+    -0.0135
+   ]
+  },
+  "minus_stl": {
+   "first_write": [
+    -0.0078,
+    -0.0574,
+    0.0363
+   ],
+   "all_at_once_gain_pro": [
+    0.0023,
+    -0.072,
+    0.0732
+   ],
+   "binary_search_gain_pro": [
+    0.0273,
+    -0.0355,
+    0.0922
+   ],
+   "aligned_search": [
+    0.0273,
+    -0.0444,
+    0.0987
+   ]
+  },
+  "first_write_minus": {
+   "second_to_last": {
+    "raw": [
+     -0.0047,
+     -0.0649,
+     0.0523
+    ],
+    "valid": [
+     -0.0078,
+     -0.0553,
+     0.0371
+    ]
+   },
+   "all_at_once_gain_pro": {
+    "raw": [
+     0.0609,
+     -0.0383,
+     0.1607
+    ],
+    "valid": [
+     -0.0102,
+     -0.0863,
+     0.0664
+    ]
+   },
+   "binary_search_gain_pro": {
+    "raw": [
+     0.025,
+     -0.0521,
+     0.0986
+    ],
+    "valid": [
+     -0.0352,
+     -0.0957,
+     0.0211
+    ]
+   },
+   "aligned_search": {
+    "raw": [
+     0.0094,
+     -0.0892,
+     0.1039
+    ],
+    "valid": [
+     -0.0352,
+     -0.105,
+     0.0304
+    ]
+   }
+  }
+ },
+ "strict_without_unapplied": {
+  "n": 80,
+  "methods": {
+   "first_write": {
+    "raw": [
+     0.2406,
+     0.1596,
+     0.3232
+    ],
+    "valid": [
+     0.1281,
+     0.069,
+     0.1921
+    ]
+   },
+   "second_to_last": {
+    "raw": [
+     0.2453,
+     0.1607,
+     0.3343
+    ],
+    "valid": [
+     0.1359,
+     0.0747,
+     0.2039
+    ]
+   },
+   "all_at_once_gain_pro": {
+    "raw": [
+     0.1797,
+     0.1108,
+     0.256
+    ],
+    "valid": [
+     0.1383,
+     0.0813,
+     0.2009
+    ]
+   },
+   "binary_search_gain_pro": {
+    "raw": [
+     0.2156,
+     0.1378,
+     0.2988
+    ],
+    "valid": [
+     0.1633,
+     0.098,
+     0.2329
+    ]
+   },
+   "aligned_search": {
+    "raw": [
+     0.2313,
+     0.154,
+     0.3149
+    ],
+    "valid": [
+     0.1633,
+     0.1014,
+     0.2336
+    ]
+   }
+  },
+  "paired_change": {
+   "second_to_last": [
+    -0.0031,
+    -0.0437,
+    0.0375
+   ],
+   "all_at_once_gain_pro": [
+    -0.0711,
+    -0.1337,
+    -0.012
+   ],
+   "binary_search_gain_pro": [
+    -0.0602,
+    -0.1104,
+    -0.0133
+   ],
+   "aligned_search": [
+    -0.0445,
+    -0.109,
+    0.0149
+   ]
+  },
+  "validity_rate": {
+   "second_to_last": [
+    -0.0491,
+    -0.186,
+    0.0808
+   ],
+   "all_at_once_gain_pro": [
+    -0.2226,
+    -0.4236,
+    -0.024
+   ],
+   "binary_search_gain_pro": [
+    -0.1749,
+    -0.3413,
+    -0.0092
+   ],
+   "aligned_search": [
+    -0.1966,
+    -0.3809,
+    -0.0161
+   ]
+  },
+  "minus_stl": {
+   "first_write": [
+    -0.0078,
+    -0.0564,
+    0.0371
+   ],
+   "all_at_once_gain_pro": [
+    0.0023,
+    -0.0732,
+    0.0753
+   ],
+   "binary_search_gain_pro": [
+    0.0273,
+    -0.0357,
+    0.0918
+   ],
+   "aligned_search": [
+    0.0273,
+    -0.043,
+    0.0968
+   ]
+  },
+  "first_write_minus": {
+   "second_to_last": {
+    "raw": [
+     -0.0047,
+     -0.0658,
+     0.0539
+    ],
+    "valid": [
+     -0.0078,
+     -0.0557,
+     0.0372
+    ]
+   },
+   "all_at_once_gain_pro": {
+    "raw": [
+     0.0609,
+     -0.0365,
+     0.1555
+    ],
+    "valid": [
+     -0.0102,
+     -0.0852,
+     0.0667
+    ]
+   },
+   "binary_search_gain_pro": {
+    "raw": [
+     0.025,
+     -0.0509,
+     0.0991
+    ],
+    "valid": [
+     -0.0352,
+     -0.0946,
+     0.0203
+    ]
+   },
+   "aligned_search": {
+    "raw": [
+     0.0094,
+     -0.0859,
+     0.105
+    ],
+    "valid": [
+     -0.0352,
+     -0.1034,
+     0.0309
+    ]
+   }
+  }
+ },
+ "lenient": {
+  "n": 80,
+  "methods": {
+   "first_write": {
+    "raw": [
+     0.2406,
+     0.1615,
+     0.3234
+    ],
+    "valid": [
+     0.1344,
+     0.0741,
+     0.1987
+    ]
+   },
+   "second_to_last": {
+    "raw": [
+     0.2453,
+     0.1622,
+     0.3333
+    ],
+    "valid": [
+     0.1609,
+     0.0949,
+     0.2315
+    ]
+   },
+   "all_at_once_gain_pro": {
+    "raw": [
+     0.1797,
+     0.1113,
+     0.2541
+    ],
+    "valid": [
+     0.1531,
+     0.0921,
+     0.22
+    ]
+   },
+   "binary_search_gain_pro": {
+    "raw": [
+     0.2156,
+     0.1379,
+     0.3003
+    ],
+    "valid": [
+     0.1633,
+     0.0961,
+     0.2363
+    ]
+   },
+   "aligned_search": {
+    "raw": [
+     0.2313,
+     0.1543,
+     0.3141
+    ],
+    "valid": [
+     0.1805,
+     0.1131,
+     0.2547
+    ]
+   }
+  },
+  "paired_change": {
+   "second_to_last": [
+    -0.0219,
+    -0.0548,
+    0.0
+   ],
+   "all_at_once_gain_pro": [
+    -0.0797,
+    -0.1365,
+    -0.0288
+   ],
+   "binary_search_gain_pro": [
+    -0.0539,
+    -0.1024,
+    -0.0101
+   ],
+   "aligned_search": [
+    -0.0555,
+    -0.1136,
+    -0.004
+   ]
+  },
+  "validity_rate": {
+   "second_to_last": [
+    -0.1129,
+    -0.2395,
+    -0.0074
+   ],
+   "all_at_once_gain_pro": [
+    -0.3096,
+    -0.4896,
+    -0.1445
+   ],
+   "binary_search_gain_pro": [
+    -0.1861,
+    -0.3397,
+    -0.0448
+   ],
+   "aligned_search": [
+    -0.2344,
+    -0.4033,
+    -0.0722
+   ]
+  },
+  "minus_stl": {
+   "first_write": [
+    -0.0266,
+    -0.0839,
+    0.0247
+   ],
+   "all_at_once_gain_pro": [
+    -0.0078,
+    -0.0828,
+    0.0633
+   ],
+   "binary_search_gain_pro": [
+    0.0023,
+    -0.065,
+    0.068
+   ],
+   "aligned_search": [
+    0.0195,
+    -0.0498,
+    0.0875
+   ]
+  },
+  "first_write_minus": {
+   "second_to_last": {
+    "raw": [
+     -0.0047,
+     -0.0657,
+     0.0535
+    ],
+    "valid": [
+     -0.0266,
+     -0.0822,
+     0.0244
+    ]
+   },
+   "all_at_once_gain_pro": {
+    "raw": [
+     0.0609,
+     -0.0378,
+     0.1601
+    ],
+    "valid": [
+     -0.0187,
+     -0.0976,
+     0.0594
+    ]
+   },
+   "binary_search_gain_pro": {
+    "raw": [
+     0.025,
+     -0.0511,
+     0.0989
+    ],
+    "valid": [
+     -0.0289,
+     -0.0841,
+     0.025
+    ]
+   },
+   "aligned_search": {
+    "raw": [
+     0.0094,
+     -0.0869,
+     0.1052
+    ],
+    "valid": [
+     -0.0461,
+     -0.1188,
+     0.0224
+    ]
+   }
+  }
+ },
+ "lenient_without_unapplied": {
+  "n": 80,
+  "methods": {
+   "first_write": {
+    "raw": [
+     0.2406,
+     0.16,
+     0.3242
+    ],
+    "valid": [
+     0.1344,
+     0.0748,
+     0.2012
+    ]
+   },
+   "second_to_last": {
+    "raw": [
+     0.2453,
+     0.1628,
+     0.3344
+    ],
+    "valid": [
+     0.1609,
+     0.0948,
+     0.2336
+    ]
+   },
+   "all_at_once_gain_pro": {
+    "raw": [
+     0.1797,
+     0.1112,
+     0.2555
+    ],
+    "valid": [
+     0.1531,
+     0.0922,
+     0.221
+    ]
+   },
+   "binary_search_gain_pro": {
+    "raw": [
+     0.2156,
+     0.1391,
+     0.2984
+    ],
+    "valid": [
+     0.1633,
+     0.096,
+     0.2358
+    ]
+   },
+   "aligned_search": {
+    "raw": [
+     0.2313,
+     0.1554,
+     0.3158
+    ],
+    "valid": [
+     0.1805,
+     0.1131,
+     0.2554
+    ]
+   }
+  },
+  "paired_change": {
+   "second_to_last": [
+    -0.0219,
+    -0.0545,
+    0.0
+   ],
+   "all_at_once_gain_pro": [
+    -0.0797,
+    -0.1369,
+    -0.0305
+   ],
+   "binary_search_gain_pro": [
+    -0.0539,
+    -0.1031,
+    -0.0103
+   ],
+   "aligned_search": [
+    -0.0555,
+    -0.1125,
+    -0.0038
+   ]
+  },
+  "validity_rate": {
+   "second_to_last": [
+    -0.1129,
+    -0.2434,
+    -0.009
+   ],
+   "all_at_once_gain_pro": [
+    -0.3096,
+    -0.4872,
+    -0.1454
+   ],
+   "binary_search_gain_pro": [
+    -0.1861,
+    -0.3353,
+    -0.0403
+   ],
+   "aligned_search": [
+    -0.2344,
+    -0.4052,
+    -0.0752
+   ]
+  },
+  "minus_stl": {
+   "first_write": [
+    -0.0266,
+    -0.0828,
+    0.0247
+   ],
+   "all_at_once_gain_pro": [
+    -0.0078,
+    -0.0826,
+    0.0639
+   ],
+   "binary_search_gain_pro": [
+    0.0023,
+    -0.0678,
+    0.0672
+   ],
+   "aligned_search": [
+    0.0195,
+    -0.0506,
+    0.0873
+   ]
+  },
+  "first_write_minus": {
+   "second_to_last": {
+    "raw": [
+     -0.0047,
+     -0.065,
+     0.0536
+    ],
+    "valid": [
+     -0.0266,
+     -0.0836,
+     0.0245
+    ]
+   },
+   "all_at_once_gain_pro": {
+    "raw": [
+     0.0609,
+     -0.0383,
+     0.1574
+    ],
+    "valid": [
+     -0.0187,
+     -0.0972,
+     0.0567
+    ]
+   },
+   "binary_search_gain_pro": {
+    "raw": [
+     0.025,
+     -0.0505,
+     0.0992
+    ],
+    "valid": [
+     -0.0289,
+     -0.0854,
+     0.0252
+    ]
+   },
+   "aligned_search": {
+    "raw": [
+     0.0094,
+     -0.087,
+     0.1052
+    ],
+    "valid": [
+     -0.0461,
+     -0.1179,
+     0.0211
+    ]
+   }
+  }
+ },
+ "strict_no_scope": {
+  "n": 80,
+  "methods": {
+   "first_write": {
+    "raw": [
+     0.2406,
+     0.1616,
+     0.3239
+    ],
+    "valid": [
+     0.1281,
+     0.0693,
+     0.1938
+    ]
+   },
+   "second_to_last": {
+    "raw": [
+     0.2453,
+     0.162,
+     0.3328
+    ],
+    "valid": [
+     0.1359,
+     0.0731,
+     0.2058
+    ]
+   },
+   "all_at_once_gain_pro": {
+    "raw": [
+     0.1797,
+     0.111,
+     0.2557
+    ],
+    "valid": [
+     0.1383,
+     0.0816,
+     0.2005
+    ]
+   },
+   "binary_search_gain_pro": {
+    "raw": [
+     0.2156,
+     0.1406,
+     0.2981
+    ],
+    "valid": [
+     0.1633,
+     0.0962,
+     0.2344
+    ]
+   },
+   "aligned_search": {
+    "raw": [
+     0.2313,
+     0.1567,
+     0.3125
+    ],
+    "valid": [
+     0.1633,
+     0.1005,
+     0.2318
+    ]
+   }
+  },
+  "paired_change": {
+   "second_to_last": [
+    -0.0031,
+    -0.0432,
+    0.0362
+   ],
+   "all_at_once_gain_pro": [
+    -0.0711,
+    -0.1332,
+    -0.0114
+   ],
+   "binary_search_gain_pro": [
+    -0.0602,
+    -0.1108,
+    -0.0144
+   ],
+   "aligned_search": [
+    -0.0445,
+    -0.1079,
+    0.0162
+   ]
+  },
+  "validity_rate": {
+   "second_to_last": [
+    -0.0491,
+    -0.1845,
+    0.0837
+   ],
+   "all_at_once_gain_pro": [
+    -0.2226,
+    -0.4223,
+    -0.0231
+   ],
+   "binary_search_gain_pro": [
+    -0.1749,
+    -0.3403,
+    -0.0112
+   ],
+   "aligned_search": [
+    -0.1966,
+    -0.3817,
+    -0.0169
+   ]
+  },
+  "minus_stl": {
+   "first_write": [
+    -0.0078,
+    -0.056,
+    0.0373
+   ],
+   "all_at_once_gain_pro": [
+    0.0023,
+    -0.0713,
+    0.0761
+   ],
+   "binary_search_gain_pro": [
+    0.0273,
+    -0.0335,
+    0.0915
+   ],
+   "aligned_search": [
+    0.0273,
+    -0.0459,
+    0.0998
+   ]
+  },
+  "first_write_minus": {
+   "second_to_last": {
+    "raw": [
+     -0.0047,
+     -0.0657,
+     0.0535
+    ],
+    "valid": [
+     -0.0078,
+     -0.0567,
+     0.0372
+    ]
+   },
+   "all_at_once_gain_pro": {
+    "raw": [
+     0.0609,
+     -0.0369,
+     0.1579
+    ],
+    "valid": [
+     -0.0102,
+     -0.0877,
+     0.067
+    ]
+   },
+   "binary_search_gain_pro": {
+    "raw": [
+     0.025,
+     -0.0509,
+     0.0997
+    ],
+    "valid": [
+     -0.0352,
+     -0.0946,
+     0.0214
+    ]
+   },
+   "aligned_search": {
+    "raw": [
+     0.0094,
+     -0.088,
+     0.108
+    ],
+    "valid": [
+     -0.0352,
+     -0.1044,
+     0.0308
+    ]
+   }
+  }
+ },
+ "failures_with_unapplied": 0,
+ "restoration": {
+  "counts": {
+   "tau2_airline|aligned_search_test|diverged": 0,
+   "tau2_airline|aligned_search_test|total": 648,
+   "tau2_airline|corrected|total": 258,
+   "tau2_airline|null|total": 192,
+   "tau2_retail|aligned_search_test|diverged": 0,
+   "tau2_retail|aligned_search_test|total": 1800,
+   "tau2_retail|corrected|total": 742,
+   "tau2_retail|null|total": 496
+  },
+  "failures_with_diverged_replay_at_named_step": 0,
+  "harnesses_with_llm_write_check": 10,
+  "harnesses": 98
+ },
+ "strict_without_diverged": {
+  "n": 80,
+  "methods": {
+   "first_write": {
+    "raw": [
+     0.2406,
+     0.1617,
+     0.3253
+    ],
+    "valid": [
+     0.1281,
+     0.0702,
+     0.1923
+    ]
+   },
+   "second_to_last": {
+    "raw": [
+     0.2453,
+     0.1618,
+     0.3367
+    ],
+    "valid": [
+     0.1359,
+     0.0731,
+     0.2033
+    ]
+   },
+   "all_at_once_gain_pro": {
+    "raw": [
+     0.1797,
+     0.112,
+     0.2549
+    ],
+    "valid": [
+     0.1383,
+     0.0817,
+     0.2012
+    ]
+   },
+   "binary_search_gain_pro": {
+    "raw": [
+     0.2156,
+     0.1375,
+     0.2983
+    ],
+    "valid": [
+     0.1633,
+     0.0971,
+     0.2354
+    ]
+   },
+   "aligned_search": {
+    "raw": [
+     0.2313,
+     0.1566,
+     0.314
+    ],
+    "valid": [
+     0.1633,
+     0.1014,
+     0.2342
+    ]
+   }
+  },
+  "paired_change": {
+   "second_to_last": [
+    -0.0031,
+    -0.0432,
+    0.0366
+   ],
+   "all_at_once_gain_pro": [
+    -0.0711,
+    -0.1354,
+    -0.0119
+   ],
+   "binary_search_gain_pro": [
+    -0.0602,
+    -0.1103,
+    -0.0139
+   ],
+   "aligned_search": [
+    -0.0445,
+    -0.1094,
+    0.0148
+   ]
+  },
+  "validity_rate": {
+   "second_to_last": [
+    -0.0491,
+    -0.1818,
+    0.0809
+   ],
+   "all_at_once_gain_pro": [
+    -0.2226,
+    -0.4222,
+    -0.0297
+   ],
+   "binary_search_gain_pro": [
+    -0.1749,
+    -0.3442,
+    -0.0132
+   ],
+   "aligned_search": [
+    -0.1966,
+    -0.3797,
+    -0.0153
+   ]
+  },
+  "minus_stl": {
+   "first_write": [
+    -0.0078,
+    -0.055,
+    0.0363
+   ],
+   "all_at_once_gain_pro": [
+    0.0023,
+    -0.0724,
+    0.0766
+   ],
+   "binary_search_gain_pro": [
+    0.0273,
+    -0.037,
+    0.0913
+   ],
+   "aligned_search": [
+    0.0273,
+    -0.0437,
+    0.0991
+   ]
+  },
+  "first_write_minus": {
+   "second_to_last": {
+    "raw": [
+     -0.0047,
+     -0.0648,
+     0.0536
+    ],
+    "valid": [
+     -0.0078,
+     -0.0567,
+     0.0363
+    ]
+   },
+   "all_at_once_gain_pro": {
+    "raw": [
+     0.0609,
+     -0.0378,
+     0.1592
+    ],
+    "valid": [
+     -0.0102,
+     -0.0862,
+     0.0656
+    ]
+   },
+   "binary_search_gain_pro": {
+    "raw": [
+     0.025,
+     -0.0523,
+     0.0984
+    ],
+    "valid": [
+     -0.0352,
+     -0.0963,
+     0.0206
+    ]
+   },
+   "aligned_search": {
+    "raw": [
+     0.0094,
+     -0.0863,
+     0.1086
+    ],
+    "valid": [
+     -0.0352,
+     -0.1024,
+     0.0286
+    ]
+   }
+  }
+ },
+ "lenient_without_diverged": {
+  "n": 80,
+  "methods": {
+   "first_write": {
+    "raw": [
+     0.2406,
+     0.1613,
+     0.3228
+    ],
+    "valid": [
+     0.1344,
+     0.0747,
+     0.1994
+    ]
+   },
+   "second_to_last": {
+    "raw": [
+     0.2453,
+     0.1632,
+     0.3339
+    ],
+    "valid": [
+     0.1609,
+     0.0949,
+     0.2326
+    ]
+   },
+   "all_at_once_gain_pro": {
+    "raw": [
+     0.1797,
+     0.1128,
+     0.2525
+    ],
+    "valid": [
+     0.1531,
+     0.0913,
+     0.2212
+    ]
+   },
+   "binary_search_gain_pro": {
+    "raw": [
+     0.2156,
+     0.1397,
+     0.2981
+    ],
+    "valid": [
+     0.1633,
+     0.0968,
+     0.237
+    ]
+   },
+   "aligned_search": {
+    "raw": [
+     0.2313,
+     0.1544,
+     0.3149
+    ],
+    "valid": [
+     0.1805,
+     0.1127,
+     0.2559
+    ]
+   }
+  },
+  "paired_change": {
+   "second_to_last": [
+    -0.0219,
+    -0.0545,
+    0.0
+   ],
+   "all_at_once_gain_pro": [
+    -0.0797,
+    -0.1349,
+    -0.0309
+   ],
+   "binary_search_gain_pro": [
+    -0.0539,
+    -0.1028,
+    -0.0094
+   ],
+   "aligned_search": [
+    -0.0555,
+    -0.1118,
+    -0.0048
+   ]
+  },
+  "validity_rate": {
+   "second_to_last": [
+    -0.1129,
+    -0.241,
+    -0.008
+   ],
+   "all_at_once_gain_pro": [
+    -0.3096,
+    -0.4856,
+    -0.1447
+   ],
+   "binary_search_gain_pro": [
+    -0.1861,
+    -0.3351,
+    -0.0435
+   ],
+   "aligned_search": [
+    -0.2344,
+    -0.4041,
+    -0.0753
+   ]
+  },
+  "minus_stl": {
+   "first_write": [
+    -0.0266,
+    -0.0833,
+    0.0237
+   ],
+   "all_at_once_gain_pro": [
+    -0.0078,
+    -0.0787,
+    0.064
+   ],
+   "binary_search_gain_pro": [
+    0.0023,
+    -0.0641,
+    0.0665
+   ],
+   "aligned_search": [
+    0.0195,
+    -0.0494,
+    0.0885
+   ]
+  },
+  "first_write_minus": {
+   "second_to_last": {
+    "raw": [
+     -0.0047,
+     -0.0658,
+     0.0526
+    ],
+    "valid": [
+     -0.0266,
+     -0.0825,
+     0.0258
+    ]
+   },
+   "all_at_once_gain_pro": {
+    "raw": [
+     0.0609,
+     -0.0372,
+     0.1596
+    ],
+    "valid": [
+     -0.0187,
+     -0.0979,
+     0.0592
+    ]
+   },
+   "binary_search_gain_pro": {
+    "raw": [
+     0.025,
+     -0.0522,
+     0.0995
+    ],
+    "valid": [
+     -0.0289,
+     -0.0858,
+     0.0236
+    ]
+   },
+   "aligned_search": {
+    "raw": [
+     0.0094,
+     -0.0868,
+     0.1071
+    ],
+    "valid": [
+     -0.0461,
+     -0.1176,
+     0.0233
+    ]
+   }
+  }
+ },
+ "invalid_only": {
+  "tau2_retail": {
+   "failures": 60,
+   "rescuable_at_a_named_step": 28,
+   "rescuable_only_by_invalid_strict": 9,
+   "rescuable_only_by_invalid_lenient": 8,
+   "with_confirmation_override_rescue": 12,
+   "tasks_with_confirmation_override_rescue": 12
+  },
+  "tau2_airline": {
+   "failures": 20,
+   "rescuable_at_a_named_step": 8,
+   "rescuable_only_by_invalid_strict": 2,
+   "rescuable_only_by_invalid_lenient": 2,
+   "with_confirmation_override_rescue": 1,
+   "tasks_with_confirmation_override_rescue": 1
+  }
+ }
+}

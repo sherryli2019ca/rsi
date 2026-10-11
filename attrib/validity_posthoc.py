@@ -86,15 +86,9 @@ def _bound(rows: list[dict], rng: random.Random) -> dict:
     return out
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--root", default=str(V.VROOT))
-    ap.add_argument("--out")
-    a = ap.parse_args()
-    root = Path(a.root)
-    key = json.loads((root / "audit" / "key.json").read_text())
-    A, C = (V._labels(LABELS / f) for f in FILES)
-
+def analyse(root: Path, key: dict, A: dict, C: dict) -> dict:
+    """Every analysis above for one run: key maps item ids to their outcome-changing samples
+    (audit/key.json for the first run; attrib.validity_rerun builds it for the rerun)."""
     def expand(f):
         return {(v["fid"], v["k"], i): f(iid) for iid, v in key.items() for i in v["samples"]}
     bounds = {"strict": expand(lambda i: int(A[i]["valid"] and C[i]["valid"])),
@@ -216,6 +210,18 @@ def main():
             **{f"rescuable_only_by_invalid_{b}": len([f for f in resc if top(Rv[b], f) < 0.5]) for b in Rv},
             "with_confirmation_override_rescue": len([f for f in fs if f in conf]),
             "tasks_with_confirmation_override_rescue": len({task[f] for f in fs if f in conf})}
+    return res
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--root", default=str(V.VROOT))
+    ap.add_argument("--out")
+    a = ap.parse_args()
+    root = Path(a.root)
+    key = json.loads((root / "audit" / "key.json").read_text())
+    A, C = (V._labels(LABELS / f) for f in FILES)
+    res = analyse(root, key, A, C)
     print(json.dumps({k: res[k] for k in ("restoration", "invalid_only")}, indent=1))
     print(json.dumps({k: res[k] for k in ("unapplied", "by_kind", "failures_with_unapplied")}, indent=1))
     for b in ("strict", "lenient"):

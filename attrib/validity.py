@@ -360,7 +360,7 @@ def _summary(rows: list[dict], rng) -> dict:
         out["methods"][m] = {"raw": _boot(rows, lambda xs, m=m: _mean([x[m] for x in xs]), rng),
                              "valid": _boot(rows, lambda xs, m=m: _mean([x[m + "@valid"] for x in xs]), rng),
                              "labelled_corrections": lab,
-                             "validity_rate": round(sum(r[m + "@n_valid"] for r in rows) / lab, 3) if lab else None}
+                             "validity_rate": round(sum(r[m + "@n_valid"] for r in rows) / lab, 4) if lab else None}
     for m in METHODS[1:]:
         out["first_write_minus"][m] = {
             kind: _boot([{"d": r["first_write" + s] - r[m + s], "cluster": r["cluster"]} for r in rows],

@@ -5,6 +5,7 @@ restoration diverged rerun under the recording's check decisions
   python -m attrib.validity_rerun compare  [--root R] [--run1 R1]
   python -m attrib.validity_rerun addsheet [--root R]
   python -m attrib.validity_rerun analyze  [--root R] [--run1 R1] [--add-labels A.csv C.csv] [--out J]
+  python -m attrib.validity_rerun posthoc  [--root R] --add-labels A.csv C.csv [--out J]
 
 compare   what the rerun changed: each method's picks, corrections not applied, gains, and
           the outcome-changing corrections whose item (domain, failure, step, normalized
@@ -16,6 +17,9 @@ analyze   the registered analysis (validity._summary) and the post hoc paired ch
           (validity_posthoc._bound) under the strict and lenient bounds; until the new items
           are labelled, each bound twice, with them counted invalid and counted valid. The
           first run (R1, with its labels) is reported beside it.
+posthoc   on the rerun, with every item labelled: agreement, the registered secondary results
+          (rescuable failures, domains, each auditor's labels) and attrib/validity_posthoc.py's
+          analyses.
 """
 from __future__ import annotations
 
@@ -201,6 +205,53 @@ def addsheet(args) -> None:
           f"{', '.join(list(key)[:1] + list(key)[-1:])}")
 
 
+def rerun_key(root: Path) -> dict:
+    """The rerun's outcome-changing items with their samples, under the ids they were labelled
+    with (key.json, key_add.json); the form validity_posthoc.analyse takes."""
+    ids = {ik: iid for iid, ik in _keys(root).items()}
+    out = {}
+    for c in _changing(root):
+        v = out.setdefault(ids[c["item_key"]], {"domain": c["domain"], "fid": c["fid"], "k": c["k"],
+                                                 "samples": [], "gains": []})
+        v["samples"].append(c["i"])
+        v["gains"].append(c["gain"])
+    return dict(sorted(out.items()))
+
+
+def posthoc(args) -> None:
+    """The registered secondary results and attrib/validity_posthoc.py's analyses on the rerun,
+    with both label files (first sheet and added sheet)."""
+    root = Path(args.root)
+    A, C = _labels(args.add_labels)
+    key = rerun_key(root)
+    res = {"note": "validity_posthoc.analyse on the rerun (Addendum 1); items = the rerun's outcome-changing "
+                   "corrections under their labelled ids", "items": len(key),
+           "items_new": sum(iid not in json.loads((root / "audit" / "key.json").read_text()) for iid in key),
+           "valid_A": sum(A[i]["valid"] for i in key), "valid_C": sum(C[i]["valid"] for i in key),
+           "agreement": {c: {"agree": sum(A[i][c] == C[i][c] for i in key),
+                             "percent": round(sum(A[i][c] == C[i][c] for i in key) / len(key), 3),
+                             "kappa": V._kappa([A[i][c] for i in key], [C[i][c] for i in key])}
+                         for c in V.CRITERIA + ("valid",)}}
+    lab = {"strict": lambda a, c: int(a["valid"] and c["valid"]), "lenient": lambda a, c: int(a["valid"] or c["valid"]),
+           "auditor_A": lambda a, c: a["valid"], "auditor_C": lambda a, c: c["valid"]}
+    res["secondary"] = {}
+    for name, f in lab.items():
+        valid = {(v["fid"], v["k"], i): f(A[iid], C[iid]) for iid, v in key.items() for i in v["samples"]}
+        rows = V.scores(root, valid)
+        rng = random.Random(0)
+        res["secondary"][name] = {"all": V._summary(rows, rng),
+                                  "rescuable_union": V._summary([r for r in rows if r["max_raw"] >= 0.5], rng),
+                                  **{d: V._summary([r for r in rows if r["domain"] == d], rng) for d in V.DOMAINS}}
+    res.update(P.analyse(root, key, A, C))
+    print(json.dumps({k: res[k] for k in ("items", "items_new", "valid_A", "valid_C", "agreement", "by_kind",
+                                          "invalid_only", "unapplied")}, indent=1))
+    for b in ("strict", "lenient"):
+        print(b, "validity_rate", res[b]["validity_rate"])
+        print(b, "minus_stl", res[b]["minus_stl"])
+    if args.out:
+        Path(args.out).write_text(json.dumps(res, indent=1, ensure_ascii=False))
+
+
 def _block(root: Path, valid: dict) -> dict:
     rows = V.scores(root, valid)
     return {"registered": V._summary(rows, random.Random(0)), "post_hoc": P._bound(rows, random.Random(0))}
@@ -236,13 +287,13 @@ def analyze(args) -> None:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=("compare", "addsheet", "analyze"))
+    ap.add_argument("cmd", choices=("compare", "addsheet", "analyze", "posthoc"))
     ap.add_argument("--root", default=str(V.VROOT))
     ap.add_argument("--run1", default=str(RUN1))
     ap.add_argument("--add-labels", nargs=2)
     ap.add_argument("--out")
     a = ap.parse_args()
-    {"compare": compare, "addsheet": addsheet, "analyze": analyze}[a.cmd](a)
+    {"compare": compare, "addsheet": addsheet, "analyze": analyze, "posthoc": posthoc}[a.cmd](a)
 
 
 if __name__ == "__main__":
