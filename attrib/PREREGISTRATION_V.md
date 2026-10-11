@@ -164,3 +164,13 @@ Any change after this commit is logged below with its date and reason.
   attrib.groundtruth._drive, which runs the groups one after another);
   nothing about what is run changes. Replays interrupted by the switch had
   not been written and are run again.
+- 2026-10-11 02:41Z: aligned search, oracle and replays finished with no
+  missing replays and no harness errors; spend 3.87 dollars (plus 0.10 for
+  the smoke test). Oracle: 237 union steps (retail 173, airline 64). 116
+  retail corrected replays were not applied because the harness blocked an
+  earlier write while the state was restored, which moved the start earlier;
+  as in the main set, a sample without both corrected replays applied counts
+  as no correction. `sheet`: 215 outcome-changing corrections, 159 distinct
+  items (114 retail, 45 airline), sent to the auditors with the criteria in
+  English and Chinese; the key (audit/key.json) is withheld from them. Runs
+  archived as archive/attrib-validity-runs.tar.gz.
