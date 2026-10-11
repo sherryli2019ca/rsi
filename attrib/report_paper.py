@@ -87,7 +87,7 @@ REVIEW4_DEFAULT = ROB_DEFAULT.with_name("phaseAB_review4.json")
 REVIEW5_DEFAULT = ROB_DEFAULT.with_name("phaseAB_review5.json")
 DID_DEFAULT = ROB_DEFAULT.with_name("did.json")
 GAINP_DEFAULT = ROB_DEFAULT.with_name("phaseA_gain_prompt.json")
-VALID_DEFAULT = ROB_DEFAULT.with_name("validity_analysis.json")
+VALID_DEFAULT = ROB_DEFAULT.with_name("validity_rerun.json")
 POSTHOC_ROWS = [("all_at_once_gain_pro", "All-at-once, gain", "Pro"),
                 ("binary_search_gain_pro", "Binary search, gain", "Pro"),
                 ("all_at_once_blind_pro", "All-at-once, no grading", "Pro"),
@@ -196,12 +196,13 @@ def _d(t, d=2) -> str:
 
 
 def validity_table(path: Path, out: Path) -> None:
-    """validity.tex: the registered check on 80 fresh tau2 failures (attrib/validity.py): raw and
-    valid rescue gain per method over all failures, share of its outcome-changing corrections
-    judged valid, and the first write's difference in valid gain; the 10 unadjudicated items
-    counted invalid ("strict"; results/attrib/validity_analysis.json also has "lenient")."""
+    """validity.tex: the registered check on 80 fresh tau2 failures (attrib/validity.py), with the
+    replays rerun under Addendum 1 (attrib/validity_rerun.py; the first run is
+    results/attrib/validity_analysis.json): raw and valid rescue gain per method over all failures,
+    share of its outcome-changing corrections judged valid, and the first write's difference in
+    valid gain; the unadjudicated items counted invalid ("strict_labelled"; "lenient_labelled" too)."""
     V = json.loads(path.read_text())
-    S = V["strict"]["all"]
+    S = V["rerun"]["strict_labelled"]["registered"]
     names = [("first_write", "First write"), ("second_to_last", "Second-to-last"),
              ("all_at_once_gain_pro", "All-at-once, gain"), ("binary_search_gain_pro", "Binary search, gain"),
              ("aligned_search", "Search, aligned")]
