@@ -125,8 +125,14 @@ def _rows(path: Path) -> list[list[str]]:
             for l in path.read_text().splitlines() if "&" in l]
 
 
-def primary(report: Path, out: Path) -> None:
+def primary(report: Path, out: Path, shared: Path | None = None) -> None:
     ni = json.loads(report.read_text())["primary"]
+    sh = None
+    if shared is not None:
+        # posthoc_r16: one task draw per domain shared by r2 and r3, at the registered B
+        r = json.loads(shared.read_text())["shared"]["B=2000"]["shared_tasks"]
+        sh = {**{k: v["p_holm"] for k, v in r["primary"].items()},
+              **{k: v["p_holm"] for k, v in r["sequential"].items()}, "keep": r["keep"]["p_ni"]}
     pv = {**{k: v["p_holm"] for k, v in ni["ni_primary"].items()},
           **{k: v["p_holm"] for k, v in ni["ni_sequential"].items()}}
     e1r = {(r[0], r[1]): r for r in _rows(out / "e1r_rules.tex")}
@@ -141,13 +147,15 @@ def primary(report: Path, out: Path) -> None:
            (r"Replay$-$null@40", (r"Replay$-$null", "40"), r"Replay$-$null@40", "replaynull@40"),
            ("Seq.\\ full", ("Sequential full", r"$\le$all"), "Sequential full", "seqfull"),
            ("Seq.\\ sample", ("Sequential sample", r"$\le$80"), "Sequential sample@80", "seqsample@80")]
-    fmt = lambda x: "$<$0.001" if x < 0.001 else f"{x:.3f}".rstrip("0") if x < 0.1 else f"{x:.2f}"
+    fmt = lambda x: "$<$0.001" if x < 0.001 else f"{x + 1e-12:.3f}".rstrip("0") if x < 0.1 else f"{x + 1e-12:.2f}"  # round half up
     rows = []
     for lab, ek, ak, pk in sel:
         r = e1r[ek]
         p = "--" if pk is None else rf"{keep_p}$^\dagger$" if pk == "keep" else fmt(pv[pk])
         rec = "1.00" if ak is None else acc[ak]
         d = "0" if pk == "keep" else re.sub(r"\\textbf\{([^}]*)\}", r"\1", r[3])
+        if sh is not None:
+            p += " & " + ("--" if pk is None else rf"{fmt(sh[pk])}$^\dagger$" if pk == "keep" else fmt(sh[pk]))
         rows.append(f"{lab} & {r[7]} & {d} & {p} & {r[6]} & {rec} \\\\")
         if lab in ("LLM judge", r"Replay$-$null@40"):
             rows.append(r"\midrule")
@@ -185,6 +193,7 @@ def main():
     q = sub.add_parser("primary")
     q.add_argument("--report", required=True)
     q.add_argument("--out", default="paper/tables")
+    q.add_argument("--shared", help="posthoc_r16 report: add the p values with one task draw shared across trajectories")
     r = sub.add_parser("replay")
     r.add_argument("--run", nargs="+", required=True)
     r.add_argument("--json", default="results/r11/replay.json")
@@ -194,7 +203,7 @@ def main():
     elif a.cmd == "table":
         table(Path(a.json), Path(a.out))
     elif a.cmd == "primary":
-        primary(Path(a.report), Path(a.out))
+        primary(Path(a.report), Path(a.out), Path(a.shared) if a.shared else None)
     else:
         replay([Path(x) for x in a.run], Path(a.json))
 
