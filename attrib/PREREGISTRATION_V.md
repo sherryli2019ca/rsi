@@ -166,7 +166,7 @@ Any change after this commit is logged below with its date and reason.
 ## Addendum 1 (2026-10-11, before any rerun): replays with a faithful restoration
 
 Approved by Dr Cao at 13:41Z ("重跑"), after external review 9 and the
-restoration diagnosis in the operations log (~13:50Z entry). Written and
+restoration diagnosis in the operations log (~13:30Z entry). Written and
 committed before anything below is run.
 
 Cause. Restoring a failure's prefix re-runs each recorded call through the
@@ -267,7 +267,7 @@ Budget. About 1 to 3 dollars; stop at 5.
   outcome-changing corrections .57 and .59, other methods .59 to .90; first
   write minus aligned search on valid score -0.027 [-0.093, +0.037] (strict)
   and -0.025 [-0.089, +0.036] (lenient).
-- 2026-10-11 ~13:10Z, after a self-review of the paper: post hoc analyses,
+- 2026-10-11 ~12:55Z, after a self-review of the paper: post hoc analyses,
   not registered, in attrib/validity_posthoc.py (results/attrib/
   validity_posthoc.json): the paired change of (first write - m) from raw to
   valid score, validity-rate differences, valid scores minus the
@@ -277,7 +277,7 @@ Budget. About 1 to 3 dollars; stop at 5.
   and aligned search none) with scores without the 13 failures concerned,
   and scores without the scope criterion (unchanged). Written into the
   paper (v22) and marked post hoc there.
-- 2026-10-11 ~13:50Z, after external review 9 asked why the 116 retail
+- 2026-10-11 ~13:30Z, after external review 9 asked why the 116 retail
   corrected replays were not applied: the cause is the replay driver's
   restoration, not the corrections. Nine of the 33 retail harnesses (24 of
   the 60 retail failures) and one airline harness ask an LLM to check each
@@ -295,3 +295,25 @@ Budget. About 1 to 3 dollars; stop at 5.
   "*_without_diverged"). Nothing was rerun; a rerun with the recorded check
   decisions replayed would need Dr Cao's approval and labels for any new
   outcome-changing corrections.
+- 2026-10-11 13:47-13:57Z, Addendum 1 (commit ffbfb79 before any rerun):
+  the first run was archived (archive/attrib-validity-runs-run1.tar.gz) and
+  its 130 corrected and 80 null gt replays and 328 aligned-search tests whose
+  restoration diverged moved to superseded/. Smoke test with the flag (one
+  corrected, one null replay of r2_600d0fc_e_103_s1 at step 11, output not
+  used): both restored without divergence, the correction applied. Aligned
+  search, rerun with the flag: all 328 tests restored without divergence;
+  its pick changed on 6 of 60 retail failures. Oracle at the 2 new union
+  steps (173 retail union steps, as before) and every missing replay: 224
+  gt replays rerun, none diverged; no sample is left unapplied (58 in the
+  first run). Gains changed for 24 samples. Outcome-changing corrections:
+  234 samples, 170 distinct items, of which 157 were labelled in the first
+  sheet and 13 (all retail) are new; 2 labelled items no longer change the
+  outcome. The 13 went to the two auditors (audit/add/items_add.md, every
+  tool result in full; key audit/key_add.json withheld). Spend 0.49 dollars
+  (552 replays; oracle 0.001). Results with the 13 counted invalid and
+  valid: results/attrib/validity_rerun.json (attrib/validity_rerun.py). Raw
+  R over all 80 failures: first write 0.241 (unchanged), second-to-last
+  0.245 (0.220 in the first run), all-at-once 0.180 (0.144), binary search
+  0.216 (0.191), aligned search 0.231 (0.207). Valid R, first write minus
+  aligned search: -0.024 [-0.091, +0.039] to -0.051 [-0.125, +0.019] across
+  the bounds.
